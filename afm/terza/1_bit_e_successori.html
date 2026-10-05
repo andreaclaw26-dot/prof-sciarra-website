@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bit, Byte & Co. — Dal bit al quettabyte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e13; --panel:#101821; --panel2:#0c1219;
+  --line:#1f2c38; --line2:#33475a;
+  --ink:#e9f1f6; --mut:#8ba1b4; --dim:#5d7284;
+  --amber:#ffb454; --amber2:#ff8a3d; --cy:#41d9ff; --cy2:#8ff2ff;
+  --red:#ff5d6c; --green:#3fe0a0;
+  --disp:'Chakra Petch',sans-serif; --body:'Sora',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(900px 500px at 85% -10%, rgba(65,217,255,.06), transparent 60%),
+    radial-gradient(900px 600px at 8% 25%, rgba(255,180,84,.05), transparent 55%),
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size:auto,auto,48px 48px,48px 48px;
+  color:var(--ink); font-family:var(--body); line-height:1.6; overflow-x:hidden;
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:59;opacity:.5;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 4px);}
+::selection{background:var(--cy);color:#04222e}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+section{padding:96px 0;border-top:1px solid var(--line)}
+h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.02em}
+.mono{font-family:var(--mono)}
+
+nav{position:sticky;top:0;z-index:50;background:rgba(10,14,19,.94);border-bottom:1px solid var(--line)}
+.navin{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px}
+.logo{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.14em;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo b{color:var(--cy)} .logo i{color:var(--amber);font-style:normal}
+.led{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.navlinks{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.navlinks a{font-family:var(--mono);font-size:11.5px;text-decoration:none;color:var(--mut);padding:6px 10px;border:1px solid transparent;transition:.25s}
+.navlinks a:hover{color:var(--cy);border-color:var(--line2);background:var(--panel2)}
+
+/* HERO */
+header.hero{padding:72px 0 84px;border-top:none}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:var(--mut);display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.kicker::before{content:'';width:34px;height:2px;background:var(--amber)}
+h1 .l1{display:block;font-size:clamp(1.9rem,5vw,3.3rem);color:var(--amber);text-shadow:0 0 26px rgba(255,180,84,.25)}
+h1 .vs{display:inline-block;font-family:var(--mono);font-size:13px;color:var(--mut);border:1px solid var(--line2);padding:3px 12px;margin:14px 0;letter-spacing:.3em}
+h1 .l2{display:block;font-size:clamp(2.4rem,6.5vw,4.6rem);line-height:.95;color:var(--cy);text-shadow:0 0 34px rgba(65,217,255,.3)}
+.lead{color:var(--mut);max-width:52ch;margin:22px 0 8px;font-size:16.5px}
+.lead strong{color:var(--ink)}
+.hint{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
+.hint b{color:var(--green)}
+.statrow{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.stat{border:1px solid var(--line);background:var(--panel2);padding:12px 16px;min-width:125px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
+.stat .v{font-family:var(--disp);font-weight:700;font-size:23px;color:var(--cy)}
+.stat.a .v{color:var(--amber)}
+.stat .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--dim);margin-top:2px}
+
+/* byte interattivo */
+.byte-panel{border:1px solid var(--line2);background:linear-gradient(160deg,var(--panel),var(--panel2));padding:22px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.byte-panel .bhead{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--dim);margin-bottom:18px}
+.bitrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.bitbtn{width:52px;height:60px;font-family:var(--mono);font-size:24px;font-weight:600;background:var(--panel2);border:1px solid var(--line2);color:var(--dim);cursor:pointer;transition:.2s;position:relative}
+.bitbtn small{position:absolute;top:4px;left:6px;font-size:8.5px;letter-spacing:.1em;color:var(--dim)}
+.bitbtn.one{color:var(--amber);border-color:var(--amber);background:rgba(255,180,84,.09);box-shadow:0 0 14px rgba(255,180,84,.3)}
+.bitbtn:hover{transform:translateY(-4px)}
+.byteread{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px;text-align:center}
+.byteread .cell{border:1px solid var(--line);background:#070b10;padding:10px 6px}
+.byteread .lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--dim)}
+.byteread .val{font-family:var(--mono);font-size:17px;color:var(--cy);margin-top:4px;word-break:break-all}
+.byteread .val.big{font-size:26px;color:var(--amber)}
+.presets{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.pre{font-family:var(--mono);font-size:12px;padding:7px 14px;border:1px solid var(--line2);background:transparent;color:var(--mut);cursor:pointer;transition:.2s}
+.pre:hover{border-color:var(--cy);color:var(--cy)}
+.asciinode{margin-top:16px;font-family:var(--mono);font-size:11.5px;color:var(--dim);text-align:center}
+.asciinode b{color:var(--amber)}
+
+/* sezioni */
+.shead{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.snum{font-family:var(--mono);color:var(--amber);font-size:14px;letter-spacing:.2em;border:1px solid var(--line2);padding:4px 10px;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
+.skick{font-family:var(--mono);font-size:11.5px;letter-spacing:.3em;color:var(--dim)}
+h2.lm{overflow:hidden;font-size:clamp(1.9rem,4.6vw,3.2rem);line-height:1.05}
+h2.lm span{display:inline-block;transform:translateY(115%);transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+h2.lm.in span{transform:none}
+.sintro{color:var(--mut);max-width:72ch;margin-bottom:40px}
+.sintro b{color:var(--cy)} .sintro i{color:var(--amber);font-style:normal;font-weight:600}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.panel{border:1px solid var(--line2);background:var(--panel2);padding:22px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.notebox{border:1px dashed var(--line2);color:var(--mut);padding:14px 16px;font-size:13px}
+.notebox b{color:var(--cy)} .notebox i{color:var(--amber);font-style:normal}
+
+/* scala */
+.scale{display:grid;grid-template-columns:340px 1fr;gap:30px;align-items:start}
+.lens{position:sticky;top:86px;border:1px solid var(--line2);background:var(--panel);padding:26px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%)}
+.lens .sym{font-family:var(--disp);font-weight:700;font-size:74px;line-height:1;color:var(--amber);text-shadow:0 0 30px rgba(255,180,84,.35);transition:.3s}
+.lens.c .sym{color:var(--cy);text-shadow:0 0 30px rgba(65,217,255,.35)}
+.lens .nm{font-family:var(--disp);font-size:20px;text-transform:uppercase;letter-spacing:.08em;margin:4px 0 12px}
+.lens .zeros{font-family:var(--mono);font-size:12.5px;color:var(--mut);word-break:break-all;border-top:1px dashed var(--line);padding-top:12px;min-height:58px}
+.lens .ex{font-size:13.5px;color:var(--ink);margin-top:12px;min-height:66px}
+.lens .ex span{display:block;color:var(--mut);font-size:12.5px}
+.lensbar{height:10px;background:#070b10;border:1px solid var(--line);margin-top:16px}
+.lensbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--cy));box-shadow:0 0 12px rgba(65,217,255,.4);transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.lens .pos{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.2em;margin-top:8px}
+.ucards{display:grid;gap:16px}
+.ucard{border:1px solid var(--line2);background:var(--panel2);padding:20px 22px;display:grid;grid-template-columns:86px 1fr;gap:18px;transition:.35s;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
+.ucard .us{font-family:var(--disp);font-weight:700;font-size:34px;color:var(--dim);transition:.3s}
+.ucard.a .us{color:var(--amber)} .ucard.c .us{color:var(--cy)}
+.ucard h3{font-size:16px}
+.ucard .mult{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:var(--dim);border:1px solid var(--line);padding:3px 8px;margin-left:10px;vertical-align:middle}
+.ucard p{font-size:13.5px;color:var(--mut);margin-top:6px}
+.ucard p b{color:var(--ink)}
+.ucard.act{border-color:var(--amber);background:rgba(255,180,84,.05);transform:translateX(8px)}
+.ucard.c.act{border-color:var(--cy);background:rgba(65,217,255,.05)}
+.ucard.act .us{transform:scale(1.12)}
+
+/* zaino */
+.bp{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.bpitems{display:grid;gap:10px}
+.bpi{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;border:1px solid var(--line2);background:var(--panel);padding:11px 14px;font-size:13px;transition:.25s}
+.bpi:hover{border-color:var(--cy)}
+.bpi .sz{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.bpi button{width:30px;height:30px;font-family:var(--mono);font-size:15px;background:var(--panel2);border:1px solid var(--line2);color:var(--mut);cursor:pointer;transition:.2s}
+.bpi button:hover{border-color:var(--amber);color:var(--amber)}
+.bpi .cnt{font-family:var(--mono);font-size:14px;color:var(--amber);min-width:22px;text-align:center}
+.bptot{border:1px solid var(--line2);background:var(--panel);padding:24px;position:sticky;top:86px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.bptot .tv{font-family:var(--disp);font-weight:700;font-size:clamp(1.8rem,4vw,2.8rem);color:var(--green);word-break:break-word}
+.bptot .cmp{margin-top:16px;display:grid;gap:8px;font-family:var(--mono);font-size:12px;color:var(--mut)}
+.bptot .cmp b{color:var(--cy)}
+.diskbar{height:14px;background:#070b10;border:1px solid var(--line);margin-top:18px}
+.diskbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#1c7ea0,var(--cy));box-shadow:0 0 12px rgba(65,217,255,.4);transition:width .6s}
+.disklbl{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:8px;letter-spacing:.12em}
+
+/* velocità */
+.spdchips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+.spd{font-family:var(--mono);font-size:12px;padding:11px 16px;background:transparent;border:1px solid var(--line2);color:var(--mut);cursor:pointer;transition:.25s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)}
+.spd:hover{border-color:var(--cy);color:var(--cy)}
+.spd.act{border-color:var(--cy);color:var(--cy);background:rgba(65,217,255,.07)}
+.spdgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.spdcell{border:1px solid var(--line);background:#070b10;padding:16px;text-align:center}
+.spdcell .lab{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim)}
+.spdcell .val{font-family:var(--disp);font-weight:700;font-size:24px;color:var(--cy);margin-top:6px}
+.spdcell.a .val{color:var(--amber)}
+.spdnote{margin-top:18px}
+
+/* video + quiz + finale */
+.frame{border:1px solid var(--line2);background:#000;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.frame .ratio{position:relative;padding-top:56.25%}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.videonote{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:12px}
+.videonote a{color:var(--cy)}
+.quizbox{max-width:760px;margin:0 auto;border:1px solid var(--line2);background:var(--panel);padding:34px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.qprog{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:.15em;margin-bottom:10px}
+.qbar{height:6px;background:#070b10;border:1px solid var(--line);margin-bottom:26px}
+.qbar i{display:block;height:100%;background:var(--cy);box-shadow:0 0 10px rgba(65,217,255,.5);transition:width .5s}
+.qq{font-family:var(--disp);font-size:clamp(1.15rem,2.6vw,1.6rem);text-transform:none;letter-spacing:0;margin-bottom:22px;line-height:1.35}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;padding:14px 18px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink);font-family:var(--body);font-size:14.5px;cursor:pointer;transition:.22s;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
+.opt:hover:not(:disabled){border-color:var(--cy);transform:translateX(6px)}
+.opt:disabled{cursor:default;opacity:.75}
+.opt.ok{border-color:var(--green);background:rgba(63,224,160,.09);color:var(--green);opacity:1}
+.opt.ko{border-color:var(--red);background:rgba(255,93,108,.08);color:var(--red);opacity:1}
+.qfeed{margin-top:20px;padding:14px 18px;font-size:13.5px;display:none;border:1px solid var(--line2)}
+.qfeed.show{display:block;animation:pop .4s}
+.qfeed.good{border-color:var(--green);color:var(--green)} .qfeed.bad{border-color:var(--red);color:var(--red)}
+.qfeed span{display:block;color:var(--mut);margin-top:6px}
+.qnext{margin-top:20px;display:none}
+.qnext.show{display:inline-block;animation:pop .4s}
+.qfinal{text-align:center;padding:18px 0}
+.qfinal .score{font-family:var(--disp);font-weight:700;font-size:64px;color:var(--cy)}
+.qfinal .verdict{font-size:17px;margin:10px 0 26px;color:var(--mut)}
+.qfinal .verdict b{color:var(--ink)}
+.racebtn{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.14em;padding:14px 30px;background:var(--cy);border:none;color:#04222e;cursor:pointer;transition:.25s;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
+.racebtn:hover{background:var(--cy2);box-shadow:0 0 24px rgba(65,217,255,.4)}
+.gold{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+.grule{border:1px solid var(--line2);background:var(--panel2);padding:26px;position:relative;overflow:hidden;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.grule .n{font-family:var(--disp);font-weight:700;font-size:60px;color:transparent;-webkit-text-stroke:1.5px var(--line2);position:absolute;top:6px;right:14px;transition:.4s}
+.grule:hover .n{-webkit-text-stroke:1.5px var(--cy)}
+.grule h3{font-size:16px;margin-bottom:10px;color:var(--cy);text-transform:none}
+.grule:nth-child(2) h3{color:var(--amber)}
+.grule p{font-size:13.5px;color:var(--mut)}
+.marquee{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;margin-top:60px;background:var(--panel2)}
+.mtrack{display:flex;gap:44px;width:max-content;animation:mq 34s linear infinite;font-family:var(--mono);font-size:13px;letter-spacing:.24em;color:var(--dim)}
+.mtrack b{color:var(--amber);font-weight:500} .mtrack i{color:var(--cy);font-style:normal}
+@keyframes mq{to{transform:translateX(-50%)}}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+footer{padding:36px 0;border-top:1px solid var(--line)}
+.footin{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.12em}
+.footin b{color:var(--mut)}
+
+@media (max-width:960px){.hero-grid,.scale,.bp,.spdgrid{grid-template-columns:1fr}.lens,.bptot{position:static}}
+@media (max-width:600px){section{padding:70px 0}.ucard{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}
+  .rv{opacity:1;transform:none} h2.lm span{transform:none}
+}
+</style>
+</head>
+<body>
+<nav><div class="navin"><div class="logo"><span class="led"></span>LAB//<b>BYTE</b>&nbsp;<i>10¹⁰</i></div><div class="navlinks"><a href="#scala">La scala</a><a href="#zaino">Zaino digitale</a><a href="#velocita">Velocità</a><a href="#quiz">Quiz</a></div></div></nav>
+<header class="hero"><div class="wrap hero-grid">
+<div>
+<div class="kicker">LEZIONE INTERATTIVA • LE UNITÀ DI MISURA DEI DATI</div>
+<h1><span class="l1" data-scramble="DAL BIT">DAL BIT</span><span class="vs">FINO AL</span><span class="l2" data-scramble="QUETTABYTE">QUETTABYTE</span></h1>
+<p class="lead">Foto, giochi, video e messaggi sono fatti di <strong>minuscoli 0 e 1</strong>. Costruisci un byte con le tue mani, poi sali la scala delle unità.</p>
+<div class="hint">// qui si può toccare tutto: <b>premi, clicca, sperimenta</b></div>
+<div class="statrow"><div class="stat a"><div class="v"><span class="count" data-count="8">0</span> bit</div><div class="k">= 1 BYTE</div></div><div class="stat"><div class="v"><span class="count" data-count="1024">0</span></div><div class="k">IL PASSO MAGICO (2¹⁰)</div></div><div class="stat a"><div class="v"><span class="count" data-count="12">0</span></div><div class="k">UNITÀ: BIT → QUETTA</div></div><div class="stat"><div class="v">10³⁰</div><div class="k">BYTE IN UN QUETTABYTE</div></div></div>
+</div>
+<div class="byte-panel rv">
+<div class="bhead"><span>BYTE INTERATTIVO — CLICCA I BIT</span><span>8 BIT = 1 BYTE</span></div>
+<div class="bitrow" id="bitRow"></div>
+<div class="byteread"><div class="cell"><div class="lab">BINARIO</div><div class="val" id="binStr">01000001</div></div><div class="cell"><div class="lab">DECIMALE</div><div class="val" id="decVal">65</div></div><div class="cell"><div class="lab">CARATTERE</div><div class="val big" id="chrVal">A</div></div></div>
+<div class="presets"><button class="pre" data-c="A">scrivi “A”</button><button class="pre" data-c="b">scrivi “b”</button><button class="pre" data-c="7">scrivi “7”</button><button class="pre" data-c="?">scrivi “?”</button><button class="pre" data-c="@">scrivi “@”</button></div>
+<div class="asciinode">Nel codice <b>ASCII</b> ogni carattere è 1 byte: <b>“A” = 65 = 01000001</b>. Così il computer legge le tue parole.</div>
+</div>
+</div></header>
+<section id="scala"><div class="wrap">
+<div class="shead rv"><span class="snum">01</span><h2 class="lm"><span>La scala delle unità</span></h2></div>
+<div class="skick rv" style="margin-bottom:12px">SCORRI E GUARDA LO “ZOOM” CAMBIARE</div>
+<p class="sintro rv">Ogni gradino moltiplica per circa <i>1000 (o 1024)</i>. Scorri le unità: la “lente” a sinistra mostra quanti zeri ci sono e un esempio concreto.</p>
+<div class="scale">
+<div class="lens rv" id="lens"><div class="sym" id="lensSym">B</div><div class="nm" id="lensName">Byte</div><div class="zeros" id="lensZeros"></div><div class="ex" id="lensEx"></div><div class="lensbar"><i id="lensBar"></i></div><div class="pos" id="lensPos">GRADINO 2 / 12</div></div>
+<div class="ucards" id="ucards"></div>
+</div>
+<div class="notebox rv" style="margin-top:26px">📌 <b>1000 o 1024?</b> I produttori di dischi contano di <i>1000 in 1000</i>, i computer di <i>1024 in 1024</i> (2¹⁰ = 1024). Ecco perché un disco “da 500 GB” mostra circa <i>465 GB</i> nel sistema operativo!</div>
+</div></section>
+<section id="zaino"><div class="wrap">
+<div class="shead rv"><span class="snum">02</span><h2 class="lm"><span>Lo zaino digitale</span></h2></div>
+<div class="skick rv" style="margin-bottom:12px">RIEMPI LO ZAINO DI FILE E GUARDA CHE UNITÀ SERVE</div>
+<p class="sintro rv">Aggiungi e togli oggetti digitali: il totale si esprime da solo nell'unità giusta. Riuscirai a riempire un disco da <b>1 TB</b>?</p>
+<div class="bp">
+<div class="bpitems rv" id="bpItems"></div>
+<div class="bptot rv">
+<div class="mono" style="font-size:11px;letter-spacing:.2em;color:var(--dim);margin-bottom:10px">PESO TOTALE DELLO ZAINO</div>
+<div class="tv" id="bpTotal">0 B</div>
+<div class="cmp"><div>≈ <b id="cmpPhoto">0</b> foto da smartphone (3 MB)</div><div>≈ <b id="cmpSong">0</b> canzoni MP3 (4 MB)</div><div>≈ <b id="cmpPage">0</b> pagine di testo (3 KB)</div></div>
+<div class="diskbar"><i id="bpDisk"></i></div>
+<div class="disklbl">RIEMPIMENTO DI UN DISCO DA 1 TB: <span id="bpDiskPct">0%</span></div>
+<div class="notebox" style="margin-top:18px">💡 Nota come l'unità “giusta” cambia da sola: nessuno dice “questa foto pesa 0,000003 TB”!</div>
+</div>
+</div>
+</div></section>
+<section id="velocita"><div class="wrap">
+<div class="shead rv"><span class="snum">03</span><h2 class="lm"><span>Bit al secondo: la velocità</span></h2></div>
+<div class="skick rv" style="margin-bottom:12px">MBPS ≠ MB/S: IL TRUCCO DEI PROVIDER</div>
+<p class="sintro rv">Le connessioni si pubblicizzano in <i>megabit</i> al secondo (Mb/s), ma i file si misurano in <b>MegaBYTE</b> (MB). Poiché 1 byte = 8 bit, la velocità reale in MB/s è <i>un ottavo</i>.</p>
+<div class="spdchips rv"><button class="spd" data-m="20">ADSL · 20 Mbps</button><button class="spd act" data-m="100">FTTC · 100 Mbps</button><button class="spd" data-m="300">FIBRA · 300 Mbps</button><button class="spd" data-m="1000">FTTH · 1 Gbps</button><button class="spd" data-m="2000">FTTH · 2 Gbps</button></div>
+<div class="spdgrid rv"><div class="spdcell"><div class="lab">VELOCITÀ PUBBLICIZZATA</div><div class="val" id="vMbps">100 Mb/s</div></div><div class="spdcell a"><div class="lab">VELOCITÀ REALE SUI FILE</div><div class="val" id="vMBs">12,5 MB/s</div></div><div class="spdcell"><div class="lab">FILM 4 GB: TEMPO DI DOWNLOAD</div><div class="val" id="vTime">~5 min</div></div></div>
+<div class="notebox spdnote rv">🧮 <b>Prova tu:</b> 100 Mb/s ÷ 8 = 12,5 MB/s → film da 4096 MB ÷ 12,5 ≈ 328 secondi ≈ 5 minuti e mezzo.</div>
+</div></section>
+<section id="quiz"><div class="wrap">
+<div class="shead rv" style="justify-content:center"><span class="snum">04</span><h2 class="lm"><span>Quiz: quanto pesa?</span></h2></div>
+<div class="skick rv" style="margin-bottom:30px;text-align:center">3 DOMANDE • RISPONDI E SCOPRI LA SPIEGAZIONE</div>
+<div class="quizbox rv" id="quizBox"></div>
+</div></section>
+<footer><div class="wrap footin"><span><b>LAB//BYTE</b> — pagina didattica interattiva</span><span>bit, byte e unità di misura • esplora, clicca, capisci</span></div></footer>
+<script>
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const fmtN = (n,d=1) => n.toLocaleString('it-IT',{maximumFractionDigits:d});
+/* reveal + scramble + contatori */
+const io = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.15});
+$$('.rv, h2.lm').forEach(el=>io.observe(el));
+const CHARS='01<>/\\|=+*#%@';
+function scramble(el){const t=el.dataset.scramble;if(RM){el.textContent=t;return;}let f=0,tot=t.length*3+10;const tick=()=>{f++;const lock=Math.floor((f/tot)*t.length);el.textContent=t.split('').map((c,i)=>c===' '?' ':(i<lock?c:CHARS[Math.floor(Math.random()*CHARS.length)])).join('');if(f<tot)requestAnimationFrame(tick);else el.textContent=t;};tick();}
+$$('[data-scramble]').forEach(scramble);
+function countUp(el){const t=+el.dataset.count;if(RM||t===0){el.textContent=fmtN(t,0);return;}const t0=performance.now(),dur=1300;const step=n=>{const p=Math.min((n-t0)/dur,1);el.textContent=fmtN(Math.round(t*(1-Math.pow(1-p,3))),0);if(p<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
+const ioC=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){countUp(e.target);ioC.unobserve(e.target);}}),{threshold:.6});
+$$('.count').forEach(el=>ioC.observe(el));
+/* ---------- BYTE INTERATTIVO ---------- */
+const bits=[0,1,0,0,0,0,0,1]; // "A"
+const bitRow=$('#bitRow');
+bits.forEach((b,i)=>{const btn=document.createElement('button');btn.className='bitbtn'+(b?' one':'');btn.innerHTML=`<small>2⁷⁻ⁱ`.replace('⁷⁻',['⁰','¹','²','³','⁴','⁵','⁶','⁷'][i])+`</small>`+b;btn.addEventListener('click',()=>{bits[i]=bits[i]?0:1;btn.classList.toggle('one',!!bits[i]);btn.innerHTML=btn.innerHTML.replace(/[01]$/,bits[i]);updByte();});bitRow.appendChild(btn);});
+function updByte(){const bin=bits.join('');const dec=bits.reduce((a,b)=>a*2+b,0);$('#binStr').textContent=bin;$('#decVal').textContent=dec;$('#chrVal').textContent=(dec>=33&&dec<=126)?String.fromCharCode(dec):'·';}
+$$('.pre').forEach(p=>p.addEventListener('click',()=>{const c=p.dataset.c.charCodeAt(0);for(let i=7;i>=0;i--){bits[7-i]=(c>>i)&1;}$$('.bitbtn').forEach((b,i)=>{b.classList.toggle('one',!!bits[i]);b.innerHTML=b.innerHTML.replace(/[01]$/,bits[i]);});updByte();}));
+updByte();
+/* ---------- SCALA ---------- */
+function zeros(e){let s='1'+'0'.repeat(e);return s.replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+const UNITS=[
+ {s:'bit',n:'Bit',e:0,em:'💡',z:'un singolo 0 oppure 1 (⅛ di byte)',ex:'Una lampadina accesa o spenta, un sì/no, testa o croce.',exs:'È l\u2019atomo dell\u2019informazione: tutto il resto è somma di bit.',warm:1},
+ {s:'B',n:'Byte',e:0,em:'🔤',z:'8 bit',ex:'Un carattere: “A”, “7”, “?”…',exs:'Con 8 bit puoi contare fino a 255: bastano lettere e simboli (ASCII).',warm:1},
+ {s:'KB',n:'Kilobyte',e:3,em:'📄',z:zeros(3)+' byte (1.024)',ex:'Mezza pagina di testo; un breve messaggio.',exs:'Un\u2019email senza allegati: 10–50 KB.'},
+ {s:'MB',n:'Megabyte',e:6,em:'📷',z:zeros(6)+' byte',ex:'Una foto (2–5 MB); una canzone MP3 di 3 minuti.',exs:'Il vecchio floppy disk conteneva 1,44 MB: oggi una manciata di foto.'},
+ {s:'GB',n:'Gigabyte',e:9,em:'🎬',z:zeros(9)+' byte',ex:'Un film in HD (2–4 GB); un videogioco leggero.',exs:'Con 1 GB di musica ascolteresti per circa 7 ore di fila.'},
+ {s:'TB',n:'Terabyte',e:12,em:'💾',z:zeros(12)+' byte',ex:'Un hard disk moderno; circa 250 film HD.',exs:'Oppure 200.000 canzoni: una vita intera di ascolto.'},
+ {s:'PB',n:'Petabyte',e:15,em:'🗄️',z:zeros(15)+' byte',ex:'I video caricati su YouTube in circa un giorno.',exs:'Oppure 20 milioni di schedari da ufficio pieni di carta.'},
+ {s:'EB',n:'Exabyte',e:18,em:'🌐',z:zeros(18)+' byte',ex:'Tutte le parole mai pronunciate dall\u2019umanità ≈ 5 EB.',exs:'Il traffico internet mondiale di qualche giorno.'},
+ {s:'ZB',n:'Zettabyte',e:21,em:'🌍',z:zeros(21)+' byte',ex:'Tutti i dati creati nel mondo in un anno: oltre 120 ZB.',exs:'L\u2019esplosione di dati dell\u2019era dell\u2019IA corre qui.'},
+ {s:'YB',n:'Yottabyte',e:24,em:'🧬',z:zeros(24)+' byte',ex:'Mai riempito: più dell\u2019intero mondo digitale di oggi.',exs:'Servirebbero milioni di data center pieni solo per avvicinarsi.'},
+ {s:'RB',n:'Ronnabyte',e:27,em:'🚀',z:zeros(27)+' byte',ex:'Nome nuovo del 2022: nessun sistema ci è mai arrivato.',exs:'Si usa solo nei calcoli sul futuro dei dati.'},
+ {s:'QB',n:'Quettabyte',e:30,em:'🌌',z:zeros(30)+' byte',ex:'La più grande unità con un nome: il capolinea del viaggio.',exs:'1 QB = un miliardo di terabyte. Vertigine garantita.'}
+];
+const ucards=$('#ucards');
+UNITS.forEach((u,i)=>{const d=document.createElement('div');d.className='ucard rv '+(u.warm?'a':'c');d.dataset.i=i;d.innerHTML=`<div class="us">${u.em}<br>${u.s}</div><div><h3>${u.n}${i>1?'<span class="mult">×1000 DAL PRECEDENTE</span>':''}</h3><p><b>${u.ex}</b> ${u.exs}</p></div>`;ucards.appendChild(d);io.observe(d);});
+function setLens(i){const u=UNITS[i];$('#lens').classList.toggle('c',!u.warm);$('#lensSym').textContent=u.s;$('#lensName').textContent=u.em+' '+u.n;$('#lensZeros').textContent='= '+u.z;$('#lensEx').innerHTML=u.ex+'<span>'+u.exs+'</span>';$('#lensBar').style.width=Math.max(4,(u.e/30)*100)+'%';$('#lensPos').textContent='GRADINO '+(i+1)+' / '+UNITS.length+' · 10^'+u.e;$$('.ucard').forEach(c=>c.classList.toggle('act',+c.dataset.i===i));}
+const ioU=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)setLens(+e.target.dataset.i);}),{rootMargin:'-40% 0px -50% 0px'});
+$$('.ucard').forEach(c=>ioU.observe(c));
+setLens(1);
+/* ---------- ZAINO ---------- */
+const ITEMS=[
+ {e:'💬',n:'Messaggio WhatsApp',b:5*1024},
+ {e:'📧',n:'Email senza allegati',b:50*1024},
+ {e:'📄',n:'Documento di 10 pagine',b:300*1024},
+ {e:'📷',n:'Foto da smartphone',b:3*1024*1024},
+ {e:'🎵',n:'Canzone MP3',b:4*1024*1024},
+ {e:'🎥',n:'1 ora di video HD',b:1024**3},
+ {e:'📺',n:'Stagione di una serie',b:20*1024**3},
+ {e:'🎮',n:'Videogioco moderno',b:50*1024**3}
+];
+const counts=ITEMS.map(()=>0);
+const bp=$('#bpItems');
+ITEMS.forEach((it,i)=>{const row=document.createElement('div');row.className='bpi';row.innerHTML=`<span>${it.e} ${it.n}</span><span class="sz">${fmtBytes(it.b)}</span><button data-i="${i}" data-d="-1" aria-label="togli">−</button><span class="cnt" id="cnt${i}">0</span><button data-i="${i}" data-d="1" aria-label="aggiungi">+</button>`;bp.appendChild(row);});
+bp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const i=+b.dataset.i,d=+b.dataset.d;counts[i]=Math.max(0,counts[i]+d);$('#cnt'+i).textContent=counts[i];updBp();});
+function fmtBytes(bytes){const u=['B','KB','MB','GB','TB','PB'];let i=0,v=bytes;while(v>=1024&&i<u.length-1){v/=1024;i++;}return fmtN(v,v<10?2:1)+' '+u[i];}
+function updBp(){const tot=ITEMS.reduce((a,it,i)=>a+it.b*counts[i],0);$('#bpTotal').textContent=fmtBytes(tot);$('#cmpPhoto').textContent=fmtN(tot/(3*1024*1024),0);$('#cmpSong').textContent=fmtN(tot/(4*1024*1024),0);$('#cmpPage').textContent=fmtN(tot/(3*1024),0);const pct=Math.min(100,tot/(1024**4)*100);$('#bpDisk').style.width=pct+'%';$('#bpDiskPct').textContent=(pct<1?pct.toFixed(2):fmtN(pct,1))+'%'+(pct>=100?' — DISCO PIENO! 🎉':'');}
+updBp();
+/* ---------- VELOCITÀ ---------- */
+function setSpd(m){$$('.spd').forEach(b=>b.classList.toggle('act',+b.dataset.m===m));const mbs=m/8;$('#vMbps').textContent=fmtN(m,0)+' Mb/s';$('#vMBs').textContent=fmtN(mbs,1)+' MB/s';const secs=(4*1024)/mbs;$('#vTime').textContent=secs<90?'~'+fmtN(secs,0)+' s':secs<3600?'~'+fmtN(secs/60,1)+' min':'~'+fmtN(secs/3600,1)+' h';}
+$$('.spd').forEach(b=>b.addEventListener('click',()=>setSpd(+b.dataset.m)));
+setSpd(100);
+/* ---------- QUIZ ---------- */
+const QUIZ=[
+ {q:'Quanti bit servono per formare 1 byte?',o:['4','8','16','1024'],a:1,x:'8 bit = 1 byte: abbastanza per un carattere, come la “A” del nostro byte interattivo (01000001).'},
+ {q:'Perché il numero 1024 è così importante?',o:['È 2¹⁰: il “mille” del mondo binario','È il numero dei bit in un byte','È la velocità dei dischi','È un codice segreto'],a:0,x:'I computer contano in potenze di 2: 2¹⁰ = 1024, il passo “tondo” del binario (da qui KB “veri” da 1024 byte).'},
+ {q:'La più grande unità di dati con un nome ufficiale (2022) è…',o:['Lo yottabyte','Il ronnabyte','Il quettabyte','Il terabyte'],a:2,x:'Il quettabyte (10³⁰ byte): è il capolinea del viaggio, un miliardo di terabyte.'}
+];
+let qi=0,score=0;const quizBox=$('#quizBox');
+function renderQ(){const q=QUIZ[qi];quizBox.innerHTML=`
+  <div class="qprog"><span>DOMANDA ${qi+1} / ${QUIZ.length}</span><span>PUNTI: ${score}</span></div>
+  <div class="qbar"><i style="width:${(qi/QUIZ.length)*100}%"></i></div>
+  <div class="qq">${q.q}</div>
+  <div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)} · ${o}</button>`).join('')}</div>
+  <div class="qfeed" id="qfeed"></div>
+  <button class="racebtn qnext" id="qnext" style="font-size:13px;padding:12px 24px">${qi===QUIZ.length-1?'VEDI IL RISULTATO →':'PROSSIMA DOMANDA →'}</button>`;$$('.opt').forEach(b=>b.addEventListener('click',()=>answer(+b.dataset.i)));$('#qnext').addEventListener('click',()=>{qi++;qi<QUIZ.length?renderQ():finalQ();});}
+function answer(i){const q=QUIZ[qi];$$('.opt').forEach(o=>o.disabled=true);const ok=i===q.a;if(ok)score++;$$('.opt')[q.a].classList.add('ok');if(!ok)$$('.opt')[i].classList.add('ko');const f=$('#qfeed');f.className='qfeed show '+(ok?'good':'bad');f.innerHTML=(ok?'✔ Esatto!':'✖ Non proprio.')+`<span>${q.x}</span>`;$('#qnext').classList.add('show');$('.qprog').lastElementChild.textContent='PUNTI: '+score;}
+function finalQ(){const p=score/QUIZ.length;const v=p===1?'🏆 <b>Byte perfetto!</b> 8 bit su 8: padroneggi la scala dal bit al quettabyte.':p>=.7?'⚡ <b>Ottimo!</b> Le unità non hanno più segreti.':p>=.5?'💾 <b>Buona base!</b> Rigioca con lo zaino digitale: gli esempi concreti ti fisseranno le unità.':'🔁 <b>Riavvolgi il nastro!</b> Riparti dal byte interattivo in cima.';quizBox.innerHTML=`<div class="qfinal"><div class="qprog"><span>QUIZ COMPLETATO</span></div><div class="score">${score}/${QUIZ.length}</div><div class="verdict">${v}</div><button class="racebtn" id="qretry" style="font-size:13px;padding:12px 26px">↺ RIGIOCA IL QUIZ</button></div>`;$('#qretry').addEventListener('click',()=>{qi=0;score=0;renderQ();});}
+renderQ();
+</script>
+</body>
+</html>

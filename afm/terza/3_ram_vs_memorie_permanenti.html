@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memorie Permanenti vs RAM — Laboratorio Interattivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e13; --bg2:#0d131b; --panel:#101821; --panel2:#0c1219;
+  --line:#1f2c38; --line2:#33475a;
+  --ink:#e9f1f6; --mut:#8ba1b4; --dim:#5d7284;
+  --amber:#ffb454; --amber2:#ff8a3d; --cy:#41d9ff; --cy2:#8ff2ff;
+  --red:#ff5d6c; --green:#3fe0a0;
+  --disp:'Chakra Petch',sans-serif; --body:'Sora',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+@media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
+body{
+  background:var(--bg) ;
+  background-image:
+    radial-gradient(900px 500px at 80% -10%, rgba(65,217,255,.06), transparent 60%),
+    radial-gradient(900px 600px at 10% 20%, rgba(255,180,84,.05), transparent 55%),
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size:auto,auto,48px 48px,48px 48px;
+  color:var(--ink); font-family:var(--body); line-height:1.6; overflow-x:hidden;
+}
+/* grana + scanline leggere */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:59;opacity:.5;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 4px);}
+::selection{background:var(--cy);color:#04222e}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+section{padding:96px 0;border-top:1px solid var(--line)}
+h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.02em}
+.mono{font-family:var(--mono)}
+a{color:inherit}
+
+/* ---------- NAV ---------- */
+nav{position:sticky;top:0;z-index:50;background:rgba(10,14,19,.94);border-bottom:1px solid var(--line)}
+.navin{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px}
+.logo{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.14em;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo b{color:var(--cy)} .logo i{color:var(--amber);font-style:normal}
+.led{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.navlinks{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.navlinks a{font-family:var(--mono);font-size:11.5px;text-decoration:none;color:var(--mut);padding:6px 10px;border:1px solid transparent;transition:.25s}
+.navlinks a:hover{color:var(--cy);border-color:var(--line2);background:var(--panel2)}
+
+/* ---------- HERO ---------- */
+header.hero{padding:72px 0 84px;border-top:none}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:var(--mut);display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.kicker::before{content:'';width:34px;height:2px;background:var(--amber)}
+h1 .l1{display:block;font-size:clamp(1.7rem,4.4vw,3.1rem);color:var(--amber);text-shadow:0 0 26px rgba(255,180,84,.25)}
+h1 .vs{display:inline-block;font-family:var(--mono);font-size:13px;color:var(--mut);border:1px solid var(--line2);padding:3px 12px;margin:14px 0;letter-spacing:.3em}
+h1 .l2{display:block;font-size:clamp(3rem,8vw,5.6rem);line-height:.95;color:var(--cy);text-shadow:0 0 34px rgba(65,217,255,.3)}
+.hero p.lead{color:var(--mut);max-width:52ch;margin:22px 0 8px;font-size:16.5px}
+.hero p.lead strong{color:var(--ink)}
+
+/* scheda madre */
+.board-panel{position:relative;border:1px solid var(--line2);background:linear-gradient(160deg,var(--panel),var(--panel2));padding:18px;
+  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.board-panel .bhead{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--dim);margin-bottom:10px}
+.board-panel svg{width:100%;height:auto;display:block}
+.gpart{cursor:pointer}
+.gpart rect,.gpart circle{transition:.3s}
+.gpart:hover rect,.gpart.hl rect,.gpart:focus rect{stroke:var(--cy2);filter:drop-shadow(0 0 6px rgba(65,217,255,.7))}
+.gpart.warm:hover rect,.gpart.warm.hl rect,.gpart.warm:hover circle{stroke:var(--amber);filter:drop-shadow(0 0 6px rgba(255,180,84,.7))}
+.trace{stroke:var(--line2);stroke-width:2;fill:none}
+.plabel{font-family:var(--mono);font-size:11px;fill:var(--mut);letter-spacing:.18em}
+.readout{margin-top:12px;font-family:var(--mono);font-size:12.5px;color:var(--cy);border-left:3px solid var(--cy);padding:8px 12px;background:var(--panel2);min-height:42px;transition:.3s}
+.pulse{filter:drop-shadow(0 0 5px currentColor)}
+@media (prefers-reduced-motion:reduce){ .pulse{display:none} }
+
+/* ---------- intestazioni sezione ---------- */
+.shead{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.snum{font-family:var(--mono);color:var(--amber);font-size:14px;letter-spacing:.2em;border:1px solid var(--line2);padding:4px 10px;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
+.skick{font-family:var(--mono);font-size:11.5px;letter-spacing:.3em;color:var(--dim)}
+h2.lm{overflow:hidden;font-size:clamp(1.9rem,4.6vw,3.2rem);line-height:1.05}
+h2.lm span{display:inline-block;transform:translateY(115%);transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+h2.lm.in span{transform:none}
+.sintro{color:var(--mut);max-width:70ch;margin-bottom:40px}
+.sintro b{color:var(--cy)} .sintro i{color:var(--amber);font-style:normal;font-weight:600}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+
+/* ---------- ESPERIMENTO ---------- */
+.lab{display:grid;grid-template-columns:280px 1fr;gap:22px;align-items:start}
+.ctrl{border:1px solid var(--line2);background:var(--panel);padding:22px;position:sticky;top:86px;
+  clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.pwr{width:96px;height:96px;border-radius:50%;margin:6px auto 14px;display:block;cursor:pointer;background:var(--panel2);
+  border:3px solid var(--line2);color:var(--mut);font-size:34px;transition:.35s;position:relative}
+.pwr:hover{border-color:var(--cy);color:var(--cy)}
+.pwr.on{border-color:var(--green);color:var(--green);box-shadow:0 0 26px rgba(63,224,160,.35), inset 0 0 18px rgba(63,224,160,.12)}
+.sysline{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--mut);justify-content:center;margin-bottom:18px}
+.sysline .dot{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);transition:.3s}
+.sysline.on .dot{background:var(--green);box-shadow:0 0 8px var(--green)}
+.ramline{font-family:var(--mono);font-size:12px;color:var(--cy);text-align:center;margin-bottom:18px}
+.savebtn{width:100%;font-family:var(--mono);font-size:12px;letter-spacing:.12em;padding:13px;border:1px solid var(--amber);color:var(--amber);
+  background:transparent;cursor:pointer;transition:.25s;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
+.savebtn:not(:disabled):hover{background:var(--amber);color:#241302}
+.savebtn:disabled{opacity:.32;cursor:not-allowed}
+.howto{margin-top:18px;font-size:12.5px;color:var(--dim);line-height:1.7}
+.howto b{color:var(--mut)}
+
+.bays{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.bay{border:1px solid var(--line2);background:var(--panel2);padding:18px;min-height:330px;position:relative;transition:.3s;
+  clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.bay.flash{box-shadow:0 0 0 2px var(--green), 0 0 30px rgba(63,224,160,.25)}
+.bhead2{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.bhead2 h3{font-size:17px}
+.bay.ram .bhead2 h3{color:var(--cy)} .bay.disk .bhead2 h3{color:var(--amber)}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;padding:4px 9px;border:1px solid}
+.bay.ram .tag{color:var(--cy);border-color:var(--cy)} .bay.disk .tag{color:var(--amber);border-color:var(--amber)}
+.slot{border:1px dashed var(--line2);min-height:56px;margin-bottom:10px;position:relative;display:flex;align-items:center;padding:6px}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.24em;transition:.3s}
+.empty.hide{opacity:0;pointer-events:none}
+.chip{width:100%;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line2);padding:9px 12px;
+  font-size:13px;transform:scale(.6);opacity:0}
+.bay.ram .chip{border-left:4px solid var(--cy)} .bay.disk .chip{border-left:4px solid var(--amber)}
+.chip.on{animation:pop .45s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes pop{to{transform:scale(1);opacity:1}}
+.chip .ci{font-size:17px}
+.chip.warn{border-color:var(--red);border-left-color:var(--red);animation:pop .45s forwards, pured 1.5s .5s infinite}
+@keyframes pured{0%,100%{box-shadow:0 0 0 0 rgba(255,93,108,0)}50%{box-shadow:0 0 14px 2px rgba(255,93,108,.35)}}
+.chip.dying{animation:die .5s steps(5) forwards !important}
+@keyframes die{0%{opacity:1}25%{opacity:.35;transform:translateX(-4px)}50%{opacity:.9;transform:translateX(4px)}75%{opacity:.15;transform:skewX(10deg)}100%{opacity:0;transform:scale(.7)}}
+.chip.safe{border-color:var(--green);border-left-color:var(--green)}
+.consol{margin-top:22px;border:1px solid var(--line2);background:#070b10;padding:14px 16px;height:170px;overflow-y:auto;font-family:var(--mono);font-size:12.5px}
+.consol .ln{padding:3px 0;opacity:0;animation:lnin .4s forwards}
+@keyframes lnin{to{opacity:1}}
+.ln.info{color:var(--mut)} .ln.good{color:var(--green)} .ln.bad{color:var(--red)} .ln.warn{color:var(--amber)} .ln.cy{color:var(--cy)}
+
+/* ---------- ANALOGIA ---------- */
+.ana{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:start}
+.ana .sticky{position:sticky;top:90px}
+.kb{overflow:hidden;border:1px solid var(--line2);margin:18px 0}
+.kb img{width:100%;display:block;transform:scale(1.06);animation:kb 16s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1.06) translate(0,0)}to{transform:scale(1.18) translate(-2.5%,2%)}}
+.kb.small img{height:170px;object-fit:cover}
+.map{list-style:none;margin-top:14px}
+.map li{padding:10px 0;border-bottom:1px dashed var(--line);font-size:14px;color:var(--mut)}
+.map b{color:var(--ink)} .map .a{color:var(--amber)} .map .c{color:var(--cy)}
+.gamegrid{display:grid;gap:20px}
+.zone{border:1px solid var(--line2);background:var(--panel2)}
+.zone .zh{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line)}
+.zone .zh h3{font-size:15px}
+.zone.shelf .zh h3{color:var(--amber)} .zone.desk .zh h3{color:var(--cy)}
+.zcount{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.15em}
+.zlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:16px;min-height:120px}
+.item{border:1px solid var(--line2);background:var(--panel);padding:10px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:9px;
+  transition:.22s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)}
+.item:hover{transform:translateY(-3px);border-color:var(--cy)}
+.zone.shelf .item:hover{border-color:var(--amber)}
+.item .ie{font-size:19px}
+.item.pop{animation:pop .4s cubic-bezier(.2,1.4,.4,1)}
+.deskmeter{display:flex;gap:6px;padding:0 16px 14px}
+.deskmeter i{width:26px;height:8px;background:var(--line);transition:.3s}
+.deskmeter i.f{background:var(--cy);box-shadow:0 0 8px rgba(65,217,255,.5)}
+.msgbar{border:1px solid var(--line2);background:#070b10;padding:13px 16px;font-family:var(--mono);font-size:12.5px;color:var(--mut);min-height:50px}
+.msgbar.warn{color:var(--amber);border-color:var(--amber)} .msgbar.bad{color:var(--red);border-color:var(--red)} .msgbar.good{color:var(--green);border-color:var(--green)}
+.gamebtns{display:flex;gap:12px;flex-wrap:wrap}
+.gbtn{font-family:var(--mono);font-size:12px;letter-spacing:.12em;padding:11px 18px;background:transparent;border:1px solid var(--line2);color:var(--mut);cursor:pointer;transition:.25s;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)}
+.gbtn:hover{border-color:var(--cy);color:var(--cy)} .gbtn.red:hover{border-color:var(--red);color:var(--red)}
+.shake{animation:shake .45s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.lesson{margin-top:20px;border:1px solid var(--line2);background:var(--panel2);padding:18px 20px;font-size:14px;color:var(--mut)}
+.lesson b{color:var(--cy)}
+
+/* ---------- CORSA ---------- */
+.racebox{border:1px solid var(--line2);background:var(--panel2);padding:26px;position:relative;overflow:hidden;
+  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.raceline{display:grid;grid-template-columns:150px 1fr 110px;gap:14px;align-items:center;padding:14px 0;border-bottom:1px dashed var(--line)}
+.raceline:last-of-type{border-bottom:none}
+.rl-head{font-family:var(--mono);font-size:12.5px;letter-spacing:.1em}
+.rl-head .t{display:block;color:var(--dim);font-size:11px}
+.rl-head.ram{color:var(--cy)} .rl-head.ssd{color:var(--mut)} .rl-head.hdd{color:var(--amber)}
+.track{position:relative;height:44px;background:#070b10;border:1px solid var(--line)}
+.track::after{content:'';position:absolute;right:8px;top:0;bottom:0;width:3px;background:repeating-linear-gradient(0deg,var(--line2) 0 5px,transparent 5px 10px)}
+.racer{position:absolute;left:6px;top:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--panel);border:1px solid var(--line2);transition:transform cubic-bezier(.3,.1,.3,1);will-change:transform}
+.racer.r-ram{border-color:var(--cy);color:var(--cy);box-shadow:0 0 12px rgba(65,217,255,.3)}
+.racer.r-ssd{border-color:var(--mut);color:var(--mut)}
+.racer.r-hdd{border-color:var(--amber);color:var(--amber)}
+.racer.r-hdd span{display:inline-block;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stamp{font-family:var(--mono);font-size:12px;color:var(--dim);text-align:right}
+.stamp.done{color:var(--green)}
+.racectrl{display:flex;gap:14px;align-items:center;margin-top:24px;flex-wrap:wrap}
+.racebtn{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.14em;padding:14px 30px;background:var(--cy);border:none;color:#04222e;cursor:pointer;transition:.25s;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
+.racebtn:hover{background:var(--cy2);box-shadow:0 0 24px rgba(65,217,255,.4)}
+.racebtn:disabled{opacity:.4;cursor:wait}
+#raceMsg{font-family:var(--disp);font-size:26px;color:var(--amber);min-width:90px;text-align:center}
+#raceBanner{margin-top:20px;padding:14px 18px;border:1px solid var(--green);color:var(--green);font-size:14px;display:none}
+#raceBanner.show{display:block;animation:pop .5s}
+.scalenote{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:14px}
+
+
+footer{padding:36px 0;border-top:1px solid var(--line)}
+.footin{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.12em}
+.footin b{color:var(--mut)}
+
+@media (max-width:960px){
+  .hero-grid,.lab,.ana,.cmpwrap{grid-template-columns:1fr}
+  .ctrl{position:static}
+  .fcgrid{grid-template-columns:1fr 1fr}
+  .gold{grid-template-columns:1fr}
+  .scenario{position:static}
+}
+@media (max-width:600px){
+  .fcgrid{grid-template-columns:1fr}
+  .bays{grid-template-columns:1fr}
+  section{padding:70px 0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}
+  .rv{opacity:1;transform:none}
+  h2.lm span{transform:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="navin">
+    <div class="logo"><span class="led"></span>LAB//<b>MEMORIE</b>&nbsp;<i>RAM</i></div>
+    <div class="navlinks">
+      <a href="#esp">Esperimento</a>
+      <a href="#analogia">Analogia</a>
+      <a href="#corsa">Corsa</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker">LEZIONE INTERATTIVA • ARCHITETTURA DEL COMPUTER</div>
+      <h1>
+        <span class="l1" data-scramble="MEMORIE PERMANENTI">MEMORIE PERMANENTI</span>
+        <span class="vs">CONTRO</span>
+        <span class="l2" data-scramble="RAM">RAM</span>
+      </h1>
+      <p class="lead">Due memorie, due caratteri opposti: una <strong>non dimentica mai</strong>, anche senza corrente; l'altra è <strong>velocissima ma smemorata</strong>, e allo spegnimento cancella tutto. In questa pagina puoi accendere e spegnere un computer virtuale, giocare con la scrivania e l'archivio e lanciare la corsa dei dati.</p>
+    </div>
+    <div class="board-panel rv">
+      <div class="bhead"><span>SCHEDA MADRE // VISTA DIDATTICA</span><span>REV 2.0</span></div>
+      <svg viewBox="0 0 560 400" role="img" aria-label="Schema della scheda madre con CPU, RAM e disco">
+        <defs>
+          <path id="t1" d="M340,178 H395 V127 H425"/>
+          <path id="t2" d="M340,196 H425"/>
+          <path id="t3" d="M340,214 H405 V227 H425"/>
+          <path id="t4" d="M285,255 V300 H215"/>
+          <path id="t5" d="M175,86 H255 V140"/>
+        </defs>
+        <rect x="14" y="14" width="532" height="372" fill="none" stroke="#33475a" stroke-width="2"/>
+        <use href="#t1" class="trace"/><use href="#t2" class="trace"/><use href="#t3" class="trace"/>
+        <use href="#t4" class="trace"/><use href="#t5" class="trace"/>
+        <!-- CPU -->
+        <g class="gpart" tabindex="0" data-info="CPU — il cervello che elabora: chiede dati in continuazione, e li vuole SUBITO.">
+          <rect x="230" y="140" width="110" height="115" fill="#101821" stroke="#33475a" stroke-width="2"/>
+          <rect x="252" y="162" width="66" height="66" fill="none" stroke="#22303c" stroke-width="2"/>
+          <text x="285" y="200" text-anchor="middle" class="plabel" style="font-size:15px;fill:#e9f1f6">CPU</text>
+        </g>
+        <!-- RAM -->
+        <g class="gpart" tabindex="0" data-info="RAM — il banco di lavoro: dati in uso, velocissima, ma volatile (si svuota allo spegnimento).">
+          <rect x="425" y="105" width="100" height="30" fill="#101821" stroke="#33475a" stroke-width="2"/>
+          <rect x="425" y="160" width="100" height="30" fill="#101821" stroke="#33475a" stroke-width="2"/>
+          <rect x="425" y="212" width="100" height="30" fill="#101821" stroke="#33475a" stroke-width="2"/>
+          <text x="475" y="266" text-anchor="middle" class="plabel" style="fill:#41d9ff">RAM</text>
+        </g>
+        <!-- DISCO -->
+        <g class="gpart warm" tabindex="0" data-info="DISCO (HDD / SSD) — l'archivio: conserva tutto a lungo termine, anche a computer spento.">
+          <rect x="70" y="272" width="145" height="82" fill="#101821" stroke="#33475a" stroke-width="2"/>
+          <circle cx="112" cy="313" r="26" fill="none" stroke="#22303c" stroke-width="2"/>
+          <circle cx="112" cy="313" r="14" fill="none" stroke="#22303c" stroke-width="2"/>
+          <circle cx="112" cy="313" r="3" fill="#33475a"/>
+          <text x="165" y="318" text-anchor="middle" class="plabel" style="fill:#ffb454">DISCO</text>
+        </g>
+        <!-- ALIMENTAZIONE -->
+        <g class="gpart warm" tabindex="0" data-info="ALIMENTAZIONE — senza corrente la RAM si svuota: il disco invece continua a ricordare.">
+          <rect x="60" y="60" width="115" height="52" fill="#101821" stroke="#33475a" stroke-width="2"/>
+          <text x="117" y="82" text-anchor="middle" class="plabel">⏻ POWER</text>
+          <text x="117" y="99" text-anchor="middle" class="plabel" style="font-size:9px">220V → DC</text>
+        </g>
+        <!-- impulsi dati -->
+        <circle class="pulse" r="4" fill="#41d9ff" style="color:#41d9ff"><animateMotion dur="2.4s" repeatCount="indefinite"><mpath href="#t1"/></animateMotion></circle>
+        <circle class="pulse" r="4" fill="#8ff2ff" style="color:#8ff2ff"><animateMotion dur="2.1s" begin="0.8s" repeatCount="indefinite"><mpath href="#t2"/></animateMotion></circle>
+        <circle class="pulse" r="4" fill="#ffb454" style="color:#ffb454"><animateMotion dur="3s" begin="0.4s" repeatCount="indefinite"><mpath href="#t4"/></animateMotion></circle>
+        <circle class="pulse" r="4" fill="#ff8a3d" style="color:#ff8a3d"><animateMotion dur="2.8s" begin="1.5s" repeatCount="indefinite"><mpath href="#t5"/></animateMotion></circle>
+      </svg>
+      <div class="readout" id="readout">Passa il mouse (o il dito) sui componenti per scoprire il loro ruolo…</div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 01 ESPERIMENTO ============ -->
+<section id="esp">
+  <div class="wrap">
+    <div class="shead rv"><span class="snum">01</span><h2 class="lm"><span>L'esperimento: accendi e spegni</span></h2></div>
+    <div class="skick rv" style="margin-bottom:12px">VOLATILE vs PERSISTENTE // PROVALO TU</div>
+    <p class="sintro rv">Questo è un computer virtuale. Nel <b>banco RAM</b> vivono i dati in uso in questo momento; nel <b>disco</b> vivono i file archiviati. <i>Accendi il sistema</i>, osserva cosa succede, poi prova a spegnerlo… e occhio al tema non salvato!</p>
+
+    <div class="lab">
+      <div class="ctrl rv">
+        <button class="pwr" id="powerBtn" aria-pressed="false" aria-label="Accendi o spegni il computer">⏻</button>
+        <div class="sysline" id="sysLine"><span class="dot"></span><span id="sysState">SISTEMA SPENTO</span></div>
+        <div class="ramline">RAM IN USO: <span id="ramCount">0</span>/4 SLOT</div>
+        <button class="savebtn" id="saveBtn" disabled>💾 SALVA IL TEMA SUL DISCO</button>
+        <p class="howto"><b>Come si usa:</b><br>1. Premi il pulsante di accensione.<br>2. Leggi il registro degli eventi.<br>3. Salva il tema… oppure no.<br>4. Spegni e guarda i due banchi.</p>
+      </div>
+
+      <div>
+        <div class="bays">
+          <div class="bay ram rv" id="ramBay">
+            <div class="bhead2"><h3>⚡ Banco RAM</h3><span class="tag">VOLATILE</span></div>
+            <div class="slot"><span class="empty">VUOTO</span><div class="chip"><span class="ci">🖥️</span>Sistema operativo (in esecuzione)</div></div>
+            <div class="slot"><span class="empty">VUOTO</span><div class="chip"><span class="ci">🌐</span>Browser — 3 schede aperte</div></div>
+            <div class="slot"><span class="empty">VUOTO</span><div class="chip"><span class="ci">🎮</span>Videogioco in esecuzione</div></div>
+            <div class="slot"><span class="empty">VUOTO</span><div class="chip" id="docChip"><span class="ci">📝</span>Documento aperto (non salvato!)</div></div>
+          </div>
+          <div class="bay disk rv" id="diskBay">
+            <div class="bhead2"><h3>💾 Disco</h3><span class="tag">PERSISTENTE</span></div>
+            <div class="slot"><span class="empty hide">VUOTO</span><div class="chip on"><span class="ci">⚙️</span>Sistema operativo</div></div>
+            <div class="slot"><span class="empty hide">VUOTO</span><div class="chip on"><span class="ci">🖼️</span>Foto_vacanze.jpg</div></div>
+            <div class="slot"><span class="empty hide">VUOTO</span><div class="chip on"><span class="ci">🎮</span>Minecraft</div></div>
+            <div class="slot"><span class="empty hide">VUOTO</span><div class="chip on"><span class="ci">🎵</span>Playlist_musica.mp3</div></div>
+            <div class="slot" id="themeDiskSlot"><span class="empty">SPAZIO LIBERO</span><div class="chip"><span class="ci">📄</span>Tema_di_italiano.doc ✔</div></div>
+          </div>
+        </div>
+        <div class="consol rv" id="log" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 ANALOGIA ============ -->
+<section id="analogia">
+  <div class="wrap">
+    <div class="ana">
+      <div class="sticky">
+        <div class="shead"><span class="snum">02</span><h2 class="lm"><span>La scrivania e l'archivio</span></h2></div>
+        <div class="skick" style="margin-bottom:12px">L'ANALOGIA CHE NON DIMENTICHI PIÙ</div>
+        <p class="sintro" style="margin-bottom:8px">Immagina di studiare in una biblioteca. Hai una <b>scrivania</b> davanti a te e uno <b>scaffale</b> enorme alle tue spalle. Il computer lavora esattamente così.</p>
+        <div class="kb small"><img src="https://picsum.photos/seed/ram-study-desk/700/380" alt="Una scrivania di studio"></div>
+        <ul class="map">
+          <li><b class="c">Scrivania = RAM</b> — tutto è a portata di mano, velocissimo da prendere… ma i posti sono pochi.</li>
+          <li><b class="a">Scaffale = memoria permanente</b> — ci vuole un attimo in più per cercare, ma lo spazio è enorme e nulla va perso.</li>
+          <li><b>Fine della giornata = spegnimento</b> — la scrivania si svuota; lo scaffale resta pieno.</li>
+        </ul>
+      </div>
+      <div class="gamegrid">
+        <div class="zone shelf rv">
+          <div class="zh"><h3>🗄️ ARCHIVIO (disco)</h3><span class="zcount">CAPIENZA: ∞ (quasi)</span></div>
+          <div class="zlist" id="shelfList"></div>
+        </div>
+        <div class="zone desk rv" id="deskZone">
+          <div class="zh"><h3>🪑 SCRIVANIA (RAM)</h3><span class="zcount" id="deskCount">POSTI: 0/4</span></div>
+          <div class="zlist" id="deskList"></div>
+          <div class="deskmeter" id="deskMeter"><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="msgbar rv" id="deskMsg">Clicca un oggetto nell'archivio per portarlo sulla scrivania. Attenzione: i posti sono solo 4!</div>
+        <div class="gamebtns rv">
+          <button class="gbtn red" id="endDay">🌙 FINE DELLA GIORNATA (spegni)</button>
+          <button class="gbtn" id="resetDesk">↺ RIORDINA TUTTO</button>
+        </div>
+        <div class="lesson rv">✔ <b>Cosa ci insegna:</b> la RAM è piccola perché deve essere velocissima e costa molto di più per ogni byte; il disco è enorme perché deve conservare tutto a lungo. Per lavorare su un file, il computer lo <b>copia dal disco alla RAM</b> — proprio come prendere un libro dallo scaffale.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 CORSA ============ -->
+<section id="corsa">
+  <div class="wrap">
+    <div class="shead rv"><span class="snum">03</span><h2 class="lm"><span>La corsa dei dati</span></h2></div>
+    <div class="skick rv" style="margin-bottom:12px">CHI LEGGE PRIMA UN FILE?</div>
+    <p class="sintro rv">Stessa missione per tutti: <b>recuperare un file</b> e portarlo alla CPU. Tre concorrenti, tre tempi di accesso molto diversi. Lancia la gara e osserva.</p>
+    <div class="racebox rv">
+      <div class="raceline">
+        <div class="rl-head ram">⚡ RAM<span class="t">~100 nanosecondi</span></div>
+        <div class="track"><div class="racer r-ram" id="rc-ram">⚡</div></div>
+        <div class="stamp" id="st-ram">in attesa…</div>
+      </div>
+      <div class="raceline">
+        <div class="rl-head ssd">▮ SSD<span class="t">~100 microsecondi</span></div>
+        <div class="track"><div class="racer r-ssd" id="rc-ssd">▮</div></div>
+        <div class="stamp" id="st-ssd">in attesa…</div>
+      </div>
+      <div class="raceline">
+        <div class="rl-head hdd">🌀 HDD<span class="t">~10 millisecondi</span></div>
+        <div class="track"><div class="racer r-hdd" id="rc-hdd"><span>🌀</span></div></div>
+        <div class="stamp" id="st-hdd">in attesa…</div>
+      </div>
+      <div class="racectrl">
+        <button class="racebtn" id="raceGo">▶ AVVIA LA CORSA</button>
+        <button class="gbtn" id="raceReset">↺ RESET</button>
+        <div id="raceMsg"></div>
+      </div>
+      <div id="raceBanner">🏁 <b>Risultato:</b> nel tempo in cui l'HDD trova <em>un solo</em> file, la RAM ne ha già letti circa <b>100.000</b>. L'SSD, tutto elettronico, è una via di mezzo velocissima. Ecco perché i programmi <em>aperti</em> stanno nella RAM!</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footin">
+    <span><b>LAB//MEMORIE RAM</b> — pagina didattica interattiva</span>
+    <span>le memorie permanenti e la RAM • esplora, clicca, capisci</span>
+  </div>
+</footer>
+<script>
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+}), {threshold:.18});
+$$('.rv, h2.lm').forEach(el => io.observe(el));
+
+/* ---------- scheda madre: readout ---------- */
+const readout = $('#readout');
+const RO_DEF = readout.textContent;
+$$('.gpart').forEach(g => {
+  const show = () => { readout.textContent = g.dataset.info; readout.style.borderColor = g.classList.contains('warm') ? 'var(--amber)' : 'var(--cy)'; };
+  const hide = () => { readout.textContent = RO_DEF; readout.style.borderColor = 'var(--cy)'; };
+  g.addEventListener('mouseenter', show); g.addEventListener('mouseleave', hide);
+  g.addEventListener('focus', show); g.addEventListener('blur', hide);
+  g.addEventListener('click', show);
+});
+
+/* ============ ESPERIMENTO ACCENDI/SPEGNI ============ */
+const P = { on:false, saved:false, busy:false };
+const ramSlots = $$('#ramBay .slot');
+const powerBtn = $('#powerBtn'), saveBtn = $('#saveBtn');
+const sysLine = $('#sysLine'), sysState = $('#sysState'), ramCount = $('#ramCount');
+const logEl = $('#log'), docChip = $('#docChip'), themeSlot = $('#themeDiskSlot'), diskBay = $('#diskBay');
+
+function log(msg, type='info'){
+  const d = document.createElement('div');
+  d.className = 'ln ' + type; d.textContent = msg;
+  logEl.appendChild(d); logEl.scrollTop = logEl.scrollHeight;
+  if(logEl.children.length > 40) logEl.firstChild.remove();
+}
+function setChip(slot, on, warn=false){
+  const chip = slot.querySelector('.chip'), empty = slot.querySelector('.empty');
+  if(on){ empty.classList.add('hide'); chip.classList.add('on'); chip.classList.toggle('warn', warn); }
+  else { chip.classList.remove('on','warn','dying','safe'); empty.classList.remove('hide'); }
+}
+function updRam(){ ramCount.textContent = ramSlots.filter(s => s.querySelector('.chip.on')).length; }
+
+async function boot(){
+  P.busy = true; P.saved = false; P.on = true;
+  powerBtn.classList.add('on'); powerBtn.setAttribute('aria-pressed','true');
+  sysLine.classList.add('on'); sysState.textContent = 'SISTEMA ACCESO';
+  log('⏻ Accensione… la corrente arriva alla scheda madre.', 'cy');
+  await sleep(600);
+  log('→ Il disco passa il sistema operativo alla RAM (copia di lavoro).', 'info');
+  setChip(ramSlots[0], true); updRam(); await sleep(750);
+  log('→ Avvio dei programmi in uso…', 'info');
+  setChip(ramSlots[1], true); updRam(); await sleep(450);
+  setChip(ramSlots[2], true); updRam(); await sleep(450);
+  setChip(ramSlots[3], true, true); updRam();
+  log('⚠ Un documento è aperto SOLO nella RAM: se spegni ora, è perduto!', 'warn');
+  saveBtn.disabled = false;
+  P.busy = false;
+}
+async function shutdown(){
+  P.busy = true; saveBtn.disabled = true;
+  log('⏻ Spegnimento in corso…', 'cy');
+  await sleep(400);
+  if(!P.saved){
+    docChip.classList.remove('warn'); docChip.classList.add('dying');
+    log('✖ Documento non salvato: PERDUTO PER SEMPRE. Non era sul disco!', 'bad');
+    await sleep(520); setChip(ramSlots[3], false); updRam();
+  }
+  for(let i = 2; i >= 0; i--){
+    const chip = ramSlots[i].querySelector('.chip');
+    chip.classList.add('dying');
+    await sleep(RM ? 30 : 380);
+    setChip(ramSlots[i], false); updRam();
+  }
+  log('RAM svuotata: 0 byte. Volatile = allo spegnimento si cancella.', 'warn');
+  await sleep(300);
+  diskBay.classList.add('flash');
+  log(P.saved ? '✔ Sul disco è tutto intatto — e il tema salvato è ancora lì!' : '✔ Sul disco non è cambiato nulla: i dati persistenti resistono.', 'good');
+  setTimeout(() => diskBay.classList.remove('flash'), 1400);
+  powerBtn.classList.remove('on'); powerBtn.setAttribute('aria-pressed','false');
+  sysLine.classList.remove('on'); sysState.textContent = 'SISTEMA SPENTO';
+  P.on = false; P.busy = false;
+}
+powerBtn.addEventListener('click', () => {
+  if(P.busy) return;
+  if(!P.on) boot(); else shutdown();
+});
+saveBtn.addEventListener('click', () => {
+  if(P.busy || !P.on || P.saved) return;
+  P.saved = true;
+  setChip(ramSlots[3], false); updRam();
+  const chip = themeSlot.querySelector('.chip');
+  themeSlot.querySelector('.empty').classList.add('hide');
+  chip.classList.add('on','safe');
+  log('💾 Copiato dalla RAM al disco: ora il tema è PERSISTENTE e al sicuro.', 'good');
+  saveBtn.disabled = true;
+});
+log('Sistema in attesa. Premi il pulsante di accensione per cominciare.', 'info');
+
+/* ============ ANALOGIA SCRIVANIA/ARCHIVIO ============ */
+const ITEMS = [
+  {e:'📚', n:'Enciclopedia'}, {e:'🖼️', n:'Foto vacanze'}, {e:'🎮', n:'Videogioco'},
+  {e:'📄', n:'Tema di italiano'}, {e:'🎵', n:'Playlist MP3'}, {e:'🎬', n:'Film'},
+  {e:'🔬', n:'Ricerca di scienze'}, {e:'🧮', n:'App di matematica'}
+];
+const MAX_DESK = 4;
+let loc = ITEMS.map(() => 'shelf');
+const shelfList = $('#shelfList'), deskList = $('#deskList'), deskMsg = $('#deskMsg'), deskZone = $('#deskZone');
+
+function setMsg(t, cls=''){ deskMsg.textContent = t; deskMsg.className = 'msgbar rv ' + cls; }
+function renderDesk(popId){
+  shelfList.innerHTML = ''; deskList.innerHTML = '';
+  ITEMS.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'item' + (popId === i ? ' pop' : '');
+    d.innerHTML = `<span class="ie">${it.e}</span>${it.n}`;
+    d.addEventListener('click', () => moveItem(i));
+    (loc[i] === 'shelf' ? shelfList : deskList).appendChild(d);
+  });
+  const onDesk = loc.filter(l => l === 'desk').length;
+  $('#deskCount').textContent = `POSTI: ${onDesk}/${MAX_DESK}`;
+  $$('#deskMeter i').forEach((m, i) => m.classList.toggle('f', i < onDesk));
+}
+function moveItem(i){
+  if(loc[i] === 'shelf'){
+    if(loc.filter(l => l === 'desk').length >= MAX_DESK){
+      deskZone.classList.remove('shake'); void deskZone.offsetWidth; deskZone.classList.add('shake');
+      setMsg('✋ Scrivania piena! Proprio come la RAM: spazio limitato. Prima rimetti qualcosa in archivio.', 'bad');
+      return;
+    }
+    loc[i] = 'desk';
+    setMsg(`📥 "${ITEMS[i].n}" è ora sulla scrivania: a portata di mano, velocissimo da usare.`, 'good');
+  } else {
+    loc[i] = 'shelf';
+    setMsg(`📤 "${ITEMS[i].n}" torna in archivio: al sicuro, ci resterà anche a luci spente.`, 'warn');
+  }
+  renderDesk(i);
+}
+$('#endDay').addEventListener('click', () => {
+  const n = loc.filter(l => l === 'desk').length;
+  loc = loc.map(() => 'shelf');
+  renderDesk();
+  setMsg(n === 0
+    ? '🌙 La scrivania era già vuota. In archivio tutto è al suo posto.'
+    : `🌙 Fine della giornata: ${n} oggetti tolti dalla scrivania. In archivio nulla è andato perso. Proprio come la RAM allo spegnimento!`, 'warn');
+});
+$('#resetDesk').addEventListener('click', () => { loc = loc.map(() => 'shelf'); renderDesk(); setMsg('Tutto riordinato in archivio. Si ricomincia!'); });
+renderDesk();
+
+/* ============ CORSA DEI DATI ============ */
+const racers = [
+  {el: $('#rc-ram'), stamp: $('#st-ram'), dur: RM ? 300 : 520,  time:'~100 ns ✔'},
+  {el: $('#rc-ssd'), stamp: $('#st-ssd'), dur: RM ? 800 : 2100, time:'~100 µs ✔'},
+  {el: $('#rc-hdd'), stamp: $('#st-hdd'), dur: RM ? 1300 : 5800, time:'~10 ms ✔'}
+];
+const raceGo = $('#raceGo'), raceMsg = $('#raceMsg'), raceBanner = $('#raceBanner');
+let racing = false;
+racers.forEach(r => {
+  r.el.addEventListener('transitionend', () => { r.stamp.textContent = r.time; r.stamp.classList.add('done'); });
+});
+raceGo.addEventListener('click', async () => {
+  if(racing) return;
+  racing = true; raceGo.disabled = true;
+  raceBanner.classList.remove('show');
+  racers.forEach(r => {
+    r.el.style.transition = 'none'; r.el.style.transform = 'translateX(0)';
+    r.stamp.textContent = 'in attesa…'; r.stamp.classList.remove('done');
+  });
+  void racers[0].el.offsetWidth;
+  if(!RM){
+    for(const c of ['3','2','1']){ raceMsg.textContent = c; await sleep(550); }
+  }
+  raceMsg.textContent = 'VIA! ⚡';
+  racers.forEach(r => {
+    const track = r.el.parentElement;
+    const dist = track.clientWidth - r.el.offsetWidth - 14;
+    r.el.style.transition = `transform ${r.dur}ms cubic-bezier(.25,.1,.25,1)`;
+    r.el.style.transform = `translateX(${dist}px)`;
+  });
+  setTimeout(() => {
+    raceBanner.classList.add('show');
+    raceMsg.textContent = ''; racing = false; raceGo.disabled = false;
+  }, racers[2].dur + (RM ? 100 : 300));
+});
+$('#raceReset').addEventListener('click', () => {
+  if(racing) return;
+  racers.forEach(r => { r.el.style.transition = 'none'; r.el.style.transform = 'translateX(0)'; r.stamp.textContent = 'in attesa…'; r.stamp.classList.remove('done'); });
+  raceBanner.classList.remove('show'); raceMsg.textContent = '';
+});
+
+</script>
+</body>
+</html>
