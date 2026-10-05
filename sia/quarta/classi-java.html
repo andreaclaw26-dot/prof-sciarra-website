@@ -185,6 +185,32 @@
   pre .n { color: #ffc857; }
   pre .f { color: #b388ff; }
 
+  .code-wrap { position: relative; margin: 14px 0; }
+  .code-wrap pre { margin: 0; }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--text);
+    background: rgba(20, 27, 58, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.ok { border-color: var(--good); color: var(--good); background: rgba(124,255,178,0.12); }
+
   .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -779,6 +805,62 @@ Accesa: false
   }
 
   renderQ();
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-1000px";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand("copy");
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+      document.body.removeChild(ta);
+    });
+  }
+
+  document.querySelectorAll("pre").forEach(function (pre) {
+    var wrap = document.createElement("div");
+    wrap.className = "code-wrap";
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy-btn";
+    btn.textContent = "⧉ Copia";
+    btn.setAttribute("aria-label", "Copia il codice");
+    wrap.appendChild(btn);
+
+    btn.addEventListener("click", function () {
+      copyText(pre.innerText).then(function () {
+        btn.textContent = "✓ Copiato";
+        btn.classList.add("ok");
+      }).catch(function () {
+        btn.textContent = "✗ Errore";
+      });
+      setTimeout(function () {
+        btn.textContent = "⧉ Copia";
+        btn.classList.remove("ok");
+      }, 1800);
+    });
+  });
 })();
 </script>
 </body>
