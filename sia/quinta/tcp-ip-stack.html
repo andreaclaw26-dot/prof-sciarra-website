@@ -367,6 +367,11 @@
   table.fields th { color: var(--accent); font-weight: 600; }
   table.fields td.k { font-family: "SF Mono", monospace; color: #ffc857; }
   table.fields td.v { color: var(--text); }
+  .table-scroll { width: 100%; }
+  @media (max-width: 760px) {
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table.fields { min-width: 460px; }
+  }
 
   /* Steps for encapsulation */
   .steps {
@@ -455,6 +460,8 @@
 </style>
 </head>
 <body>
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;right:16px;bottom:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+
 
 <header>
   <h1>Il Flusso dello Stack TCP/IP</h1>
@@ -553,6 +560,7 @@
 
     <div class="panel" style="margin-top:18px;">
       <h3>Protocolli tipici e porte</h3>
+      <div class="table-scroll">
       <table class="fields">
         <tr><th>Protocollo</th><th>Porta</th><th>Trasporto</th><th>Uso</th></tr>
         <tr><td class="k">HTTP</td><td>80</td><td>TCP</td><td>Pagine web</td></tr>
@@ -562,6 +570,7 @@
         <tr><td class="k">SMTP</td><td>25</td><td>TCP</td><td>Invio email</td></tr>
         <tr><td class="k">MQTT</td><td>1883</td><td>TCP</td><td>IoT publish/subscribe</td></tr>
       </table>
+      </div>
     </div>
   </section>
 
