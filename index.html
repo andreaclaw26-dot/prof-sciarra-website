@@ -16,6 +16,7 @@
     --accent-2: #b388ff;
     --afm: #ff6b9d;
     --sia: #7cffb2;
+    --ai: #b388ff;
     --shadow: 0 10px 40px rgba(0,0,0,0.3);
   }
 
@@ -140,6 +141,7 @@
   }
   .track-badge.afm { background: rgba(255, 107, 157, 0.15); color: var(--afm); border: 1px solid rgba(255,107,157,0.4); }
   .track-badge.sia { background: rgba(124, 255, 178, 0.15); color: var(--sia); border: 1px solid rgba(124,255,178,0.4); }
+  .track-badge.ai { background: rgba(179, 136, 255, 0.15); color: var(--ai); border: 1px solid rgba(179,136,255,0.4); }
 
   .track-title {
     font-size: 1.5rem;
@@ -181,6 +183,7 @@
 
   .class-card.afm::before { background: var(--afm); }
   .class-card.sia::before { background: var(--sia); }
+  .class-card.ai::before { background: var(--ai); }
 
   .class-card:hover {
     transform: translateY(-4px);
@@ -207,6 +210,7 @@
   }
   .year-circle.afm { background: var(--afm); }
   .year-circle.sia { background: var(--sia); }
+  .year-circle.ai { background: var(--ai); }
 
   .class-name h3 {
     margin: 0;
@@ -484,6 +488,39 @@
           <li>
             <a class="featured" href="sia/quinta/tcp-ip-stack.html">
               <span class="icon">📚</span> Flusso dello Stack TCP/IP
+            </a>
+          </li>
+          <li>
+            <a href="sia/quinta/client-server-vs-p2p.html">
+              <span class="icon">🔄</span> Reti Client-Server vs P2P
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== AI (trasversale) ============== -->
+  <section class="track" id="ai">
+    <div class="track-header">
+      <span class="track-badge ai">AI</span>
+      <h2 class="track-title">Intelligenza Artificiale</h2>
+      <span class="track-desc">Trasversale · tutte le classi</span>
+    </div>
+
+    <div class="classes">
+      <div class="class-card ai">
+        <div class="class-year">
+          <div class="year-circle ai">AI</div>
+          <div class="class-name">
+            <h3>Materiali AI</h3>
+            <small>Strumenti e competenze per tutti gli indirizzi</small>
+          </div>
+        </div>
+        <ul class="class-subjects">
+          <li>
+            <a href="ai/sito_web_con_AI.html">
+              <span class="icon">🤖</span> Il prompt perfetto per creare un sito web
             </a>
           </li>
         </ul>

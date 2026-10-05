@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Reti Peer-to-Peer (P2P)</title>
+    <style>
+        :root {
+            --color-bg-primary: #fcfcf9;
+            --color-bg-secondary: #fffffe;
+            --color-surface: #f5f5f5;
+            --color-text-primary: #13343b;
+            --color-text-secondary: #626c7c;
+            --color-accent: #21808d;
+            --color-accent-hover: #1d7480;
+            --color-p2p: #21808d;
+            --color-server: #a84b2f;
+            --color-success: #21808d;
+            --color-warning: #e6815f;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg-primary: #1f2121;
+                --color-bg-secondary: #262828;
+                --color-surface: #1e293b;
+                --color-text-primary: #f5f5f5;
+                --color-text-secondary: #a7a9a9;
+                --color-accent: #32b8c6;
+                --color-accent-hover: #2da6b2;
+                --color-p2p: #32b8c6;
+                --color-server: #e6815f;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-server) 100%);
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-accent);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: var(--color-text-primary);
+        }
+
+        .tab:hover {
+            background: var(--color-accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--color-accent);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            color: var(--color-text-primary);
+            margin: 20px 0 10px;
+            font-size: 1.3rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-card {
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+
+        .p2p-card {
+            border-color: var(--color-p2p);
+            background: linear-gradient(135deg, rgba(33, 128, 141, 0.1) 0%, transparent 100%);
+        }
+
+        .server-card {
+            border-color: var(--color-server);
+            background: linear-gradient(135deg, rgba(168, 75, 47, 0.1) 0%, transparent 100%);
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pros, .cons {
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .pros {
+            background: linear-gradient(135deg, rgba(33, 128, 141, 0.1) 0%, transparent 100%);
+            border-left: 4px solid var(--color-success);
+        }
+
+        .cons {
+            background: linear-gradient(135deg, rgba(230, 129, 97, 0.1) 0%, transparent 100%);
+            border-left: 4px solid var(--color-warning);
+        }
+
+        ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        li {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .network-viz {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin: 30px 0;
+        }
+
+        .network-container {
+            text-align: center;
+        }
+
+        .network-canvas {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            border: 2px solid var(--color-accent);
+            border-radius: 8px;
+            background: var(--color-surface);
+        }
+
+        .software-timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+            padding: 20px;
+            background: var(--color-surface);
+            border-radius: 8px;
+            border-left: 4px solid var(--color-accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .timeline-year {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--color-accent);
+            min-width: 60px;
+        }
+
+        .timeline-content h4 {
+            color: var(--color-text-primary);
+            margin-bottom: 8px;
+        }
+
+        .timeline-content p {
+            color: var(--color-text-secondary);
+        }
+
+        .interactive-demo {
+            background: var(--color-surface);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .quiz-container {
+            background: var(--color-bg-secondary);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .quiz-question {
+            margin: 25px 0;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .quiz-option {
+            padding: 15px;
+            background: var(--color-surface);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--color-accent);
+            transform: translateX(5px);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--color-success);
+            background: rgba(33, 128, 141, 0.2);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--color-warning);
+            background: rgba(230, 129, 97, 0.2);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-p2p {
+            background: rgba(33, 128, 141, 0.2);
+            color: var(--color-p2p);
+        }
+
+        .badge-server {
+            background: rgba(168, 75, 47, 0.2);
+            color: var(--color-server);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .comparison-grid, .pros-cons { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 Le Reti Peer-to-Peer (P2P)</h1>
+            <p class="subtitle">Architetture di rete distribuite: confronto tra P2P e Client-Server</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showSection('intro')">📚 Introduzione</div>
+            <div class="tab" onclick="showSection('comparison')">⚖️ Confronto</div>
+            <div class="tab" onclick="showSection('advantages')">✅ Pro e Contro</div>
+            <div class="tab" onclick="showSection('examples')">💻 Esempi Storici</div>
+            <div class="tab" onclick="showSection('interactive')">🎮 Demo Interattiva</div>
+            <div class="tab" onclick="showSection('quiz')">🎯 Quiz</div>
+        </div>
+
+        <!-- Introduzione -->
+        <div id="intro" class="content-section active">
+            <div class="card">
+                <h2>Cos'è una rete Peer-to-Peer?</h2>
+                <p style="font-size: 1.1rem; margin: 20px 0;">
+                    Una rete <strong>peer-to-peer (P2P)</strong> è un'architettura di rete in cui ogni nodo o "peer" 
+                    condivide le stesse responsabilità e funziona sia come <strong>client</strong> che come <strong>server</strong>. 
+                    Questo differisce dal tradizionale modello client-server, dove ci sono server dedicati che forniscono 
+                    risorse o servizi e client che li utilizzano.
+                </p>
+
+                <div class="network-viz">
+                    <div class="network-container">
+                        <h3>Rete P2P <span class="badge badge-p2p">Decentralizzata</span></h3>
+                        <canvas id="p2pCanvas" class="network-canvas"></canvas>
+                        <p style="margin-top: 10px; color: var(--color-text-secondary);">Ogni nodo comunica direttamente</p>
+                    </div>
+                    <div class="network-container">
+                        <h3>Rete Client-Server <span class="badge badge-server">Centralizzata</span></h3>
+                        <canvas id="serverCanvas" class="network-canvas"></canvas>
+                        <p style="margin-top: 10px; color: var(--color-text-secondary);">Server centrale gestisce tutto</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confronto -->
+        <div id="comparison" class="content-section">
+            <div class="card">
+                <h2>Differenze Fondamentali</h2>
+                
+                <h3>1. Struttura della Rete</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-card p2p-card">
+                        <h4>🔄 Peer-to-Peer</h4>
+                        <p>Non ci sono server centralizzati. Ogni nodo può funzionare come client e server. I peer comunicano direttamente tra loro.</p>
+                    </div>
+                    <div class="comparison-card server-card">
+                        <h4>🏢 Client-Server</h4>
+                        <p>Uno o più server centrali gestiscono dati e risorse, mentre i client si connettono ai server per accedere a tali risorse.</p>
+                    </div>
+                </div>
+
+                <h3>2. Gestione delle Risorse</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-card p2p-card">
+                        <h4>🔄 Peer-to-Peer</h4>
+                        <p>Le risorse e i dati sono distribuiti tra tutti i nodi della rete.</p>
+                    </div>
+                    <div class="comparison-card server-card">
+                        <h4>🏢 Client-Server</h4>
+                        <p>Le risorse sono centralizzate nei server, facilitando gestione e sicurezza dei dati.</p>
+                    </div>
+                </div>
+
+                <h3>3. Scalabilità</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-card p2p-card">
+                        <h4>🔄 Peer-to-Peer</h4>
+                        <p>Scala efficacemente aggiungendo più nodi. Ogni nuovo nodo aumenta la capacità di risorse della rete.</p>
+                    </div>
+                    <div class="comparison-card server-card">
+                        <h4>🏢 Client-Server</h4>
+                        <p>Limitata dalla capacità del server. Richiede investimenti significativi in hardware quando la rete cresce.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vantaggi e Svantaggi -->
+        <div id="advantages" class="content-section">
+            <div class="card">
+                <h2>Vantaggi e Svantaggi delle Reti P2P</h2>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h3>✅ Vantaggi</h3>
+                        <ul>
+                            <li><strong>Decentralizzazione:</strong> Minore dipendenza da un singolo punto di controllo o fallimento</li>
+                            <li><strong>Scalabilità:</strong> La capacità aumenta con l'aggiunta di nuovi nodi</li>
+                            <li><strong>Costi ridotti:</strong> Non servono server centralizzati costosi</li>
+                            <li><strong>Robustezza:</strong> Più resistente agli attacchi e ai guasti</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h3>⚠️ Svantaggi</h3>
+                        <ul>
+                            <li><strong>Sicurezza:</strong> Più difficile da gestire per la natura distribuita</li>
+                            <li><strong>Consistenza dati:</strong> Complesso mantenere la consistenza senza fonte centrale</li>
+                            <li><strong>Prestazioni variabili:</strong> Dipendono dalle capacità dei singoli peer</li>
+                            <li><strong>Controllo limitato:</strong> Difficile implementare policy centralizzate</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Vantaggi e Svantaggi del Modello Client-Server</h2>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h3>✅ Vantaggi</h3>
+                        <ul>
+                            <li><strong>Controllo centralizzato:</strong> Gestione semplificata di sicurezza e accessi</li>
+                            <li><strong>Prestazioni:</strong> Server potenziati per grandi volumi di traffico</li>
+                            <li><strong>Consistenza dati:</strong> Facile da realizzare con punto di controllo unico</li>
+                            <li><strong>Manutenzione:</strong> Aggiornamenti e backup centralizzati</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h3>⚠️ Svantaggi</h3>
+                        <ul>
+                            <li><strong>Costi elevati:</strong> Mantenimento server costoso</li>
+                            <li><strong>Scalabilità limitata:</strong> Aggiornamenti costosi e complessi</li>
+                            <li><strong>Single point of failure:</strong> Se il server cade, tutto si ferma</li>
+                            <li><strong>Bottleneck:</strong> Il server può diventare un collo di bottiglia</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Esempi Storici -->
+        <div id="examples" class="content-section">
+            <div class="card">
+                <h2>📜 Storia del Software P2P</h2>
+                <p style="margin-bottom: 20px;">Scopri i software più famosi che hanno rivoluzionato la condivisione di file e dati:</p>
+                
+                <div class="software-timeline">
+                    <div class="timeline-item" onclick="toggleDetails(this)">
+                        <div class="timeline-year">1999</div>
+                        <div class="timeline-content">
+                            <h4>🎵 Napster</h4>
+                            <p>Uno dei primi programmi di condivisione file P2P che ha rivoluzionato la distribuzione musicale. 
+                            Ha permesso agli utenti di condividere facilmente file musicali, ma ha sollevato significative 
+                            questioni legali sui diritti d'autore.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item" onclick="toggleDetails(this)">
+                        <div class="timeline-year">2001</div>
+                        <div class="timeline-content">
+                            <h4>⚡ BitTorrent</h4>
+                            <p>Tecnologia P2P che è diventata una delle più popolari per il trasferimento di file di grandi dimensioni. 
+                            Divide i file in parti distribuite tra gli utenti, migliorando efficienza e velocità del download. 
+                            Utilizzata per video, giochi e software.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item" onclick="toggleDetails(this)">
+                        <div class="timeline-year">2009</div>
+                        <div class="timeline-content">
+                            <h4>₿ Bitcoin e Blockchain</h4>
+                            <p>Bitcoin utilizza una rete P2P per gestire transazioni e tenere traccia della proprietà di moneta digitale 
+                            senza banche centrali. La tecnologia blockchain è un registro pubblico decentralizzato che registra 
+                            tutte le transazioni in modo sicuro e trasparente.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Interattiva -->
+        <div id="interactive" class="content-section">
+            <div class="card">
+                <h2>🎮 Simulazione Interattiva</h2>
+                <p>Sperimenta come funzionano le reti P2P e Client-Server in tempo reale!</p>
+                
+                <div class="interactive-demo">
+                    <h3>Rete Peer-to-Peer</h3>
+                    <canvas id="interactiveP2P" class="network-canvas" style="width: 100%; max-width: 600px; margin: 20px auto; display: block;"></canvas>
+                    <div class="demo-controls">
+                        <button class="btn" onclick="addP2PNode()">➕ Aggiungi Peer</button>
+                        <button class="btn" onclick="removeP2PNode()">➖ Rimuovi Peer</button>
+                        <button class="btn" onclick="simulateP2PTransfer()">📤 Simula Trasferimento</button>
+                        <button class="btn" onclick="resetP2P()">🔄 Reset</button>
+                    </div>
+                    <div id="p2pStatus" class="status-message"></div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Rete Client-Server</h3>
+                    <canvas id="interactiveServer" class="network-canvas" style="width: 100%; max-width: 600px; margin: 20px auto; display: block;"></canvas>
+                    <div class="demo-controls">
+                        <button class="btn" onclick="addClient()">➕ Aggiungi Client</button>
+                        <button class="btn" onclick="removeClient()">➖ Rimuovi Client</button>
+                        <button class="btn" onclick="simulateServerTransfer()">📤 Simula Richiesta</button>
+                        <button class="btn" onclick="toggleServer()">⚡ Toggle Server</button>
+                    </div>
+                    <div id="serverStatus" class="status-message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div id="quiz" class="content-section">
+            <div class="card">
+                <h2>🎯 Verifica le tue conoscenze</h2>
+                <div class="quiz-container">
+                    <div class="quiz-question">
+                        <h3>1. Qual è la caratteristica principale di una rete P2P?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                A) Ha sempre un server centrale che coordina tutto
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, true)">
+                                B) Ogni nodo funziona sia come client che come server
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                C) È più lenta delle reti tradizionali
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                D) Non può essere utilizzata per condividere file
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h3>2. Quale di questi è un vantaggio della rete Client-Server?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                A) Costi di gestione ridotti
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, true)">
+                                B) Controllo centralizzato e gestione semplificata
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                C) Nessun punto di fallimento singolo
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                D) Scalabilità illimitata senza costi
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h3>3. Quale software P2P è associato alla blockchain?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                A) Napster
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                B) BitTorrent
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, true)">
+                                C) Bitcoin
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                D) Skype
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question">
+                        <h3>4. Cosa succede in una rete P2P quando si aggiungono nuovi nodi?</h3>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                A) La rete diventa più lenta
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, true)">
+                                B) La capacità di risorse della rete aumenta
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                C) È necessario aggiornare il server centrale
+                            </div>
+                            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                                D) La sicurezza migliora automaticamente
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Navigation
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.content-section');
+            const tabs = document.querySelectorAll('.tab');
+            
+            sections.forEach(section => section.classList.remove('active'));
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Network Visualization - P2P
+        function drawP2PNetwork() {
+            const canvas = document.getElementById('p2pCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const nodes = [
+                {x: width * 0.2, y: height * 0.3},
+                {x: width * 0.5, y: height * 0.2},
+                {x: width * 0.8, y: height * 0.3},
+                {x: width * 0.3, y: height * 0.7},
+                {x: width * 0.7, y: height * 0.7}
+            ];
+            
+            // Draw connections
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-p2p');
+            ctx.lineWidth = 2;
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    ctx.beginPath();
+                    ctx.moveTo(nodes[i].x, nodes[i].y);
+                    ctx.lineTo(nodes[j].x, nodes[j].y);
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw nodes
+            nodes.forEach((node, i) => {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-p2p');
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('P' + (i + 1), node.x, node.y);
+            });
+        }
+
+        // Network Visualization - Client-Server
+        function drawServerNetwork() {
+            const canvas = document.getElementById('serverCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const server = {x: width * 0.5, y: height * 0.5};
+            const clients = [
+                {x: width * 0.2, y: height * 0.2},
+                {x: width * 0.8, y: height * 0.2},
+                {x: width * 0.2, y: height * 0.8},
+                {x: width * 0.8, y: height * 0.8},
+                {x: width * 0.5, y: height * 0.1}
+            ];
+            
+            // Draw connections
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-server');
+            ctx.lineWidth = 2;
+            clients.forEach(client => {
+                ctx.beginPath();
+                ctx.moveTo(server.x, server.y);
+                ctx.lineTo(client.x, client.y);
+                ctx.stroke();
+            });
+            
+            // Draw clients
+            clients.forEach((client, i) => {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary');
+                ctx.beginPath();
+                ctx.arc(client.x, client.y, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('C' + (i + 1), client.x, client.y);
+            });
+            
+            // Draw server
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-server');
+            ctx.fillRect(server.x - 25, server.y - 25, 50, 50);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('S', server.x, server.y);
+        }
+
+        // Interactive Demo Variables
+        let p2pNodes = [{x: 0.3, y: 0.5}, {x: 0.5, y: 0.3}, {x: 0.7, y: 0.5}];
+        let clients = [{x: 0.3, y: 0.3}, {x: 0.7, y: 0.3}, {x: 0.3, y: 0.7}, {x: 0.7, y: 0.7}];
+        let serverActive = true;
+        let p2pPackets = [];
+        let serverPackets = [];
+        let animationRunning = false;
+
+        function drawInteractiveP2P() {
+            const canvas = document.getElementById('interactiveP2P');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw connections
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-p2p');
+            ctx.lineWidth = 2;
+            for (let i = 0; i < p2pNodes.length; i++) {
+                for (let j = i + 1; j < p2pNodes.length; j++) {
+                    ctx.beginPath();
+                    ctx.moveTo(p2pNodes[i].x * width, p2pNodes[i].y * height);
+                    ctx.lineTo(p2pNodes[j].x * width, p2pNodes[j].y * height);
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw packets
+            p2pPackets.forEach(packet => {
+                const startNode = p2pNodes[packet.from];
+                const endNode = p2pNodes[packet.to];
+                const x = startNode.x + (endNode.x - startNode.x) * packet.progress;
+                const y = startNode.y + (endNode.y - startNode.y) * packet.progress;
+                
+                ctx.fillStyle = packet.color;
+                ctx.beginPath();
+                ctx.arc(x * width, y * height, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add glow effect
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = packet.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+            
+            // Draw nodes
+            p2pNodes.forEach((node, i) => {
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-p2p');
+                ctx.beginPath();
+                ctx.arc(node.x * width, node.y * height, 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(i + 1, node.x * width, node.y * height);
+            });
+        }
+
+        function drawInteractiveServer() {
+            const canvas = document.getElementById('interactiveServer');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            const server = {x: 0.5, y: 0.5};
+            
+            // Draw connections
+            if (serverActive) {
+                ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-server');
+                ctx.lineWidth = 2;
+                clients.forEach(client => {
+                    ctx.beginPath();
+                    ctx.moveTo(server.x * width, server.y * height);
+                    ctx.lineTo(client.x * width, client.y * height);
+                    ctx.stroke();
+                });
+            }
+            
+            // Draw packets
+            serverPackets.forEach(packet => {
+                let x, y;
+                if (packet.toServer) {
+                    const client = clients[packet.clientIndex];
+                    x = client.x + (server.x - client.x) * packet.progress;
+                    y = client.y + (server.y - client.y) * packet.progress;
+                } else {
+                    const client = clients[packet.clientIndex];
+                    x = server.x + (client.x - server.x) * packet.progress;
+                    y = server.y + (client.y - server.y) * packet.progress;
+                }
+                
+                ctx.fillStyle = packet.color;
+                ctx.beginPath();
+                ctx.arc(x * width, y * height, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add glow effect
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = packet.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+            
+            // Draw clients
+            clients.forEach((client, i) => {
+                ctx.fillStyle = serverActive ? 
+                    getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary') : 
+                    '#888';
+                ctx.beginPath();
+                ctx.arc(client.x * width, client.y * height, 15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('C', client.x * width, client.y * height);
+            });
+            
+            // Draw server
+            ctx.fillStyle = serverActive ? 
+                getComputedStyle(document.documentElement).getPropertyValue('--color-server') : 
+                '#444';
+            ctx.fillRect(server.x * width - 25, server.y * height - 25, 50, 50);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('S', server.x * width, server.y * height);
+        }
+
+        function addP2PNode() {
+            if (p2pNodes.length < 8) {
+                const angle = (p2pNodes.length * Math.PI * 2) / 8;
+                p2pNodes.push({
+                    x: 0.5 + Math.cos(angle) * 0.35,
+                    y: 0.5 + Math.sin(angle) * 0.35
+                });
+                drawInteractiveP2P();
+                showStatus('p2pStatus', `✅ Peer aggiunto! Rete ora con ${p2pNodes.length} nodi`, 'success');
+            } else {
+                showStatus('p2pStatus', '⚠️ Numero massimo di peer raggiunto', 'warning');
+            }
+        }
+
+        function removeP2PNode() {
+            if (p2pNodes.length > 2) {
+                p2pNodes.pop();
+                drawInteractiveP2P();
+                showStatus('p2pStatus', `➖ Peer rimosso. Rete ora con ${p2pNodes.length} nodi`, 'info');
+            } else {
+                showStatus('p2pStatus', '⚠️ Serve almeno 2 peer per la rete', 'warning');
+            }
+        }
+
+        function simulateP2PTransfer() {
+            const connections = (p2pNodes.length * (p2pNodes.length - 1)) / 2;
+            showStatus('p2pStatus', `📤 Trasferimento in corso! ${connections} connessioni attive. Ogni peer può inviare e ricevere dati.`, 'success');
+            
+            // Create multiple packets between random peers
+            p2pPackets = [];
+            const colors = ['#32b8c6', '#e6815f', '#50fa7b', '#ff79c6', '#f1fa8c'];
+            for (let i = 0; i < Math.min(p2pNodes.length * 2, 10); i++) {
+                const from = Math.floor(Math.random() * p2pNodes.length);
+                let to = Math.floor(Math.random() * p2pNodes.length);
+                while (to === from) {
+                    to = Math.floor(Math.random() * p2pNodes.length);
+                }
+                
+                p2pPackets.push({
+                    from: from,
+                    to: to,
+                    progress: 0,
+                    speed: 0.008 + Math.random() * 0.012,
+                    color: colors[i % colors.length]
+                });
+            }
+            
+            if (!animationRunning) {
+                animationRunning = true;
+                animatePackets();
+            }
+        }
+
+        function resetP2P() {
+            p2pNodes = [{x: 0.3, y: 0.5}, {x: 0.5, y: 0.3}, {x: 0.7, y: 0.5}];
+            drawInteractiveP2P();
+            showStatus('p2pStatus', '🔄 Rete P2P resettata', 'info');
+        }
+
+        function addClient() {
+            if (clients.length < 8) {
+                const angle = (clients.length * Math.PI * 2) / 8;
+                clients.push({
+                    x: 0.5 + Math.cos(angle) * 0.4,
+                    y: 0.5 + Math.sin(angle) * 0.4
+                });
+                drawInteractiveServer();
+                showStatus('serverStatus', `✅ Client aggiunto! ${clients.length} client connessi`, 'success');
+            } else {
+                showStatus('serverStatus', '⚠️ Numero massimo di client raggiunto', 'warning');
+            }
+        }
+
+        function removeClient() {
+            if (clients.length > 1) {
+                clients.pop();
+                drawInteractiveServer();
+                showStatus('serverStatus', `➖ Client rimosso. ${clients.length} client rimanenti`, 'info');
+            } else {
+                showStatus('serverStatus', '⚠️ Serve almeno 1 client', 'warning');
+            }
+        }
+
+        function simulateServerTransfer() {
+            if (serverActive) {
+                showStatus('serverStatus', `📤 Richiesta elaborata! Server gestisce ${clients.length} connessioni simultanee`, 'success');
+                
+                // Create packets from clients to server and back
+                serverPackets = [];
+                const colors = ['#e6815f', '#ff79c6', '#f1fa8c', '#50fa7b', '#32b8c6'];
+                clients.forEach((client, i) => {
+                    // Request packet (client to server)
+                    serverPackets.push({
+                        clientIndex: i,
+                        toServer: true,
+                        progress: 0,
+                        speed: 0.008 + Math.random() * 0.012,
+                        color: colors[i % colors.length]
+                    });
+                    
+                    // Response packet (server to client) - starts after a delay
+                    setTimeout(() => {
+                        serverPackets.push({
+                            clientIndex: i,
+                            toServer: false,
+                            progress: 0,
+                            speed: 0.008 + Math.random() * 0.012,
+                            color: colors[i % colors.length]
+                        });
+                    }, 500);
+                });
+                
+                if (!animationRunning) {
+                    animationRunning = true;
+                    animatePackets();
+                }
+            } else {
+                showStatus('serverStatus', '❌ Server offline! I client non possono accedere ai dati', 'error');
+            }
+        }
+
+        function toggleServer() {
+            serverActive = !serverActive;
+            drawInteractiveServer();
+            if (serverActive) {
+                showStatus('serverStatus', '✅ Server riattivato! Tutti i client riconnessi', 'success');
+            } else {
+                showStatus('serverStatus', '⚠️ Server disattivato! Questo è il Single Point of Failure', 'error');
+            }
+        }
+
+        function showStatus(elementId, message, type) {
+            const statusEl = document.getElementById(elementId);
+            statusEl.textContent = message;
+            statusEl.style.background = type === 'success' ? 'rgba(33, 128, 141, 0.2)' :
+                                        type === 'warning' ? 'rgba(230, 129, 97, 0.2)' :
+                                        type === 'error' ? 'rgba(192, 21, 47, 0.2)' :
+                                        'rgba(98, 108, 113, 0.2)';
+            statusEl.style.color = 'var(--color-text-primary)';
+        }
+
+        // Quiz Functions
+        function checkAnswer(element, isCorrect) {
+            const options = element.parentElement.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                if (opt === element) {
+                    opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    opt.textContent += isCorrect ? ' ✓ Corretto!' : ' ✗ Sbagliato';
+                }
+            });
+        }
+
+        function animatePackets() {
+            // Update P2P packets
+            p2pPackets = p2pPackets.filter(packet => {
+                packet.progress += packet.speed;
+                if (packet.progress >= 1) {
+                    // Packet reached destination, create a new one
+                    const colors = ['#32b8c6', '#e6815f', '#50fa7b', '#ff79c6', '#f1fa8c'];
+                    const from = Math.floor(Math.random() * p2pNodes.length);
+                    let to = Math.floor(Math.random() * p2pNodes.length);
+                    while (to === from && p2pNodes.length > 1) {
+                        to = Math.floor(Math.random() * p2pNodes.length);
+                    }
+                    
+                    p2pPackets.push({
+                        from: from,
+                        to: to,
+                        progress: 0,
+                        speed: 0.008 + Math.random() * 0.012,
+                        color: colors[Math.floor(Math.random() * colors.length)]
+                    });
+                    return false;
+                }
+                return true;
+            });
+            
+            // Update Server packets
+            serverPackets = serverPackets.filter(packet => {
+                packet.progress += packet.speed;
+                return packet.progress < 1;
+            });
+            
+            drawInteractiveP2P();
+            drawInteractiveServer();
+            
+            if (p2pPackets.length > 0 || serverPackets.length > 0) {
+                requestAnimationFrame(animatePackets);
+            } else {
+                animationRunning = false;
+            }
+        }
+
+        function toggleDetails(element) {
+            element.style.transform = element.style.transform === 'scale(1.02)' ? 'scale(1)' : 'scale(1.02)';
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            drawP2PNetwork();
+            drawServerNetwork();
+            drawInteractiveP2P();
+            drawInteractiveServer();
+        });
+
+        // Redraw on resize
+        window.addEventListener('resize', () => {
+            drawP2PNetwork();
+            drawServerNetwork();
+            drawInteractiveP2P();
+            drawInteractiveServer();
+        });
+    </script>
+</body>
+</html>
