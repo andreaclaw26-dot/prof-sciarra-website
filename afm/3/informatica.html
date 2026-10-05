@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Come creare il Prompt Perfetto per un Sito Web — 3ª AFM Informatica</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --bg-2: #0f1530;
+    --panel: #141b3a;
+    --panel-2: #1a2247;
+    --text: #e6ecff;
+    --muted: #9aa6c7;
+    --accent: #6ee7ff;
+    --accent-2: #b388ff;
+    --good: #7cffb2;
+    --warn: #ffc857;
+    --bad: #ff6b9d;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: radial-gradient(1200px 800px at 80% -10%, #1b2350 0%, var(--bg) 60%) var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(110, 231, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(110, 231, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== Top bar / breadcrumb ===== */
+  .topbar {
+    position: relative;
+    z-index: 1;
+    padding: 20px 24px 0;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .breadcrumb {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .breadcrumb a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ===== Header ===== */
+  header {
+    position: relative;
+    z-index: 1;
+    padding: 30px 24px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  header .tag {
+    display: inline-block;
+    background: rgba(255,107,157,0.15);
+    color: var(--bad);
+    border: 1px solid rgba(255,107,157,0.4);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  header h1 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    margin: 14px 0 8px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.02em;
+  }
+  header p {
+    color: var(--muted);
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  /* ===== Main ===== */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px 24px 60px;
+  }
+
+  /* ===== Intro card ===== */
+  .intro {
+    background: linear-gradient(180deg, rgba(20,27,58,0.7), rgba(15,21,48,0.7));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  .intro h2 {
+    margin: 0 0 10px;
+    color: var(--accent);
+    font-size: 1.2rem;
+  }
+
+  /* ===== Step cards ===== */
+  .step {
+    background: linear-gradient(180deg, rgba(20,27,58,0.7), rgba(15,21,48,0.7));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 26px 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .step::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 4px;
+    background: var(--accent);
+  }
+  .step.s1::before { background: var(--bad); }
+  .step.s2::before { background: var(--warn); }
+  .step.s3::before { background: var(--accent); }
+  .step.s4::before { background: var(--accent-2); }
+  .step.s5::before { background: var(--good); }
+  .step.s6::before { background: var(--accent); }
+
+  .step .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-weight: 800;
+    color: #06091a;
+    margin-bottom: 10px;
+  }
+  .s1 .num { background: var(--bad); }
+  .s2 .num { background: var(--warn); }
+  .s3 .num { background: var(--accent); }
+  .s4 .num { background: var(--accent-2); }
+  .s5 .num { background: var(--good); }
+  .s6 .num { background: var(--accent); }
+
+  .step h2 {
+    margin: 0 0 8px;
+    font-size: 1.35rem;
+  }
+  .step .lead {
+    color: var(--muted);
+    margin: 0 0 18px;
+  }
+
+  /* ===== Code blocks ===== */
+  pre, code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.9rem;
+  }
+  pre {
+    background: #060914;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    color: #d6e4ff;
+    line-height: 1.55;
+    margin: 12px 0;
+  }
+  code {
+    background: rgba(110, 231, 255, 0.1);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+  }
+  pre .k { color: #ff8fb3; font-weight: 700; }
+  pre .s { color: #b6f0c4; }
+  pre .c { color: #6b7ba8; font-style: italic; }
+  pre .b { color: #6ee7ff; font-weight: 700; }
+
+  /* ===== Compare boxes (bad vs good) ===== */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0;
+  }
+  @media (max-width: 720px) {
+    .compare { grid-template-columns: 1fr; }
+  }
+  .compare .box {
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 0.92rem;
+  }
+  .compare .bad {
+    background: rgba(255,107,157,0.08);
+    border: 1px solid rgba(255,107,157,0.3);
+  }
+  .compare .good {
+    background: rgba(124,255,178,0.08);
+    border: 1px solid rgba(124,255,178,0.3);
+  }
+  .compare .box h4 {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .compare .bad h4 { color: var(--bad); }
+  .compare .good h4 { color: var(--good); }
+
+  /* ===== Lists ===== */
+  ul.checklist {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  ul.checklist li {
+    padding: 6px 0 6px 26px;
+    position: relative;
+  }
+  ul.checklist li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--good);
+    font-weight: 800;
+  }
+
+  /* ===== Final example: full prompt ===== */
+  .final-prompt {
+    background: linear-gradient(135deg, rgba(110,231,255,0.08), rgba(179,136,255,0.08));
+    border: 1px solid rgba(110, 231, 255, 0.3);
+    border-radius: 16px;
+    padding: 26px 28px;
+    margin: 40px 0;
+  }
+  .final-prompt h2 {
+    margin: 0 0 8px;
+    color: var(--accent);
+  }
+  .final-prompt p.lead {
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+
+  /* ===== Iteration loop visual ===== */
+  .loop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 18px 0;
+    padding: 18px;
+    background: rgba(20,27,58,0.5);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+  }
+  .loop .node {
+    background: var(--panel-2);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  .loop .arrow {
+    color: var(--accent);
+    font-weight: 800;
+  }
+
+  /* ===== Footer ===== */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: var(--muted);
+    padding: 30px 16px 50px;
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="breadcrumb">
+    <a href="../../index.html">Home</a> ·
+    <a href="../../index.html#afm">AFM</a> ·
+    <a href="../../index.html#afm">3ª Classe</a> ·
+    <strong>Informatica</strong>
+  </div>
+</div>
+
+<header>
+  <span class="tag">3ª AFM · INFORMATICA</span>
+  <h1>Come creare il Prompt Perfetto per realizzare un Sito Web</h1>
+  <p>Una guida pratica in 6 regole per ottenere esattamente ciò che vuoi da un'intelligenza artificiale generativa.</p>
+</header>
+
+<main>
+
+  <section class="intro">
+    <h2>Perché un buon prompt fa la differenza?</h2>
+    <p>
+      L'intelligenza artificiale generativa non legge nel pensiero: interpreta il testo che le scrivi.
+      Più il tuo prompt è <strong>chiaro, strutturato e ricco di contesto</strong>, più il risultato sarà vicino a quello che immagini.
+      Le 6 regole che seguono trasformano una richiesta vaga in un brief professionale.
+    </p>
+  </section>
+
+  <!-- STEP 1 -->
+  <section class="step s1">
+    <div class="num">1</div>
+    <h2>Assegna un Ruolo (Persona)</h2>
+    <p class="lead">Definisci <em>chi</em> deve essere l'IA. Un ruolo preciso attiva conoscenze specifiche e orienta lo stile della risposta.</p>
+
+    <div class="compare">
+      <div class="box bad">
+        <h4>❌ Vago</h4>
+<pre><code>Fammi un sito web.</code></pre>
+      </div>
+      <div class="box good">
+        <h4>✅ Specifico</h4>
+<pre><code><span class="k">Agisci come</span> un web designer senior
+specializzato in siti vetrina per
+piccole imprese italiane, con
+esperienza in HTML, CSS e SEO
+di base.</code></pre>
+      </div>
+    </div>
+
+    <p>Esempi di ruoli efficaci:</p>
+    <ul class="checklist">
+      <li><code>Agisci come un full-stack developer esperto in Node.js e React.</code></li>
+      <li><code>Agisci come un graphic designer specializzato in UI/UX mobile-first.</code></li>
+      <li><code>Agisci come un consulente marketing digitale per il settore ristorazione.</code></li>
+    </ul>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step s2">
+    <div class="num">2</div>
+    <h2>Fornisci il Contesto</h2>
+    <p class="lead">Spiega lo scenario, il settore, il pubblico, l'ambiente. Più contesto dai, meno l'IA dovrà inventare.</p>
+
+    <div class="compare">
+      <div class="box bad">
+        <h4>❌ Senza contesto</h4>
+<pre><code>Voglio un sito per il mio
+ristorante.</code></pre>
+      </div>
+      <div class="box good">
+        <h4>✅ Con contesto</h4>
+<pre><code><span class="k">Contesto</span>: ho una piccola
+trattoria di pesce a Bari, 30
+coperti, clientela locale e
+turistica estiva. Voglio un sito
+che mostri il menù stagionale,
+la posizione e permetta di
+prenotare online.</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step s3">
+    <div class="num">3</div>
+    <h2>Definisci l'Obiettivo (Task)</h2>
+    <p class="lead">Descrivi in modo chiaro e preciso l'azione che l'IA deve compiere. Usa verbi all'infinito: <em>crea, genera, scrivi, progetta, correggi</em>.</p>
+
+    <div class="compare">
+      <div class="box bad">
+        <h4>❌ Azione vaga</h4>
+<pre><code>Sistema questo sito.</code></pre>
+      </div>
+      <div class="box good">
+        <h4>✅ Azione specifica</h4>
+<pre><code><span class="k">Task</span>: crea una homepage
+in HTML5 + CSS3 responsive
+con:
+- hero con foto e slogan
+- sezione menù (4 piatti)
+- modulo di prenotazione
+- footer con contatti e mappa</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step s4">
+    <div class="num">4</div>
+    <h2>Specifica Formato e Tono</h2>
+    <p class="lead">Indica <em>come</em> deve essere l'output: struttura, lunghezza, stile di scrittura, lingua.</p>
+
+    <div class="compare">
+      <div class="box bad">
+        <h4>❌ Non specificato</h4>
+<pre><code>Scrivi i testi del sito.</code></pre>
+      </div>
+      <div class="box good">
+        <h4>✅ Formato + tono</h4>
+<pre><code><span class="k">Formato</span>: 5 sezioni, una per
+ogni pagina (Home, Menù, Chi
+siamo, Prenota, Contatti).
+
+<span class="k">Tono</span>: amichevole e
+conviviale, in italiano, con
+riferimenti al territorio pugliese.
+
+<span class="k">Lunghezza</span>: 80-120 parole
+per sezione.</code></pre>
+      </div>
+    </div>
+
+    <p>Altre specifiche utili:</p>
+    <ul class="checklist">
+      <li><code>Output in markdown con titoli H2/H3</code></li>
+      <li><code>Restituisci solo il codice HTML, senza commenti</code></li>
+      <li><code>Usa elenchi puntati, non paragrafi lunghi</code></li>
+      <li><code>Tono formale / informale / tecnico / persuasivo</code></li>
+    </ul>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step s5">
+    <div class="num">5</div>
+    <h2>Inserisci Vincoli o Esempi (Few-shot)</h2>
+    <p class="lead">Dì cosa evitare e, se possibile, mostra un esempio del risultato atteso. La tecnica <strong>few-shot</strong> è potentissima.</p>
+
+    <div class="compare">
+      <div class="box bad">
+        <h4>❌ Senza vincoli</h4>
+<pre><code>Fammi una palette di colori
+per il sito.</code></pre>
+      </div>
+      <div class="box good">
+        <h4>✅ Con vincoli + esempio</h4>
+<pre><code><span class="k">Vincoli</span>:
+- niente colori fluorescenti
+- niente rosso (già usato dal
+  logo)
+- massimo 4 colori
+
+<span class="k">Esempio di output atteso</span>:
+- Primario: #0a3d62 (blu mare)
+- Secondario: #f8b500 (giallo)
+- Sfondo: #f5f5f5
+- Testo: #2c3e50
+
+<span class="k">Few-shot</span>: "Voglio una
+palette come quella di questa
+immagine..." [incolla link]</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 6 -->
+  <section class="step s6">
+    <div class="num">6</div>
+    <h2>Itera se il risultato non ti convince</h2>
+    <p class="lead">Il primo output è quasi mai perfetto. Trattalo come una bozza e raffinalo con richieste mirate.</p>
+
+    <div class="loop">
+      <div class="node">1. Prompt iniziale</div>
+      <span class="arrow">→</span>
+      <div class="node">2. Output ricevuto</div>
+      <span class="arrow">→</span>
+      <div class="node">3. Valuti cosa manca</div>
+      <span class="arrow">→</span>
+      <div class="node">4. Prompt raffinato</div>
+      <span class="arrow">↺</span>
+    </div>
+
+    <p>Esempi di iterazioni utili:</p>
+    <ul class="checklist">
+      <li><code>"Il tono è troppo formale, rendilo più colloquiale."</code></li>
+      <li><code>"Nella sezione 'Chi siamo' aggiungi un paragrafo sulla nostra storia."</code></li>
+      <li><code>"Il modulo di prenotazione non è responsive: correggilo per mobile."</code></li>
+      <li><code>"Traduci tutta la pagina in inglese, mantenendo la stessa struttura."</code></li>
+    </ul>
+  </section>
+
+  <!-- ESEMPIO FINALE -->
+  <section class="final-prompt">
+    <h2>Esempio finale: un prompt "perfetto" completo</h2>
+    <p class="lead">Ecco come tutte e 6 le regole si compongono in un unico brief.</p>
+<pre><code><span class="c"># RUOLO</span>
+Agisci come un web designer senior specializzato in siti vetrina
+per piccole imprese italiane, con esperienza in HTML5, CSS3 e SEO
+di base.
+
+<span class="c"># CONTESTO</span>
+Sto lanciando una libreria indipendente a Torino ("Libri Sospesi"),
+specializzata in narrativa contemporanea e classici rari. Target:
+25-50 anni, amanti della lettura, attenti al design.
+
+<span class="c"># TASK</span>
+Crea una homepage in HTML5 + CSS3, mobile-first, con:
+- hero con slogan e immagine di sfondo
+- sezione "Consigli del mese" (3 libri)
+- sezione eventi (2-3 incontri con l'autore)
+- modulo di iscrizione alla newsletter
+- footer con orari, indirizzo e social
+
+<span class="c"># FORMATO E TONO</span>
+- Output: un singolo file HTML con CSS inline
+- Lingua: italiano, tono caldo e colto, non accademico
+- Massimo 100 parole per sezione testuale
+- Palette: colori caldi (terracotta, crema, verde bosco)
+
+<span class="c"># VINCOLI ED ESEMPI</span>
+- Non usare framework esterni (no Bootstrap, no Tailwind)
+- Non inserire immagini stock generiche: usa placeholder grigi
+- Esempio di tono corretto: "Un angolo silenzioso dove i libri
+  aspettano di essere aperti." (evita "Benvenuti nel nostro sito")
+
+<span class="c"># CRITERI DI SUCCESSO</span>
+- Il sito si visualizza correttamente su smartphone (larghezza 375px)
+- I colori rispettano la palette indicata
+- Il modulo newsletter è funzionante (anche solo lato front-end)</code></pre>
+  </section>
+
+  <section class="intro">
+    <h2>Ricapitolando</h2>
+    <ul class="checklist">
+      <li><strong>Ruolo</strong>: chi è l'IA per te?</li>
+      <li><strong>Contesto</strong>: in quale situazione opera?</li>
+      <li><strong>Task</strong>: cosa deve fare, esattamente?</li>
+      <li><strong>Formato e tono</strong>: come deve presentare il risultato?</li>
+      <li><strong>Vincoli ed esempi</strong>: cosa evitare? cosa ti aspetti?</li>
+      <li><strong>Iterazione</strong>: raffina finché non funziona.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <p>3ª AFM · Informatica · Prof. Andrea Sciarra</p>
+  <p><a href="../../index.html">← Torna alla home</a></p>
+</footer>
+
+</body>
+</html>

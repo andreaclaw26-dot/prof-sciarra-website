@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hard Disk vs SSD — Laboratorio Interattivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e13; --panel:#101821; --panel2:#0c1219;
+  --line:#1f2c38; --line2:#33475a;
+  --ink:#e9f1f6; --mut:#8ba1b4; --dim:#5d7284;
+  --amber:#ffb454; --amber2:#ff8a3d; --cy:#41d9ff; --cy2:#8ff2ff;
+  --red:#ff5d6c; --green:#3fe0a0;
+  --disp:'Chakra Petch',sans-serif; --body:'Sora',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(900px 500px at 85% -10%, rgba(255,180,84,.06), transparent 60%),
+    radial-gradient(900px 600px at 8% 25%, rgba(65,217,255,.05), transparent 55%),
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size:auto,auto,48px 48px,48px 48px;
+  color:var(--ink); font-family:var(--body); line-height:1.6; overflow-x:hidden;
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:59;opacity:.5;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 4px);}
+::selection{background:var(--amber);color:#241302}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+section{padding:96px 0;border-top:1px solid var(--line)}
+h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.02em}
+.mono{font-family:var(--mono)}
+
+nav{position:sticky;top:0;z-index:50;background:rgba(10,14,19,.94);border-bottom:1px solid var(--line)}
+.navin{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px}
+.logo{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.14em;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo b{color:var(--amber)} .logo i{color:var(--cy);font-style:normal}
+.led{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber);animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.navlinks{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.navlinks a{font-family:var(--mono);font-size:11.5px;text-decoration:none;color:var(--mut);padding:6px 10px;border:1px solid transparent;transition:.25s}
+.navlinks a:hover{color:var(--cy);border-color:var(--line2);background:var(--panel2)}
+
+/* HERO */
+header.hero{padding:72px 0 84px;border-top:none}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:var(--mut);display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.kicker::before{content:'';width:34px;height:2px;background:var(--amber)}
+h1 .l1{display:block;font-size:clamp(1.9rem,5vw,3.4rem);color:var(--amber);text-shadow:0 0 26px rgba(255,180,84,.25)}
+h1 .vs{display:inline-block;font-family:var(--mono);font-size:13px;color:var(--mut);border:1px solid var(--line2);padding:3px 12px;margin:14px 0;letter-spacing:.3em}
+h1 .l2{display:block;font-size:clamp(3rem,8vw,5.6rem);line-height:.95;color:var(--cy);text-shadow:0 0 34px rgba(65,217,255,.3)}
+.lead{color:var(--mut);max-width:52ch;margin:22px 0 8px;font-size:16.5px}
+.lead strong{color:var(--ink)}
+.hint{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
+.hint b{color:var(--green)}
+.statrow{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.stat{border:1px solid var(--line);background:var(--panel2);padding:12px 16px;min-width:130px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
+.stat .v{font-family:var(--disp);font-weight:700;font-size:23px;color:var(--amber)}
+.stat.c .v{color:var(--cy)}
+.stat .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--dim);margin-top:2px}
+
+.disk-panel{position:relative;border:1px solid var(--line2);background:linear-gradient(160deg,var(--panel),var(--panel2));padding:18px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.disk-panel .bhead{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--dim);margin-bottom:10px}
+.disk-panel svg{width:100%;height:auto;display:block}
+.spin{transform-box:view-box;transform-origin:var(--ox) var(--oy);animation:rot 3.2s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.sweep{transform-box:view-box;transform-origin:var(--px) var(--py);animation:sweep 5.5s ease-in-out infinite alternate}
+@keyframes sweep{from{transform:rotate(-15deg)}to{transform:rotate(9deg)}}
+.gpart{cursor:pointer}
+.gpart:hover rect,.gpart:hover circle,.gpart:hover line,.gpart:hover path{filter:drop-shadow(0 0 6px rgba(65,217,255,.8))}
+.plabel{font-family:var(--mono);font-size:11px;fill:var(--mut);letter-spacing:.18em}
+.readout{margin-top:12px;font-family:var(--mono);font-size:12.5px;color:var(--amber);border-left:3px solid var(--amber);padding:8px 12px;background:var(--panel2);min-height:42px}
+
+/* sezioni */
+.shead{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.snum{font-family:var(--mono);color:var(--amber);font-size:14px;letter-spacing:.2em;border:1px solid var(--line2);padding:4px 10px;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
+.skick{font-family:var(--mono);font-size:11.5px;letter-spacing:.3em;color:var(--dim)}
+h2.lm{overflow:hidden;font-size:clamp(1.9rem,4.6vw,3.2rem);line-height:1.05}
+h2.lm span{display:inline-block;transform:translateY(115%);transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+h2.lm.in span{transform:none}
+.sintro{color:var(--mut);max-width:72ch;margin-bottom:40px}
+.sintro b{color:var(--cy)} .sintro i{color:var(--amber);font-style:normal;font-weight:600}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.panel{border:1px solid var(--line2);background:var(--panel2);padding:22px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+
+/* anatomia */
+.ana{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:start}
+.plist{display:grid;gap:10px}
+.apart{font-family:var(--mono);font-size:12.5px;text-align:left;letter-spacing:.08em;padding:13px 16px;background:var(--panel2);border:1px solid var(--line2);color:var(--mut);cursor:pointer;transition:.25s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)}
+.apart:hover{border-color:var(--amber);color:var(--amber);transform:translateX(5px)}
+.apart.act{border-color:var(--amber);color:var(--amber);background:rgba(255,180,84,.07)}
+#anaDesc{margin-top:16px;padding:14px 16px;border:1px solid var(--amber);color:#ffd9a3;font-size:13.5px;min-height:88px;background:rgba(255,180,84,.04)}
+.warnbox{margin-top:14px;border:1px solid var(--red);color:var(--red);padding:12px 16px;font-size:12.5px;background:rgba(255,93,108,.05)}
+.notebox{margin-top:14px;border:1px dashed var(--line2);color:var(--mut);padding:12px 16px;font-size:12.5px}
+.notebox b{color:var(--cy)}
+#anaSvg .part{transition:opacity .4s}
+#anaSvg.focus .part{opacity:.22}
+#anaSvg.focus .part.sel{opacity:1}
+#anaSvg .part.sel circle,#anaSvg .part.sel line,#anaSvg .part.sel rect,#anaSvg .part.sel path{stroke:var(--cy2);filter:drop-shadow(0 0 7px rgba(65,217,255,.8))}
+.bitgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.bit{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;border:1px solid var(--line2);color:var(--dim);cursor:pointer;transition:.2s;background:var(--panel)}
+.bit.one{color:var(--amber);border-color:var(--amber);box-shadow:0 0 8px rgba(255,180,84,.3)}
+.bit:hover{transform:translateY(-3px)}
+.bitnote{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:10px}
+
+/* ssd */
+.ssdgrid-wrap{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.nandgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.nand{height:52px;border:1px solid var(--line2);background:var(--panel);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.15em;transition:.15s}
+.nand.wr{color:var(--cy);border-color:var(--cy);box-shadow:0 0 12px rgba(65,217,255,.4);background:rgba(65,217,255,.08)}
+.ctrlchip{border:1px solid var(--cy);color:var(--cy);text-align:center;padding:10px;font-family:var(--mono);font-size:11px;letter-spacing:.2em}
+.gbtn{font-family:var(--mono);font-size:12px;letter-spacing:.12em;padding:12px 18px;background:transparent;border:1px solid var(--line2);color:var(--mut);cursor:pointer;transition:.25s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)}
+.gbtn:hover{border-color:var(--cy);color:var(--cy)}
+.gbtn.amber:hover{border-color:var(--amber);color:var(--amber)}
+.kb{overflow:hidden;border:1px solid var(--line2)}
+.kb img{width:100%;display:block;height:200px;object-fit:cover;transform:scale(1.06);animation:kb 16s ease-in-out infinite alternate}
+@keyframes kb{from{transform:scale(1.06)}to{transform:scale(1.18) translate(-2.5%,2%)}}
+.kb figcaption{font-family:var(--mono);font-size:11px;color:var(--dim);padding:10px 12px;border-top:1px solid var(--line)}
+.ffrow{display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap;margin-top:22px}
+.ff{text-align:center}
+.ff .box{border:2px solid var(--amber);background:rgba(255,180,84,.06);margin:0 auto 8px}
+.ff.s .box{border-color:var(--cy);background:rgba(65,217,255,.06)}
+.ff .fl{font-family:var(--mono);font-size:10.5px;color:var(--mut);letter-spacing:.1em}
+
+/* caccia al file */
+.seekgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.seekhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.seekhead h3{font-size:16px}
+.tot{font-family:var(--mono);font-size:13px}
+.tot.a{color:var(--amber)} .tot.c{color:var(--cy)}
+#seekArm{transform-box:view-box;transform-origin:470px 340px;transition:transform .6s cubic-bezier(.3,.7,.3,1)}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.scell{height:44px;border:1px solid var(--line2);background:var(--panel);transition:.12s}
+.scell.hit{background:var(--cy);box-shadow:0 0 14px rgba(65,217,255,.6);border-color:var(--cy)}
+.slog{border:1px solid var(--line);background:#070b10;font-family:var(--mono);font-size:11.5px;height:130px;overflow-y:auto;padding:10px 12px;color:var(--mut)}
+.slog .g{color:var(--green)} .slog .w{color:var(--amber)} .slog .c{color:var(--cy)}
+.racebtn{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.14em;padding:14px 30px;background:var(--amber);border:none;color:#241302;cursor:pointer;transition:.25s;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
+.racebtn:hover{background:var(--amber2);box-shadow:0 0 24px rgba(255,180,84,.4)}
+.racebtn:disabled{opacity:.4;cursor:wait}
+#seekBanner{margin-top:22px;padding:14px 18px;border:1px solid var(--green);color:var(--green);font-size:14px;display:none}
+#seekBanner.show{display:block;animation:pop .5s}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* crash test */
+.crashgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.devcard{position:relative;overflow:hidden}
+.devcard.shake{animation:shake .5s}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-7px,2px) rotate(-1deg)}60%{transform:translate(7px,-2px) rotate(1deg)}}
+.devcard h3{font-size:17px;margin-bottom:4px}
+.devcard.a h3{color:var(--amber)} .devcard.c h3{color:var(--cy)}
+.devsub{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.2em;margin-bottom:16px}
+.hpbar{height:14px;background:#070b10;border:1px solid var(--line);margin:8px 0 6px}
+.hpbar i{display:block;height:100%;width:100%;background:var(--green);box-shadow:0 0 10px rgba(63,224,160,.4);transition:width .5s,background .5s}
+.hpbar i.mid{background:var(--amber);box-shadow:0 0 10px rgba(255,180,84,.4)}
+.hpbar i.low{background:var(--red);box-shadow:0 0 10px rgba(255,93,108,.4)}
+.devstatus{font-family:var(--mono);font-size:12px;color:var(--mut);min-height:20px}
+.eq{display:flex;gap:4px;align-items:flex-end;height:34px;margin-top:14px}
+.eq span{width:7px;height:4px;background:var(--amber);transition:.3s}
+.eq.on span{animation:eq .5s ease-in-out infinite alternate}
+.eq.on span:nth-child(2){animation-delay:.1s}.eq.on span:nth-child(3){animation-delay:.2s}.eq.on span:nth-child(4){animation-delay:.05s}.eq.on span:nth-child(5){animation-delay:.15s}
+@keyframes eq{from{height:5px}to{height:32px}}
+.crack{position:absolute;inset:0;pointer-events:none;opacity:0;transition:.4s}
+.crack.show{opacity:1}
+.dbval{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:8px}
+.crashctrl{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px}
+
+/* confronto */
+.cmpwrap{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:start}
+table.cmp{width:100%;border-collapse:collapse;border:1px solid var(--line2)}
+.cmp th,.cmp td{padding:13px 15px;border:1px solid var(--line);font-size:13px;text-align:left;vertical-align:top}
+.cmp thead th{font-family:var(--disp);font-size:14px}
+.cmp thead th:nth-child(2){color:var(--amber);background:rgba(255,180,84,.05)}
+.cmp thead th:nth-child(3){color:var(--cy);background:rgba(65,217,255,.05)}
+.cmp td:first-child{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--dim)}
+.cmp tbody tr{transition:.25s}
+.cmp tbody tr:hover{background:rgba(255,255,255,.03)}
+.cmp td:nth-child(2){color:#ffd9a3} .cmp td:nth-child(3){color:#b9ecff}
+.copybox .cl{display:grid;grid-template-columns:110px 1fr 90px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px dashed var(--line);font-family:var(--mono);font-size:12px}
+.copybox .cl:last-of-type{border:none}
+.cbar{height:12px;background:#070b10;border:1px solid var(--line)}
+.cbar i{display:block;height:100%;width:0}
+.cbar.a i{background:linear-gradient(90deg,#a3641f,var(--amber))}
+.cbar.c i{background:linear-gradient(90deg,#1c7ea0,var(--cy))}
+.cbar.n i{background:linear-gradient(90deg,#1c7ea0,var(--cy2));box-shadow:0 0 12px rgba(143,242,255,.5)}
+.ct{color:var(--dim);text-align:right}
+.ct.done{color:var(--green)}
+
+/* video */
+.frame{border:1px solid var(--line2);background:#000;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.frame .ratio{position:relative;padding-top:56.25%}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.videonote{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:12px}
+.videonote a{color:var(--cy)}
+
+/* quiz */
+.quizbox{max-width:760px;margin:0 auto;border:1px solid var(--line2);background:var(--panel);padding:34px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.qprog{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:.15em;margin-bottom:10px}
+.qbar{height:6px;background:#070b10;border:1px solid var(--line);margin-bottom:26px}
+.qbar i{display:block;height:100%;background:var(--cy);box-shadow:0 0 10px rgba(65,217,255,.5);transition:width .5s}
+.qq{font-family:var(--disp);font-size:clamp(1.15rem,2.6vw,1.6rem);text-transform:none;letter-spacing:0;margin-bottom:22px;line-height:1.35}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;padding:14px 18px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink);font-family:var(--body);font-size:14.5px;cursor:pointer;transition:.22s;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
+.opt:hover:not(:disabled){border-color:var(--cy);transform:translateX(6px)}
+.opt:disabled{cursor:default;opacity:.75}
+.opt.ok{border-color:var(--green);background:rgba(63,224,160,.09);color:var(--green);opacity:1}
+.opt.ko{border-color:var(--red);background:rgba(255,93,108,.08);color:var(--red);opacity:1}
+.qfeed{margin-top:20px;padding:14px 18px;font-size:13.5px;display:none;border:1px solid var(--line2)}
+.qfeed.show{display:block;animation:pop .4s}
+.qfeed.good{border-color:var(--green);color:var(--green)} .qfeed.bad{border-color:var(--red);color:var(--red)}
+.qfeed span{display:block;color:var(--mut);margin-top:6px}
+.qnext{margin-top:20px;display:none}
+.qnext.show{display:inline-block;animation:pop .4s}
+.qfinal{text-align:center;padding:18px 0}
+.qfinal .score{font-family:var(--disp);font-weight:700;font-size:64px;color:var(--cy)}
+.qfinal .verdict{font-size:17px;margin:10px 0 26px;color:var(--mut)}
+.qfinal .verdict b{color:var(--ink)}
+
+/* finale */
+.gold{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+.grule{border:1px solid var(--line2);background:var(--panel2);padding:26px;position:relative;overflow:hidden;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.grule .n{font-family:var(--disp);font-weight:700;font-size:60px;color:transparent;-webkit-text-stroke:1.5px var(--line2);position:absolute;top:6px;right:14px;transition:.4s}
+.grule:hover .n{-webkit-text-stroke:1.5px var(--amber)}
+.grule h3{font-size:16px;margin-bottom:10px;color:var(--amber);text-transform:none}
+.grule:nth-child(2) h3{color:var(--cy)}
+.grule p{font-size:13.5px;color:var(--mut)}
+.marquee{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;margin-top:60px;background:var(--panel2)}
+.mtrack{display:flex;gap:44px;width:max-content;animation:mq 34s linear infinite;font-family:var(--mono);font-size:13px;letter-spacing:.24em;color:var(--dim)}
+.mtrack b{color:var(--amber);font-weight:500} .mtrack i{color:var(--cy);font-style:normal}
+@keyframes mq{to{transform:translateX(-50%)}}
+footer{padding:36px 0;border-top:1px solid var(--line)}
+.footin{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.12em}
+.footin b{color:var(--mut)}
+
+@media (max-width:960px){.hero-grid,.ana,.ssdgrid-wrap,.seekgrid,.crashgrid,.cmpwrap{grid-template-columns:1fr}}
+@media (max-width:600px){section{padding:70px 0}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}
+  .spin,.sweep{animation:none !important}
+  .rv{opacity:1;transform:none} h2.lm span{transform:none}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="navin">
+  <div class="logo"><span class="led"></span>LAB//<b>STORAGE</b>&nbsp;<i>SSD</i></div>
+  <div class="navlinks">
+    <a href="#anatomia">Anatomia HDD</a><a href="#ssd">Anatomia SSD</a><a href="#caccia">Caccia al file</a>
+    <a href="#crash">Crash test</a><a href="#confronto">Confronto</a><a href="#video">Video</a><a href="#quiz">Quiz</a>
+  </div>
+</div></nav>
+
+<!-- HERO -->
+<header class="hero"><div class="wrap hero-grid">
+  <div>
+    <div class="kicker">LEZIONE INTERATTIVA • LE MEMORIE PERMANENTI</div>
+    <h1>
+      <span class="l1" data-scramble="HARD DISK">HARD DISK</span>
+      <span class="vs">CONTRO</span>
+      <span class="l2" data-scramble="SSD">SSD</span>
+    </h1>
+    <p class="lead">Da una parte una macchina di precisione con <strong>piatti che girano a 7200 giri al minuto</strong> e testine che sfiorano il metallo; dall'altra <strong>solo chip di memoria flash</strong>, silenziosi e fulminei. Stessa missione — conservare i tuoi dati — metodi opposti. Accendi gli esperimenti e scopri chi vince.</p>
+    <div class="hint">// qui si può toccare tutto: <b>premi, clicca, sperimenta</b></div>
+    <div class="statrow">
+      <div class="stat"><div class="v"><span class="count" data-count="7200">0</span> giri/min</div><div class="k">PIATTO HDD</div></div>
+      <div class="stat"><div class="v"><span class="count" data-count="2">0</span> cavi</div><div class="k">DATI + CORRENTE</div></div>
+      <div class="stat c"><div class="v"><span class="count" data-count="0">0</span></div><div class="k">PARTI MOBILI SSD</div></div>
+      <div class="stat c"><div class="v">~<span class="count" data-count="100">0</span>×</div><div class="k">ACCESSO PIÙ VELOCE</div></div>
+    </div>
+  </div>
+  <div class="disk-panel rv">
+    <div class="bhead"><span>HDD // VISTA DALL'ALTO (ROTAZIONE RALLENTATA)</span><span>7200 RPM</span></div>
+    <svg viewBox="0 0 520 400" role="img" aria-label="Hard disk con piatto girevole e testina" style="--ox:230px;--oy:185px;--px:440px;--py:330px">
+      <rect x="12" y="12" width="496" height="376" fill="none" stroke="#33475a" stroke-width="2"/>
+      <g class="gpart" data-info="PIATTO GIREVOLE — ruota a ~7200 giri/min: sulla superficie magnetizzata vivono i dati.">
+        <circle cx="230" cy="185" r="140" fill="#0c1219" stroke="#33475a" stroke-width="2"/>
+        <circle cx="230" cy="185" r="110" fill="none" stroke="#22303c" stroke-width="1.5"/>
+        <circle cx="230" cy="185" r="80" fill="none" stroke="#22303c" stroke-width="1.5"/>
+        <circle cx="230" cy="185" r="50" fill="none" stroke="#22303c" stroke-width="1.5"/>
+        <g class="spin">
+          <circle cx="230" cy="75" r="4" fill="#ffb454"/>
+          <circle cx="310" cy="185" r="4" fill="#ff8a3d"/>
+          <circle cx="230" cy="265" r="4" fill="#ffb454"/>
+          <line x1="230" y1="185" x2="335" y2="105" stroke="#33475a" stroke-width="1.5"/>
+        </g>
+        <circle cx="230" cy="185" r="16" fill="#101821" stroke="#33475a" stroke-width="2"/>
+      </g>
+      <g class="sweep gpart" data-info="TESTINA + BRACCIO — si muove velocissima sopra il piatto per leggere e scrivere i bit. La velocità dell'HDD dipende da lei.">
+        <line x1="440" y1="330" x2="320" y2="215" stroke="#8ba1b4" stroke-width="6"/>
+        <rect x="306" y="203" width="22" height="14" fill="#101821" stroke="#ffb454" stroke-width="2"/>
+        <circle cx="440" cy="330" r="14" fill="#101821" stroke="#33475a" stroke-width="2"/>
+      </g>
+      <text x="230" y="360" text-anchor="middle" class="plabel" style="fill:#ffb454">PIATTO MAGNETICO</text>
+      <text x="430" y="372" text-anchor="middle" class="plabel">TESTINA</text>
+    </svg>
+    <div class="readout" id="heroReadout">Passa il mouse sul piatto o sulla testina…</div>
+  </div>
+</div></header>
+
+<!-- 01 ANATOMIA HDD -->
+<section id="anatomia"><div class="wrap">
+  <div class="shead rv"><span class="snum">01</span><h2 class="lm"><span>Anatomia di un Hard Disk</span></h2></div>
+  <div class="skick rv" style="margin-bottom:12px">CLICCA I COMPONENTI PER ESPLORARLI</div>
+  <p class="sintro rv">L'HDD è una piccola macchina di precisione: i dati vivono come <i>bit magnetizzati</i> su un piatto che gira, e una <i>testina</i> velocissima li legge e li scrive. Una scheda a circuiti riceve gli ordini dalla CPU. Clicca ogni voce e osserva lo schema.</p>
+  <div class="ana">
+    <div class="rv">
+      <div class="plist">
+        <button class="apart act" data-part="piatto">🌀 PIATTO GIREVOLE</button>
+        <button class="apart" data-part="testina">🎯 TESTINA + BRACCIO</button>
+        <button class="apart" data-part="pcb">🧠 SCHEDA A CIRCUITI</button>
+        <button class="apart" data-part="cavi">🔌 I DUE CAVI</button>
+      </div>
+      <div id="anaDesc"></div>
+      <div class="warnbox rv">⚠ PROBLEMI DELL'HDD: <b>rumoroso</b>, si rompe facilmente con gli <b>urti</b> (anche lievi), velocità limitata dal movimento della <b>testina</b>.</div>
+      <div class="notebox rv">📌 Nota per la classe: l'hard disk è una memoria <b>MAGNETICA</b>. Le memorie <b>ottiche</b> sono un'altra famiglia: CD, DVD e Blu-ray, letti da un laser.</div>
+    </div>
+    <div class="panel rv">
+      <svg id="anaSvg" viewBox="0 0 560 430" style="--ox:250px;--oy:180px;--px:470px;--py:340px" role="img" aria-label="Schema dei componenti di un hard disk">
+        <g id="p-piatto" class="part">
+          <circle cx="250" cy="180" r="140" fill="#0c1219" stroke="#33475a" stroke-width="2"/>
+          <circle cx="250" cy="180" r="112" fill="none" stroke="#22303c" stroke-width="1.5"/>
+          <circle cx="250" cy="180" r="84" fill="none" stroke="#22303c" stroke-width="1.5"/>
+          <circle cx="250" cy="180" r="56" fill="none" stroke="#22303c" stroke-width="1.5"/>
+          <g class="spin"><circle cx="250" cy="68" r="4" fill="#ffb454"/><circle cx="334" cy="180" r="4" fill="#ff8a3d"/><line x1="250" y1="180" x2="352" y2="98" stroke="#33475a" stroke-width="1.5"/></g>
+          <circle cx="250" cy="180" r="16" fill="#101821" stroke="#33475a" stroke-width="2"/>
+          <text x="250" y="345" text-anchor="middle" class="plabel" style="fill:#ffb454">PIATTO</text>
+        </g>
+        <g id="p-testina" class="part sweep">
+          <line x1="470" y1="340" x2="345" y2="222" stroke="#8ba1b4" stroke-width="6"/>
+          <rect x="330" y="209" width="24" height="15" fill="#101821" stroke="#ffb454" stroke-width="2"/>
+          <circle cx="470" cy="340" r="14" fill="#101821" stroke="#33475a" stroke-width="2"/>
+          <text x="470" y="378" text-anchor="middle" class="plabel">TESTINA</text>
+        </g>
+        <g id="p-pcb" class="part">
+          <rect x="40" y="352" width="170" height="58" fill="#101821" stroke="#33475a" stroke-width="2"/>
+          <rect x="56" y="366" width="34" height="14" fill="none" stroke="#22303c" stroke-width="1.5"/>
+          <rect x="102" y="366" width="34" height="14" fill="none" stroke="#22303c" stroke-width="1.5"/>
+          <rect x="148" y="366" width="46" height="30" fill="none" stroke="#22303c" stroke-width="1.5"/>
+          <text x="125" y="425" text-anchor="middle" class="plabel">SCHEDA (PCB)</text>
+        </g>
+        <g id="p-cavi" class="part">
+          <line x1="210" y1="368" x2="540" y2="368" stroke="#41d9ff" stroke-width="3"/>
+          <line x1="210" y1="392" x2="540" y2="392" stroke="#ff8a3d" stroke-width="3"/>
+          <text x="470" y="360" text-anchor="middle" class="plabel" style="fill:#41d9ff">CAVO DATI</text>
+          <text x="470" y="412" text-anchor="middle" class="plabel" style="fill:#ff8a3d">CAVO CORRENTE</text>
+        </g>
+      </svg>
+      <div class="bitnote" style="margin-top:18px;font-size:12.5px;color:var(--mut)">I dati sono <b style="color:var(--amber)">bit</b> (0 o 1) magnetizzati sul piatto. Clicca le celle per scrivere i tuoi bit — e ricorda: <b style="color:var(--amber)">una sola foto occupa milioni di bit!</b></div>
+      <div class="bitgrid" id="bitGrid"></div>
+      <div class="bitnote">bit scritti a mano: <span id="bitCount" style="color:var(--amber)">0</span> · una foto da 3 MB ≈ <b style="color:var(--amber)">24.000.000 di bit</b> come questi</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 02 ANATOMIA SSD -->
+<section id="ssd"><div class="wrap">
+  <div class="shead rv"><span class="snum">02</span><h2 class="lm"><span>Anatomia di un SSD</span></h2></div>
+  <div class="skick rv" style="margin-bottom:12px">NESSUN PIATTO, NESSUNA TESTINA: SOLO ELETTRONI</div>
+  <p class="sintro rv">L'SSD (<b>Solid State Drive</b>) non ha niente che si muove: i dati vivono in celle di memoria <i>NAND</i>, le stesse delle chiavette USB, comandate da un controller. Per questo è <i>molto più veloce</i>, più piccolo e più resistente agli urti. Il suo difetto principale? Una <i>durata nel tempo</i> minore di quella di un hard disk.</p>
+  <div class="ssdgrid-wrap">
+    <div class="panel rv">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="color:var(--cy);font-size:17px">⚡ SSD — memoria NAND</h3><span class="mono" style="font-size:10px;color:var(--dim);letter-spacing:.2em">STATO SOLIDO</span></div>
+      <div class="nandgrid" id="nandGrid"></div>
+      <div class="ctrlchip">CONTROLLER — esegue gli ordini della CPU</div>
+      <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap">
+        <button class="gbtn" id="ssdWrite">⚡ SCRIVI 1 GB DI DATI</button>
+        <span class="mono" id="ssdCounter" style="font-size:12px;color:var(--cy);align-self:center">in attesa…</span>
+      </div>
+      <div class="notebox" style="margin-top:18px">✔ Vantaggi: <b>velocissimo</b>, <b>silenzioso</b>, <b>resistente agli urti</b>, <b>dimensioni ridotte</b>.<br>✖ Difetto principale: la <b style="color:var(--amber)">durata nel tempo</b>, minore rispetto a un hard disk (le celle si consumano a forza di scrivere).</div>
+    </div>
+    <div class="rv">
+      <figure class="kb"><img src="https://picsum.photos/seed/macbook-air-thin-laptop/700/400" alt="Un portatile sottile come il MacBook Air"><figcaption>Un SSD M.2 è così piccolo da stare dentro un MacBook Air (2017): niente piatto, niente testina, solo una schedina.</figcaption></figure>
+      <div class="panel" style="margin-top:20px">
+        <h3 style="font-size:15px;margin-bottom:6px">📏 Differenza di grandezze</h3>
+        <div class="ffrow">
+          <div class="ff"><div class="box" style="width:131px;height:92px"></div><div class="fl">HDD 3,5"<br>146×102 mm</div></div>
+          <div class="ff"><div class="box" style="width:90px;height:63px"></div><div class="fl">HDD 2,5"<br>100×70 mm</div></div>
+          <div class="ff s"><div class="box" style="width:72px;height:20px;margin-top:72px"></div><div class="fl">SSD M.2<br>80×22 mm</div></div>
+          <div class="ff s"><div class="box" style="width:54px;height:17px;margin-top:75px"></div><div class="fl">≈ chiavetta USB<br>(stessa tecnologia NAND)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 03 CACCIA AL FILE -->
+<section id="caccia"><div class="wrap">
+  <div class="shead rv"><span class="snum">03</span><h2 class="lm"><span>Caccia al file: la sfida del seek</span></h2></div>
+  <div class="skick rv" style="margin-bottom:12px">5 FILE NASCOSTI IN PUNTI DIVERSI DELLA MEMORIA</div>
+  <p class="sintro rv">La testina dell'HDD deve <i>spostarsi fisicamente</i> sulla traccia giusta e aspettare che il piatto giri: ogni ricerca costa millisecondi. L'SSD punta direttamente alla cella: <i>quasi istantaneo</i>. Avvia la caccia e guarda i totali.</p>
+  <div style="display:flex;gap:14px;margin-bottom:26px" class="rv">
+    <button class="racebtn" id="seekGo">🎯 APRI 5 FILE A CASO</button>
+    <button class="gbtn" id="seekReset">↺ RESET</button>
+  </div>
+  <div class="seekgrid">
+    <div class="panel rv">
+      <div class="seekhead"><h3 style="color:var(--amber)">🌀 HARD DISK</h3><span class="tot a">totale: <span id="hddTotal">0,0</span> ms</span></div>
+      <svg viewBox="0 0 560 430" style="--ox:250px;--oy:180px" aria-hidden="true">
+        <circle cx="250" cy="180" r="140" fill="#0c1219" stroke="#33475a" stroke-width="2"/>
+        <circle cx="250" cy="180" r="112" fill="none" stroke="#22303c" stroke-width="1.5"/>
+        <circle cx="250" cy="180" r="84" fill="none" stroke="#22303c" stroke-width="1.5"/>
+        <circle cx="250" cy="180" r="56" fill="none" stroke="#22303c" stroke-width="1.5"/>
+        <g class="spin"><circle cx="250" cy="68" r="4" fill="#ffb454"/></g>
+        <circle cx="250" cy="180" r="14" fill="#101821" stroke="#33475a" stroke-width="2"/>
+        <g id="seekArm"><line x1="470" y1="340" x2="345" y2="222" stroke="#8ba1b4" stroke-width="6"/><rect x="330" y="209" width="24" height="15" fill="#101821" stroke="#ffb454" stroke-width="2"/><circle cx="470" cy="340" r="13" fill="#101821" stroke="#33475a" stroke-width="2"/></g>
+      </svg>
+      <div class="slog" id="hddLog"></div>
+    </div>
+    <div class="panel rv">
+      <div class="seekhead"><h3 style="color:var(--cy)">⚡ SSD</h3><span class="tot c">totale: <span id="ssdTotal">0,00</span> ms</span></div>
+      <div class="sgrid" id="seekSsdGrid" style="margin-top:14px"></div>
+      <div class="slog" id="ssdLog"></div>
+    </div>
+  </div>
+  <div id="seekBanner">🏁 <b>Verdetto:</b> l'SSD ha aperto tutti e 5 i file in meno di un millisecondo. L'HDD ha impiegato decine di millisecondi solo per <em>spostare la testina</em> — e qui apriremo un solo file alla volta: con un sistema operativo vero la differenza si sente a ogni avvio!</div>
+</div></section>
+
+<!-- 04 CRASH TEST -->
+<section id="crash"><div class="wrap">
+  <div class="shead rv"><span class="snum">04</span><h2 class="lm"><span>Crash test: urti e rumore</span></h2></div>
+  <div class="skick rv" style="margin-bottom:12px">TRATTALI MALE E VEDI CHI SOPRAVVIVE</div>
+  <p class="sintro rv">Un HDD con la testina sul piatto che gira è come un giradischi in funzione: basta un <i>urto anche lieve</i> per graffiarlo e perderlo per sempre. L'SSD, senza parti mobili, incassa e sorride. E sul rumore… ascolta tu stesso.</p>
+  <div class="crashctrl rv">
+    <button class="racebtn" id="shockBtn">💥 SIMULA UN URTO</button>
+    <button class="gbtn amber" id="noiseBtn">🔊 ACCENDI I DISCHI</button>
+    <button class="gbtn" id="soundBtn">🔈 ASCOLTA UN HDD</button>
+    <button class="gbtn" id="crashReset">↺ SOSTITUISCI I DISCHI</button>
+  </div>
+  <div class="crashgrid">
+    <div class="panel devcard a rv" id="hddCard">
+      <h3>🌀 HARD DISK</h3><div class="devsub">PIATTO + TESTINA IN MOVIMENTO</div>
+      <div class="mono" style="font-size:11px;color:var(--dim)">INTEGRITÀ</div>
+      <div class="hpbar"><i id="hddHp"></i></div>
+      <div class="devstatus" id="hddStatus">✔ operativo</div>
+      <div class="eq" id="hddEq"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="dbval" id="hddDb">rumore: — dB</div>
+      <svg class="crack" id="hddCrack" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="M20 10 L34 38 L26 55 L44 82" stroke="#ff5d6c" stroke-width="1.2" fill="none"/>
+        <path d="M70 6 L62 30 L78 52 L66 90" stroke="#ff5d6c" stroke-width="1.2" fill="none"/>
+        <path d="M8 60 L30 66 L52 60 L80 70" stroke="#ff5d6c" stroke-width="1" fill="none"/>
+      </svg>
+    </div>
+    <div class="panel devcard c rv" id="ssdCard">
+      <h3>⚡ SSD</h3><div class="devsub">SOLO CHIP: NIENTE DA ROMPERE</div>
+      <div class="mono" style="font-size:11px;color:var(--dim)">INTEGRITÀ</div>
+      <div class="hpbar"><i id="ssdHp"></i></div>
+      <div class="devstatus" id="ssdStatus">✔ operativo</div>
+      <div class="eq" id="ssdEq"><span style="background:var(--cy)"></span><span style="background:var(--cy)"></span><span style="background:var(--cy)"></span><span style="background:var(--cy)"></span><span style="background:var(--cy)"></span></div>
+      <div class="dbval" id="ssdDb">rumore: — dB</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 05 CONFRONTO -->
+<section id="confronto"><div class="wrap">
+  <div class="shead rv"><span class="snum">05</span><h2 class="lm"><span>Il confronto diretto</span></h2></div>
+  <div class="skick rv" style="margin-bottom:12px">NUMERI, COPPIA DI 20 GB E TABELLA</div>
+  <div class="cmpwrap">
+    <div class="rv">
+      <table class="cmp">
+        <thead><tr><th>Caratteristica</th><th>🌀 Hard Disk</th><th>⚡ SSD</th></tr></thead>
+        <tbody>
+          <tr><td>COME MEMORIZZA</td><td>Bit magnetizzati su un piatto che gira</td><td>Celle di memoria NAND (come le chiavette USB)</td></tr>
+          <tr><td>PARTI MOBILI</td><td>Sì: piatto (7200 giri/min) + testina</td><td>No: stato solido</td></tr>
+          <tr><td>VELOCITÀ DATI</td><td>80–160 MB/s</td><td>550 MB/s (SATA) – 7000 MB/s (NVMe)</td></tr>
+          <tr><td>ACCESSO A UN FILE</td><td>~10 ms (la testina deve cercarlo)</td><td>~0,1 ms</td></tr>
+          <tr><td>RUMORE</td><td>Sì: si sente girare e cercare</td><td>Nessuno</td></tr>
+          <tr><td>RESISTENZA AGLI URTI</td><td>Bassa: rischia di diventare inutilizzabile</td><td>Alta</td></tr>
+          <tr><td>COSTO PER GB</td><td>Basso: tanto spazio a poco prezzo</td><td>Più alto (ma in calo)</td></tr>
+          <tr><td>DURATA NEL TEMPO</td><td>Molto lunga</td><td>Minore: le celle si consumano scrivendo</td></tr>
+          <tr><td>USO IDEALE</td><td>Archivio di grandi quantità di file</td><td>Sistema operativo, programmi, giochi</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel copybox rv">
+      <h3 style="font-size:16px;margin-bottom:14px">📦 Copia di un file da 20 GB</h3>
+      <div class="cl"><span style="color:var(--amber)">HDD</span><div class="cbar a"><i id="barHdd"></i></div><span class="ct" id="tHdd">~200 s</span></div>
+      <div class="cl"><span style="color:var(--cy)">SSD SATA</span><div class="cbar c"><i id="barSata"></i></div><span class="ct" id="tSata">~37 s</span></div>
+      <div class="cl"><span style="color:var(--cy2)">SSD NVMe</span><div class="cbar n"><i id="barNvme"></i></div><span class="ct" id="tNvme">~3 s</span></div>
+      <div style="margin-top:20px"><button class="racebtn" id="copyGo" style="font-size:13px;padding:12px 24px">▶ AVVIA LA COPIA</button></div>
+      <div class="bitnote" style="margin-top:14px">// animazione in scala: i tempi reali sono quelli a destra</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 06 VIDEO -->
+<section id="video"><div class="wrap">
+  <div class="shead rv"><span class="snum">06</span><h2 class="lm"><span>Video lezione</span></h2></div>
+  <div class="skick rv" style="margin-bottom:26px">GUARDA, POI RIGUARDA CON OCCHI DA TECNICO</div>
+  <div class="frame rv"><div class="ratio">
+    <iframe src="https://www.youtube.com/embed/4BYrKhejb88" title="Video spiegazione Hard Disk" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div></div>
+  <p class="videonote rv">Mentre guardi, cerca nel video: il <b style="color:var(--amber)">piatto</b>, la <b style="color:var(--amber)">testina</b>, la <b style="color:var(--amber)">scheda</b> e i <b style="color:var(--amber)">due cavi</b>. Se non si carica: <a href="https://www.youtube.com/watch?v=4BYrKhejb88" target="_blank" rel="noopener">aprilo su YouTube ↗</a></p>
+</div></section>
+
+<!-- 07 QUIZ -->
+<section id="quiz"><div class="wrap">
+  <div class="shead rv" style="justify-content:center"><span class="snum">07</span><h2 class="lm"><span>Quiz: HDD o SSD?</span></h2></div>
+  <div class="skick rv" style="margin-bottom:30px;text-align:center">7 DOMANDE • RISPONDI E SCOPRI LA SPIEGAZIONE</div>
+  <div class="quizbox rv" id="quizBox"></div>
+</div></section>
+
+<!-- IN BREVE -->
+<section id="breve" style="border-top:none;padding-top:20px"><div class="wrap">
+  <div class="shead rv"><span class="snum">08</span><h2 class="lm"><span>In breve: tre regole d'oro</span></h2></div>
+  <div class="gold">
+    <div class="grule rv"><span class="n">1</span><h3>L'HDD è una macchina</h3><p>Piatto che gira a ~7200 giri/min, testina che cerca i bit magnetizzati, scheda che obbedisce alla CPU, due cavi. Tanta capienza a poco prezzo — ma rumore, lentezza e paura degli urti.</p></div>
+    <div class="grule rv"><span class="n">2</span><h3>L'SSD è pura elettronica</h3><p>Celle NAND come nelle chiavette USB, zero parti mobili: velocissimo, silenzioso, piccolo, resistente. In cambio: costo per GB più alto e durata nel tempo minore.</p></div>
+    <div class="grule rv"><span class="n">3</span><h3>Insieme sono imbattibili</h3><p>Nei computer moderni convivono: SSD per sistema e programmi (tutto vola), hard disk capienti per l'archivio di foto, video e backup.</p></div>
+  </div>
+</div>
+<div class="marquee" aria-hidden="true"><div class="mtrack">
+  <span><b>7200 RPM</b></span><span><i>TESTINA</i></span><span>PIATTO</span><span><b>NAND</b></span><span><i>NVMe</i></span><span>SATA</span><span><b>SEEK</b></span><span><i>BIT</i></span><span>FLASH</span><span><b>SILENZIO</b></span><span><i>STATO SOLIDO</i></span><span>SETTORE</span>
+  <span><b>7200 RPM</b></span><span><i>TESTINA</i></span><span>PIATTO</span><span><b>NAND</b></span><span><i>NVMe</i></span><span>SATA</span><span><b>SEEK</b></span><span><i>BIT</i></span><span>FLASH</span><span><b>SILENZIO</b></span><span><i>STATO SOLIDO</i></span><span>SETTORE</span>
+</div></div>
+</section>
+
+<footer><div class="wrap footin">
+  <span><b>LAB//STORAGE</b> — pagina didattica interattiva</span>
+  <span>hard disk vs ssd • esplora, clicca, capisci</span>
+</div></footer>
+
+<script>
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const sleep = ms => new Promise(r => setTimeout(r, RM ? Math.min(ms, 60) : ms));
+const rnd = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+
+/* reveal + scramble + contatori */
+const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }), {threshold:.18});
+$$('.rv, h2.lm').forEach(el => io.observe(el));
+const CHARS='01<>/\\|=+*#%@';
+function scramble(el){ const txt=el.dataset.scramble; if(RM){el.textContent=txt;return;} let f=0,total=txt.length*3+10;
+  const tick=()=>{f++;const lock=Math.floor((f/total)*txt.length);
+    el.textContent=txt.split('').map((c,i)=>c===' '?' ':(i<lock?c:CHARS[Math.floor(Math.random()*CHARS.length)])).join('');
+    if(f<total)requestAnimationFrame(tick);else el.textContent=txt;};tick();}
+$$('[data-scramble]').forEach(scramble);
+function countUp(el){ const t=+el.dataset.count; if(RM||t===0){el.textContent=t.toLocaleString('it-IT');return;}
+  const t0=performance.now(),dur=1400;
+  const step=n=>{const p=Math.min((n-t0)/dur,1);el.textContent=Math.round(t*(1-Math.pow(1-p,3))).toLocaleString('it-IT');if(p<1)requestAnimationFrame(step);};
+  requestAnimationFrame(step);}
+const ioC=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){countUp(e.target);ioC.unobserve(e.target);}}),{threshold:.6});
+$$('.count').forEach(el=>ioC.observe(el));
+
+/* hero readout */
+const hr=$('#heroReadout'); const HR_DEF=hr.textContent;
+$$('.disk-panel .gpart').forEach(g=>{
+  const on=()=>hr.textContent=g.dataset.info, off=()=>hr.textContent=HR_DEF;
+  g.addEventListener('mouseenter',on); g.addEventListener('mouseleave',off); g.addEventListener('click',on);
+});
+
+/* anatomia: parti */
+const ANA={
+  piatto:'🌀 PIATTO GIREVOLE — ruota in media a 7200 giri al minuto. Sulla sua superficie magnetizzata i dati vengono salvati e letti, bit dopo bit.',
+  testina:'🎯 TESTINA + BRACCIO — si muove molto velocemente sopra il piatto e scrive o legge i dati. La velocità dell\u2019HDD è limitata proprio dal suo movimento.',
+  pcb:'🧠 SCHEDA A CIRCUITI STAMPATI — riceve gli ordini dalla CPU e comanda il motore del piatto e il braccio della testina per leggere/scrivere.',
+  cavi:'🔌 DUE CAVI — uno trasporta i dati da e verso la scheda madre, l\u2019uno porta la corrente per far girare il piatto.'
+};
+const anaSvg=$('#anaSvg'), anaDesc=$('#anaDesc');
+function setPart(p){
+  $$('.apart').forEach(b=>b.classList.toggle('act',b.dataset.part===p));
+  anaSvg.classList.add('focus');
+  $$('#anaSvg .part').forEach(g=>g.classList.toggle('sel',g.id==='p-'+p));
+  anaDesc.textContent=ANA[p];
+}
+$$('.apart').forEach(b=>b.addEventListener('click',()=>setPart(b.dataset.part)));
+setPart('piatto');
+
+/* bit widget */
+const bitGrid=$('#bitGrid'); let bitOn=0;
+for(let i=0;i<24;i++){
+  const b=document.createElement('div'); b.className='bit'; b.textContent='0';
+  b.addEventListener('click',()=>{ const one=b.classList.toggle('one'); b.textContent=one?'1':'0';
+    bitOn+=one?1:-1; $('#bitCount').textContent=bitOn; });
+  bitGrid.appendChild(b);
+}
+
+/* ssd write */
+const nandGrid=$('#nandGrid');
+for(let i=0;i<8;i++){ const n=document.createElement('div'); n.className='nand'; n.textContent='NAND '+(i+1); nandGrid.appendChild(n); }
+$('#ssdWrite').addEventListener('click', async ()=>{
+  const cells=$$('.nand'); $('#ssdCounter').textContent='scrittura…';
+  for(const c of cells){ c.classList.add('wr'); await sleep(70); }
+  $('#ssdCounter').textContent='1.000.000.000 byte scritti in ~2 ms ⚡';
+  setTimeout(()=>cells.forEach(c=>c.classList.remove('wr')), 900);
+});
+
+/* caccia al file */
+const ANG=[-14,-6,3,11];
+const sGrid=$('#seekSsdGrid'); const sCells=[];
+for(let i=0;i<16;i++){ const c=document.createElement('div'); c.className='scell'; sGrid.appendChild(c); sCells.push(c); }
+const arm=$('#seekArm'), hddLog=$('#hddLog'), ssdLog=$('#ssdLog');
+let seekBusy=false;
+function logTo(el,t,cls){ const d=document.createElement('div'); if(cls)d.className=cls; d.textContent=t; el.appendChild(d); el.scrollTop=el.scrollHeight; }
+$('#seekGo').addEventListener('click', async ()=>{
+  if(seekBusy) return; seekBusy=true; $('#seekGo').disabled=true;
+  hddLog.innerHTML=''; ssdLog.innerHTML=''; $('#seekBanner').classList.remove('show');
+  $('#hddTotal').textContent='0,0'; $('#ssdTotal').textContent='0,00';
+  const files=Array.from({length:5},()=>({tr:rnd(0,3),cell:rnd(0,15)}));
+  let st=0;
+  for(let i=0;i<5;i++){ const f=files[i]; st+=0.09;
+    sCells[f.cell].classList.add('hit'); setTimeout(()=>sCells[f.cell].classList.remove('hit'),400);
+    logTo(ssdLog,`⚡ file_${i+1}: cella ${f.cell} → 0,09 ms`,'c');
+    $('#ssdTotal').textContent=st.toFixed(2).replace('.',',');
+    await sleep(110);
+  }
+  logTo(ssdLog,'✔ tutti i file aperti!','g');
+  logTo(hddLog,'la testina si muove…','w');
+  let ht=0;
+  for(let i=0;i<5;i++){ const f=files[i];
+    arm.style.transform=`rotate(${ANG[f.tr]}deg)`;
+    await sleep(680);
+    const ms=rnd(5,14); ht+=ms;
+    logTo(hddLog,`🎯 file_${i+1}: traccia ${f.tr} → seek ${ms} ms`,'w');
+    $('#hddTotal').textContent=ht.toFixed(1).replace('.',',');
+    await sleep(150);
+  }
+  $('#seekBanner').classList.add('show');
+  seekBusy=false; $('#seekGo').disabled=false;
+});
+$('#seekReset').addEventListener('click',()=>{ if(seekBusy)return;
+  hddLog.innerHTML=''; ssdLog.innerHTML=''; arm.style.transform='rotate(0deg)';
+  $('#hddTotal').textContent='0,0'; $('#ssdTotal').textContent='0,00'; $('#seekBanner').classList.remove('show'); });
+
+/* crash test */
+let hddHp=100, ssdHp=100, noiseOn=false;
+function paint(){
+  const h=$('#hddHp'), s=$('#ssdHp');
+  h.style.width=hddHp+'%'; s.style.width=ssdHp+'%';
+  h.className=hddHp>60?'':(hddHp>25?'mid':'low'); s.className=ssdHp>60?'':(ssdHp>25?'mid':'low');
+  $('#hddStatus').textContent = hddHp<=0?'💀 INUTILIZZABILE: piatto graffiato, dati persi': hddHp>60?'✔ operativo': hddHp>25?'⚠ settori danneggiati':'⚠ gravi errori di lettura';
+  $('#ssdStatus').textContent = ssdHp<=0?'💀 fuori uso (ma ci vogliono secoli…)':'✔ operativo: neanche un graffio';
+  $('#hddCrack').classList.toggle('show', hddHp<70);
+}
+$('#shockBtn').addEventListener('click',()=>{
+  if(hddHp>0) hddHp=Math.max(0,hddHp-rnd(25,40));
+  ssdHp=Math.max(0,ssdHp-rnd(0,2));
+  ['hddCard','ssdCard'].forEach(id=>{const c=$('#'+id);c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');});
+  paint();
+});
+$('#noiseBtn').addEventListener('click',()=>{
+  noiseOn=!noiseOn;
+  $('#hddEq').classList.toggle('on',noiseOn);
+  $('#hddDb').textContent = noiseOn?'rumore: ~38 dB (gira, fruscia, clicca)':'rumore: — dB';
+  $('#ssdDb').textContent = noiseOn?'rumore: 0 dB — silenzio assoluto':'rumore: — dB';
+  $('#noiseBtn').textContent = noiseOn?'🔇 SPEGNI I DISCHI':'🔊 ACCENDI I DISCHI';
+});
+$('#crashReset').addEventListener('click',()=>{ hddHp=100; ssdHp=100; paint(); });
+paint();
+
+/* suono HDD sintetizzato */
+$('#soundBtn').addEventListener('click',()=>{
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const dur=1.8, sr=ctx.sampleRate, buf=ctx.createBuffer(1,sr*dur,sr), d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++){ const t=i/sr;
+      const whirr=(Math.random()*2-1)*0.12*(0.6+0.4*Math.sin(t*2*Math.PI*9));
+      d[i]=whirr; }
+    for(let k=0;k<3;k++){ const at=(0.3+k*0.5)*sr|0; for(let j=0;j<sr*0.05;j++){ if(d[at+j]!==undefined) d[at+j]+=(Math.random()*2-1)*0.7*(1-j/(sr*0.05)); } }
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=700; f.Q.value=.8;
+    const g=ctx.createGain(); g.gain.value=.5;
+    src.connect(f); f.connect(g); g.connect(ctx.destination); src.start();
+  }catch(e){}
+});
+
+/* copia 20gb */
+$('#copyGo').addEventListener('click',()=>{
+  const jobs=[['#barHdd','#tHdd',5600,'~200 s'],['#barSata','#tSata',2000,'~37 s'],['#barNvme','#tNvme',450,'~3 s']];
+  jobs.forEach(([b,t,dur,lab])=>{ const bar=$(b); bar.style.transition='none'; bar.style.width='0'; $(t).textContent=lab; $(t).classList.remove('done'); });
+  void $('#barHdd').offsetWidth;
+  jobs.forEach(([b,t,dur])=>{ const bar=$(b); bar.style.transition=`width ${dur}ms cubic-bezier(.3,.1,.3,1)`; bar.style.width='100%';
+    setTimeout(()=>{ $(t).textContent='FATTO ✔'; $(t).classList.add('done'); }, dur+50); });
+});
+
+/* quiz */
+const QUIZ=[
+ {q:'Quale componente dell\u2019HDD legge e scrive fisicamente i dati?',o:['Il piatto girevole','La testina','Il cavo dati','Il controller NAND'],a:1,x:'La testina si sposta velocissima sul piatto e legge/scrive i bit: è lei il "collo di bottiglia" dell\u2019hard disk.'},
+ {q:'"7200 giri al minuto" descrive…',o:['La velocità della testina','La rotazione del piatto','Il numero di bit al secondo','La velocità del cavo dati'],a:1,x:'Il piatto magnetico gira a ~7200 rpm: i dati gli passano sotto mentre la testina li legge.'},
+ {q:'Perché un SSD è molto più veloce di un HDD?',o:['Ha un piatto più leggero','Non ha parti mobili: è tutta elettronica','Gira a 15000 giri','Usa un laser più potente'],a:1,x:'Niente piatto né testina da muovere: i dati si raggiungono elettricamente, quasi all\u2019istante.'},
+ {q:'In un SSD i dati vivono…',o:['In celle di memoria NAND, come nelle chiavette USB','Su un mini-piatto magnetico','In un nastro','Sul controller'],a:0,x:'SSD e penne USB condividono la tecnologia flash NAND: stato solido, senza meccanica.'},
+ {q:'Il punto debole storico dell\u2019HDD è…',o:['Il colore','La sensibilità agli urti, anche lievi','Il peso dei cavi','La luce'],a:1,x:'Con la testina sul piatto che gira, un urto può graffiare la superficie e renderlo inutilizzabile.'},
+ {q:'Il difetto principale dell\u2019SSD rispetto all\u2019HDD è…',o:['È rumoroso','La durata nel tempo minore (usura delle celle)','È più grande','Consuma di più'],a:1,x:'A forza di scrivere, le celle NAND si consumano: la durata nel tempo è il suo tallone d\u2019Achille (comunque lungo!).'},
+ {q:'Quale memoria è silenziosa e consuma meno?',o:['L\u2019HDD','L\u2019SSD','Dipende dal cavo','Sono identici'],a:1,x:'Zero parti mobili = zero rumore e meno energia: perfetto per i portatili, come il MacBook Air.'}
+];
+let qi=0,score=0; const quizBox=$('#quizBox');
+function renderQ(){
+  const q=QUIZ[qi];
+  quizBox.innerHTML=`
+    <div class="qprog"><span>DOMANDA ${qi+1} / ${QUIZ.length}</span><span>PUNTI: ${score}</span></div>
+    <div class="qbar"><i style="width:${(qi/QUIZ.length)*100}%"></i></div>
+    <div class="qq">${q.q}</div>
+    <div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)} · ${o}</button>`).join('')}</div>
+    <div class="qfeed" id="qfeed"></div>
+    <button class="racebtn qnext" id="qnext" style="font-size:13px;padding:12px 24px">${qi===QUIZ.length-1?'VEDI IL RISULTATO →':'PROSSIMA DOMANDA →'}</button>`;
+  $$('.opt').forEach(b=>b.addEventListener('click',()=>answer(+b.dataset.i)));
+  $('#qnext').addEventListener('click',()=>{qi++; qi<QUIZ.length?renderQ():finalQ();});
+}
+function answer(i){
+  const q=QUIZ[qi]; $$('.opt').forEach(o=>o.disabled=true);
+  const ok=i===q.a; if(ok)score++;
+  $$('.opt')[q.a].classList.add('ok'); if(!ok)$$('.opt')[i].classList.add('ko');
+  const f=$('#qfeed'); f.className='qfeed show '+(ok?'good':'bad');
+  f.innerHTML=(ok?'✔ Esatto!':'✖ Non proprio.')+`<span>${q.x}</span>`;
+  $('#qnext').classList.add('show');
+  $('.qprog').lastElementChild.textContent='PUNTI: '+score;
+}
+function finalQ(){
+  const p=score/QUIZ.length;
+  const v=p===1?'🏆 <b>Disco perfetto!</b> Non un settore fuori posto: padroneggi HDD e SSD.'
+    :p>=.7?'⚡ <b>Ottimo!</b> La differenza meccanica/elettronica ti è chiara. Un ripasso sui dettagli e sei al completo.'
+    :p>=.5?'💾 <b>Buona base!</b> Rivedi anatomia e crash test: i concetti chiave sono tutti lì.'
+    :'🔁 <b>La testina è fuori pista!</b> Riparti dall\u2019anatomia e riprova: vedrai che ora fila tutto.';
+  quizBox.innerHTML=`<div class="qfinal"><div class="qprog"><span>QUIZ COMPLETATO</span></div>
+    <div class="score">${score}/${QUIZ.length}</div><div class="verdict">${v}</div>
+    <button class="racebtn" id="qretry" style="font-size:13px;padding:12px 26px">↺ RIGIOCA IL QUIZ</button></div>`;
+  $('#qretry').addEventListener('click',()=>{qi=0;score=0;renderQ();});
+}
+renderQ();
+</script>
+</body>
+</html>

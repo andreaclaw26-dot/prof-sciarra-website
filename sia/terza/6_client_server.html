@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAB//CLOUD — Architettura Client-Server</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e13; --panel:#101821; --panel2:#0c1219;
+  --line:#1f2c38; --line2:#33475a;
+  --ink:#e9f1f6; --mut:#8ba1b4; --dim:#5d7284;
+  --amber:#ffb454; --amber2:#ff8a3d; --cy:#41d9ff; --cy2:#8ff2ff;
+  --red:#ff5d6c; --green:#3fe0a0;
+  --disp:'Chakra Petch',sans-serif; --body:'Sora',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(900px 500px at 85% -10%, rgba(65,217,255,.06), transparent 60%),
+    radial-gradient(900px 600px at 8% 25%, rgba(255,180,84,.05), transparent 55%),
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size:auto,auto,48px 48px,48px 48px;
+  color:var(--ink); font-family:var(--body); line-height:1.6; overflow-x:hidden;
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:59;opacity:.5;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 4px);}
+::selection{background:var(--cy);color:#04222e}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+section{padding:96px 0;border-top:1px solid var(--line)}
+h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.02em}
+.mono{font-family:var(--mono)}
+
+nav{position:sticky;top:0;z-index:50;background:rgba(10,14,19,.94);border-bottom:1px solid var(--line)}
+.navin{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px}
+.logo{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.14em;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo b{color:var(--cy)} .logo i{color:var(--amber);font-style:normal}
+.led{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2s infinite}
+.led.off{background:var(--red);box-shadow:0 0 10px var(--red);animation:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.navlinks{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.navlinks a{font-family:var(--mono);font-size:11.5px;text-decoration:none;color:var(--mut);padding:6px 10px;border:1px solid transparent;transition:.25s}
+.navlinks a:hover{color:var(--cy);border-color:var(--line2);background:var(--panel2)}
+
+header.hero{padding:72px 0 84px;border-top:none}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:var(--mut);display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.kicker::before{content:'';width:34px;height:2px;background:var(--cy)}
+h1 .l1{display:block;font-size:clamp(2.2rem,6vw,4rem);color:var(--cy);text-shadow:0 0 30px rgba(65,217,255,.3)}
+h1 .wire{display:flex;align-items:center;gap:12px;margin:10px 0;font-family:var(--mono);font-size:12px;color:var(--mut);letter-spacing:.2em}
+h1 .wire .wline{flex:1;height:2px;background:var(--line2);position:relative;overflow:visible}
+h1 .wire .wpk{position:absolute;top:-4px;left:0;width:10px;height:10px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber);animation:wpk 2.6s cubic-bezier(.4,0,.4,1) infinite}
+@keyframes wpk{0%{left:0;background:var(--cy);box-shadow:0 0 10px var(--cy)}45%{left:calc(100% - 10px);background:var(--cy)}50%{left:calc(100% - 10px);background:var(--amber);box-shadow:0 0 10px var(--amber)}95%{left:0;background:var(--amber)}100%{left:0}}
+h1 .l2{display:block;font-size:clamp(2.2rem,6vw,4rem);color:var(--amber);text-shadow:0 0 30px rgba(255,180,84,.3)}
+.lead{color:var(--mut);max-width:52ch;margin:22px 0 8px;font-size:16.5px}
+.lead strong{color:var(--ink)}
+.hint{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:10px}
+.hint b{color:var(--green)}
+.statrow{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.stat{border:1px solid var(--line);background:var(--panel2);padding:12px 16px;min-width:125px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
+.stat .v{font-family:var(--disp);font-weight:700;font-size:22px;color:var(--cy)}
+.stat.a .v{color:var(--amber)}
+.stat .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--dim);margin-top:2px}
+
+.req-panel{border:1px solid var(--line2);background:linear-gradient(160deg,var(--panel),var(--panel2));padding:22px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.req-panel .bhead{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--dim);margin-bottom:14px}
+.reqsvg{width:100%;height:auto;display:block}
+.racebtn{font-family:var(--disp);font-weight:700;font-size:14px;letter-spacing:.14em;padding:13px 26px;background:var(--cy);border:none;color:#04222e;cursor:pointer;transition:.25s;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);width:100%;margin-top:14px}
+.racebtn:hover{background:var(--cy2);box-shadow:0 0 24px rgba(65,217,255,.4)}
+.racebtn:disabled{opacity:.45;cursor:wait}
+.racebtn.amber{background:var(--amber)} .racebtn.amber:hover{background:var(--amber2);box-shadow:0 0 24px rgba(255,180,84,.4)}
+.resp{margin-top:14px;border:1px solid var(--line);background:#070b10;padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--dim);min-height:64px}
+.resp .ok{color:var(--green)} .resp .ko{color:var(--red)}
+
+.shead{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.snum{font-family:var(--mono);color:var(--cy);font-size:14px;letter-spacing:.2em;border:1px solid var(--line2);padding:4px 10px;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
+.skick{font-family:var(--mono);font-size:11.5px;letter-spacing:.3em;color:var(--dim)}
+h2.lm{overflow:hidden;font-size:clamp(1.9rem,4.6vw,3.2rem);line-height:1.05}
+h2.lm span{display:inline-block;transform:translateY(115%);transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+h2.lm.in span{transform:none}
+.sintro{color:var(--mut);max-width:74ch;margin-bottom:36px}
+.sintro b{color:var(--cy)} .sintro i{color:var(--amber);font-style:normal;font-weight:600}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.panel{border:1px solid var(--line2);background:var(--panel2);padding:22px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.notebox{border:1px dashed var(--line2);color:var(--mut);padding:14px 16px;font-size:13px}
+.notebox b{color:var(--cy)} .notebox i{color:var(--amber);font-style:normal}
+.warnbox{border:1px solid var(--red);color:var(--red);padding:14px 16px;font-size:13px;background:rgba(255,93,108,.05)}
+.gbtn{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;padding:10px 14px;background:transparent;border:1px solid var(--line2);color:var(--mut);cursor:pointer;transition:.25s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%)}
+.gbtn:hover{border-color:var(--cy);color:var(--cy)}
+.gbtn.on{border-color:var(--green);color:var(--green)}
+.gbtn.red.on{border-color:var(--red);color:var(--red)}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .45s}
+
+/* ---------- LAB ---------- */
+.labctrl{display:grid;grid-template-columns:auto 1fr 1fr;gap:22px;align-items:center;border:1px solid var(--line2);background:var(--panel);padding:18px 22px;margin-bottom:22px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.switch{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.swtrack{width:58px;height:28px;border:2px solid var(--line2);background:var(--panel2);position:relative;transition:.3s}
+.swtrack i{position:absolute;top:3px;left:4px;width:18px;height:18px;background:var(--red);transition:.3s;box-shadow:0 0 8px var(--red)}
+.switch.on .swtrack{border-color:var(--green)}
+.switch.on .swtrack i{left:32px;background:var(--green);box-shadow:0 0 8px var(--green)}
+.swlab{font-family:var(--mono);font-size:12px;letter-spacing:.15em;color:var(--mut)}
+.switch.on .swlab{color:var(--green)}
+.sliderbox .sl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--dim);margin-bottom:6px}
+.sliderbox .sl b{color:var(--amber)}
+input[type=range]{width:100%;accent-color:var(--amber)}
+.presets{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.presets button{font-family:var(--mono);font-size:10px;padding:4px 8px;background:var(--panel2);border:1px solid var(--line);color:var(--dim);cursor:pointer}
+.presets button:hover{color:var(--amber);border-color:var(--amber)}
+.netline{border:1px solid var(--line2);background:#070b10;margin-bottom:22px;position:relative;overflow:hidden}
+.netline svg{width:100%;height:auto;display:block}
+.apps{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.app{border:1px solid var(--line2);background:var(--panel);clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%);display:flex;flex-direction:column}
+.app .chrome{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.app .chrome .dots{display:flex;gap:5px}.app .chrome .dots i{width:9px;height:9px;border-radius:50%;background:var(--line2)}
+.app .chrome .ttl{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--mut)}
+.app .chrome .ttl b{color:var(--cy)}
+.app .body{padding:16px;flex:1;display:flex;flex-direction:column;gap:12px}
+.frow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--panel2);padding:9px 12px;font-size:12.5px}
+.frow .fs{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-left:auto}
+.frow button{font-family:var(--mono);font-size:10px;padding:5px 9px;background:transparent;border:1px solid var(--line2);color:var(--mut);cursor:pointer}
+.frow button:hover{border-color:var(--cy);color:var(--cy)}
+.frow.new{animation:pop .4s}
+.preview{border:1px dashed var(--line2);min-height:64px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11.5px;color:var(--dim);padding:10px;text-align:center}
+.preview.show{border-style:solid;border-color:var(--green);color:var(--green)}
+.slots{display:flex;gap:6px;flex-wrap:wrap}
+.slots i{width:22px;height:22px;border:1px solid var(--line2);background:var(--panel2);transition:.3s;font-style:normal;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:transparent}
+.slots i.f{background:var(--cy);border-color:var(--cy);box-shadow:0 0 8px rgba(65,217,255,.5)}
+.pbar{height:12px;background:#070b10;border:1px solid var(--line);position:relative;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#1c7ea0,var(--cy));transition:width .15s linear}
+.pbar.buf i{background:linear-gradient(90deg,#a3641f,var(--amber))}
+.plabel{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.1em}
+.plabel b{color:var(--cy)}
+.screen{border:1px solid var(--line2);background:linear-gradient(180deg,#0d1a26,#070b10);height:130px;position:relative;overflow:hidden}
+.screen .ground{position:absolute;bottom:22px;left:0;right:0;height:2px;background:var(--line2)}
+.screen .hero{position:absolute;bottom:24px;left:40px;width:26px;height:26px;background:var(--green);box-shadow:0 0 12px rgba(63,224,160,.6);transition:transform .1s}
+.screen .hero.jump{animation:jump .55s cubic-bezier(.3,.7,.3,1)}
+@keyframes jump{0%{transform:translateY(0)}45%{transform:translateY(-52px)}100%{transform:translateY(0)}}
+.screen .tag{position:absolute;top:8px;left:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--dim)}
+.screen .buff{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--amber);background:rgba(7,11,16,.7)}
+.screen .off{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--red);background:rgba(7,11,16,.85)}
+.consol{margin-top:22px;border:1px solid var(--line2);background:#070b10;padding:14px 16px;height:190px;overflow-y:auto;font-family:var(--mono);font-size:12px}
+.consol .ln{padding:2.5px 0;opacity:0;animation:lnin .4s forwards}
+@keyframes lnin{to{opacity:1}}
+.ln.info{color:var(--mut)} .ln.good{color:var(--green)} .ln.bad{color:var(--red)} .ln.warn{color:var(--amber)} .ln.cy{color:var(--cy)} .ln.am{color:var(--amber)}
+
+/* teoria */
+.teogrid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+.defs{display:grid;gap:12px}
+.def{border:1px solid var(--line);background:#0c1219;padding:14px 16px}
+.def .t{font-family:var(--disp);font-size:14px;letter-spacing:.08em;margin-bottom:4px}
+.def.c .t{color:var(--cy)} .def.a .t{color:var(--amber)} .def.g .t{color:var(--green)}
+.def p{font-size:13px;color:var(--mut)}
+.shareviz{border:1px solid var(--line2);background:var(--panel2);padding:20px}
+.shareviz svg{width:100%;height:auto;display:block}
+.sharebtns{display:flex;gap:10px;margin-top:14px}
+.sharecap{font-family:var(--mono);font-size:12px;color:var(--mut);margin-top:12px;min-height:56px}
+.sharecap b{color:var(--cy)}
+
+/* storia */
+.tl{position:relative;padding-left:34px}
+.tl::before{content:'';position:absolute;left:10px;top:6px;bottom:6px;width:2px;background:var(--line2)}
+.tli{position:relative;padding-bottom:30px}
+.tli::before{content:'';position:absolute;left:-30px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--cy);box-shadow:0 0 10px var(--cy)}
+.tli:nth-child(2n)::before{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+.tli .yr{font-family:var(--disp);font-weight:700;font-size:20px;color:var(--ink)}
+.tli .tt{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--cy);margin:2px 0 6px}
+.tli:nth-child(2n) .tt{color:var(--amber)}
+.tli p{font-size:13.5px;color:var(--mut);max-width:64ch}
+
+/* esempi */
+.exgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.excard{border:1px solid var(--line2);background:var(--panel2);padding:22px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.excard h3{font-size:16px;color:var(--cy);margin-bottom:8px}
+.excard:nth-child(2n) h3{color:var(--amber)}
+.excard p{font-size:13.5px;color:var(--mut)}
+.excard p b{color:var(--ink)}
+.types{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.tchip{font-family:var(--mono);font-size:11px;padding:7px 12px;border:1px solid var(--cy);color:var(--cy);clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%)}
+.frame{border:1px solid var(--line2);background:#000;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%);margin-top:26px}
+.frame .ratio{position:relative;padding-top:56.25%}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.videonote{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:12px}
+.videonote a{color:var(--cy)}
+
+/* problemi */
+.probgrid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.lagcalc{margin-top:16px;border:1px solid var(--line);background:#070b10;padding:16px}
+.lagsteps{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:10px}
+.lagsteps .st{border:1px solid var(--line2);padding:6px 10px}
+.lagsteps .ar{color:var(--dim)}
+.lagtot{font-family:var(--disp);font-weight:700;font-size:26px;margin-top:12px}
+
+/* quiz + finale */
+.quizbox{max-width:760px;margin:0 auto;border:1px solid var(--line2);background:var(--panel);padding:34px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%)}
+.qprog{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:.15em;margin-bottom:10px}
+.qbar{height:6px;background:#070b10;border:1px solid var(--line);margin-bottom:26px}
+.qbar i{display:block;height:100%;background:var(--cy);box-shadow:0 0 10px rgba(65,217,255,.5);transition:width .5s}
+.qq{font-family:var(--disp);font-size:clamp(1.15rem,2.6vw,1.6rem);text-transform:none;letter-spacing:0;margin-bottom:22px;line-height:1.35}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;padding:14px 18px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink);font-family:var(--body);font-size:14.5px;cursor:pointer;transition:.22s;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%)}
+.opt:hover:not(:disabled){border-color:var(--cy);transform:translateX(6px)}
+.opt:disabled{cursor:default;opacity:.75}
+.opt.ok{border-color:var(--green);background:rgba(63,224,160,.09);color:var(--green);opacity:1}
+.opt.ko{border-color:var(--red);background:rgba(255,93,108,.08);color:var(--red);opacity:1}
+.qfeed{margin-top:20px;padding:14px 18px;font-size:13.5px;display:none;border:1px solid var(--line2)}
+.qfeed.show{display:block;animation:pop .4s}
+.qfeed.good{border-color:var(--green);color:var(--green)} .qfeed.bad{border-color:var(--red);color:var(--red)}
+.qfeed span{display:block;color:var(--mut);margin-top:6px}
+.qnext{margin-top:20px;display:none}
+.qnext.show{display:inline-block;animation:pop .4s}
+.qfinal{text-align:center;padding:18px 0}
+.qfinal .score{font-family:var(--disp);font-weight:700;font-size:64px;color:var(--cy)}
+.qfinal .verdict{font-size:17px;margin:10px 0 26px;color:var(--mut)}
+.qfinal .verdict b{color:var(--ink)}
+.gold{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+.grule{border:1px solid var(--line2);background:var(--panel2);padding:26px;position:relative;overflow:hidden;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.grule .n{font-family:var(--disp);font-weight:700;font-size:60px;color:transparent;-webkit-text-stroke:1.5px var(--line2);position:absolute;top:6px;right:14px;transition:.4s}
+.grule:hover .n{-webkit-text-stroke:1.5px var(--cy)}
+.grule h3{font-size:16px;margin-bottom:10px;color:var(--cy);text-transform:none}
+.grule:nth-child(2) h3{color:var(--amber)}
+.grule p{font-size:13.5px;color:var(--mut)}
+.marquee{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;margin-top:60px;background:var(--panel2)}
+.mtrack{display:flex;gap:44px;width:max-content;animation:mq 34s linear infinite;font-family:var(--mono);font-size:13px;letter-spacing:.24em;color:var(--dim)}
+.mtrack b{color:var(--amber);font-weight:500} .mtrack i{color:var(--cy);font-style:normal}
+@keyframes mq{to{transform:translateX(-50%)}}
+footer{padding:36px 0;border-top:1px solid var(--line)}
+.footin{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.12em}
+.footin b{color:var(--mut)}
+
+@media (max-width:960px){.hero-grid,.apps,.teogrid,.exgrid,.probgrid,.labctrl{grid-template-columns:1fr}}
+@media (max-width:600px){section{padding:70px 0}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}
+  .rv{opacity:1;transform:none} h2.lm span{transform:none} h1 .wire .wpk{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="navin">
+  <div class="logo"><span class="led" id="navLed"></span>LAB//<b>CLOUD</b>&nbsp;<i>C/S</i></div>
+  <div class="navlinks">
+    <a href="#lab">Laboratorio</a><a href="#teoria">Teoria</a><a href="#storia">Storia</a>
+    <a href="#esempi">Esempi</a><a href="#problemi">Problemi</a><a href="#quiz">Quiz</a>
+  </div>
+</div></nav>
+
+<!-- HERO -->
+<header class="hero"><div class="wrap hero-grid">
+  <div>
+    <div class="kicker">LEZIONE INTERATTIVA • ARCHITETTURE DI RETE</div>
+    <h1>
+      <span class="l1" data-scramble="CLIENT">CLIENT</span>
+      <span class="wire"><span>RICHIESTA →</span><span class="wline"><span class="wpk"></span></span><span>← RISPOSTA</span></span>
+      <span class="l2" data-scramble="SERVER">SERVER</span>
+    </h1>
+    <p class="lead">Un'<strong>architettura di rete</strong> in cui un computer client si connette a un server per usare un servizio: condividere risorse hardware o software con altri client, appoggiandosi ai <strong>protocolli</strong>. Il server è il regista: decide chi accede a cosa. Qui non lo studi soltanto: <strong>lo usi</strong>, con finti software collegati a una rete vera.</p>
+    <div class="hint">// qui si può toccare tutto: <b>premi, clicca, sperimenta</b></div>
+    <div class="statrow">
+      <div class="stat"><div class="v">1969</div><div class="k">ARPANET, L'ALBA</div></div>
+      <div class="stat a"><div class="v">200 OK</div><div class="k">RISPOSTA FELICE</div></div>
+      <div class="stat"><div class="v">×2</div><div class="k">ANDATA + RITORNO</div></div>
+      <div class="stat a"><div class="v">3</div><div class="k">TIPI DI CLOUD GAMING</div></div>
+    </div>
+  </div>
+  <div class="req-panel rv">
+    <div class="bhead"><span>PROVA LA TUA PRIMA RICHIESTA</span><span>HTTP SIMULATO</span></div>
+    <svg class="reqsvg" viewBox="0 0 460 120" aria-label="Client e server con pacchetto">
+      <rect x="14" y="38" width="110" height="44" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+      <text x="69" y="64" text-anchor="middle" class="mono" style="font-size:12px;fill:#41d9ff;letter-spacing:.15em">CLIENT</text>
+      <rect x="336" y="38" width="110" height="44" fill="#101821" stroke="#ffb454" stroke-width="2"/>
+      <text x="391" y="64" text-anchor="middle" class="mono" style="font-size:12px;fill:#ffb454;letter-spacing:.15em">SERVER</text>
+      <line x1="124" y1="60" x2="336" y2="60" stroke="#33475a" stroke-width="2"/>
+      <circle id="heroPkt" cx="124" cy="60" r="6" fill="#41d9ff" style="filter:drop-shadow(0 0 6px #41d9ff);opacity:0"/>
+    </svg>
+    <button class="racebtn" id="heroReq">📨 INVIA UNA RICHIESTA</button>
+    <div class="resp" id="heroResp">Il client è in attesa. Premi il pulsante: partirà una richiesta verso il server e tornerà una risposta con il suo codice di stato.</div>
+  </div>
+</div></header>
+
+<!-- 01 LABORATORIO -->
+<section id="lab"><div class="wrap">
+  <div class="shead rv"><span class="snum">01</span><h2 class="lm"><span>Il laboratorio: finti software, rete vera</span></h2></div>
+  <div class="skick rv" style="margin-bottom:12px">QUATTRO APP COLLEGATE A UN SERVER • CONTROLLI DI RETE IN ALTO</div>
+  <p class="sintro rv">Questi sono <i>software finti</i>, ma la rete è simulata sul serio: ogni azione genera una <b>richiesta</b> verso il server e una <b>risposta</b>. Spegni la rete e scopri quanto dipendi dal server; alza la latenza e senti l'<i>input lag</i>; abbassa la banda e guarda crollare la <i>qualità video</i>.</p>
+
+  <div class="labctrl rv">
+    <div class="switch on" id="netSwitch" role="switch" aria-checked="true" tabindex="0">
+      <div class="swtrack"><i></i></div><span class="swlab" id="netLab">RETE: ONLINE</span>
+    </div>
+    <div class="sliderbox">
+      <div class="sl"><span>LATENZA (ping)</span><b id="latVal">60 ms</b></div>
+      <input type="range" id="latRange" min="10" max="500" value="60">
+      <div class="presets">
+        <button data-l="20">FIBRA 20ms</button><button data-l="60">WI-FI 60ms</button>
+        <button data-l="120">4G 120ms</button><button data-l="400">CONN. DISASTROSA 400ms</button>
+      </div>
+    </div>
+    <div class="sliderbox">
+      <div class="sl"><span>BANDA DISPONIBILE</span><b id="bwVal">50 Mbps</b></div>
+      <input type="range" id="bwRange" min="1" max="100" value="50">
+      <div class="presets">
+        <button data-b="2">ADSL 2Mbps</button><button data-b="20">FTTC 20Mbps</button><button data-b="100">FTTH 100Mbps</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="netline rv">
+    <svg viewBox="0 0 900 80" aria-label="Linea di rete con pacchetti">
+      <rect x="16" y="20" width="120" height="40" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+      <text x="76" y="45" text-anchor="middle" class="mono" style="font-size:11px;fill:#41d9ff;letter-spacing:.15em">CLIENT (TU)</text>
+      <rect x="764" y="20" width="120" height="40" fill="#101821" stroke="#ffb454" stroke-width="2"/>
+      <text x="824" y="45" text-anchor="middle" class="mono" style="font-size:11px;fill:#ffb454;letter-spacing:.15em">SERVER</text>
+      <line x1="136" y1="40" x2="764" y2="40" stroke="#33475a" stroke-width="2" stroke-dasharray="6 6"/>
+      <g id="pktLayer"></g>
+    </svg>
+  </div>
+
+  <div class="apps">
+    <!-- FAKE DRIVE -->
+    <div class="app rv" id="appDrive">
+      <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="ttl"><b>FakeDrive</b> ☁️ — hard disk virtuale sul server</span></div>
+      <div class="body">
+        <div id="driveList"></div>
+        <button class="gbtn" id="upBtn" style="align-self:flex-start">⬆ CARICA UN FILE SUL SERVER</button>
+        <div class="preview" id="drivePrev">Nessun file aperto. I tuoi file NON sono sul tuo PC: vivono sul server.</div>
+      </div>
+    </div>
+    <!-- MATCH HOST -->
+    <div class="app rv" id="appMatch">
+      <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="ttl"><b>MatchHost</b> 🎮 — server privato di una partita</span></div>
+      <div class="body">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="gbtn" id="hostBtn">🛰️ CREA SERVER PRIVATO</button>
+          <button class="gbtn" id="joinBtn">🙋 CONNETTI UN CLIENT</button>
+        </div>
+        <div class="plabel"><span>POSTI SULLA PARTITA (il server gestisce gli accessi)</span><b id="slotTxt">0/8</b></div>
+        <div class="slots" id="slots"></div>
+        <div class="preview" id="matchPrev">Nessun server attivo. Crea una partita: gli altri client si connetteranno a te.</div>
+      </div>
+    </div>
+    <!-- STREAMING -->
+    <div class="app rv" id="appStream">
+      <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="ttl"><b>TubeStream</b> 📺 — video in streaming</span></div>
+      <div class="body">
+        <div class="screen" id="streamScreen">
+          <span class="tag">STREAMING DAL SERVER · <span id="qLab">1080p</span></span>
+          <div class="ground"></div>
+          <div class="hero" style="left:60%;background:var(--cy);box-shadow:0 0 12px rgba(65,217,255,.6)"></div>
+          <div class="buff" id="buffOv">⏳ BUFFERING… la banda non basta</div>
+          <div class="off" id="streamOff">✖ RETE OFFLINE: il video è sul server, non qui</div>
+        </div>
+        <div>
+          <div class="plabel"><span>RIPRODUZIONE</span><b id="posLab">0:00 / 2:00</b></div>
+          <div class="pbar"><i id="posBar"></i></div>
+        </div>
+        <div>
+          <div class="plabel"><span>BUFFER SCARICATO</span><b id="bufLab">0 s</b></div>
+          <div class="pbar buf"><i id="bufBar"></i></div>
+        </div>
+        <button class="gbtn" id="playBtn" style="align-self:flex-start">▶ GUARDA MENTRE SCARICA</button>
+      </div>
+    </div>
+    <!-- CLOUD GAMING -->
+    <div class="app rv" id="appCloud">
+      <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="ttl"><b>NimbusPlay</b> ☁️🎮 — cloud gaming</span></div>
+      <div class="body">
+        <div class="screen" id="cloudScreen">
+          <span class="tag">IL GIOCO GIRA SUL SERVER · TU VEDI UNO STREAM</span>
+          <div class="ground"></div>
+          <div class="hero" id="cloudHero"></div>
+          <div class="off" id="cloudOff">✖ RETE OFFLINE: niente cloud</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <button class="gbtn" id="cloudBtn">☁️ CONNETTI AL CLOUD</button>
+          <button class="gbtn" id="jumpBtn">🦘 SALTA (SPAZIO)</button>
+          <span class="mono" style="font-size:11px;color:var(--dim)">input lag percepito: <b id="lagLab" style="color:var(--amber)">—</b></span>
+        </div>
+        <div class="preview" id="cloudPrev">Il gioco non gira sul tuo dispositivo: gira su un server remoto e ti arriva come un video. I tuoi comandi fanno il viaggio inverso.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="consol rv" id="netLog" aria-live="polite"></div>
+  <div class="notebox rv" style="margin-top:16px">🧪 <b>Esperimenti consigliati:</b> 1) apri un file su FakeDrive e guarda i pacchetti; 2) spegni la RETE e riprova tutto; 3) crea un server di partita e riempilo: l'9° client finisce in coda, perché <i>è il server a gestire gli accessi</i>; 4) porta la latenza a 400 ms e prova a saltare nel cloud gaming.</div>
+</div></section>
+
+<!-- 02 TEORIA -->
+<section id="teoria"><div class="wrap">
+  <div class="shead rv"><span class="snum">02</span><h2 class="lm"><span>La teoria, per bene</span></h2></div>
+  <div class="skick rv" style="margin-bottom:12px">CLIENT, SERVER, PROTOCOLLI E CONDIVISIONE</div>
+  <p class="sintro rv">Il termine <b>client-server</b> indica un'architettura di rete nella quale un computer client (o terminale) si connette a un server per usare un certo servizio — ad esempio la condivisione di una risorsa hardware o software con altri client — appoggiandosi alla sottostante <i>architettura protocollare</i>. I sistemi client/server sono un'<i>evoluzione della condivisione semplice</i> delle risorse: la presenza di un server permette a più client di condividere le risorse, lasciando che sia il server a gestire gli accessi.</p>
+  <div class="teogrid">
+    <div class="defs rv">
+      <div class="def c"><div class="t">CLIENT</div><p>Chi <b style="color:var(--ink)">chiede</b>: il tuo PC, il telefono, la console, il browser. Invia una richiesta e usa il servizio che riceve.</p></div>
+      <div class="def a"><div class="t">SERVER</div><p>Chi <b style="color:var(--ink)">offre e governa</b>: un computer sempre acceso che condivide risorse (file, partite, video, giochi) e <b style="color:var(--ink)">gestisce gli accessi</b>: permessi, code, sicurezza.</p></div>
+      <div class="def g"><div class="t">PROTOCOLLO</div><p>Il <b style="color:var(--ink)">linguaggio comune</b> di regole con cui client e server si parlano: HTTP per il web, TCP/IP per il trasporto. Senza protocollo, niente comprensione.</p></div>
+      <div class="def c"><div class="t">RICHIESTA / RISPOSTA</div><p>Il cuore del modello: il client invia una <i style="color:var(--amber)">request</i>, il server risponde con una <i style="color:var(--amber)">response</i> e un codice: 200 OK, 404 non trovato… (ti ricordi l'errore 404?).</p></div>
+    </div>
+    <div class="shareviz rv">
+      <svg viewBox="0 0 400 240" id="shareSvg" aria-label="Confronto condivisione semplice e client-server">
+        <g id="meshG">
+          <line x1="80" y1="60" x2="320" y2="60" stroke="#33475a" stroke-width="2"/>
+          <line x1="80" y1="180" x2="320" y2="180" stroke="#33475a" stroke-width="2"/>
+          <line x1="80" y1="60" x2="80" y2="180" stroke="#33475a" stroke-width="2"/>
+          <line x1="320" y1="60" x2="320" y2="180" stroke="#33475a" stroke-width="2"/>
+          <line x1="80" y1="60" x2="320" y2="180" stroke="#33475a" stroke-width="2"/>
+          <line x1="320" y1="60" x2="80" y2="180" stroke="#33475a" stroke-width="2"/>
+          <rect x="50" y="40" width="60" height="40" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+          <rect x="290" y="40" width="60" height="40" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+          <rect x="50" y="160" width="60" height="40" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+          <rect x="290" y="160" width="60" height="40" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+          <text x="200" y="228" text-anchor="middle" class="mono" style="font-size:11px;fill:#5d7284;letter-spacing:.15em">6 COLLEGAMENTI, NESSUN CONTROLLO</text>
+        </g>
+        <g id="starG" style="opacity:.25">
+          <line x1="80" y1="60" x2="200" y2="120" stroke="#33475a" stroke-width="2"/>
+          <line x1="320" y1="60" x2="200" y2="120" stroke="#33475a" stroke-width="2"/>
+          <line x1="80" y1="180" x2="200" y2="120" stroke="#33475a" stroke-width="2"/>
+          <line x1="320" y1="180" x2="200" y2="120" stroke="#33475a" stroke-width="2"/>
+          <rect x="160" y="100" width="80" height="44" fill="#101821" stroke="#ffb454" stroke-width="2"/>
+          <text x="200" y="127" text-anchor="middle" class="mono" style="font-size:11px;fill:#ffb454;letter-spacing:.12em">SERVER</text>
+          <rect x="50" y="40" width="60" height="40" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+          <rect x="290" y="40" width="60" height="40" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+          <rect x="50" y="160" width="60" height="40" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+          <rect x="290" y="160" width="60" height="40" fill="#101821" stroke="#41d9ff" stroke-width="2"/>
+          <text x="200" y="228" text-anchor="middle" class="mono" style="font-size:11px;fill:#5d7284;letter-spacing:.15em">4 COLLEGAMENTI, ACCESSI GESTITI</text>
+        </g>
+      </svg>
+      <div class="sharebtns">
+        <button class="gbtn on" id="vizMesh">CONDIVISIONE SEMPLICE</button>
+        <button class="gbtn" id="vizStar">CLIENT-SERVER</button>
+      </div>
+      <div class="sharecap" id="shareCap"><b>Prima:</b> ogni computer parla con ogni altro (6 collegamenti su 4 PC). Nessuno controlla permessi, code o sicurezza: è il caos delle origini.</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 03 STORIA -->
+<section id="storia"><div class="wrap">
+  <div class="shead rv"><span class="snum">03</span><h2 class="lm"><span>Cenni storici: da un mainframe al cloud</span></h2></div>
+  <div class="skick rv" style="margin-bottom:30px">SEI TAPPE PER CAPIRE DA DOVE VIENE TUTTO QUESTO</div>
+  <div class="tl">
+    <div class="tli rv"><div class="yr">1960s–1969</div><div class="tt">MAINFRAME + TERMINALI · ARPANET</div><p>Grandi computer centrali (mainframe) servono terminali "stupidi" senza cervello proprio: è l'antenato del modello client-server. Nel 1969 ARPANET collega quattro università americane: nasce l'idea di rete.</p></div>
+    <div class="tli rv"><div class="yr">1980s</div><div class="tt">PC E RETI LOCALI (LAN)</div><p>I personal computer entrano negli uffici e nelle scuole. Nascono i file server e i print server: condividere stampanti e cartelle diventa normale, e il modello client-server si standardizza.</p></div>
+    <div class="tli rv"><div class="yr">1991</div><div class="tt">WORLD WIDE WEB</div><p>Il browser (client) chiede pagine, i web server rispondono con il protocollo HTTP: la coppia client-server più famosa della storia, ancora oggi alla base di internet.</p></div>
+    <div class="tli rv"><div class="yr">2005–2006</div><div class="tt">STREAMING E CLOUD</div><p>Nasce YouTube (2005) e AWS (2006): i data center diventano gli "hard disk del mondo". Guardare mentre si scarica diventa un'abitudine di massa.</p></div>
+    <div class="tli rv"><div class="yr">2012</div><div class="tt">GOOGLE DRIVE</div><p>L'hard disk virtuale: i tuoi documenti, foto e video vivono sui server di Google e li raggiungi da qualsiasi dispositivo. Il "posto" dei tuoi file non è più casa tua.</p></div>
+    <div class="tli rv"><div class="yr">2010 → OGGI</div><div class="tt">CLOUD GAMING</div><p>Da OnLive e Gaikai fino a Xbox Game Pass e GeForce Now: il videogioco gira su server remoti e arriva a casa tua come un flusso video, tipo Netflix ma interattivo.</p></div>
+  </div>
+</div></section>
+
+<!-- 04 ESEMPI -->
+<section id="esempi"><div class="wrap">
+  <div class="shead rv"><span class="snum">04</span><h2 class="lm"><span>Gli esempi di ogni giorno</span></h2></div>
+  <div class="skick rv" style="margin-bottom:26px">LI USI GIÀ TUTTI: ORA LI RICONOSCI</div>
+  <div class="exgrid">
+    <div class="excard rv"><h3>☁️ Google Drive</h3><p>Un <b>hard disk virtuale</b> che sta sui server di Google: apri un documento, guardi una foto o un video, ma i dati sono tutti lì, nei loro data center. Tu sei solo un client con una finestra aperta.</p></div>
+    <div class="excard rv"><h3>🎮 Hosting di una partita</h3><p>Crei un <b>server privato</b> usando le risorse messe a disposizione dagli sviluppatori del videogioco: gli altri giocatori (client) si connettono al tuo server, che gestisce turni, accessi e stato del mondo.</p></div>
+    <div class="excard rv"><h3>📺 Streaming video</h3><p>Scarichi un video che sta su un server (YouTube, per esempio) e <b>lo guardi mentre lo stai scaricando</b>: il buffer è la piccola scorta di video già arrivata che ti salva dai singhiozzi.</p></div>
+    <div class="excard rv"><h3>☁️ Cloud gaming</h3><p>Detto anche <b>gaming on demand</b> o "gioco in streaming", alla Netflix: il videogioco gira su server remoti e viene trasmesso al tuo dispositivo. I tre tipi principali:</p>
+      <div class="types"><span class="tchip">GIOCHI PEER-TO-PEER</span><span class="tchip">STREAMING DEI GIOCHI</span><span class="tchip">DOWNLOAD PROGRESSIVO</span></div>
+    </div>
+  </div>
+  <div class="frame rv"><div class="ratio">
+    <iframe src="https://www.youtube.com/embed/qEMHbqPCb74?start=385" title="Microsoft Game Pass — cloud gaming" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div></div>
+  <p class="videonote rv">Esempio: <b style="color:var(--cy)">Microsoft Game Pass</b> — il cloud gaming spiegato dai protagonisti (il video parte dal minuto 6:25). Se non si carica: <a href="https://www.youtube.com/watch?v=qEMHbqPCb74&t=385s" target="_blank" rel="noopener">aprilo su YouTube ↗</a></p>
+</div></section>
+
+<!-- 05 PROBLEMI -->
+<section id="problemi"><div class="wrap">
+  <div class="shead rv"><span class="snum">05</span><h2 class="lm"><span>I problemi dello streaming</span></h2></div>
+  <div class="skick rv" style="margin-bottom:26px">INPUT LAG E QUALITÀ VIDEO: PROVALI NEL LABORATORIO</div>
+  <div class="probgrid">
+    <div class="panel rv">
+      <h3 style="font-size:17px;color:var(--red);margin-bottom:10px">🐌 Input lag</h3>
+      <p style="font-size:13.5px;color:var(--mut)">Nel cloud gaming il tuo comando fa un viaggio enorme: <b style="color:var(--ink)">input → server</b> (latenza), il server calcola e disegna il frame, poi <b style="color:var(--ink)">video → schermo</b> (altra latenza). Il ritardo che senti è circa il doppio del ping, più la codifica.</p>
+      <div class="lagcalc">
+        <div class="plabel"><span>CALCOLA IL TUO RITARDO CON LA LATENZA ATTUALE</span></div>
+        <div class="lagsteps"><span class="st">input → server: <b id="lg1">60</b> ms</span><span class="ar">+</span><span class="st">codifica: 30 ms</span><span class="ar">+</span><span class="st">video → schermo: <b id="lg2">60</b> ms</span></div>
+        <div class="lagtot" id="lagTot" style="color:var(--amber)">= 150 ms</div>
+        <div class="mono" style="font-size:11px;color:var(--dim);margin-top:6px" id="lagVerdict"></div>
+      </div>
+    </div>
+    <div class="panel rv">
+      <h3 style="font-size:17px;color:var(--amber);margin-bottom:10px"> Qualità video bassa</h3>
+      <p style="font-size:13.5px;color:var(--mut)">Per viaggiare nella tua banda, il video viene <b style="color:var(--ink)">compresso</b>. Se la banda è poca, il server abbassa la qualità (fino a 144p!) oppure il buffer si svuota e parte il <b style="color:var(--ink)">buffering</b>. Nello streaming di giochi è ancora più critico: il video deve arrivare in tempo reale, non "quando capita".</p>
+      <div class="notebox" style="margin-top:16px">🧪 <b>Provalo:</b> nel laboratorio porta la banda a 2 Mbps e guarda TubeStream passare a 144p e singhiozzare. Poi riportala a 100 e respira.</div>
+      <div class="warnbox" style="margin-top:14px">⚠ Ricorda: senza rete, il client è un soprammobile. Tutti i tuoi "file nel cloud" esistono solo finché il server risponde.</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 06 QUIZ -->
+<section id="quiz"><div class="wrap">
+  <div class="shead rv" style="justify-content:center"><span class="snum">06</span><h2 class="lm"><span>Quiz client-server</span></h2></div>
+  <div class="skick rv" style="margin-bottom:30px;text-align:center">7 DOMANDE • RISPONDI E SCOPRI LA SPIEGAZIONE</div>
+  <div class="quizbox rv" id="quizBox"></div>
+</div></section>
+
+<!-- IN BREVE -->
+<section id="breve" style="border-top:none;padding-top:20px"><div class="wrap">
+  <div class="shead rv"><span class="snum">07</span><h2 class="lm"><span>In breve: tre regole d'oro</span></h2></div>
+  <div class="gold">
+    <div class="grule rv"><span class="n">1</span><h3>Chi chiede, chi offre</h3><p>Il client richiede un servizio, il server lo offre e gestisce gli accessi alle risorse condivise: permessi, code, sicurezza. Tutto si appoggia ai protocolli.</p></div>
+    <div class="grule rv"><span class="n">2</span><h3>È un'evoluzione della condivisione</h3><p>Prima ogni PC condivideva con ogni PC (caos); con il server c'è un regista unico che ordina gli accessi. Meno collegamenti, più controllo.</p></div>
+    <div class="grule rv"><span class="n">3</span><h3>Il cloud ha un prezzo fisico</h3><p>Drive, streaming e cloud gaming vivono su server reali: latenza (input lag) e banda (qualità video) sono il conto che paghi ogni volta che clicchi.</p></div>
+  </div>
+</div>
+<div class="marquee" aria-hidden="true"><div class="mtrack">
+  <span><b>CLIENT</b></span><span><i>SERVER</i></span><span>REQUEST</span><span><b>RESPONSE</b></span><span><i>HTTP</i></span><span>TCP/IP</span><span><b>200 OK</b></span><span><i>404</i></span><span>CLOUD</span><span><b>DATA CENTER</b></span><span>BUFFER</span><span><i>INPUT LAG</i></span><span>STREAMING</span><span><b>PEER-TO-PEER</b></span>
+  <span><b>CLIENT</b></span><span><i>SERVER</i></span><span>REQUEST</span><span><b>RESPONSE</b></span><span><i>HTTP</i></span><span>TCP/IP</span><span><b>200 OK</b></span><span><i>404</i></span><span>CLOUD</span><span><b>DATA CENTER</b></span><span>BUFFER</span><span><i>INPUT LAG</i></span><span>STREAMING</span><span><b>PEER-TO-PEER</b></span>
+</div></div>
+</section>
+
+<footer><div class="wrap footin">
+  <span><b>LAB//CLOUD</b> — pagina didattica interattiva</span>
+  <span>architettura client-server • esplora, clicca, capisci</span>
+</div></footer>
+
+<script>
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const sleep = ms => new Promise(r => setTimeout(r, RM ? Math.min(ms,60) : ms));
+
+/* reveal + scramble */
+const io = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.15});
+$$('.rv, h2.lm').forEach(el=>io.observe(el));
+const CHARS='01<>/\\|=+*#%@';
+function scramble(el){const t=el.dataset.scramble;if(RM){el.textContent=t;return;}let f=0,tot=t.length*3+10;
+  const tick=()=>{f++;const lock=Math.floor((f/tot)*t.length);
+    el.textContent=t.split('').map((c,i)=>c===' '?' ':(i<lock?c:CHARS[Math.floor(Math.random()*CHARS.length)])).join('');
+    if(f<tot)requestAnimationFrame(tick);else el.textContent=t;};tick();}
+$$('[data-scramble]').forEach(scramble);
+
+/* ---------- STATO DI RETE ---------- */
+const NET = { online:true, lat:60, bw:50 };
+function log(t,c='info'){const d=document.createElement('div');d.className='ln '+c;d.textContent=t;const L=$('#netLog');L.appendChild(d);L.scrollTop=L.scrollHeight;if(L.children.length>70)L.firstChild.remove();}
+function vr(){ return RM?200:Math.min(1500,Math.max(300,NET.lat*3)); }
+
+/* pacchetti sulla linea */
+const NS='http://www.w3.org/2000/svg';
+function firePacket(color,onReach,onDone){
+  const layer=$('#pktLayer');
+  const c=document.createElementNS(NS,'circle');
+  c.setAttribute('cx',136);c.setAttribute('cy',40);c.setAttribute('r',6);
+  c.setAttribute('fill',color);c.style.filter=`drop-shadow(0 0 6px ${color})`;
+  layer.appendChild(c);
+  const half=vr()/2;
+  c.style.transition=`transform ${half}ms cubic-bezier(.4,0,.4,1)`;
+  requestAnimationFrame(()=>{c.style.transform='translateX(628px)';});
+  setTimeout(()=>{ if(onReach)onReach(); c.style.transform='translateX(0)'; c.setAttribute('fill','#ffb454'); c.style.filter='drop-shadow(0 0 6px #ffb454)'; },half);
+  setTimeout(()=>{ c.remove(); if(onDone)onDone(); },half*2);
+}
+function netGuard(shakeEl){
+  if(NET.online) return true;
+  log('✖ RETE OFFLINE: la richiesta non parte. Il server è irraggiungibile.','bad');
+  if(shakeEl){shakeEl.classList.remove('shake');void shakeEl.offsetWidth;shakeEl.classList.add('shake');}
+  return false;
+}
+
+/* switch + slider */
+const sw=$('#netSwitch');
+function setNet(on){
+  NET.online=on;
+  sw.classList.toggle('on',on); sw.setAttribute('aria-checked',on);
+  $('#netLab').textContent=on?'RETE: ONLINE':'RETE: OFFLINE';
+  $('#navLed').classList.toggle('off',!on);
+  $('#streamOff').style.display=on?'none':'flex';
+  $('#cloudOff').style.display=(on||!cloudOn)?'none':'flex';
+  log(on?'✔ Rete ripristinata: il server risponde di nuovo.':'⚠ Hai spento la rete: tutte le app client ora falliscono.',on?'good':'warn');
+}
+sw.addEventListener('click',()=>setNet(!NET.online));
+sw.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setNet(!NET.online);}});
+$('#latRange').addEventListener('input',e=>{NET.lat=+e.target.value;updNet();});
+$('#bwRange').addEventListener('input',e=>{NET.bw=+e.target.value;updNet();});
+$$('.presets button').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.l){NET.lat=+b.dataset.l;$('#latRange').value=NET.lat;}
+  if(b.dataset.b){NET.bw=+b.dataset.b;$('#bwRange').value=NET.bw;}
+  updNet();
+}));
+function updNet(){
+  $('#latVal').textContent=NET.lat+' ms';
+  $('#bwVal').textContent=NET.bw+' Mbps';
+  $('#lg1').textContent=NET.lat; $('#lg2').textContent=NET.lat;
+  const tot=NET.lat*2+30;
+  $('#lagTot').textContent='= '+tot+' ms';
+  $('#lagTot').style.color = tot<100?'var(--green)':tot<200?'var(--amber)':'var(--red)';
+  $('#lagVerdict').textContent = tot<100?'verdetto: reattivo, si gioca bene ✔':tot<200?'verdetto: giocabile, ma si sente ⚠':tot<400?'verdetto: frustrante ✖':'verdetto: ingiocabile 💀';
+  if(cloudOn) $('#lagLab').textContent=(NET.lat*2+30)+' ms';
+  updateQuality();
+}
+
+/* hero richiesta */
+$('#heroReq').addEventListener('click',()=>{
+  const btn=$('#heroReq'); btn.disabled=true;
+  const pkt=$('#heroPkt'); pkt.style.opacity=1;
+  $('#heroResp').innerHTML='<span style="color:var(--cy)">→ client: GET /risorsa … richiesta in viaggio …</span>';
+  const half=RM?150:700;
+  pkt.style.transition=`cx ${half}ms cubic-bezier(.4,0,.4,1)`;
+  pkt.setAttribute('cx',336); pkt.setAttribute('fill','#ffb454');
+  setTimeout(()=>{pkt.setAttribute('cx',124);pkt.setAttribute('fill','#41d9ff');},half);
+  setTimeout(()=>{
+    pkt.style.opacity=0;
+    $('#heroResp').innerHTML='<span class="ok">← server: 200 OK — ecco la risorsa richiesta!</span> Il ciclo richiesta/risposta è il battito del modello client-server.';
+    btn.disabled=false;
+  },half*2);
+});
+
+/* ---------- FAKE DRIVE ---------- */
+let files=[{n:'tema_di_italiano.doc',s:'34 KB',e:'📄'},{n:'foto_gita.jpg',s:'3,2 MB',e:'🖼️'},{n:'video_gita.mp4',s:'120 MB',e:'🎬'}];
+const upQueue=[{n:'ricerca_storia.pdf',s:'1,1 MB',e:'📕'},{n:'playlist_classe.mp3',s:'48 MB',e:'🎧'}];
+function renderDrive(newIdx=-1){
+  const L=$('#driveList'); L.innerHTML='';
+  files.forEach((f,i)=>{
+    const r=document.createElement('div'); r.className='frow'+(i===newIdx?' new':'');
+    r.innerHTML=`<span>${f.e}</span><span>${f.n}</span><span class="fs">${f.s} · sul server</span><button data-i="${i}">APRI</button>`;
+    L.appendChild(r);
+  });
+  L.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>openFile(+b.dataset.i)));
+}
+function openFile(i){
+  if(!netGuard($('#appDrive')))return;
+  const f=files[i];
+  log(`→ client: GET /drive/${f.n}`,'cy');
+  firePacket('#41d9ff',()=>{
+    log(`← server: 200 OK · ${f.s} trasferiti`,'good');
+    const p=$('#drivePrev'); p.className='preview show';
+    p.innerHTML=`${f.e} ${f.n}<br>in streaming dal server ✔ (sul tuo PC non c'è nulla)`;
+  });
+}
+$('#upBtn').addEventListener('click',()=>{
+  if(!netGuard($('#appDrive')))return;
+  if(!upQueue.length){log('ℹ Non hai altri file da caricare.','info');return;}
+  const f=upQueue.shift();
+  log(`→ client: PUT /drive/${f.n} (${f.s})`,'cy');
+  firePacket('#41d9ff',()=>{
+    files.push(f); renderDrive(files.length-1);
+    log(`← server: 201 Created · ${f.n} ora vive nel data center`,'good');
+  });
+});
+renderDrive();
+
+/* ---------- MATCH HOST ---------- */
+let hosting=false, clients=0, queue=0; const MAXS=8;
+const slotsEl=$('#slots');
+for(let i=0;i<MAXS;i++){const s=document.createElement('i');slotsEl.appendChild(s);}
+function renderMatch(){
+  $('#slotTxt').textContent=clients+'/'+MAXS+(queue?` · coda: ${queue}`:'');
+  $$('#slots i').forEach((s,i)=>s.classList.toggle('f',i<clients));
+  const p=$('#matchPrev');
+  if(!hosting){p.className='preview';p.textContent='Nessun server attivo. Crea una partita: gli altri client si connetteranno a te.';}
+  else{p.className='preview show';p.innerHTML=`🛰️ Server privato ATTIVO: sei tu il server.<br>${clients} client connessi${queue?`, ${queue} in coda (gestisce il server!)`:''}.`;}
+}
+function tryConnect(who){
+  if(!NET.online){log(`✖ ${who}: rete offline, connessione impossibile.`,'bad');return;}
+  if(!hosting){log(`✖ ${who}: nessun server attivo a cui connettersi.`,'bad');return;}
+  log(`→ ${who}: richiesta di connessione al server…`,'cy');
+  firePacket('#41d9ff',()=>{
+    if(clients<MAXS){clients++;log(`← server: accesso CONCESSO a ${who} (${clients}/${MAXS})`,'good');}
+    else{queue++;log(`← server: partita piena. ${who} messo in CODA d'attesa (gestione accessi).`,'warn');}
+    renderMatch();
+  });
+}
+$('#hostBtn').addEventListener('click',()=>{
+  if(!netGuard($('#appMatch')))return;
+  hosting=!hosting;
+  $('#hostBtn').classList.toggle('on',hosting);
+  $('#hostBtn').textContent=hosting?'🛰️ SERVER ATTIVO (CHIUDI)':'🛰️ CREA SERVER PRIVATO';
+  if(hosting)log('✔ Server privato creato: risorse condivise, accessi gestiti da te.','good');
+  else{clients=0;queue=0;log('ℹ Server chiuso: i client vengono scollegati.','info');}
+  renderMatch();
+});
+$('#joinBtn').addEventListener('click',()=>tryConnect('client manuale'));
+setInterval(()=>{ if(hosting&&NET.online&&Math.random()<0.7) tryConnect('client bot #'+Math.floor(Math.random()*90+10)); },3200);
+renderMatch();
+
+/* ---------- STREAMING ---------- */
+let playing=false, pos=0, buffer=4, LEN=120;
+const BIT={ '1080p':8,'720p':5,'480p':2.5,'144p':0.8 };
+let quality='1080p';
+function updateQuality(){
+  const bw=NET.bw;
+  quality = bw>=8?'1080p':bw>=5?'720p':bw>=2.5?'480p':bw>=0.8?'144p':'—';
+  $('#qLab').textContent=quality;
+}
+$('#playBtn').addEventListener('click',()=>{
+  if(!NET.online){log('✖ TubeStream: rete offline, il video resta sul server.','bad');$('#appStream').classList.add('shake');setTimeout(()=>$('#appStream').classList.remove('shake'),500);return;}
+  playing=!playing;
+  $('#playBtn').classList.toggle('on',playing);
+  $('#playBtn').textContent=playing?'⏸ PAUSA':'▶ GUARDA MENTRE SCARICA';
+  if(playing)log(`→ client: richiesta stream video · server: si parte in ${quality}`,'cy');
+});
+setInterval(()=>{
+  if(!playing)return;
+  if(!NET.online){playing=false;$('#playBtn').classList.remove('on');$('#playBtn').textContent='▶ GUARDA MENTRE SCARICA';return;}
+  const br=BIT[quality]||0.8;
+  buffer=Math.min(20,buffer+ (NET.bw/br)*0.1);
+  let stutter=false;
+  if(buffer>0.12){buffer-=0.1;pos=Math.min(LEN,pos+0.1);}else{stutter=true;}
+  $('#buffOv').style.display=stutter?'flex':'none';
+  $('#posBar').style.width=(pos/LEN*100)+'%';
+  $('#bufBar').style.width=(buffer/20*100)+'%';
+  const m=Math.floor(pos/60),s=Math.floor(pos%60);
+  $('#posLab').textContent=`${m}:${String(s).padStart(2,'0')} / 2:00`;
+  $('#bufLab').textContent=buffer.toFixed(1)+' s';
+  if(pos>=LEN){playing=false;$('#playBtn').classList.remove('on');$('#playBtn').textContent='↺ RIGUARDA';log('✔ Stream completato: il video era sul server, tu lo hai solo guardato.','good');pos=0;}
+},100);
+updateQuality();
+
+/* ---------- CLOUD GAMING ---------- */
+let cloudOn=false;
+$('#cloudBtn').addEventListener('click',()=>{
+  if(!netGuard($('#appCloud')))return;
+  if(cloudOn){cloudOn=false;$('#cloudBtn').classList.remove('on');$('#cloudBtn').textContent='☁️ CONNETTI AL CLOUD';$('#lagLab').textContent='—';$('#cloudOff').style.display='none';log('ℹ Disconnesso dal cloud.','info');return;}
+  log('→ client: handshake con il server di gioco…','cy');
+  firePacket('#41d9ff',()=>{
+    cloudOn=true;$('#cloudBtn').classList.add('on');$('#cloudBtn').textContent='☁️ CONNESSO (ESCI)';
+    $('#lagLab').textContent=(NET.lat*2+30)+' ms';
+    log('← server: sessione avviata. Il gioco gira qui: a te arriva uno stream video.','good');
+  });
+});
+function doJump(){
+  if(!cloudOn){log('✖ NimbusPlay: prima connettiti al cloud.','bad');return;}
+  if(!NET.online){log('✖ NimbusPlay: rete offline.','bad');return;}
+  log(`→ client: input "SALTA" inviato al server (${NET.lat} ms)…`,'am');
+  setTimeout(()=>{
+    log('← server: frame renderizzato, stream in ritorno…','am');
+    setTimeout(()=>{
+      const h=$('#cloudHero'); h.classList.remove('jump'); void h.offsetWidth; h.classList.add('jump');
+      log('✔ salto visibile a schermo: input lag '+(NET.lat*2+30)+' ms','good');
+    },NET.lat);
+  },NET.lat);
+}
+$('#jumpBtn').addEventListener('click',doJump);
+window.addEventListener('keydown',e=>{if(e.code==='Space'&&cloudOn){e.preventDefault();doJump();}});
+
+updNet();
+log('Laboratorio pronto. Rete online, latenza 60 ms, banda 50 Mbps.','info');
+log('ℹ Ogni riga qui sotto è una richiesta o una risposta tra client e server.','info');
+
+/* teoria viz */
+$('#vizMesh').addEventListener('click',()=>{
+  $('#meshG').style.opacity=1;$('#starG').style.opacity=.25;
+  $('#vizMesh').classList.add('on');$('#vizStar').classList.remove('on');
+  $('#shareCap').innerHTML='<b>Prima:</b> ogni computer parla con ogni altro (6 collegamenti su 4 PC). Nessuno controlla permessi, code o sicurezza: è il caos delle origini.';
+});
+$('#vizStar').addEventListener('click',()=>{
+  $('#starG').style.opacity=1;$('#meshG').style.opacity=.25;
+  $('#vizStar').classList.add('on');$('#vizMesh').classList.remove('on');
+  $('#shareCap').innerHTML='<b>Client-server:</b> tutti parlano solo con il server (4 collegamenti). È lui a condividere le risorse e a <b>gestire gli accessi</b>: chi entra, chi aspetta, chi no.';
+});
+
+/* ---------- QUIZ ---------- */
+const QUIZ=[
+ {q:'Nell’architettura client-server, chi invia la richiesta di un servizio?',o:['Il client','Il server','Il protocollo','Il router'],a:0,x:'Il client (PC, telefono, console…) chiede; il server offre e gestisce.'},
+ {q:'Qual è il ruolo principale del server?',o:['Condividere risorse e gestire gli accessi dei client','Navigare sul web al posto tuo','Comprimere i video','Spegnere i client'],a:0,x:'Il server condivide risorse hardware/software e governa permessi, code e sicurezza degli accessi.'},
+ {q:'Google Drive è un esempio di…',o:['Hard disk virtuale sui server di Google','Memoria RAM del tuo PC','Disco ottico','Scheda di espansione'],a:0,x:'I tuoi file vivono nei data center di Google: tu li raggiungi da client, da qualsiasi dispositivo.'},
+ {q:'"Streaming" significa…',o:['Guardare o ascoltare mentre si scarica','Scaricare tutto prima di aprire','Copiare un file su chiavetta','Comprimere un archivio'],a:0,x:'Il contenuto arriva a pezzi dal server e lo consumi durante il download, grazie al buffer.'},
+ {q:'L’input lag nel cloud gaming è…',o:['Il ritardo tra il tuo comando e l’effetto a schermo','La velocità del disco','Un tipo di protocollo','La qualità del video'],a:0,x:'Il comando viaggia fino al server e il video torna indietro: il ritardo è circa il doppio del ping più la codifica.'},
+ {q:'Quali sono i tre tipi principali di cloud gaming?',o:['Peer-to-peer, streaming dei giochi, download progressivo','CD, DVD, Blu-ray','POST, bootstrap, BIOS','Input, output, feedback'],a:0,x:'Sono i tre modelli con cui il gioco arriva dal cloud al tuo dispositivo.'},
+ {q:'Un protocollo, in rete, è…',o:['Un insieme di regole condivise con cui client e server comunicano','Un cavo speciale','Un antivirus','Un codice sconto'],a:0,x:'Senza regole comuni (HTTP, TCP/IP…) client e server non si capirebbero: il protocollo è il loro linguaggio.'}
+];
+let qi=0,score=0;const quizBox=$('#quizBox');
+function renderQ(){
+  const q=QUIZ[qi];
+  quizBox.innerHTML=`
+    <div class="qprog"><span>DOMANDA ${qi+1} / ${QUIZ.length}</span><span>PUNTI: ${score}</span></div>
+    <div class="qbar"><i style="width:${(qi/QUIZ.length)*100}%"></i></div>
+    <div class="qq">${q.q}</div>
+    <div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)} · ${o}</button>`).join('')}</div>
+    <div class="qfeed" id="qfeed"></div>
+    <button class="racebtn qnext" id="qnext" style="font-size:13px;padding:12px 24px">${qi===QUIZ.length-1?'VEDI IL RISULTATO →':'PROSSIMA DOMANDA →'}</button>`;
+  $$('.opt').forEach(b=>b.addEventListener('click',()=>answer(+b.dataset.i)));
+  $('#qnext').addEventListener('click',()=>{qi++;qi<QUIZ.length?renderQ():finalQ();});
+}
+function answer(i){
+  const q=QUIZ[qi];$$('.opt').forEach(o=>o.disabled=true);
+  const ok=i===q.a;if(ok)score++;
+  $$('.opt')[q.a].classList.add('ok');if(!ok)$$('.opt')[i].classList.add('ko');
+  const f=$('#qfeed');f.className='qfeed show '+(ok?'good':'bad');
+  f.innerHTML=(ok?'✔ Esatto!':'✖ Non proprio.')+`<span>${q.x}</span>`;
+  $('#qnext').classList.add('show');
+  $('.qprog').lastElementChild.textContent='PUNTI: '+score;
+}
+function finalQ(){
+  const p=score/QUIZ.length;
+  const v=p===1?'🏆 <b>200 OK!</b> Risposta perfetta: il modello client-server è tuo.'
+    :p>=.7?'⚡ <b>Ottimo!</b> Il server ti ha concesso l’accesso: quasi tutto giusto.'
+    :p>=.5?'☁️ <b>Buffer parziale!</b> Ripassa teoria e laboratorio: sei a metà download.'
+    :'📴 <b>Timeout!</b> La connessione con i concetti è caduta: riapri il laboratorio e riprova.';
+  quizBox.innerHTML=`<div class="qfinal"><div class="qprog"><span>QUIZ COMPLETATO</span></div>
+    <div class="score">${score}/${QUIZ.length}</div><div class="verdict">${v}</div>
+    <button class="racebtn" id="qretry" style="font-size:13px;padding:12px 26px">↺ RIGIOCA IL QUIZ</button></div>`;
+  $('#qretry').addEventListener('click',()=>{qi=0;score=0;renderQ();});
+}
+renderQ();
+</script>
+</body>
+</html>
