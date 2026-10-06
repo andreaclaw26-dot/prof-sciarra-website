@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lezione JSON - 5^ SIA</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #333;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    color: white;
+    padding: 30px;
+    text-align: center;
+  }
+  header h1 { font-size: 2.2em; margin-bottom: 8px; }
+  header p { opacity: 0.9; }
+  nav {
+    display: flex;
+    background: #2c3e50;
+    flex-wrap: wrap;
+  }
+  nav button {
+    flex: 1;
+    padding: 15px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1em;
+    transition: 0.3s;
+    min-width: 140px;
+  }
+  nav button:hover { background: #34495e; }
+  nav button.active { background: #16a085; font-weight: bold; }
+  .section {
+    padding: 30px;
+    display: none;
+    animation: fade 0.4s;
+  }
+  .section.active { display: block; }
+  @keyframes fade { from {opacity:0;} to {opacity:1;} }
+  h2 { color: #2c3e50; margin-bottom: 15px; border-left: 5px solid #16a085; padding-left: 10px; }
+  h3 { color: #34495e; margin: 15px 0 10px; }
+  p, li { line-height: 1.7; margin-bottom: 10px; }
+  ul { padding-left: 25px; }
+  .box {
+    background: #f8f9fa;
+    border-left: 4px solid #3498db;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+  }
+  .box.warn { border-color: #e67e22; background: #fff8e1; }
+  .box.ok { border-color: #27ae60; background: #e8f8f0; }
+  pre {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Consolas', monospace;
+    font-size: 0.95em;
+  }
+  .key { color: #f39c12; }
+  .string { color: #2ecc71; }
+  .number { color: #3498db; }
+  .boolean { color: #e74c3c; }
+  .null { color: #95a5a6; }
+  textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 15px;
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    resize: vertical;
+  }
+  textarea:focus { outline: none; border-color: #16a085; }
+  button.action {
+    background: #16a085;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin: 5px 5px 5px 0;
+    transition: 0.3s;
+  }
+  button.action:hover { background: #138d75; }
+  button.action.secondary { background: #7f8c8d; }
+  button.action.secondary:hover { background: #616e6f; }
+  .result {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: 'Consolas', monospace;
+    white-space: pre-wrap;
+    min-height: 50px;
+  }
+  .result.ok { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .result.err { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  .result.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+  }
+  th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  th { background: #2c3e50; color: white; }
+  tr:nth-child(even) { background: #f8f9fa; }
+  .exercise {
+    background: #fff3cd;
+    border: 2px dashed #ffc107;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+  }
+  .feedback { font-weight: bold; margin-top: 10px; }
+  .feedback.correct { color: #27ae60; }
+  .feedback.wrong { color: #c0392b; }
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+  }
+  .comparison-card {
+    background: white;
+    border: 2px solid #ecf0f1;
+    border-radius: 10px;
+    padding: 20px;
+    transition: 0.3s;
+  }
+  .comparison-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+  .comparison-card h4 { color: #16a085; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;right:16px;bottom:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+<div class="container">
+  <header>
+    <h1>📘 JSON: il linguaggio dei dati</h1>
+    <p>Lezione interattiva - Classe 5^ Sistemi Informativi Aziendali</p>
+  </header>
+
+  <nav>
+    <button class="tab-btn active" data-tab="intro">1. Introduzione</button>
+    <button class="tab-btn" data-tab="sintassi">2. Sintassi</button>
+    <button class="tab-btn" data-tab="editor">3. Editor JSON</button>
+    <button class="tab-btn" data-tab="confronto">4. Confronto</button>
+    <button class="tab-btn" data-tab="esercizi">5. Esercizi</button>
+    <button class="tab-btn" data-tab="js">6. JavaScript</button>
+  </nav>
+
+  <!-- INTRODUZIONE -->
+  <div class="section active" id="intro">
+    <h2>Cos'è JSON?</h2>
+    <p><strong>JSON</strong> (JavaScript Object Notation) è un formato di testo leggero per lo scambio di dati. Nato all'inizio degli anni 2000, è oggi lo standard <em>de facto</em> per le API REST e la comunicazione tra sistemi.</p>
+    
+    <div class="box">
+      <strong>💡 Curiosità:</strong> JSON è derivato dalla sintassi degli oggetti JavaScript, ma è <u>indipendente dal linguaggio</u>. Tutti i linguaggi moderni (Python, Java, PHP, C#, ecc.) hanno librerie per leggerlo e scriverlo.
+    </div>
+
+    <h3>Perché JSON è così diffuso nelle aziende?</h3>
+    <ul>
+      <li><strong>Leggibilità:</strong> facile da leggere per l'uomo</li>
+      <li><strong>Leggerezza:</strong> meno verboso di XML</li>
+      <li><strong>Universalità:</strong> supportato da tutti i linguaggi</li>
+      <li><strong>Web-friendly:</strong> nativo nei browser</li>
+      <li><strong>Database NoSQL:</strong> MongoDB salva i dati in formato BSON (JSON binario)</li>
+    </ul>
+
+    <h3>Casi d'uso aziendali</h3>
+    <ul>
+      <li>🔄 Scambio dati tra ERP e CRM</li>
+      <li>🌐 API REST per e-commerce</li>
+      <li>⚙️ File di configurazione (es. VSCode, package.json)</li>
+      <li>📱 Comunicazione app mobile ↔ server</li>
+      <li>💾 Log e backup strutturati</li>
+    </ul>
+  </div>
+
+  <!-- SINTASSI -->
+  <div class="section" id="sintassi">
+    <h2>La sintassi JSON</h2>
+    <p>JSON si basa su <strong>due strutture fondamentali</strong>:</p>
+
+    <h3>1. L'oggetto <code>{ }</code></h3>
+    <p>Una collezione di coppie <strong>chiave : valore</strong>, separate da virgola.</p>
+    <pre>{
+  <span class="key">"nome"</span>: <span class="string">"Mario Rossi"</span>,
+  <span class="key">"eta"</span>: <span class="number">30</span>,
+  <span class="key">"impiegato"</span>: <span class="boolean">true</span>
+}</pre>
+
+    <h3>2. L'array <code>[ ]</code></h3>
+    <p>Una lista ordinata di valori, separati da virgola.</p>
+    <pre>[<span class="string">"Java"</span>, <span class="string">"SQL"</span>, <span class="string">"JSON"</span>]</pre>
+
+    <h3>I 6 tipi di valore ammessi</h3>
+    <table>
+      <tr><th>Tipo</th><th>Esempio</th><th>Uso</th></tr>
+      <tr><td>Stringa</td><td><code>"Ciao"</code></td><td>Testo (sempre tra doppi apici!)</td></tr>
+      <tr><td>Numero</td><td><code>42</code>, <code>3.14</code></td><td>Interi o decimali</td></tr>
+      <tr><td>Booleano</td><td><code>true</code> / <code>false</code></td><td>Valori logici</td></tr>
+      <tr><td>Null</td><td><code>null</code></td><td>Valore assente</td></tr>
+      <tr><td>Oggetto</td><td><code>{...}</code></td><td>Struttura annidata</td></tr>
+      <tr><td>Array</td><td><code>[...]</code></td><td>Liste di elementi</td></tr>
+    </table>
+
+    <div class="box warn">
+      <strong>⚠️ Regole importanti:</strong>
+      <ul>
+        <li>Le chiavi devono essere <u>stringhe tra doppi apici</u> (no singoli apici!)</li>
+        <li>Niente virgola dopo l'ultimo elemento (no "trailing comma")</li>
+        <li>Niente commenti</li>
+        <li>Distingue maiuscole/minuscole (case-sensitive)</li>
+      </ul>
+    </div>
+
+    <h3>Esempio completo: una fattura aziendale</h3>
+    <pre>{
+  <span class="key">"fattura"</span>: {
+    <span class="key">"numero"</span>: <span class="number">2024001</span>,
+    <span class="key">"data"</span>: <span class="string">"2024-11-15"</span>,
+    <span class="key">"cliente"</span>: {
+      <span class="key">"ragioneSociale"</span>: <span class="string">"Alpha Srl"</span>,
+      <span class="key">"pIva"</span>: <span class="string">"IT01234567890"</span>
+    },
+    <span class="key">"righe"</span>: [
+      { <span class="key">"prodotto"</span>: <span class="string">"Laptop"</span>, <span class="key">"qta"</span>: <span class="number">2</span>, <span class="key">"prezzo"</span>: <span class="number">800.00</span> },
+      { <span class="key">"prodotto"</span>: <span class="string">"Mouse"</span>, <span class="key">"qta"</span>: <span class="number">2</span>, <span class="key">"prezzo"</span>: <span class="number">25.50</span> }
+    ],
+    <span class="key">"totale"</span>: <span class="number">1651.00</span>,
+    <span class="key">"pagata"</span>: <span class="boolean">false</span>
+  }
+}</pre>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="section" id="editor">
+    <h2>🛠️ Editor e Validatore JSON</h2>
+    <p>Incolla o scrivi del JSON qui sotto. Il validatore controlla la sintassi in tempo reale.</p>
+    <textarea id="jsonEditor" spellcheck="false">{
+  "azienda": "Beta SpA",
+  "dipendenti": 150,
+  "sede": "Roma",
+  "attiva": true
+}</textarea>
+    <div style="margin-top:10px;">
+      <button class="action" onclick="validaJSON()">✅ Valida</button>
+      <button class="action" onclick="formattaJSON()">🎨 Formatta</button>
+      <button class="action" onclick="minificaJSON()">📦 Minifica</button>
+      <button class="action secondary" onclick="campioniJSON()">🎲 Carica esempio</button>
+    </div>
+    <div id="jsonResult" class="result info">Premi "Valida" per verificare la sintassi...</div>
+  </div>
+
+  <!-- CONFRONTO -->
+  <div class="section" id="confronto">
+    <h2>📊 JSON vs altri formati</h2>
+    <p>Confrontiamo JSON con altri formati comuni per lo scambio di dati:</p>
+
+    <div class="comparison-grid">
+      <div class="comparison-card">
+        <h4>JSON</h4>
+        <p><strong>Pro:</strong> leggero, leggibile, nativo nel web</p>
+        <p><strong>Contro:</strong> niente commenti, no schema nativo</p>
+        <p><strong>Uso:</strong> API REST, config, NoSQL</p>
+      </div>
+      <div class="comparison-card">
+        <h4>XML</h4>
+        <p><strong>Pro:</strong> schema (XSD), commenti, molto strutturato</p>
+        <p><strong>Contro:</strong> verboso, pesante</p>
+        <p><strong>Uso:</strong> SOAP, configurazioni enterprise</p>
+      </div>
+      <div class="comparison-card">
+        <h4>CSV</h4>
+        <p><strong>Pro:</strong> semplicissimo, compatto</p>
+        <p><strong>Contro:</strong> solo dati tabellari, no gerarchie</p>
+        <p><strong>Uso:</strong> export Excel, database</p>
+      </div>
+      <div class="comparison-card">
+        <h4>YAML</h4>
+        <p><strong>Pro:</strong> leggibilissimo, supporta commenti</p>
+        <p><strong>Contro:</strong> sensibile agli spazi</p>
+        <p><strong>Uso:</strong> config (Docker, Kubernetes)</p>
+      </div>
+    </div>
+
+    <h3>Esempio: stesso dato in 3 formati</h3>
+    <p><strong>JSON:</strong></p>
+    <pre>{ "nome": "Mario", "eta": 30 }</pre>
+    <p><strong>XML:</strong></p>
+    <pre>&lt;persona&gt;
+  &lt;nome&gt;Mario&lt;/nome&gt;
+  &lt;eta&gt;30&lt;/eta&gt;
+&lt;/persona&gt;</pre>
+    <p><strong>CSV:</strong></p>
+    <pre>nome,eta
+Mario,30</pre>
+  </div>
+
+  <!-- ESERCIZI -->
+  <div class="section" id="esercizi">
+    <h2>🎯 Esercizi pratici</h2>
+
+    <div class="exercise">
+      <h3>Esercizio 1 - Trova l'errore</h3>
+      <p>Questo JSON contiene un errore. Quale?</p>
+      <pre>{ "nome": "Luca", 'eta': 25, "citta": "Milano" }</pre>
+      <input type="text" id="risp1" placeholder="La tua risposta..." style="width:100%;padding:8px;margin-top:10px;">
+      <button class="action" onclick="correggi(1)">Controlla</button>
+      <div id="fb1" class="feedback"></div>
+    </div>
+
+    <div class="exercise">
+      <h3>Esercizio 2 - Crea un JSON</h3>
+      <p>Crea un JSON che rappresenti un <strong>prodotto</strong> con: nome (stringa), prezzo (numero), disponibile (booleano), categorie (array di stringhe).</p>
+      <textarea id="risp2" placeholder='{"nome": ...}'></textarea>
+      <button class="action" onclick="correggi(2)">Verifica</button>
+      <div id="fb2" class="feedback"></div>
+    </div>
+
+    <div class="exercise">
+      <h3>Esercizio 3 - Estrai un valore</h3>
+      <p>Dato il JSON sotto, qual è il valore di <code>cliente.citta</code>?</p>
+      <pre>{
+  "ordine": 123,
+  "cliente": { "nome": "Anna", "citta": "Torino" },
+  "totale": 99.90
+}</pre>
+      <input type="text" id="risp3" placeholder="La tua risposta..." style="width:100%;padding:8px;margin-top:10px;">
+      <button class="action" onclick="correggi(3)">Controlla</button>
+      <div id="fb3" class="feedback"></div>
+    </div>
+
+    <div class="exercise">
+      <h3>Esercizio 4 - Domanda teorica</h3>
+      <p>Quali di questi NON sono tipi validi in JSON?</p>
+      <p><code>string</code> | <code>date</code> | <code>number</code> | <code>undefined</code> | <code>array</code> | <code>function</code></p>
+      <input type="text" id="risp4" placeholder="Separa con virgola..." style="width:100%;padding:8px;margin-top:10px;">
+      <button class="action" onclick="correggi(4)">Controlla</button>
+      <div id="fb4" class="feedback"></div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <div class="section" id="js">
+    <h2>💻 JSON in JavaScript</h2>
+    <p>JavaScript ha <strong>due metodi nativi</strong> per lavorare con JSON:</p>
+
+    <h3>1. JSON.parse() - da stringa a oggetto</h3>
+    <pre>const testo = '{"nome":"Luigi","eta":40}';
+const obj = JSON.parse(testo);
+console.log(obj.nome);  // "Luigi"</pre>
+
+    <h3>2. JSON.stringify() - da oggetto a stringa</h3>
+    <pre>const persona = { nome: "Laura", eta: 28 };
+const testo = JSON.stringify(persona);
+console.log(testo);  // '{"nome":"Laura","eta":28}'</pre>
+
+    <h3>3. Proviamolo dal vivo!</h3>
+    <p>Inserisci un oggetto JavaScript (sintassi letterale) e convertilo in JSON:</p>
+    <textarea id="jsInput" spellcheck="false">{ nome: "Marco", ruolo: "Sviluppatore", skills: ["JS","PHP"] }</textarea>
+    <div style="margin-top:10px;">
+      <button class="action" onclick="convertiJS()">→ JSON</button>
+      <button class="action" onclick="convertiOggetto()">← Oggetto</button>
+    </div>
+    <div id="jsResult" class="result info">Risultato...</div>
+
+    <div class="box ok">
+      <strong>🚀 Esempio reale: fetch di un'API</strong>
+      <pre>fetch('https://api.azienda.it/prodotti')
+  .then(r => r.json())   // parsing automatico
+  .then(dati => console.log(dati));</pre>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Navigazione tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Validatore JSON
+  function validaJSON() {
+    const txt = document.getElementById('jsonEditor').value;
+    const out = document.getElementById('jsonResult');
+    try {
+      const obj = JSON.parse(txt);
+      out.className = 'result ok';
+      const tipi = analizza(obj);
+      out.innerHTML = `✅ <strong>JSON valido!</strong>\n\nStruttura rilevata:\n${tipi}`;
+    } catch (e) {
+      out.className = 'result err';
+      out.innerHTML = `❌ <strong>Errore:</strong> ${e.message}`;
+    }
+  }
+
+  function analizza(obj, pref = '') {
+    let s = '';
+    if (Array.isArray(obj)) {
+      s += pref + `Array[${obj.length}]\n`;
+      if (obj[0] && typeof obj[0] === 'object') s += analizza(obj[0], pref + '  ');
+    } else if (typeof obj === 'object' && obj !== null) {
+      for (const k in obj) {
+        const v = obj[k];
+        const t = Array.isArray(v) ? `Array[${v.length}]` : typeof v;
+        s += pref + `• ${k}: ${t}\n`;
+        if (typeof v === 'object' && v !== null) s += analizza(v, pref + '  ');
+      }
+    }
+    return s;
+  }
+
+  function formattaJSON() {
+    const txt = document.getElementById('jsonEditor').value;
+    const out = document.getElementById('jsonResult');
+    try {
+      const obj = JSON.parse(txt);
+      document.getElementById('jsonEditor').value = JSON.stringify(obj, null, 2);
+      out.className = 'result ok';
+      out.textContent = '✅ JSON formattato!';
+    } catch (e) {
+      out.className = 'result err';
+      out.textContent = '❌ Impossibile formattare: ' + e.message;
+    }
+  }
+
+  function minificaJSON() {
+    const txt = document.getElementById('jsonEditor').value;
+    const out = document.getElementById('jsonResult');
+    try {
+      const obj = JSON.parse(txt);
+      document.getElementById('jsonEditor').value = JSON.stringify(obj);
+      out.className = 'result ok';
+      out.textContent = '✅ JSON minificato!';
+    } catch (e) {
+      out.className = 'result err';
+      out.textContent = '❌ Impossibile minificare: ' + e.message;
+    }
+  }
+
+  function campioniJSON() {
+    const esempi = [
+      { id: 1, prodotto: "Monitor 27\"", prezzo: 249.99, disponibile: true },
+      { utente: "admin", permessi: ["read","write","delete"], ultimoAccesso: null },
+      { ordine: { id: 1001, articoli: [{cod: "A1", qta: 3},{cod: "B2", qta: 1}], totale: 150.50 }}
+    ];
+    const random = esempi[Math.floor(Math.random()*esempi.length)];
+    document.getElementById('jsonEditor').value = JSON.stringify(random, null, 2);
+  }
+
+  // Esercizi
+  function correggi(n) {
+    const fb = document.getElementById('fb'+n);
+    if (n === 1) {
+      const r = document.getElementById('risp1').value.toLowerCase();
+      if (r.includes('apici') || r.includes('singol') || r.includes("'eta'")) {
+        fb.className = 'feedback correct';
+        fb.textContent = '✅ Corretto! Le chiavi JSON richiedono i DOPPI apici, non i singoli.';
+      } else {
+        fb.className = 'feedback wrong';
+        fb.textContent = '❌ Suggerimento: guarda come sono scritte le chiavi...';
+      }
+    }
+    if (n === 2) {
+      const txt = document.getElementById('risp2').value;
+      try {
+        const obj = JSON.parse(txt);
+        const ok = typeof obj.nome === 'string' &&
+                   typeof obj.prezzo === 'number' &&
+                   typeof obj.disponibile === 'boolean' &&
+                   Array.isArray(obj.categorie) &&
+                   obj.categorie.every(c => typeof c === 'string');
+        if (ok) {
+          fb.className = 'feedback correct';
+          fb.textContent = '✅ Perfetto! Hai creato un JSON valido con tutti i tipi richiesti.';
+        } else {
+          fb.className = 'feedback wrong';
+          fb.textContent = '❌ Il JSON è valido ma i tipi non corrispondono a quelli richiesti.';
+        }
+      } catch (e) {
+        fb.className = 'feedback wrong';
+        fb.textContent = '❌ JSON non valido: ' + e.message;
+      }
+    }
+    if (n === 3) {
+      const r = document.getElementById('risp3').value.trim().toLowerCase();
+      if (r === 'torino') {
+        fb.className = 'feedback correct';
+        fb.textContent = '✅ Esatto! Torino è il valore della proprietà citta dentro cliente.';
+      } else {
+        fb.className = 'feedback wrong';
+        fb.textContent = '❌ Suggerimento: naviga dentro "cliente" e cerca "citta"...';
+      }
+    }
+    if (n === 4) {
+      const r = document.getElementById('risp4').value.toLowerCase();
+      const corrette = ['date','undefined','function'];
+      const risposte = r.split(',').map(s => s.trim());
+      const tutte = corrette.every(c => risposte.some(r => r.includes(c)));
+      if (tutte && risposte.length >= 3) {
+        fb.className = 'feedback correct';
+        fb.textContent = '✅ Bravo! JSON supporta solo: string, number, boolean, null, object, array.';
+      } else {
+        fb.className = 'feedback wrong';
+        fb.textContent = '❌ Suggerimento: pensa a quali tipi esistono in JavaScript ma non sono "dati puri"...';
+      }
+    }
+  }
+
+  // Conversione JS/JSON
+  function convertiJS() {
+    const txt = document.getElementById('jsInput').value;
+    const out = document.getElementById('jsResult');
+    try {
+      // eval-like per oggetti JS letterali (solo a scopo didattico)
+      const obj = new Function('return (' + txt + ')')();
+      out.className = 'result ok';
+      out.textContent = JSON.stringify(obj, null, 2);
+    } catch (e) {
+      out.className = 'result err';
+      out.textContent = '❌ Errore: ' + e.message;
+    }
+  }
+
+  function convertiOggetto() {
+    const txt = document.getElementById('jsonInput')?.value || document.getElementById('jsInput').value;
+    const out = document.getElementById('jsResult');
+    try {
+      const obj = JSON.parse(txt);
+      out.className = 'result ok';
+      out.textContent = JSON.stringify(obj);
+    } catch (e) {
+      out.className = 'result err';
+      out.textContent = '❌ Inserisci prima un JSON valido nell\'editor sopra.';
+    }
+  }
+</script>
+</body>
+</html>

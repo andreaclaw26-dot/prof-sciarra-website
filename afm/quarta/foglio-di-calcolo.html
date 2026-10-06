@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini-corso — Il foglio di calcolo dalla A alle formule</title>
+<style>
+  :root{
+    --blue:#1a73e8; --blue-dark:#0d47a1; --green:#188038; --red:#d93025;
+    --yellow:#f9ab00; --purple:#9334e6; --ink:#202124; --muted:#5f6368; --soft:#f1f3f4; --line:#dadce0;
+    --bg:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--ink);background:var(--bg);overflow:hidden}
+  body.dark{
+    --blue:#8ab4f8; --blue-dark:#aecbfa; --green:#81c995; --red:#f28b82;
+    --yellow:#fdd663; --purple:#c58af9; --ink:#e8eaed; --muted:#9aa0a6;
+    --soft:#1e1f22; --line:#3c4043; --bg:#121212}
+  body.dark .callout{background:#3b3220;color:#feefc3;border-left-color:#fdd663}
+  body.dark .danger{background:#3c1e1c;color:#f6c6c2;border-left-color:#f28b82}
+  body.dark .ok{background:#1e3327;color:#ceead6;border-left-color:#81c995}
+  body.dark .cover{background:linear-gradient(135deg,#174ea6,#081f4d)}
+  body.dark #hud button{background:#202124;border-color:#3c4043;color:#8ab4f8}
+  body.dark #hud button:hover{background:#303134}
+  body.dark .mini{background:#1e1f22;color:#e8eaed}
+  body.dark .mini td{border-color:#3c4043}
+  body.dark .mini td.hl{background:#4a3b12;color:#fdd663}
+  body.dark .sheet{background:#1e1f22;color:#e8eaed;border-color:#3c4043}
+  body.dark .sheet td{border-color:#3c4043}
+  body.dark .sheet input,.sheet select{background:#121212;color:#e8eaed;border-color:#3c4043}
+  body.dark .sheet td.hl{background:#174ea6;color:#e8eaed}
+  body.dark .sheet tr.found td{background:#4a3b12;color:#fdd663}
+  body.dark .msg.err{background:#3c1e1c;color:#f6c6c2}
+  body.dark .msg.ok{background:#1e3327;color:#ceead6}
+  #progress{position:fixed;top:0;left:0;height:6px;width:0;z-index:50;
+    background:linear-gradient(90deg,var(--blue),#4fc3f7);transition:width .3s}
+  .slide{position:absolute;inset:0;padding:5.5vh 7vw 10vh;overflow:auto;display:none;
+    flex-direction:column;justify-content:center;gap:2vh;animation:fade .45s ease}
+  .slide.active{display:flex}
+  @keyframes fade{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+  .mod{position:absolute;top:22px;left:7vw;color:var(--muted);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase}
+  h1{font-size:clamp(2.1rem,5vw,3.6rem);line-height:1.15}
+  h2{font-size:clamp(1.4rem,3.2vw,2.4rem);color:var(--blue);line-height:1.2}
+  h3{font-size:clamp(1.05rem,1.9vw,1.45rem);margin-bottom:.5em}
+  p,li{font-size:clamp(.95rem,1.5vw,1.25rem);line-height:1.5}
+  .small p,.small li{font-size:clamp(.85rem,1.25vw,1.05rem)}
+  ul,ol{padding-left:1.35em}
+  li{margin:.38em 0}
+  strong{color:var(--blue-dark)}
+  body.dark strong{color:#aecbfa}
+  .sub{font-size:clamp(1.1rem,2.2vw,1.7rem);color:var(--muted)}
+  .meta{font-size:clamp(.95rem,1.4vw,1.15rem);color:var(--muted);margin-top:1.5vh}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:3vw}
+  .card{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:1.8vh 1.6vw}
+  .callout{border-left:6px solid var(--yellow);background:#fef7e0;border-radius:0 12px 12px 0;
+    padding:1.4vh 2vw;font-size:clamp(.95rem,1.5vw,1.2rem)}
+  .danger{border-left:6px solid var(--red);background:#fce8e6;border-radius:0 12px 12px 0;padding:1.4vh 2vw}
+  .ok{border-left:6px solid var(--green);background:#e6f4ea;border-radius:0 12px 12px 0;padding:1.4vh 2vw}
+  .check li{list-style:none;margin-left:-1.2em}
+  .check li::before{content:"✅ ";}
+  .mini{width:100%;border-collapse:collapse;font-size:clamp(.72rem,1.05vw,.92rem);background:#fff;color:#202124}
+  .mini th{background:#1a73e8;color:#fff;padding:.4em .5em;text-align:left}
+  .mini td{padding:.35em .5em;border-bottom:1px solid #dadce0}
+  .mini td.hl{background:#fff3cd;font-weight:700}
+  .sheet{background:#fff;color:#202124;border:1px solid #9aa0a6;border-radius:8px;overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,0,0,.15);font-size:clamp(.7rem,1vw,.88rem)}
+  .sheet table{width:100%;border-collapse:collapse}
+  .sheet th{background:#1a73e8;color:#fff;padding:.5em .6em;text-align:left;font-weight:700;white-space:nowrap}
+  .sheet td{padding:.5em .6em;border-bottom:1px solid #e0e0e0;vertical-align:middle}
+  .sheet td.hl{background:#e8f0fe;font-weight:700;color:#0d47a1}
+  .sheet tr.found td{background:#fff9c4;font-weight:700}
+  .sheet input,.sheet select{width:100%;padding:.3em .4em;border:1px solid #dadce0;border-radius:4px;
+    font:inherit;background:#fff;color:#202124}
+  .msg{margin-top:.8em;padding:.8em 1em;border-radius:8px;font-size:clamp(.85rem,1.2vw,1rem)}
+  .msg.err{background:#fce8e6;color:#c62828;border-left:5px solid #d93025}
+  .msg.ok{background:#e6f4ea;color:#1b5e20;border-left:5px solid #188038}
+  .formula{background:#202124;color:#a5d6a7;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    padding:.8em 1em;border-radius:8px;font-size:clamp(.78rem,1.1vw,.98rem);overflow-x:auto;white-space:pre;border:1px solid #3c4043}
+  .kbd{display:inline-block;background:var(--soft);border:1px solid var(--line);border-bottom-width:3px;
+    border-radius:6px;padding:.1em .5em;font-family:ui-monospace,Consolas,monospace;font-size:.9em}
+  .cover{background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;justify-content:center;align-items:flex-start}
+  .cover h1,.cover .sub,.cover .meta{color:#fff}
+  .cover .sub{opacity:.9}
+  .cover .kicker{color:#cfe3ff;font-size:.95rem;letter-spacing:.18em;text-transform:uppercase}
+  #hud{position:fixed;bottom:18px;right:22px;display:flex;gap:10px;align-items:center;z-index:60}
+  #hud button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;
+    color:var(--blue);font-size:1.2rem;cursor:pointer}
+  #hud button:hover{background:var(--soft)}
+  #hud button.wide{width:auto;border-radius:22px;padding:0 16px;font-size:.9rem}
+  #counter{color:var(--muted);font-size:.9rem;min-width:56px;text-align:center}
+  #hint{position:fixed;bottom:24px;left:22px;color:var(--muted);font-size:.78rem;z-index:60}
+  #notes{position:fixed;left:0;right:0;bottom:0;background:#202124;color:#e8eaed;padding:14px 24px;
+    display:none;z-index:55;max-height:32vh;overflow:auto;font-size:.95rem;line-height:1.5}
+  #notes b{color:#8ab4f8}
+  body.notes-on #notes{display:block}
+  .notes{display:none}
+  @media print{body{overflow:visible}#hud,#hint,#notes,#progress{display:none!important}
+    .slide{position:static;display:flex!important;min-height:100vh;page-break-after:always;animation:none}}
+  @media (max-width:760px){.cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;top:14px;right:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+<div id="progress"></div>
+
+<section class="slide cover">
+  <p class="kicker">Mini-corso · Prerequisiti</p>
+  <h1>Il foglio di calcolo dalla A alle formule</h1>
+  <p class="sub">Gli attrezzi che ci servono per costruire un database</p>
+  <p class="meta">Prof. Andrea Sciarra · 4ª AFM</p>
+  <div class="notes"><b>Note docente.</b> Questo è il prerequisito della lezione sul database. Obiettivo: alla fine sanno usare celle, riferimenti assoluti, SOMMA/SE/SOMMA.SE/CERCA.VERT e convalide. Ogni formula è presentata col "perché ci servirà nel database".</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Mini-corso</p>
+  <h2>Perché questo mini-corso</h2>
+  <p>Per costruire un database con il foglio servono alcuni <strong>attrezzi</strong>. Se non li abbiamo, il progetto si blocca. Quindi prima gli attrezzi, poi il progetto.</p>
+  <div class="cols">
+    <div class="card"><h3>Parte 1 · Le basi</h3><p>Celle, riferimenti, tipi di dato.</p></div>
+    <div class="card"><h3>Parte 2 · Funzioni base</h3><p>SOMMA, contare, decidere con SE.</p></div>
+  </div>
+  <div class="cols">
+    <div class="card"><h3>Parte 3 · Collegare e aggregare</h3><p>SOMMA.SE e CERCA.VERT (il cuore).</p></div>
+    <div class="card"><h3>Parte 4 · Qualità</h3><p>Convalide per impedire errori.</p></div>
+  </div>
+  <p class="callout">Alla fine sapremo fare quello che serve al database: <strong>creare una tabella, poi un'altra, poi collegarle</strong>.</p>
+  <div class="notes"><b>Note docente.</b> Dà il senso del percorso. Sottolinea che non è un corso generico di Excel: ogni strumento serve al progetto. Durata indicativa 3-4 ore, adattabile.</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 1 · Le basi</p>
+  <h2>La cella e i riferimenti</h2>
+  <p>Il foglio è una griglia: <strong>colonne</strong> (lettere) e <strong>righe</strong> (numeri). Ogni incrocio è una <strong>cella</strong>, e ha un indirizzo.</p>
+  <div class="cols">
+    <div class="sheet"><table>
+      <thead><tr><th></th><th>A</th><th>B</th><th>C</th></tr></thead>
+      <tbody>
+        <tr><td class="hl">1</td><td>Nome</td><td>Prezzo</td><td>Quantità</td></tr>
+        <tr><td class="hl">2</td><td>T-shirt</td><td>19,90</td><td>2</td></tr>
+        <tr><td class="hl">3</td><td>Jeans</td><td>49,90</td><td>1</td></tr>
+      </tbody>
+    </table></div>
+    <div class="card small">
+      <ul>
+        <li><strong>B2</strong> = colonna B, riga 2 → contiene 19,90.</li>
+        <li>Una <strong>formula</strong> inizia sempre con <span class="kbd">=</span></li>
+        <li><code>=B2*C2</code> fa 19,90 × 2 = 39,80.</li>
+        <li>Se cambi B2, il risultato si <strong>aggiorna da solo</strong>.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">Questa è la magia: nel foglio non scrivi risultati, scrivi <strong>ricette</strong>. Il foglio li ricalcola.</div>
+  <div class="notes"><b>Note docente.</b> Fai scrivere in diretta =B2*C2 e poi cambia il prezzo in B2: il risultato cambia. È il concetto di "cella viva".</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 1 · Le basi</p>
+  <h2>Riferimenti relativi vs assoluti ($)</h2>
+  <p>Quando <strong>trascini</strong> una formula, i riferimenti si spostano. Di solito è ciò che vuoi. A volte no.</p>
+  <div class="cols">
+    <div class="card small">
+      <h3>Relativo (senza $)</h3>
+      <div class="formula">=B2*0,22
+trascinato giù diventa:
+=B3*0,22
+=B4*0,22</div>
+      <p>Ogni riga usa la sua B. Perfetto per calcolare riga per riga.</p>
+    </div>
+    <div class="card small">
+      <h3>Assoluto (con $)</h3>
+      <div class="formula">=B2*$E$1
+trascinato giù diventa:
+=B3*$E$1
+=B4*$E$1</div>
+      <p>E1 resta fermo: è un valore "fisso" (es. l'aliquota IVA in una cella).</p>
+    </div>
+  </div>
+  <div class="callout">Il <span class="kbd">$</span> mette il "lucchetto" a una colonna, a una riga, o a entrambe. Senza, trascinare può sbagliare i conti.</div>
+  <div class="notes"><b>Note docente.</b> Questo è il concetto che più si rompe nel database (nei CERCA.VERT serve $A:$G). Insisti: mostra un trascinamento senza $ che sbaglia, poi con $ che funziona. Suggerisci il tasto F4 per mettere i $.</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 1 · Le basi</p>
+  <h2>I tipi di dato: numero, testo, data</h2>
+  <p>Una cella contiene un <strong>tipo</strong>. Il tipo decide cosa ci puoi fare.</p>
+  <table class="mini">
+    <thead><tr><th>Tipo</th><th>Esempio</th><th>Ci puoi…</th></tr></thead>
+    <tbody>
+      <tr><td>Numero</td><td>19,90 · 2</td><td>sommare, moltiplicare</td></tr>
+      <tr><td>Testo</td><td>T-shirt · Milano</td><td>cercare, ordinare</td></tr>
+      <tr><td>Data</td><td>12/09/2026</td><td>confrontare, ordinare nel tempo</td></tr>
+      <tr><td>Valuta</td><td>€ 19,90</td><td>è un numero con la veste grafica €</td></tr>
+    </tbody>
+  </table>
+  <div class="danger">Scrivere <code>€ 20</code> a mano crea <strong>testo</strong>, non un numero: le formule non lo sommano. Il numero si scrive <strong>20</strong> e poi si formatta come valuta.</div>
+  <div class="callout">Nel database questo conta moltissimo: se il prezzo è testo, il totale non funziona.</div>
+  <div class="notes"><b>Note docente.</b> Fai la prova: scrivi "€ 20" in una cella e prova =A1+1 → errore o comportamento strano. Poi scrivi 20, formatta come valuta, e =A1+1 funziona. Concetto chiave per il futuro database.</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 2 · Funzioni base</p>
+  <h2>Cos'è una funzione</h2>
+  <p>Una funzione è una formula già pronta. Sintassi:</p>
+  <div class="formula">=NOME(argomento1; argomento2; …)</div>
+  <div class="cols">
+    <div class="card small">
+      <h3>Le 4 da conoscere subito</h3>
+      <div class="formula">=SOMMA(B2:B10)
+=MEDIA(B2:B10)
+=MIN(B2:B10)
+=MAX(B2:B10)</div>
+    </div>
+    <div class="card small">
+      <h3>A cosa servono</h3>
+      <ul>
+        <li><strong>SOMMA:</strong> totale di un intervallo.</li>
+        <li><strong>MEDIA:</strong> valore medio.</li>
+        <li><strong>MIN / MAX:</strong> il più piccolo / il più grande.</li>
+      </ul>
+      <p class="small" style="margin-top:.4em;color:var(--muted)">Nel database: totale venduto, prezzo più alto…</p>
+    </div>
+  </div>
+  <div class="notes"><b>Note docente.</b> Fai calcolare il totale di una colonna di prezzi. Spiega che B2:B10 significa "dalla cella B2 alla B10".</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 2 · Funzioni base</p>
+  <h2>Contare: CONTA.VALORI, CONTA.NUMERI, CONTA.SE</h2>
+  <div class="cols">
+    <div class="card small">
+      <h3>Le formule</h3>
+      <div class="formula">=CONTA.VALORI(A2:A100)
+=CONTA.NUMERI(B2:B100)
+=CONTA.SE(C2:C100;"Milano")</div>
+    </div>
+    <div class="card small">
+      <h3>Cosa fanno</h3>
+      <ul>
+        <li><strong>CONTA.VALORI:</strong> quante celle non vuote.</li>
+        <li><strong>CONTA.NUMERI:</strong> quante celle contengono numeri.</li>
+        <li><strong>CONTA.SE:</strong> quante celle rispettano un criterio (es. "Milano").</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">Nel database, <strong>CONTA.VALORI</strong> ci servirà per generare gli <strong>ID progressivi</strong> (C-0001, C-0002…).</div>
+  <div class="notes"><b>Note docente.</b> Collega subito CONTA.VALORI agli ID automatici del database: è il primo aggancio concreto.</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 2 · Funzioni base · Simulazione</p>
+  <h2>Decidere: la funzione SE (prova tu)</h2>
+  <p><code>SE</code> restituisce una cosa se la condizione è vera, un'altra se è falsa.</p>
+  <div class="formula">=SE(B2&gt;100; "sconto 10%"; "nessuno sconto")</div>
+  <div class="cols">
+    <div class="sheet"><table>
+      <thead><tr><th>Ordine</th><th>Importo</th><th>Esito</th></tr></thead>
+      <tbody><tr>
+        <td>O-0001</td>
+        <td><input id="seVal" type="number" value="120" style="width:90px"></td>
+        <td id="seOut" style="font-weight:700"></td>
+      </tr></tbody>
+    </table></div>
+    <div class="card small">
+      <ul>
+        <li>Primo argomento: la <strong>condizione</strong> (B2&gt;100).</li>
+        <li>Secondo: cosa dare se <strong>vera</strong>.</li>
+        <li>Terzo: cosa dare se <strong>falsa</strong>.</li>
+      </ul>
+      <p class="small" style="margin-top:.4em;color:var(--muted)">Cambia l'importo e guarda l'esito.</p>
+    </div>
+  </div>
+  <div class="notes"><b>Note docente.</b> Fai provare importi sopra e sotto 100. Nel database useremo SE e SE.ERRORE per gestire i casi (es. prodotto non trovato).</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 3 · Aggregare</p>
+  <h2>Sommare e contare con una condizione</h2>
+  <p>Servono per rispondere a domande come: <em>quanto ha speso UN cliente? quanti ordini ha fatto?</em></p>
+  <div class="cols">
+    <div class="card small">
+      <h3>Le formule</h3>
+      <div class="formula">=SOMMA.SE(A2:A100; "C-0001"; B2:B100)
+=CONTA.SE(A2:A100; "C-0001")</div>
+    </div>
+    <div class="card small">
+      <h3>Come leggerle</h3>
+      <ul>
+        <li><strong>SOMMA.SE:</strong> guarda la colonna A; dove trova "C-0001", somma la colonna B.</li>
+        <li><strong>CONTA.SE:</strong> conta quante volte compare "C-0001".</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">Schema fisso: <strong>=SOMMA.SE(colonna dove cerco; cosa cerco; colonna da sommare)</strong>. Nel database lo useremo per il totale di ogni ordine.</div>
+  <div class="notes"><b>Note docente.</b> È lo stesso schema che useranno per il totale ordine (somma le righe con quell'IDOrdine). Fai notare che la struttura è sempre: dove cerco / cosa cerco / cosa sommo.</div>
+</section>
+
+
+
+<!-- ============ SLIDE 10 RIGENERATA ============ -->
+<section class="slide">
+  <p class="mod">Parte 3 · Collegare · Simulazione</p>
+  <h2>CERCA.VERT: portare dati tra tabelle (prova tu)</h2>
+  <p>Hai un codice (es. <code>P-0002</code>) in una tabella e vuoi prendere il <strong>prezzo</strong> da un'altra tabella. Senza CERCA.VERT dovresti copiarlo a mano (e poi ricopiarlo ogni volta che cambia). Con CERCA.VERT il prezzo si aggiorna da solo.</p>
+  <div class="formula">=CERCA.VERT(C2; Prodotti!$A:$G; 6; FALSO)</div>
+  <div class="cols">
+    <div>
+      <h3>Archivio: tabella Prodotti</h3>
+      <div class="sheet"><table id="lkTable">
+        <thead><tr><th>A ID</th><th>B Nome</th><th>C Categoria</th><th>D Taglia</th><th>E Colore</th><th>F Prezzo</th><th>G Giac.</th></tr></thead>
+        <tbody>
+          <tr data-prod="P-0001"><td class="hl">P-0001</td><td>T-shirt basic</td><td>Abbigliamento</td><td>M</td><td>Bianco</td><td>€ 19,90</td><td>40</td></tr>
+          <tr data-prod="P-0002"><td class="hl">P-0002</td><td>Jeans slim</td><td>Abbigliamento</td><td>L</td><td>Blu</td><td>€ 49,90</td><td>25</td></tr>
+          <tr data-prod="P-0003"><td class="hl">P-0003</td><td>Felpa logo</td><td>Abbigliamento</td><td>M</td><td>Nero</td><td>€ 39,90</td><td>18</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div>
+      <h3>Dove cerco</h3>
+      <div class="sheet"><table>
+        <thead><tr><th>Codice (C2)</th><th>Risultato</th></tr></thead>
+        <tbody><tr>
+          <td><select id="lkSel"><option>P-0001</option><option>P-0002</option><option>P-0003</option></select></td>
+          <td id="lkOut" style="font-weight:700"></td>
+        </tr></tbody>
+      </table></div>
+      <div class="msg ok" id="lkExpl"></div>
+    </div>
+  </div>
+  <div class="notes"><b>Note docente.</b> Cambia il codice: la riga nell'archivio si evidenzia e appare il prezzo. Spiega che CERCA.VERT "cerca verticalmente" (da cui VERT): scorre la prima colonna della tabella finché trova il codice, poi prende il valore dalla colonna N.</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 3 · Collegare</p>
+  <h2>CERCA.VERT coinvolge DUE tabelle</h2>
+  <p>Dubbio comune: "il codice P-0001 sta in <strong>A1</strong> di Prodotti, perché nella formula c'è scritto <strong>C2</strong>?". Perché CERCA.VERT lavora su <strong>due tabelle diverse</strong>:</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2vw;align-items:center">
+    <div>
+      <h3>DETTAGLI · dove scrivi la formula</h3>
+      <div class="sheet"><table>
+        <thead><tr><th>A IDRiga</th><th>B IDOrdine</th><th>C IDProdotto</th><th>E Prezzo</th></tr></thead>
+        <tbody>
+          <tr><td>D-0001</td><td>O-0001</td><td class="hl">P-0001</td><td style="color:var(--green)">=CERCA.VERT(C2;…)</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small" style="color:var(--muted)">La cella <strong>C2</strong> contiene il codice: è il 1° argomento, "cosa cerco".</p>
+    </div>
+
+    <div style="text-align:center">
+      <div style="font-size:2.4rem;color:var(--blue)">→</div>
+      <div class="small" style="color:var(--muted)">cerca<br>P-0001</div>
+    </div>
+
+    <div>
+      <h3>PRODOTTI · dove vado a cercare</h3>
+      <div class="sheet"><table>
+        <thead><tr><th>A IDProdotto</th><th>B Nome</th><th>F Prezzo</th></tr></thead>
+        <tbody>
+          <tr><td class="hl">P-0001</td><td>T-shirt basic</td><td style="color:var(--green);font-weight:700">€ 19,90</td></tr>
+          <tr><td>P-0002</td><td>Jeans slim</td><td>€ 49,90</td></tr>
+          <tr><td>P-0003</td><td>Felpa logo</td><td>€ 39,90</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small" style="color:var(--muted)">Il codice viene trovato nella colonna <strong>A</strong>; il prezzo preso dalla colonna <strong>F</strong> (la 6ª).</p>
+    </div>
+  </div>
+
+  <div class="formula">=CERCA.VERT(C2 ; Prodotti!$A:$G ; 6 ; FALSO)</div>
+  <div class="callout">Lo stesso codice <strong>P-0001</strong> sta in due posti: in <strong>C2 di Dettagli</strong> (da dove parte la ricerca) e in <strong>A di Prodotti</strong> (dove viene trovato). CERCA.VERT fa da ponte tra i due.</div>
+  <div class="notes"><b>Note docente.</b> Questa slide risponde al dubbio "perché C2 e non A1". Fai notare che le due celle evidenziate contengono lo STESSO valore: è il ponte. Poi ripercorri i 4 argomenti puntando fisicamente alle due tabelle: C2 = cosa cerco (Dettagli), Prodotti!$A:$G = dove cerco, 6 = colonna del prezzo, FALSO = corrispondenza esatta.</div>
+</section>
+
+<!-- ============ SLIDE 11 RIGENERATA ============ -->
+<section class="slide">
+  <p class="mod">Parte 3 · Collegare</p>
+  <h2>CERCA.VERT: i 4 argomenti spiegati bene</h2>
+  <div class="formula">=CERCA.VERT(C2; Prodotti!$A:$G; 6; FALSO)</div>
+  <div class="cols">
+    <div class="card small">
+      <h3>1. Cosa cerco: <code>C2</code></h3>
+      <p>È il <strong>codice</strong> che hai nella tua tabella (es. "P-0002"). La formula lo prende da C2.</p>
+      <p class="small" style="margin-top:.4em;color:var(--muted)">Se scrivi <code>"P-0002"</code> a mano, cerchi sempre quel codice. Se metti C2, il codice cambia riga per riga.</p>
+    </div>
+    <div class="card small">
+      <h3>2. Dove cerco: <code>Prodotti!$A:$G</code></h3>
+      <p>È la <strong>tabella</strong> dove cercare. Deve partire dalla colonna del codice (A) e arrivare fino all'ultima colonna utile (G).</p>
+      <p class="small" style="margin-top:.4em;color:var(--muted)">Il <strong>$</strong> (dollaro) blocca i riferimenti: <code>$A:$G</code> significa "dalla colonna A alla G, sempre". Senza il $, se trascini la formula giù, la tabella si sposterebbe e cercheresti nel posto sbagliato.</p>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="card small">
+      <h3>3. Quale colonna: <code>6</code></h3>
+      <p>È il <strong>numero della colonna</strong> da cui prendere il risultato. Conta dalla prima colonna della tabella (A=1, B=2, C=3, D=4, E=5, <strong>F=6</strong>, G=7).</p>
+      <p class="small" style="margin-top:.4em;color:var(--muted)">Quindi 6 = colonna F = Prezzo. Se vuoi il Nome (colonna B), metti 2.</p>
+    </div>
+    <div class="card small">
+      <h3>4. Corrispondenza: <code>FALSO</code></h3>
+      <p>Dice a CERCA.VERT di cercare il <strong>codice esatto</strong>. Senza FALSO, se cerchi "P-0002" e non esiste, ti restituisce un codice simile (sbagliato!).</p>
+      <p class="small" style="margin-top:.4em;color:var(--muted)"><strong>Metti sempre FALSO</strong> (o 0) quando cerchi codici. VERO (o 1) serve solo per tabelle ordinate tipo scaglioni di sconto.</p>
+    </div>
+  </div>
+  <div class="callout">Riassunto: CERCA.VERT prende un <strong>codice</strong>, lo cerca nella <strong>prima colonna</strong> di una tabella (che deve partire da A), e restituisce il valore della colonna <strong>N</strong>. Metti <strong>FALSO</strong> per corrispondenza esatta.</div>
+  <div class="notes"><b>Note docente.</b> Spiega bene i 4 argomenti uno per uno. Insisti sul perché del $: senza, quando trascini la formula giù, la tabella si sposta (A diventa B, ecc.) e CERCA.VERT non trova più nulla. Il $ mette il "lucchetto". Poi spiega perché FALSO: senza, CERCA.VERT fa approssimazioni pericolose.</div>
+</section>
+
+<!-- ============ SLIDE 12 (nuova) ============ -->
+<section class="slide">
+  <p class="mod">Parte 3 · Collegare</p>
+  <h2>CERCA.VERT: errori comuni e come evitarli</h2>
+  <div class="cols">
+    <div class="card small">
+      <h3>Errore 1: tabella senza $</h3>
+      <div class="formula">=CERCA.VERT(C2;Prodotti!A:G;6;FALSO)
+<!-- sbagliato: senza $ -->
+trascinato giù diventa:
+=CERCA.VERT(C3;Prodotti!B:H;6;FALSO)
+<!-- la tabella si è spostata! --></div>
+      <p class="small" style="margin-top:.4em;color:var(--muted)">La tabella parte da B invece che da A. CERCA.VERT non trova più nulla.</p>
+      <div class="ok">Soluzione: <code>Prodotti!$A:$G</code> (con il $).</div>
+    </div>
+    <div class="card small">
+      <h3>Errore 2: numero colonna sbagliato</h3>
+      <div class="formula">=CERCA.VERT(C2;Prodotti!$A:$G;3;FALSO)
+<!-- restituisce la Categoria, non il Prezzo --></div>
+      <p class="small" style="margin-top:.4em;color:var(--muted)">Se vuoi il Prezzo (colonna F), devi contare: A=1, B=2, C=3, D=4, E=5, <strong>F=6</strong>. Quindi 6, non 3.</p>
+      <div class="ok">Conta le colonne dalla A della tabella, non dalla A del foglio.</div>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="card small">
+      <h3>Errore 3: codice non esiste</h3>
+      <div class="formula">=CERCA.VERT("P-9999";Prodotti!$A:$G;6;FALSO)
+<!-- restituisce #N/D (errore) --></div>
+      <p class="small" style="margin-top:.4em;color:var(--muted)">Se il codice non esiste, CERCA.VERT dà <strong>#N/D</strong> ("Non Disponibile").</p>
+      <div class="ok">Soluzione: <code>=SE.ERRORE(CERCA.VERT(…);"non trovato")</code></div>
+    </div>
+    <div class="card small">
+      <h3>Errore 4: codice con spazi</h3>
+      <div class="formula">C2 contiene "P-0002 " (con spazio finale)
+CERCA.VERT cerca "P-0002" (senza spazio)
+<!-- non trova nulla! --></div>
+      <p class="small" style="margin-top:.4em;color:var(--muted)">Spazi invisibili rompono la ricerca.</p>
+      <div class="ok">Soluzione: <code>=CERCA.VERT(TAGLIA.CIRCONDARE(C2);…)</code> per rimuovere spazi.</div>
+    </div>
+  </div>
+  <div class="callout">CERCA.VERT è <strong>esatta</strong>: se il codice non combacia al carattere, non trova nulla. Controlla sempre: il $ nella tabella, il numero di colonna giusto, e che il codice sia scritto bene.</div>
+  <div class="notes"><b>Note docente.</b> Questa slide è cruciale: elenca i 4 errori più comuni. Fai provare a ciascuno: tabella senza $ (trascina e vedi che non funziona), numero colonna sbagliato (cerca il nome invece del prezzo), codice inesistente (#N/D), codice con spazio. Poi mostra le soluzioni.</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 5 · Mettiamo insieme</p>
+  <h2>Guida passo-passo: creo la tabella Clienti</h2>
+  <div class="card small">
+    <ol>
+      <li>Crea un foglio e chiamalo <strong>Clienti</strong> (linguetta in basso → rinomina).</li>
+      <li>Nella riga 1 metti le intestazioni: <em>IDCliente, Nome, Città, DataIscrizione</em>. Formatta in grassetto.</li>
+      <li>In A2 scrivi la formula dell'ID: <code>="C-"&CONTA.VALORI(B$2:B2)</code> (oppure scrivi C-0001 a mano per ora).</li>
+      <li>Compila qualche cliente.</li>
+      <li>Trascina la formula dell'ID giù per le altre righe.</li>
+    </ol>
+  </div>
+  <div class="sheet"><table>
+    <thead><tr><th>A IDCliente</th><th>B Nome</th><th>C Città</th></tr></thead>
+    <tbody>
+      <tr><td class="hl">C-0001</td><td>Giulia Bianchi</td><td>Milano</td></tr>
+      <tr><td class="hl">C-0002</td><td>Luca Verdi</td><td>Roma</td></tr>
+      <tr><td class="hl">C-0003</td><td>Sara Neri</td><td>Torino</td></tr>
+    </tbody>
+  </table></div>
+  <div class="notes"><b>Note docente.</b> Questa è la parte che va fatta LENTA e in diretta: ogni passaggio eseguito davanti a loro, poi lo ripetono. È il primo dei due esercizi guidati.</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Parte 5 · Mettiamo insieme</p>
+  <h2>Guida passo-passo: creo Ordini e la collego</h2>
+  <div class="card small">
+    <ol>
+      <li>Crea un secondo foglio: <strong>Ordini</strong>.</li>
+      <li>Intestazioni: <em>IDOrdine, IDCliente, Data, Totale</em>.</li>
+      <li>In IDCliente usa un <strong>menu a tendina</strong> che prende i codici dal foglio Clienti.</li>
+      <li>Aggiungi una colonna <strong>NomeCliente</strong> con: <code>=CERCA.VERT(B2; Clienti!$A:$C; 2; FALSO)</code>.</li>
+      <li>Adesso l'ordine "conosce" il nome del cliente senza riscriverlo.</li>
+    </ol>
+  </div>
+  <div class="sheet"><table>
+    <thead><tr><th>IDOrdine</th><th>IDCliente</th><th>NomeCliente (CERCA.VERT)</th></tr></thead>
+    <tbody>
+      <tr><td class="hl">O-0001</td><td>C-0001</td><td>Giulia Bianchi</td></tr>
+      <tr><td class="hl">O-0002</td><td>C-0003</td><td>Sara Neri</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout">Fatto: due tabelle <strong>collegate</strong>. È esattamente il meccanismo del database che costruiremo.</div>
+  <div class="notes"><b>Note docente.</b> Secondo esercizio guidato. Il momento clou: il CERCA.VERT che porta il nome del cliente. Se dà #N/D, è un codice sbagliato: ottimo spunto di debug.</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Cassetta degli attrezzi</p>
+  <h2>Le formule da ricordare</h2>
+  <table class="mini">
+    <thead><tr><th>Funzione</th><th>A cosa serve</th><th>Sintassi</th></tr></thead>
+    <tbody>
+      <tr><td><code>SOMMA</code></td><td>Totale di un intervallo</td><td><code>=SOMMA(B2:B10)</code></td></tr>
+      <tr><td><code>CONTA.VALORI</code></td><td>Quante celle non vuote</td><td><code>=CONTA.VALORI(A2:A100)</code></td></tr>
+      <tr><td><code>CONTA.SE</code></td><td>Conta con un criterio</td><td><code>=CONTA.SE(A2:A100;"Milano")</code></td></tr>
+      <tr><td><code>SE</code></td><td>Sceglie tra due risultati</td><td><code>=SE(B2&gt;100;"sì";"no")</code></td></tr>
+      <tr><td><code>SOMMA.SE</code></td><td>Somma con un criterio</td><td><code>=SOMMA.SE(A:A;"C-0001";B:B)</code></td></tr>
+      <tr><td><code>CERCA.VERT</code></td><td>Trova un dato in un'altra tabella</td><td><code>=CERCA.VERT(C2;Tab!$A:$G;6;FALSO)</code></td></tr>
+      <tr><td><code>SE.ERRORE</code></td><td>Gestisce gli errori</td><td><code>=SE.ERRORE(formula;"non trovato")</code></td></tr>
+    </tbody>
+  </table>
+  <div class="notes"><b>Note docente.</b> Questa è la slide da stampare/fotografare: è il riferimento per tutto il lavoro successivo. Suggerisci di tenerla aperta durante il laboratorio del database.</div>
+</section>
+
+<section class="slide">
+  <p class="mod">Prossimo passo</p>
+  <h2>Ora siamo pronti per il database</h2>
+  <ul class="check">
+    <li>So usare <strong>celle e riferimenti</strong> (anche assoluti con $).</li>
+    <li>So distinguere <strong>numeri, testi e date</strong>.</li>
+    <li>So usare <strong>SOMMA, SE, CONTA.SE, SOMMA.SE</strong>.</li>
+    <li>So usare <strong>CERCA.VERT</strong> per collegare due tabelle.</li>
+    <li>So mettere una <strong>convalida</strong> (menu a tendina).</li>
+    <li>So <strong>creare una tabella, poi un'altra, poi collegarle</strong>.</li>
+  </ul>
+  <p class="callout">Nella prossima lezione useremo tutto questo per costruire il <strong>database dell'e-commerce</strong>: clienti, prodotti, ordini.</p>
+  <div class="notes"><b>Note docente.</b> Chiudi collegandoti alla lezione database. Verifica lampo: chiedi di scrivere un CERCA.VERT alla lavagna. Se lo sanno impostare, sono pronti.</div>
+</section>
+
+<section class="slide cover">
+  <p class="kicker">Mini-corso · Prerequisiti</p>
+  <h1>Domande?</h1>
+  <p class="sub">Gli attrezzi ci sono. Ora si costruisce.</p>
+  <p class="meta">Contatti docente: andrea.sciarra@istituto.it</p>
+  <div class="notes"><b>Note docente.</b> Ricorda che la prossima lezione è il database dell'e-commerce e che userà esattamente queste formule.</div>
+</section>
+
+<div id="hint">← → naviga · N note · D tema · F schermo intero</div>
+<div id="hud">
+  <span id="counter"></span>
+  <button id="btnPrev" title="Precedente">‹</button>
+  <button id="btnNext" title="Successiva">›</button>
+  <button id="btnNotes" class="wide" title="Note docente">Note</button>
+  <button id="btnTheme" title="Tema">🌙</button>
+  <button id="btnFull" title="Schermo intero">⛶</button>
+</div>
+<div id="notes"></div>
+
+<script>
+/* ---------- sim SE ---------- */
+const seVal=document.getElementById('seVal');
+const seOut=document.getElementById('seOut');
+function doSe(){
+  const v=+seVal.value||0;
+  if(v>100){seOut.textContent='sconto 10%';seOut.style.color='var(--green)';}
+  else{seOut.textContent='nessuno sconto';seOut.style.color='var(--muted)';}
+}
+seVal.addEventListener('input',doSe);doSe();
+
+/* ---------- sim CERCA.VERT ---------- */
+const prezzi={'P-0001':'€ 19,90','P-0002':'€ 49,90','P-0003':'€ 39,90'};
+const nomi={'P-0001':'T-shirt basic','P-0002':'Jeans slim','P-0003':'Felpa logo'};
+const lkSel=document.getElementById('lkSel');
+const lkOut=document.getElementById('lkOut');
+const lkExpl=document.getElementById('lkExpl');
+function doLk(){
+  const id=lkSel.value;
+  lkOut.textContent=prezzi[id];
+  document.querySelectorAll('#lkTable tr[data-prod]').forEach(r=>r.classList.toggle('found',r.dataset.prod===id));
+  lkExpl.textContent='CERCA.VERT ha preso '+id+', è andato nella colonna A della tabella Prodotti, ha trovato '+nomi[id]+' e ha restituito il prezzo (colonna 6).';
+}
+lkSel.addEventListener('change',doLk);doLk();
+</script>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const counter=document.getElementById('counter');
+const progress=document.getElementById('progress');
+const notesPanel=document.getElementById('notes');
+const btnTheme=document.getElementById('btnTheme');
+let i=0;
+function applyTheme(dark){document.body.classList.toggle('dark',dark);btnTheme.textContent=dark?'☀️':'🌙';
+  try{localStorage.setItem('afm-theme',dark?'dark':'light');}catch(e){}}
+function toggleTheme(){applyTheme(!document.body.classList.contains('dark'));}
+try{if(localStorage.getItem('afm-theme')==='dark')applyTheme(true);}catch(e){}
+btnTheme.onclick=toggleTheme;
+let wasDark=false;
+window.addEventListener('beforeprint',()=>{wasDark=document.body.classList.contains('dark');if(wasDark)applyTheme(false);});
+window.addEventListener('afterprint',()=>{if(wasDark)applyTheme(true);});
+function show(n){
+  i=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,idx)=>s.classList.toggle('active',idx===i));
+  counter.textContent=(i+1)+' / '+slides.length;
+  progress.style.width=((i+1)/slides.length*100)+'%';
+  const note=slides[i].querySelector('.notes');
+  notesPanel.innerHTML=note?note.innerHTML:'<em>Nessuna nota per questa slide.</em>';
+  history.replaceState(null,'','#'+(i+1));
+}
+const next=()=>show(i+1),prev=()=>show(i-1);
+document.addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();next();}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev();}
+  else if(e.key==='Home')show(0);
+  else if(e.key==='End')show(slides.length-1);
+  else if(e.key.toLowerCase()==='n')document.body.classList.toggle('notes-on');
+  else if(e.key.toLowerCase()==='d')toggleTheme();
+  else if(e.key.toLowerCase()==='f'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+});
+document.getElementById('btnNext').onclick=next;
+document.getElementById('btnPrev').onclick=prev;
+document.getElementById('btnNotes').onclick=()=>document.body.classList.toggle('notes-on');
+document.getElementById('btnFull').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();};
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>60)dx<0?next():prev();});
+const start=parseInt(location.hash.slice(1),10);
+show(isNaN(start)?0:start-1);
+</script>
+</body>
+</html>

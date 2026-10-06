@@ -39,7 +39,7 @@ h1,h2,h3{font-family:var(--disp);text-transform:uppercase;letter-spacing:.02em}
 .mono{font-family:var(--mono)}
 
 nav{position:sticky;top:0;z-index:50;background:rgba(10,14,19,.94);border-bottom:1px solid var(--line)}
-.navin{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px}
+.navin{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;row-gap:8px}
 .logo{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.14em;display:flex;align-items:center;gap:10px;white-space:nowrap}
 .logo b{color:var(--amber)} .logo i{color:var(--cy);font-style:normal}
 .led{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber);animation:blink 1.2s infinite}
@@ -174,7 +174,9 @@ h2.lm.in span{transform:none}
 
 /* confronto */
 .cmpwrap{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:start}
-table.cmp{width:100%;border-collapse:collapse;border:1px solid var(--line2)}
+.cmpwrap > *{min-width:0}
+.cmpwrap > .rv{overflow-x:auto}
+table.cmp{width:100%;min-width:420px;border-collapse:collapse;border:1px solid var(--line2)}
 .cmp th,.cmp td{padding:13px 15px;border:1px solid var(--line);font-size:13px;text-align:left;vertical-align:top}
 .cmp thead th{font-family:var(--disp);font-size:14px}
 .cmp thead th:nth-child(2){color:var(--amber);background:rgba(255,180,84,.05)}
