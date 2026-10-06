@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La funzione SE in Excel — Guida interattiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#107C41; --green-2:#0B5A2E; --green-3:#0E6B37; --green-deep:#083D20;
+  --amber:#FFB900; --amber-tx:#8A5B00;
+  --red:#C42B1C; --red-soft:#FBE7E4;
+  --paper:#F4F8F4; --card:#FFFFFF; --line:#D8E3DB;
+  --ink:#1B2A20; --mut:#5C6F62;
+  --ok-bg:#DFF3E6; --ok-tx:#0B6B33; --ko-bg:#FBE7E4; --ko-tx:#B3261E;
+  --b0:#107C41; --b1:#1F4E9C; --b2:#C05621;
+  --shadow:0 18px 44px -18px rgba(10,46,26,.28);
+  --fd:'Archivo',sans-serif; --fb:'IBM Plex Sans',sans-serif; --fm:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--fb); color:var(--ink); font-size:16px; line-height:1.6;
+  background:
+    radial-gradient(1100px 560px at 88% -8%, rgba(16,124,65,.13), transparent 60%),
+    radial-gradient(850px 480px at -8% 34%, rgba(255,185,0,.09), transparent 55%),
+    linear-gradient(rgba(16,124,65,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,124,65,.05) 1px, transparent 1px),
+    var(--paper);
+  background-size:auto,auto,28px 28px,28px 28px,auto;
+}
+section{scroll-margin-top:82px}
+.wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--fd);letter-spacing:-.01em}
+code,.mono{font-family:var(--fm)}
+::selection{background:var(--amber);color:#241a00}
+
+/* NAV */
+.nav{position:fixed;inset:0 0 auto 0;z-index:60;height:60px;
+  background:linear-gradient(180deg,var(--green-3),var(--green-2));
+  display:flex;align-items:center;box-shadow:0 4px 18px rgba(8,45,24,.35)}
+.nav .wrap{display:flex;align-items:center;gap:18px;width:100%}
+.fx-badge{width:36px;height:36px;flex:none;background:#fff;border-radius:7px;
+  display:grid;place-items:center;font:italic 700 17px/1 Georgia,serif;color:var(--green-2);
+  box-shadow:0 2px 0 rgba(0,0,0,.22)}
+.brand{color:#fff;font-family:var(--fd);font-weight:800;font-size:1.02rem;white-space:nowrap}
+.brand em{font-style:normal;color:var(--amber)}
+.tabs{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{color:#D9EFDF;text-decoration:none;font-size:.83rem;font-weight:600;
+  padding:8px 13px;border-radius:7px 7px 0 0;white-space:nowrap;transition:background .2s,color .2s}
+.tabs a:hover{background:rgba(255,255,255,.16);color:#fff}
+.tabs a.active{background:#fff;color:var(--green-2)}
+#progress{position:absolute;left:0;bottom:-3px;height:3px;width:0;background:var(--amber);transition:width .1s linear}
+
+/* HERO */
+.hero{padding:118px 0 70px}
+.hero-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:46px;align-items:center}
+.kicker{font-family:var(--fm);font-size:.78rem;font-weight:600;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--green);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:26px;height:2px;background:var(--green)}
+.hero h1{font-size:clamp(2.7rem,5.4vw,4.4rem);font-weight:900;line-height:1.02;margin:14px 0 6px}
+.hero h1 .hl{background:linear-gradient(transparent 58%, var(--amber) 58%, var(--amber) 94%, transparent 94%);padding:0 .1em}
+.hero h1 .eq{color:var(--green);font-family:var(--fm);font-weight:600}
+.sig{display:inline-block;margin:10px 0 18px;font-family:var(--fm);font-size:.95rem;
+  background:#fff;border:1px solid var(--line);border-left:4px solid var(--green);
+  padding:8px 14px;border-radius:7px;box-shadow:0 4px 14px rgba(10,46,26,.10)}
+.sig .t{color:var(--amber-tx);font-weight:600}.sig .v{color:var(--ok-tx);font-weight:600}.sig .f{color:var(--ko-tx);font-weight:600}
+.hero p.lead{color:var(--mut);max-width:52ch;margin-bottom:22px}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip-stat{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 14px;
+  font-size:.8rem;color:var(--mut);box-shadow:0 3px 10px rgba(10,46,26,.06);max-width:180px}
+.chip-stat b{display:block;font-family:var(--fd);font-size:1.2rem;color:var(--green-2);line-height:1.2}
+
+/* finestra Excel */
+.excel-window{background:#fff;border:1px solid #B9C8BE;border-radius:11px;overflow:hidden;
+  box-shadow:var(--shadow), 0 2px 0 rgba(255,255,255,.6) inset}
+.ew-title{background:var(--green-deep);color:#CFE9D8;font-size:.78rem;padding:8px 14px;display:flex;align-items:center;gap:10px}
+.ew-title .dots{display:flex;gap:6px}
+.ew-title .dots i{width:9px;height:9px;border-radius:50%;background:#2E6B47;display:block}
+.ew-title b{color:#fff;font-weight:600}
+.ew-ribbon{background:var(--green);display:flex;gap:2px;padding:0 10px;align-items:flex-end}
+.ew-ribbon span{color:rgba(255,255,255,.8);font-size:.74rem;font-weight:600;padding:7px 11px}
+.ew-ribbon span.on{background:#fff;color:var(--green-2);border-radius:6px 6px 0 0}
+.ew-tools{background:#F3F7F4;border-bottom:1px solid var(--line);padding:6px 12px;display:flex;gap:14px;color:#7A8B7F;font-size:.8rem}
+.ew-tools b{font-family:Georgia,serif}
+.ew-fbar{display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:#fff}
+.namebox{font-family:var(--fm);font-size:.82rem;font-weight:600;color:var(--green-2);padding:8px 12px;border-right:1px solid var(--line);min-width:62px;display:flex;align-items:center}
+.fx-s{font:italic 600 .9rem Georgia,serif;color:#8A9A8E;padding:8px 10px;border-right:1px solid var(--line)}
+.fbar-view{font-family:var(--fm);font-size:.86rem;padding:8px 14px;color:#264432;white-space:nowrap;overflow-x:auto;flex:1}
+.ew-scroll{overflow-x:auto}
+table.sheet{border-collapse:collapse;width:100%;font-size:.9rem}
+table.sheet th{background:#EDF3EF;color:#5B6B60;font-weight:600;font-size:.76rem;border:1px solid #D7E0DA;padding:5px 8px;text-align:center;min-width:44px}
+table.sheet td{border:1px solid #D7E0DA;padding:7px 10px;min-width:76px;transition:background .25s}
+td.rownum{background:#EDF3EF;color:#5B6B60;font-size:.76rem;text-align:center;font-weight:600;min-width:34px}
+td[contenteditable="true"]{cursor:text;background:#FDFEFB}
+td[contenteditable="true"]:focus{outline:none}
+td.sel{outline:2px solid var(--green);outline-offset:-2px;background:#F2FBF5!important}
+td.flash{animation:flash .7s ease}
+@keyframes flash{0%{background:#FFF3BF}100%{background:transparent}}
+td.cF{font-family:var(--fm);font-size:.74rem;color:#47604F}
+.res{display:inline-block;padding:2px 10px;border-radius:5px;font-weight:600;font-size:.83rem}
+.res.ok{background:var(--ok-bg);color:var(--ok-tx)}
+.res.ko{background:var(--ko-bg);color:var(--ko-tx)}
+.res.na{background:#EEF1EE;color:#7A8B7F}
+.ew-status{display:flex;justify-content:space-between;align-items:center;background:#F3F7F4;border-top:1px solid var(--line);padding:6px 14px;font-size:.73rem;color:#6B7A70}
+.ready{display:flex;align-items:center;gap:7px;font-weight:600;color:var(--green-2)}
+.ready i{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(16,124,65,.45)}55%{box-shadow:0 0 0 6px rgba(16,124,65,0)}}
+.ew-hint{font-size:.8rem;color:var(--mut);margin-top:12px;display:flex;gap:8px;align-items:center}
+.ew-hint b{color:var(--green-2)}
+
+/* testate sezione */
+.sec{padding:82px 0}
+.sec-head{margin-bottom:36px;max-width:72ch}
+.sec-head h2{font-size:clamp(1.9rem,3.4vw,2.7rem);font-weight:800;margin:8px 0 10px}
+.sec-head p{color:var(--mut)}
+.kicker.k-dark{color:var(--amber)}
+.kicker.k-dark::before{background:var(--amber)}
+
+/* ANATOMIA */
+.sec-dark{background:linear-gradient(180deg,#0B4F2A,#0D6134);color:#EAF6EE;position:relative;overflow:hidden}
+.sec-dark::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+             linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:34px 34px;mask-image:radial-gradient(80% 90% at 50% 0,#000 40%,transparent 100%)}
+.sec-dark .wrap{position:relative;z-index:1}
+.sec-dark .sec-head p{color:#BFD9C8}
+.anatomy-code{font-family:var(--fm);font-size:clamp(1.05rem,2.3vw,1.55rem);line-height:1.9;
+  background:rgba(0,0,0,.30);border:1px solid rgba(255,255,255,.14);border-radius:11px;
+  padding:26px 28px;overflow-x:auto;white-space:nowrap}
+.seg{padding:2px 5px;border-radius:6px;border-bottom:2px dashed transparent;cursor:pointer;transition:background .2s,border-color .2s;-webkit-tap-highlight-color:transparent}
+.seg.s-test{color:#FFD34D}.seg.s-vero{color:#7EE2A8}.seg.s-falso{color:#FF9E8D}
+.seg.lit,.seg:hover,.seg:focus{background:rgba(255,255,255,.14);border-bottom-color:currentColor;outline:none}
+.an-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
+.an-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:11px;
+  padding:20px 20px 18px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .25s,background .25s,border-color .25s}
+.an-card:hover,.an-card.lit{background:rgba(255,255,255,.12);transform:translateY(-4px);border-color:rgba(255,255,255,.35)}
+.an-card .n{font-family:var(--fd);font-weight:900;font-size:1.7rem;opacity:.9}
+.an-card.c1 .n{color:#FFD34D}.an-card.c2 .n{color:#7EE2A8}.an-card.c3 .n{color:#FF9E8D}
+.an-card h3{font-size:1.05rem;margin:4px 0 6px;color:#fff}
+.an-card p{font-size:.87rem;color:#BFD9C8}
+.an-note{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
+.locale{font-family:var(--fm);font-size:.8rem;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.16);padding:8px 14px;border-radius:8px;color:#D6ECDC}
+.locale b{color:var(--amber)}
+.tap-hint{display:none;font-size:.8rem;color:#9FD8B4;margin-top:12px}
+@media (hover:none){ .tap-hint{display:block} }
+
+/* OPERATORI */
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+.ops-card{padding:26px 28px}
+.ops-top{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:18px;
+  background:#F3F8F4;border:1px dashed #BFD5C5;border-radius:9px;padding:13px 16px;font-size:.92rem}
+.ops-top label{font-weight:600;color:var(--green-2);font-family:var(--fm)}
+input[type=number],input[type=text]{font-family:var(--fm);font-size:.95rem;border:1px solid var(--line);
+  border-radius:7px;padding:8px 11px;background:#fff;color:var(--ink);width:96px;transition:border-color .2s,box-shadow .2s}
+input[type=text]{width:100%}
+input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(16,124,65,.18)}
+table.ops{width:100%;border-collapse:collapse;font-size:.93rem}
+table.ops th{text-align:left;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);padding:9px 12px;border-bottom:2px solid var(--line)}
+table.ops td{padding:11px 12px;border-bottom:1px solid #EAF0EB}
+table.ops tr{transition:background .2s}
+table.ops tbody tr:hover{background:#F1F8F3}
+.op-sym{font-family:var(--fm);font-weight:600;font-size:1.05rem;color:var(--green-2);background:var(--ok-bg);border-radius:6px;padding:2px 10px;display:inline-block;min-width:44px;text-align:center}
+.op-ex{font-family:var(--fm);font-size:.85rem;color:#3F5A48}
+.tf{font-family:var(--fm);font-weight:700;font-size:.8rem;padding:3px 12px;border-radius:20px;display:inline-block;transition:transform .25s}
+.tf.v{background:var(--ok-bg);color:var(--ok-tx)}
+.tf.f{background:var(--ko-bg);color:var(--ko-tx)}
+.tf.pop{transform:scale(1.18)}
+
+/* pulsanti */
+.btn{display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;font-family:var(--fb);
+  font-weight:600;font-size:.9rem;padding:11px 18px;border-radius:8px;transition:transform .15s,box-shadow .2s,background .2s}
+.btn:active{transform:translateY(1px)}
+.btn-g{background:var(--green);color:#fff;box-shadow:0 6px 16px -6px rgba(16,124,65,.55)}
+.btn-g:hover{background:var(--green-3);transform:translateY(-2px)}
+.btn-o{background:#fff;color:var(--green-2);border:1.5px solid var(--green)}
+.btn-o:hover{background:#EFF8F2;transform:translateY(-2px)}
+.copy{font-family:var(--fm);font-size:.74rem;background:#fff;border:1px solid var(--line);color:var(--mut);border-radius:6px;padding:5px 11px;cursor:pointer;transition:all .2s}
+.copy:hover{border-color:var(--green);color:var(--green-2);background:#F2FBF5}
+
+/* PLAYGROUND */
+.pg-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
+.pg-panel{padding:26px 26px 30px}
+.field{margin-bottom:20px}
+.field>label{display:block;font-family:var(--fm);font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.field>label.lab-th{color:var(--amber-tx)}
+.range-row{display:flex;align-items:center;gap:14px}
+input[type=range]{flex:1;accent-color:var(--green);height:6px;cursor:pointer}
+.seg-btns{display:flex;flex-wrap:wrap;gap:7px}
+.seg-btns button{font-family:var(--fm);font-size:1rem;font-weight:600;background:#fff;border:1.5px solid var(--line);
+  border-radius:7px;height:44px;flex:1;min-width:52px;cursor:pointer;color:var(--mut);transition:all .18s}
+.seg-btns button:hover{border-color:var(--green);color:var(--green-2)}
+.seg-btns button.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 4px 12px -4px rgba(16,124,65,.5)}
+.txt2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;padding-top:14px;border-top:1px dashed var(--line)}
+.presets span{font-size:.78rem;color:var(--mut);align-self:center;font-weight:600}
+.preset{font-size:.8rem;background:#F3F8F4;border:1px solid #CBE0D0;color:var(--green-2);border-radius:20px;padding:5px 13px;cursor:pointer;font-weight:600;transition:all .18s}
+.preset:hover{background:var(--green);color:#fff;border-color:var(--green)}
+.hint{font-size:.83rem;color:var(--mut);margin-top:8px;background:#FFF9E8;border:1px dashed #EBD59A;border-radius:7px;padding:8px 12px;line-height:1.5}
+.hint b{color:var(--amber-tx)}
+#pgT{width:120px;font-size:1.15rem;font-weight:700;padding:10px 12px}
+.fx-box{position:relative;background:#0E2A1B;border-radius:10px;padding:22px 20px 18px;margin-bottom:18px;overflow-x:auto}
+.fx-box code{font-size:clamp(.95rem,1.9vw,1.15rem);color:#E7F5EC;white-space:nowrap}
+.fx-box .copy{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25);color:#BFDCCB}
+.fx-box .pA{color:#FFD34D}.fx-box .pOp{color:#fff;font-weight:700}.fx-box .pT{color:#9ADCFF;font-weight:700}
+.fx-box .pV{color:#7EE2A8}.fx-box .pF{color:#FF9E8D}
+.verdict{border-radius:11px;padding:22px;text-align:center;border:1px solid var(--line);transition:background .3s,border-color .3s}
+.verdict small{display:block;font-family:var(--fm);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.verdict .out{font-family:var(--fd);font-weight:900;font-size:clamp(1.6rem,3vw,2.3rem);line-height:1.1;word-break:break-word}
+.verdict.vt{background:#EDF9F0;border-color:#9FD8B4}.verdict.vt .out{color:var(--ok-tx)}
+.verdict.vf{background:#FDF1EF;border-color:#E8B0A6}.verdict.vf .out{color:var(--ko-tx)}
+.spiega{margin-top:14px;font-size:.92rem;color:#33503F;background:#F6FAF6;border:1px dashed #C5D9CB;border-radius:8px;padding:11px 14px;font-family:var(--fm)}
+.spiega b{color:var(--amber-tx)}
+/* barra a zone con soglia */
+.meter{margin-top:26px}
+.m-wrap{position:relative;margin:40px 6px 44px}
+.m-track{position:relative;height:48px;border-radius:10px;border:1px solid var(--line);background:#F0F4F1;overflow:hidden}
+.zone{position:absolute;top:0;bottom:0;transition:left .3s,width .3s}
+.z-v{background:rgba(16,124,65,.30)}
+.z-f{background:rgba(196,43,28,.15)}
+.tline{position:absolute;top:0;bottom:0;width:3px;background:var(--amber);z-index:2;transition:left .3s}
+.aline{position:absolute;top:0;bottom:0;width:3px;background:#123B26;z-index:3;transition:left .3s}
+.aline::after{content:"";position:absolute;left:50%;top:50%;width:13px;height:13px;border-radius:50%;
+  background:#123B26;transform:translate(-50%,-50%);box-shadow:0 0 0 3px rgba(18,59,38,.25)}
+.flag{position:absolute;transform:translateX(-50%);font:700 .74rem var(--fm);padding:3px 10px;border-radius:9px;white-space:nowrap;transition:left .3s;z-index:4}
+.flag-t{top:-34px;background:#FFF6DC;border:1px solid #EBD59A;color:var(--amber-tx)}
+.flag-a{bottom:-36px;background:#123B26;color:#DFF3E6}
+.m-labels{display:flex;justify-content:space-between;font:600 .7rem var(--fm);color:var(--mut)}
+.legend{display:flex;gap:18px;margin-top:10px;font-size:.78rem;color:var(--mut);flex-wrap:wrap}
+.lg::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.lg-v::before{background:rgba(16,124,65,.35)}
+.lg-f::before{background:rgba(196,43,28,.22)}
+
+/* ANNIDATO */
+.nest-ctrl{display:grid;grid-template-columns:1fr 320px;gap:24px;margin-bottom:34px}
+.slider-card{padding:26px}
+.slider-card h3{font-size:1.05rem;margin-bottom:14px}
+.big-val{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.big-val b{font-family:var(--fd);font-weight:900;font-size:3.4rem;color:var(--green-2);line-height:1}
+.big-val span{color:var(--mut);font-size:.9rem}
+.verdict-n{padding:26px;text-align:center;border-left:6px solid var(--green);transition:border-color .3s}
+.verdict-n small{font-family:var(--fm);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+.verdict-n .j{font-family:var(--fd);font-weight:900;font-size:1.9rem;margin-top:4px;transition:color .3s}
+.ladder{position:relative;padding:6px 0 6px 6px}
+.step{position:relative;padding:0 0 26px 46px}
+.step::before{content:"";position:absolute;left:15px;top:0;bottom:0;border-left:2px dashed #B9CFC0}
+.step:last-child::before{display:none}
+.step::after{content:"";position:absolute;left:8px;top:9px;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #B9CFC0;transition:all .3s}
+.gate{display:inline-block;font-family:var(--fm);font-size:.95rem;font-weight:600;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:9px 16px;transition:all .3s;color:#42594A}
+.badge{display:inline-block;font-family:var(--fm);font-size:.72rem;font-weight:700;margin-left:10px;padding:3px 11px;border-radius:14px;background:#EEF2EF;color:#8A9A8E;transition:all .3s;vertical-align:middle}
+.branch{display:block;margin:8px 0 0 4px;font-size:.95rem;color:var(--mut);transition:all .3s}
+.branch b{font-family:var(--fm);font-size:1rem}
+.step.wait{opacity:.42}
+.step.falso .badge{background:var(--ko-bg);color:var(--ko-tx)}
+.step.falso::after{border-color:#D08A80;background:#FDF3F1}
+.step.vero .gate{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 8px 20px -8px rgba(16,124,65,.6)}
+.step.vero .badge{background:var(--amber);color:#3D2B00}
+.step.vero::after{border-color:var(--green);background:var(--green);box-shadow:0 0 0 5px rgba(16,124,65,.22)}
+.step.vero .branch{color:var(--ink);font-weight:600}
+.percorso{margin-top:8px;font-family:var(--fm);font-size:.86rem;color:var(--mut);background:#F6FAF6;border:1px dashed #C5D9CB;border-radius:8px;padding:11px 15px;line-height:1.7}
+.nest-fx{margin-top:26px;padding:24px}
+.nest-fx .fx-line{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.nest-fx h3{font-size:1.05rem}
+.nest-code{font-family:var(--fm);font-size:clamp(.95rem,2vw,1.15rem);line-height:2;background:#0E2A1B;color:#DFF0E5;border-radius:10px;padding:20px;overflow-x:auto;white-space:nowrap}
+.nest-code .br{border-radius:5px;padding:1px 3px;transition:background .3s,box-shadow .3s}
+.nest-code .br.on{font-weight:700;box-shadow:0 0 0 2px rgba(255,255,255,.12)}
+.nest-code .c0{color:#6FDC8C}.nest-code .c1{color:#9DB9FF}.nest-code .c2{color:#FFB26B}
+.nest-code .br.on.c0{background:rgba(111,220,140,.18)}
+.nest-code .br.on.c1{background:rgba(157,185,255,.18)}
+.nest-code .br.on.c2{background:rgba(255,178,107,.18)}
+.nest-note{margin-top:16px;font-size:.88rem;color:var(--mut);background:#FFF9E8;border:1px dashed #EBD59A;border-radius:8px;padding:11px 15px}
+.nest-note b{color:var(--amber-tx)}
+
+/* E/O */
+.eo-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.eo-card{padding:28px}
+.eo-head{display:flex;gap:14px;align-items:center;margin-bottom:20px}
+.eo-letter{width:54px;height:54px;flex:none;border-radius:11px;display:grid;place-items:center;font-family:var(--fd);font-weight:900;font-size:1.8rem;color:#fff}
+.eo-card.and .eo-letter{background:var(--green)}
+.eo-card.or .eo-letter{background:var(--amber);color:#3D2B00}
+.eo-head h3{font-size:1.12rem}
+.eo-head p{font-size:.86rem;color:var(--mut)}
+.eo-inputs{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:18px;align-items:flex-end}
+.eo-inputs label{font-size:.85rem;font-weight:700;color:var(--mut);display:flex;flex-direction:column;gap:6px}
+.eo-inputs input[type=number]{width:112px;font-size:1.1rem;font-weight:600;padding:10px 13px}
+.cond-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
+.cchip{font-size:.9rem;font-weight:600;padding:9px 15px;border-radius:8px;transition:all .25s;line-height:1.35}
+.cchip b{font-family:var(--fm);font-size:1.05rem;font-weight:700}
+.cchip.ok{background:var(--ok-bg);color:var(--ok-tx)}
+.cchip.ko{background:var(--ko-bg);color:var(--ko-tx)}
+.eo-formula{background:#10331F;color:#E9F5EE;border-radius:10px;border:1px solid #1E4A30;padding:17px 18px;margin-bottom:18px;overflow-x:auto;white-space:nowrap;font-family:var(--fm);font-size:1.02rem;font-weight:500;line-height:1.9;letter-spacing:.01em}
+.eo-formula .fn{color:#FFD34D;font-weight:700}
+.eo-formula .num{color:#7EE2A8;font-weight:700}
+.eo-formula .str{color:#FFB26B;font-weight:700}
+.eo-formula .op{color:#BFDCCB;font-weight:700}
+.eo-out{border-radius:10px;padding:16px;text-align:center;font-family:var(--fd);font-weight:900;font-size:1.45rem;transition:all .3s;letter-spacing:.01em}
+.eo-out.ok{background:var(--ok-bg);color:var(--ok-tx)}
+.eo-out.ko{background:var(--ko-bg);color:var(--ko-tx)}
+.switch{position:relative;display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-weight:700;font-size:.88rem;color:var(--mut)}
+.switch input{display:none}
+.switch .knob{width:48px;height:27px;border-radius:15px;background:#D9E4DC;position:relative;transition:background .25s;flex:none}
+.switch .knob::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.25);transition:left .25s}
+.switch input:checked+.knob{background:var(--amber)}
+.switch input:checked+.knob::after{left:24px}
+
+/* ERRORI */
+.acc{border:1px solid var(--line);border-radius:11px;background:#fff;margin-bottom:14px;overflow:hidden;box-shadow:0 6px 18px -12px rgba(10,46,26,.2);transition:box-shadow .25s}
+.acc:hover{box-shadow:0 12px 26px -12px rgba(10,46,26,.3)}
+.acc-h{width:100%;display:flex;align-items:center;gap:14px;background:none;border:none;cursor:pointer;padding:17px 20px;text-align:left;font-family:var(--fb)}
+.err-chip{font-family:var(--fm);font-weight:700;font-size:.78rem;background:var(--red-soft);color:var(--red);padding:4px 11px;border-radius:6px;flex:none}
+.warn-chip{background:#FFF4D6;color:var(--amber-tx)}
+.acc-h b{font-size:1rem;color:var(--ink);flex:1}
+.acc-h .chev{flex:none;width:26px;height:26px;border-radius:50%;background:#EFF5F0;color:var(--green-2);display:grid;place-items:center;font-size:.8rem;transition:transform .3s}
+.acc.open .chev{transform:rotate(180deg)}
+.acc-b{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease}
+.acc.open .acc-b{grid-template-rows:1fr}
+.acc-b>div{overflow:hidden}
+.acc-b p{padding:0 20px 8px;color:var(--mut);font-size:.92rem;max-width:75ch}
+.codepair{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:6px 20px 22px}
+.codeline{font-family:var(--fm);font-size:.8rem;border-radius:8px;padding:12px 14px;line-height:1.6;overflow-x:auto}
+.codeline.bad{background:#FDF1EF;border-left:4px solid var(--red);color:#7A2418}
+.codeline.good{background:#EDF9F0;border-left:4px solid var(--green);color:#175335}
+.codeline small{display:block;font-family:var(--fb);font-weight:700;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px;opacity:.75}
+
+/* PRATICHE */
+.tips{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tip{display:flex;gap:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:17px 19px;transition:transform .22s,box-shadow .22s}
+.tip:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.tip .tk{flex:none;width:30px;height:30px;border-radius:8px;background:var(--ok-bg);color:var(--ok-tx);display:grid;place-items:center;font-weight:800}
+.tip p{font-size:.9rem;color:var(--mut)}
+.tip p b{color:var(--ink)}
+
+/* QUIZ */
+.quiz-sec{background:linear-gradient(180deg,#0B4F2A,#0A4423);color:#EAF6EE}
+.quiz-sec .sec-head p{color:#BFD9C8}
+.qcard{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:22px 24px;margin-bottom:18px;transition:border-color .3s;overflow-wrap:anywhere}
+.qcard.right{border-color:#6FDC8C}
+.qcard.wrong{border-color:#FF9E8D}
+.qq{display:flex;gap:13px;align-items:flex-start;margin-bottom:15px}
+.qn{flex:none;width:32px;height:32px;border-radius:8px;background:var(--amber);color:#3D2B00;font-family:var(--fd);font-weight:900;display:grid;place-items:center}
+.qq h3{font-size:1.02rem;font-family:var(--fb);font-weight:600}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{position:relative;display:block;cursor:pointer}
+.opt input{position:absolute;opacity:0}
+.opt span{display:block;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.18);border-radius:9px;padding:11px 15px;font-size:.9rem;font-family:var(--fm);transition:all .2s}
+.opt:hover span{border-color:var(--amber);background:rgba(255,185,0,.09)}
+.opt input:checked+span{border-color:var(--amber);background:rgba(255,185,0,.16);font-weight:600}
+.opt.is-right span{border-color:#6FDC8C;background:rgba(111,220,140,.2)!important;color:#CFF7DC}
+.opt.is-wrong span{border-color:#FF9E8D;background:rgba(255,158,141,.16)!important;color:#FFD3CB}
+.qexp{display:none;margin-top:12px;font-size:.85rem;color:#BFD9C8;background:rgba(0,0,0,.22);border-radius:8px;padding:10px 14px}
+.graded .qexp{display:block}
+.quiz-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:26px}
+.score-panel{display:none;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:22px 26px;margin-top:22px;align-items:center;gap:22px}
+.score-panel.show{display:flex;animation:pop .45s ease}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.score-num{font-family:var(--fd);font-weight:900;font-size:2.6rem;color:var(--amber)}
+.score-panel p{font-size:.95rem}
+
+/* footer / toast / reveal */
+footer{background:var(--green-deep);color:#9FC3AC;padding:44px 0;text-align:center}
+footer .fxjoke{font-family:var(--fm);font-size:clamp(.85rem,2vw,1.05rem);color:#DFF0E5;margin-bottom:8px}
+footer .fxjoke b{color:var(--amber)}
+footer small{font-size:.78rem}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);background:#11271A;color:#EAF6EE;font-size:.88rem;font-weight:600;padding:12px 22px;border-radius:9px;box-shadow:0 14px 34px rgba(0,0,0,.35);opacity:0;transition:all .35s ease;z-index:99;pointer-events:none}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease;transition-delay:var(--d,0s)}
+.reveal.in{opacity:1;transform:none}
+
+/* anti-overflow: gli item a griglia con contenuti nowrap devono poter restringersi */
+.card{min-width:0}
+.hero-grid>*,.pg-grid>*,.eo-grid>*,.nest-ctrl>*,.codepair>*{min-width:0}
+.ops-card{overflow-x:auto}
+.ops-card table.ops{min-width:520px}
+
+@media(max-width:980px){
+  .hero-grid,.pg-grid,.eo-grid,.codepair{grid-template-columns:1fr}
+  .an-grid{grid-template-columns:1fr}
+  .nest-ctrl{grid-template-columns:1fr}
+  .opts,.tips{grid-template-columns:1fr}
+  .tabs a{font-size:.76rem;padding:7px 9px}
+  .brand{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;right:16px;bottom:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <div class="fx-badge">fx</div>
+    <div class="brand">Guida <em>SE</em> · Excel</div>
+    <div class="tabs" id="tabs">
+      <a href="#anatomia">Anatomia</a>
+      <a href="#operatori">Operatori</a>
+      <a href="#playground">Playground</a>
+      <a href="#annidato">SE annidato</a>
+      <a href="#eo">E / O</a>
+      <a href="#errori">Errori</a>
+      <a href="#quiz">Quiz</a>
+    </div>
+  </div>
+  <div id="progress"></div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal in">
+      <div class="kicker">Funzioni logiche · Microsoft Excel</div>
+      <h1>La funzione <span class="hl">SE</span><br><span class="eq">=</span> il bivio di ogni cella</h1>
+      <div class="sig">=SE(<span class="t">test</span>; <span class="v">se_vero</span>; <span class="f">se_falso</span>)</div>
+      <p class="lead"><b>SE</b> (<i>IF</i> in inglese) è la porta logica di Excel: pone una condizione e restituisce
+      un valore se è <b>VERO</b>, un altro se è <b>FALSO</b>. In questa pagina la smontiamo pezzo per pezzo —
+      con fogli che puoi modificare davvero, annidamenti, E/O, errori tipici e un quiz finale.</p>
+      <div class="chips">
+        <div class="chip-stat"><b>3</b>argomenti: test, se_vero, se_falso</div>
+        <div class="chip-stat"><b>SE in SE</b>una SE può contenerne un'altra (annidamento)</div>
+        <div class="chip-stat"><b>;</b>separatore in italiano</div>
+      </div>
+    </div>
+
+    <div class="reveal in" style="--d:.15s">
+      <div class="excel-window" aria-label="Foglio di calcolo dimostrativo">
+        <div class="ew-title"><div class="dots"><i></i><i></i><i></i></div><span><b>Cartel1.xlsx</b> — Excel · Guida alla funzione SE</span></div>
+        <div class="ew-ribbon"><span>Home</span><span>Inserisci</span><span class="on">Formule</span><span>Dati</span><span>Revisione</span></div>
+        <div class="ew-tools"><span><b>B</b> <i>I</i> <u>U</u></span><span>Σ Somma automatica</span><span>fx Inserisci funzione</span></div>
+        <div class="ew-fbar">
+          <div class="namebox" id="namebox">C2</div>
+          <div class="fx-s">fx</div>
+          <div class="fbar-view" id="fbar">=SE(B2&gt;=60;"Promosso";"Bocciato")</div>
+        </div>
+        <div class="ew-scroll">
+          <table class="sheet" id="sheet">
+            <thead><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead>
+            <tbody>
+              <tr data-row="1">
+                <td class="rownum">1</td>
+                <td data-ref="A1"><b>Studente</b></td><td data-ref="B1"><b>Voto</b></td>
+                <td data-ref="C1"><b>Esito</b></td><td data-ref="D1"><b>Formula (colonna C)</b></td>
+              </tr>
+              <tr data-row="2">
+                <td class="rownum">2</td><td data-ref="A2">Anna</td>
+                <td data-ref="B2" contenteditable="true" inputmode="numeric">78</td>
+                <td data-ref="C2" data-formula='=SE(B2>=60;"Promosso";"Bocciato")'></td>
+                <td class="cF" data-ref="D2" data-formula='=SE(B2>=60;"Promosso";"Bocciato")'>=SE(B2&gt;=60;"Promosso";"Bocciato")</td>
+              </tr>
+              <tr data-row="3">
+                <td class="rownum">3</td><td data-ref="A3">Luca</td>
+                <td data-ref="B3" contenteditable="true" inputmode="numeric">54</td>
+                <td data-ref="C3" data-formula='=SE(B3>=60;"Promosso";"Bocciato")'></td>
+                <td class="cF" data-ref="D3" data-formula='=SE(B3>=60;"Promosso";"Bocciato")'>=SE(B3&gt;=60;"Promosso";"Bocciato")</td>
+              </tr>
+              <tr data-row="4">
+                <td class="rownum">4</td><td data-ref="A4">Sara</td>
+                <td data-ref="B4" contenteditable="true" inputmode="numeric">60</td>
+                <td data-ref="C4" data-formula='=SE(B4>=60;"Promosso";"Bocciato")'></td>
+                <td class="cF" data-ref="D4" data-formula='=SE(B4>=60;"Promosso";"Bocciato")'>=SE(B4&gt;=60;"Promosso";"Bocciato")</td>
+              </tr>
+              <tr data-row="5">
+                <td class="rownum">5</td><td data-ref="A5">Marco</td>
+                <td data-ref="B5" contenteditable="true" inputmode="numeric">91</td>
+                <td data-ref="C5" data-formula='=SE(B5>=60;"Promosso";"Bocciato")'></td>
+                <td class="cF" data-ref="D5" data-formula='=SE(B5>=60;"Promosso";"Bocciato")'>=SE(B5&gt;=60;"Promosso";"Bocciato")</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ew-status">
+          <span class="ready"><i></i>Pronto</span>
+          <span id="statusCalc">Media: — · Conta: —</span>
+        </div>
+      </div>
+      <p class="ew-hint">✏️ <span><b>Prova:</b> clicca una cella per vederla nella barra della formula, poi modifica i voti in <b>B2:B5</b> — l'esito in C si aggiorna da solo. Nota Sara: con <b>&gt;=</b> anche 60 basta!</span></p>
+    </div>
+  </div>
+</header>
+
+<section class="sec sec-dark" id="anatomia">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker k-dark">01 · Sintassi</div>
+      <h2>Anatomia della formula</h2>
+      <p>Ogni <code>SE</code> ha <b>tre argomenti</b> separati da punto e virgola. Passa il mouse sui segmenti colorati della formula per evidenziare la spiegazione corrispondente — <b>su smartphone basta un tap</b>.</p>
+    </div>
+
+    <div class="anatomy-code reveal" id="anatCode">
+      <span>=</span><span class="mono" style="color:#fff;font-weight:600">SE(</span><span class="seg s-test" data-part="test" tabindex="0" role="button">B2&gt;=60</span><span style="color:#8FBFA2">;</span> <span class="seg s-vero" data-part="vero" tabindex="0" role="button">"Promosso"</span><span style="color:#8FBFA2">;</span> <span class="seg s-falso" data-part="falso" tabindex="0" role="button">"Bocciato"</span><span class="mono" style="color:#fff;font-weight:600">)</span>
+      <button class="copy" style="margin-left:16px;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25);color:#BFDCCB" data-copy='=SE(B2>=60;"Promosso";"Bocciato")'>⧉ copia</button>
+    </div>
+    <div class="tap-hint">👆 Tocca un segmento colorato (o una scheda qui sotto) per accendere la spiegazione.</div>
+
+    <div class="an-grid">
+      <article class="an-card c1 reveal" data-part="test" style="--d:.05s">
+        <div class="n">01</div><h3>Test logico</h3>
+        <p>La <b>domanda</b> a cui Excel risponde: una condizione che può valere solo <b>VERO</b> o <b>FALSO</b>.
+        Esempi: <code>B2&gt;=60</code>, <code>A1="Roma"</code>.</p>
+      </article>
+      <article class="an-card c2 reveal" data-part="vero" style="--d:.12s">
+        <div class="n">02</div><h3>Se_vero</h3>
+        <p>Cosa restituire quando il test è <b>VERO</b>. Può essere testo <code>"Promosso"</code>, un numero <code>100</code>,
+        un calcolo <code>B2*1,1</code> o persino <b>un altro SE</b>.</p>
+      </article>
+      <article class="an-card c3 reveal" data-part="falso" style="--d:.19s">
+        <div class="n">03</div><h3>Se_falso</h3>
+        <p>Cosa restituire quando il test è <b>FALSO</b>. Se lo <b>ometti</b>, Excel restituisce il valore logico
+        <code>FALSO</code>: usa <code>""</code> se preferisci lasciare la cella vuota.</p>
+      </article>
+    </div>
+
+    <div class="an-note reveal">
+      <span class="locale">🇮🇹 Excel italiano → separatore <b>;</b> &nbsp;<code>=SE(A1&gt;5;"Sì";"No")</code></span>
+      <span class="locale">🇬🇧 Excel inglese → separatore <b>,</b> e nome <b>IF</b> &nbsp;<code>=IF(A1&gt;5,"Sì","No")</code></span>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="operatori">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">02 · Il test logico</div>
+      <h2>Gli operatori di confronto</h2>
+      <p>Il primo argomento si costruisce con questi sei operatori. Cambia il valore di A1 e guarda i risultati capovolgersi in tempo reale.</p>
+    </div>
+    <div class="card ops-card reveal">
+      <div class="ops-top">
+        <label for="opA1">A1 contiene:</label>
+        <input type="number" id="opA1" value="70" step="1">
+        <span style="color:var(--mut);font-size:.85rem">← provalo: ogni riga si aggiorna da sola</span>
+      </div>
+      <table class="ops">
+        <thead><tr><th>Operatore</th><th>Significato</th><th>Esempio</th><th>Risultato</th></tr></thead>
+        <tbody id="opsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="playground" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">03 · Laboratorio</div>
+      <h2>Costruisci la tua SE</h2>
+      <p>Scegli operatore e <b>soglia</b> (il numero con cui confronti A1), poi i messaggi: la formula si scrive da sola.
+      Nella barra in basso la <b>zona verde</b> è dove il test è VERO, quella <b>rossa</b> dove è FALSO: la bandierina ambra è la soglia.</p>
+    </div>
+    <div class="pg-grid">
+      <div class="card pg-panel reveal">
+        <div class="field">
+          <label>Valore della cella A1</label>
+          <div class="range-row">
+            <input type="range" id="pgRange" min="0" max="100" value="75">
+            <input type="number" id="pgA" value="75" min="0" max="100">
+          </div>
+        </div>
+        <div class="field">
+          <label>Operatore di confronto</label>
+          <div class="seg-btns" id="pgOps">
+            <button data-op="gte" class="on">&gt;=</button>
+            <button data-op="gt">&gt;</button>
+            <button data-op="eq">=</button>
+            <button data-op="lt">&lt;</button>
+            <button data-op="lte">&lt;=</button>
+            <button data-op="ne">&lt;&gt;</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="lab-th" id="pgTLabel">Soglia (valore di riferimento)</label>
+          <input type="number" id="pgT" value="60">
+          <div class="hint" id="pgTHint"></div>
+        </div>
+        <div class="field txt2">
+          <div><label>Se vero</label><input type="text" id="pgV" value="Promosso"></div>
+          <div><label>Se falso</label><input type="text" id="pgF" value="Bocciato"></div>
+        </div>
+        <div class="presets">
+          <span>Preset:</span>
+          <button class="preset" data-a="75" data-op="gte" data-t="60" data-v="Promosso" data-f="Bocciato">🎓 Voto</button>
+          <button class="preset" data-a="17" data-op="gte" data-t="18" data-v="Maggiorenne" data-f="Minorenne">🪪 Età</button>
+          <button class="preset" data-a="89" data-op="gt" data-t="100" data-v="Sconto 10%" data-f="Prezzo pieno">🛒 Cassa</button>
+        </div>
+      </div>
+
+      <div class="reveal" style="--d:.12s">
+        <div class="card pg-panel">
+          <div class="fx-box">
+            <button class="copy" id="pgCopy">⧉ copia</button>
+            <code id="pgFormula"></code>
+          </div>
+          <div class="verdict vt" id="pgVerdict">
+            <small>Contenuto della cella B1</small>
+            <div class="out" id="pgOut">Promosso</div>
+          </div>
+          <div class="spiega" id="pgSpiega"></div>
+          <div class="meter">
+            <div class="m-wrap">
+              <span class="flag flag-t" id="pgMark">soglia 60</span>
+              <div class="m-track" id="pgTrack"></div>
+              <span class="flag flag-a" id="pgNeedle">A1 = 75</span>
+            </div>
+            <div class="m-labels"><span>0</span><span>50</span><span>100</span></div>
+            <div class="legend">
+              <span class="lg lg-v">zona verde → il test è VERO</span>
+              <span class="lg lg-f">zona rossa → il test è FALSO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="annidato" style="background:#EDF4EE;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">04 · Livello successivo</div>
+      <h2>Il SE annidato: più di due esiti</h2>
+      <p><b>Annidare</b> significa mettere una SE dentro il <code>se_falso</code> di un'altra SE. Così, se il primo test
+      è FALSO, Excel ne esegue un secondo invece di arrendersi. Qui sotto trovi l'esempio più semplice possibile:
+      <b>un solo SE annidato</b>, cioè due test in fila per ottenere tre esiti. Excel valuta dall'esterno verso l'interno
+      e <b>si ferma al primo VERO</b>.</p>
+    </div>
+
+    <div class="nest-ctrl">
+      <div class="card slider-card reveal">
+        <h3>🎚️ Trascina il voto e osserva i due test</h3>
+        <div class="big-val"><b id="nestVal">73</b><span>/ 100</span></div>
+        <input type="range" id="nestRange" min="0" max="100" value="73" style="width:100%">
+      </div>
+      <div class="card verdict-n reveal" id="nestVerdict" style="--d:.1s">
+        <small>Esito finale</small>
+        <div class="j" id="nestJudge">Sufficiente</div>
+      </div>
+    </div>
+
+    <div class="card reveal" style="padding:28px 30px">
+      <div class="ladder" id="ladder"></div>
+      <div class="percorso" id="perc"></div>
+    </div>
+
+    <div class="card nest-fx reveal">
+      <div class="fx-line">
+        <h3>La stessa logica, scritta in una cella</h3>
+        <button class="copy" data-copy='=SE(B2>=80;"Ottimo";SE(B2>=60;"Sufficiente";"Insufficiente"))'>⧉ copia formula</button>
+      </div>
+      <div class="nest-code" id="nestCode"></div>
+      <div class="nest-note">📌 <b>Come si legge:</b> la seconda SE (azzurra) si trova esattamente dove nella prima SE ci sarebbe il <i>se_falso</i>.
+      Se il voto non arriva a 80, invece di un valore fisso Excel trova <b>un'altra domanda</b> e risponde a quella.
+      Si potrebbe continuare a infilare SE dentro SE (Excel ne accetta fino a 64), ma già oltre i 2-3 livelli la formula diventa difficile da leggere: meglio fermarsi.</div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="eo">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">05 · Condizioni multiple</div>
+      <h2>SE con E / O</h2>
+      <p>Per testare più condizioni in un colpo solo, avvolgi <b>E()</b> oppure <b>O()</b> dentro il test logico del SE.
+      Nelle formule: i <b style="color:var(--green-2)">numeri verdi</b> sono i valori che inserisci, i <b style="color:var(--amber-tx)">testi arancioni</b> sono i risultati possibili.</p>
+    </div>
+    <div class="eo-grid">
+      <div class="card eo-card and reveal">
+        <div class="eo-head"><div class="eo-letter">E</div>
+          <div><h3>TUTTE le condizioni vere</h3><p>Ammissione solo se scritto e orale sono entrambi ≥ 60.</p></div>
+        </div>
+        <div class="eo-inputs">
+          <label>Scritto (B2)<input type="number" id="andB" value="72" min="0" max="100"></label>
+          <label>Orale (C2)<input type="number" id="andC" value="58" min="0" max="100"></label>
+        </div>
+        <div class="cond-chips">
+          <span class="cchip ok" id="andCh1"></span>
+          <span class="cchip ko" id="andCh2"></span>
+        </div>
+        <div class="eo-formula" id="andFx"></div>
+        <div class="eo-out ko" id="andOut">Rimandato</div>
+      </div>
+
+      <div class="card eo-card or reveal" style="--d:.12s">
+        <div class="eo-head"><div class="eo-letter">O</div>
+          <div><h3>BASTA UNA condizione vera</h3><p>Sconto se l'importo supera 100 € oppure se il cliente è VIP.</p></div>
+        </div>
+        <div class="eo-inputs">
+          <label>Importo € (B2)<input type="number" id="orB" value="85" min="0" max="500"></label>
+          <label class="switch"><input type="checkbox" id="orVip"><span class="knob"></span>Cliente VIP (C2)</label>
+        </div>
+        <div class="cond-chips">
+          <span class="cchip ko" id="orCh1"></span>
+          <span class="cchip ko" id="orCh2"></span>
+        </div>
+        <div class="eo-formula" id="orFx"></div>
+        <div class="eo-out ko" id="orOut">Prezzo pieno</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="errori" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">06 · Tranelli</div>
+      <h2>Errori tipici (e come evitarli)</h2>
+      <p>Apri ogni voce: per ciascun errore trovi la formula sbagliata e la sua correzione.</p>
+    </div>
+    <div id="accList"></div>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:10px">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">07 · Regole d'oro</div>
+      <h2>Buone pratiche</h2>
+    </div>
+    <div class="tips">
+      <div class="tip reveal"><div class="tk">✓</div><p><b>Ordine coerente nei SE annidati:</b> parti dalla condizione più restrittiva; una condizione più «larga» messa prima renderebbe invisibili le successive.</p></div>
+      <div class="tip reveal" style="--d:.06s"><div class="tk">✓</div><p><b>Testo sempre tra virgolette:</b> <code>"Promosso"</code>, mai <code>Promosso</code>, altrimenti Excel lo scambia per un nome definito.</p></div>
+      <div class="tip reveal" style="--d:.12s"><div class="tk">✓</div><p><b>Pochi livelli di annidamento:</b> oltre 2-3 SE infilate una nell'altra la formula diventa illeggibile. Meglio fermarsi e ragionare per passi.</p></div>
+      <div class="tip reveal" style="--d:.18s"><div class="tk">✓</div><p><b>Attenzione alla locale:</b> punto e virgola in italiano, virgola in inglese. Copia-incollare formule tra versioni diverse è una fonte classica di errori.</p></div>
+      <div class="tip reveal" style="--d:.24s"><div class="tk">✓</div><p><b>se_falso vuoto:</b> scrivi <code>""</code> per lasciare la cella bianca; se ometti l'argomento, Excel mostra <code>FALSO</code>.</p></div>
+      <div class="tip reveal" style="--d:.3s"><div class="tk">✓</div><p><b>Numeri salvati come testo</b> rompono i confronti (<code>"78"&gt;=60</code> è FALSO!). Controlla il formato cella o usa <code>VALORE()</code>.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec quiz-sec" id="quiz">
+  <div class="wrap" style="max-width:860px">
+    <div class="sec-head reveal">
+      <div class="kicker k-dark">08 · Mettiti alla prova</div>
+      <h2>Quiz: sei pronto per il SE?</h2>
+      <p>Sei domande a risposta multipla. Al termine premi <b>Correggi</b> per punteggio e spiegazioni.</p>
+    </div>
+    <div id="quizBox"></div>
+    <div class="quiz-actions">
+      <button class="btn btn-g" id="btnGrade" style="background:var(--amber);color:#3D2B00">📋 Correggi il quiz</button>
+      <button class="btn btn-o" id="btnRetry" style="display:none;border-color:var(--amber);color:#fff;background:rgba(255,185,0,.15)">↺ Riprova</button>
+    </div>
+    <div class="score-panel" id="scorePanel">
+      <div class="score-num" id="scoreNum">0/6</div>
+      <p id="scoreMsg"></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fxjoke">=SE(hai_letto_fino_a_qui;<b>"Ottimo lavoro!"</b>;"Rileggi con calma")</div>
+    <small>Guida interattiva alla funzione SE di Excel · tutti gli esempi sono modificabili · nessun foglio è stato maltrattato 🟩</small>
+  </div>
+</footer>
+
+<div class="toast" id="toast">Formula copiata negli appunti ✓</div>
+
+<script>
+const $  = (s,c=document)=>c.querySelector(s);
+const $$ = (s,c=document)=>[...c.querySelectorAll(s)];
+const esc = s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const toast=$('#toast'); let toastT;
+function showToast(msg){ toast.textContent=msg; toast.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>toast.classList.remove('show'),2200); }
+function copyText(t){ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject())
+  .then(()=>showToast('Formula copiata negli appunti ✓'))
+  .catch(()=>{ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta);
+    ta.select(); try{document.execCommand('copy');showToast('Formula copiata ✓')}catch(e){showToast('Copia manuale: '+t)} ta.remove(); }); }
+$$('.copy[data-copy]').forEach(b=>b.addEventListener('click',()=>copyText(b.dataset.copy)));
+
+/* FOGLIO */
+const namebox=$('#namebox'), fbar=$('#fbar');
+let selected=$('td[data-ref="C2"]');
+function renderRes(td,val){
+  if(val===null){ td.innerHTML='<span class="res na">—</span>'; return; }
+  const ok=val>=60;
+  td.innerHTML=`<span class="res ${ok?'ok':'ko'}">${ok?'Promosso':'Bocciato'}</span>`;
+  td.classList.remove('flash'); void td.offsetWidth; td.classList.add('flash');
+}
+function sheetRecalc(){
+  let sum=0,n=0;
+  $$('#sheet tbody tr[data-row]').forEach(tr=>{
+    if(tr.dataset.row==='1')return;
+    const b=tr.querySelector('td[data-ref^="B"]'), c=tr.querySelector('td[data-ref^="C"]');
+    const raw=b.innerText.trim().replace(',','.'); const v=parseFloat(raw);
+    if(!isNaN(v)&&raw!==''){ renderRes(c,v); sum+=v; n++; } else renderRes(c,null);
+  });
+  $('#statusCalc').textContent = n? `Media voti: ${(sum/n).toFixed(2).replace('.',',')} · Conta: ${n} righe` : 'Media: — · Conta: 0 righe';
+  refreshFbar();
+}
+function refreshFbar(){
+  if(!selected)return;
+  namebox.textContent=selected.dataset.ref||'';
+  fbar.textContent = selected.dataset.formula || selected.innerText;
+}
+$$('#sheet td[data-ref]').forEach(td=>{
+  td.addEventListener('click',()=>{ if(selected)selected.classList.remove('sel');
+    selected=td; td.classList.add('sel'); refreshFbar(); });
+});
+$$('td[contenteditable]').forEach(td=>{
+  td.addEventListener('input',()=>{ td.innerText=td.innerText.replace(/[^0-9,]/g,'');
+    const r=document.createRange(); r.selectNodeContents(td); r.collapse(false);
+    const s=getSelection(); s.removeAllRanges(); s.addRange(r); sheetRecalc(); });
+  td.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); td.blur();} });
+});
+selected.classList.add('sel'); sheetRecalc();
+
+/* ANATOMIA: hover + tap */
+$$('#anatCode .seg').forEach(seg=>{
+  const card=$(`.an-card[data-part="${seg.dataset.part}"]`);
+  const set=on=>{ if(card)card.classList.toggle('lit',on); };
+  seg.addEventListener('mouseenter',()=>set(true));
+  seg.addEventListener('mouseleave',()=>set(false));
+  seg.addEventListener('focus',()=>set(true));
+  seg.addEventListener('blur',()=>set(false));
+  seg.addEventListener('click',e=>{
+    e.stopPropagation();
+    const wasOn=card&&card.classList.contains('lit');
+    $$('.an-card').forEach(c=>c.classList.remove('lit'));
+    set(!wasOn);
+    if(!wasOn&&card&&window.innerWidth<980)card.scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+});
+$$('.an-card').forEach(card=>{
+  const seg=$(`#anatCode .seg[data-part="${card.dataset.part}"]`);
+  if(!seg)return;
+  card.addEventListener('mouseenter',()=>seg.classList.add('lit'));
+  card.addEventListener('mouseleave',()=>seg.classList.remove('lit'));
+  card.addEventListener('click',()=>{
+    const wasOn=seg.classList.contains('lit');
+    $$('#anatCode .seg').forEach(s=>s.classList.remove('lit'));
+    seg.classList.toggle('lit',!wasOn);
+  });
+});
+
+/* OPERATORI */
+const CMP={ '=':(a,b)=>a===b, '>':(a,b)=>a>b, '>=':(a,b)=>a>=b, '<':(a,b)=>a<b, '<=':(a,b)=>a<=b, '<>':(a,b)=>a!==b };
+const OPS=[ ['=','uguale a','A1 = 70'], ['>','maggiore di','A1 > 85'], ['>=','maggiore o uguale','A1 >= 70'],
+            ['<','minore di','A1 < 60'], ['<=','minore o uguale','A1 <= 70'], ['<>','diverso da','A1 <> 70'] ];
+$('#opsBody').innerHTML=OPS.map(([op,sign,ex],i)=>
+  `<tr><td><span class="op-sym">${esc(op)}</span></td><td>${sign}</td><td class="op-ex">${esc(ex)}</td>
+   <td><span class="tf" id="tf${i}">—</span></td></tr>`).join('');
+function opsRecalc(){
+  const a=parseFloat($('#opA1').value)||0;
+  OPS.forEach(([op,,ex],i)=>{
+    const thr=parseFloat(ex.split(' ').pop());
+    const v=CMP[op](a,thr), el=$('#tf'+i);
+    el.textContent=v?'VERO':'FALSO'; el.className='tf '+(v?'v':'f');
+    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  });
+}
+$('#opA1').addEventListener('input',opsRecalc); opsRecalc();
+
+/* PLAYGROUND — operatori come codici sicuri (niente < > negli attributi) */
+const OPTEXT={gte:'>=',gt:'>',eq:'=',lt:'<',lte:'<=',ne:'<>'};
+const OPSYM ={gte:'≥', gt:'>',eq:'=',lt:'<',lte:'≤', ne:'≠'};
+const C={gte:(a,b)=>a>=b, gt:(a,b)=>a>b, eq:(a,b)=>a===b, lt:(a,b)=>a<b, lte:(a,b)=>a<=b, ne:(a,b)=>a!==b};
+const PG={a:75,op:'gte',t:60,tv:'Promosso',tf:'Bocciato'};
+const clamp=v=>Math.max(0,Math.min(100,v));
+function pgThresholdText(){
+  if(PG.op==='eq'){
+    $('#pgTLabel').textContent='Valore esatto da confrontare';
+    $('#pgTHint').innerHTML='Con l\u2019operatore <b>=</b> questo non è una soglia ma un valore esatto: il test è VERO solo se A1 è <b>identico</b> a questo numero (bandina verde stretta).';
+  }else{
+    $('#pgTLabel').textContent='Soglia (valore di riferimento)';
+    $('#pgTHint').innerHTML='La <b>soglia</b> è il confine tra i due esiti: qui <b>'+PG.t+'</b>. Il test confronta A1 con questo numero; la bandierina ambra sulla barra lo mostra.';
+  }
+}
+function meterRender(){
+  const a=clamp(PG.a), t=PG.t, tc=clamp(t), op=PG.op;
+  let zones=[];
+  if(op==='gte'||op==='gt')      zones=[{f:0,to:tc,v:false},{f:tc,to:100,v:true}];
+  else if(op==='lte'||op==='lt') zones=[{f:0,to:tc,v:true},{f:tc,to:100,v:false}];
+  else if(op==='eq')             zones=[{f:0,to:Math.max(0,tc-2),v:false},{f:Math.max(0,tc-2),to:Math.min(100,tc+2),v:true},{f:Math.min(100,tc+2),to:100,v:false}];
+  else                           zones=[{f:0,to:Math.max(0,tc-2),v:true},{f:Math.max(0,tc-2),to:Math.min(100,tc+2),v:false},{f:Math.min(100,tc+2),to:100,v:true}];
+  $('#pgTrack').innerHTML=zones.map(z=>`<div class="zone ${z.v?'z-v':'z-f'}" style="left:${z.f}%;width:${Math.max(0,z.to-z.f)}%"></div>`).join('')
+    +`<div class="tline" style="left:calc(${tc}% - 1px)"></div><div class="aline" style="left:calc(${a}% - 1px)"></div>`;
+  const mk=$('#pgMark'); mk.style.left=tc+'%'; mk.textContent=(op==='eq'?'valore ':'soglia ')+t;
+  const nd=$('#pgNeedle'); nd.style.left=a+'%'; nd.textContent='A1 = '+PG.a;
+}
+function pgRender(){
+  const {a,op,t,tv,tf}=PG;
+  const vero=C[op](a,t), opTxt=OPTEXT[op];
+  $('#pgFormula').innerHTML=
+    `=SE(<span class="pA">A1</span><span class="pOp">${esc(opTxt)}</span><span class="pT">${t}</span>; <span class="pV">"${esc(tv)}"</span>; <span class="pF">"${esc(tf)}"</span>)`;
+  $('#pgOut').textContent=vero?tv:tf;
+  $('#pgVerdict').className='verdict '+(vero?'vt':'vf');
+  $('#pgSpiega').innerHTML=`Confronto: ${a} ${OPSYM[op]} ${t}${op==='eq'?'':' <b>(soglia)</b>'} → ${vero?'VERO ✓':'FALSO ✗'} → "${vero?tv:tf}"`;
+  $('#pgCopy').dataset.copy=`=SE(A1${opTxt}${t};"${tv}";"${tf}")`;
+  pgThresholdText(); meterRender();
+}
+$('#pgCopy').addEventListener('click',e=>copyText(e.currentTarget.dataset.copy));
+$('#pgRange').addEventListener('input',e=>{PG.a=+e.target.value;$('#pgA').value=PG.a;pgRender();});
+$('#pgA').addEventListener('input',e=>{PG.a=parseFloat(e.target.value)||0;$('#pgRange').value=clamp(PG.a);pgRender();});
+$('#pgT').addEventListener('input',e=>{PG.t=parseFloat(e.target.value)||0;pgRender();});
+$('#pgV').addEventListener('input',e=>{PG.tv=e.target.value||'—';pgRender();});
+$('#pgF').addEventListener('input',e=>{PG.tf=e.target.value||'—';pgRender();});
+$('#pgOps').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
+  $$('#pgOps button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  PG.op=b.dataset.op; pgRender(); });
+$$('.preset').forEach(p=>p.addEventListener('click',()=>{
+  PG.a=+p.dataset.a; PG.op=p.dataset.op; PG.t=+p.dataset.t; PG.tv=p.dataset.v; PG.tf=p.dataset.f;
+  $('#pgA').value=PG.a; $('#pgRange').value=clamp(PG.a); $('#pgT').value=PG.t; $('#pgV').value=PG.tv; $('#pgF').value=PG.tf;
+  $$('#pgOps button').forEach(x=>x.classList.toggle('on',x.dataset.op===PG.op)); pgRender(); }));
+pgRender();
+
+/* SE ANNIDATO */
+const RAMI=[ {lim:80,txt:'Ottimo'}, {lim:60,txt:'Sufficiente'}, {lim:null,txt:'Insufficiente'} ];
+const COLORS=['var(--b0)','var(--b1)','var(--b2)'];
+$('#ladder').innerHTML=RAMI.map((r,i)=>{
+  const last=r.lim===null;
+  const gate=last?'Altrimenti (ultimo se_falso)':`SE(B2 ≥ ${r.lim} ; …)`;
+  return `<div class="step wait" id="step${i}">
+    <span class="gate">${gate}</span><span class="badge" id="bdg${i}">…</span>
+    <span class="branch">→ <b style="color:${COLORS[i]}">"${r.txt}"</b></span></div>`;
+}).join('');
+function nestCode(active){
+  let h='<span style="color:#fff">=</span>', closers=0;
+  RAMI.forEach((r,i)=>{
+    if(r.lim!==null){ h+=`<span class="br c${i} ${i===active?'on':''}">SE(B2&gt;=${r.lim};"${r.txt}";</span>`; closers++; }
+    else h+=`<span class="br c${i} ${i===active?'on':''}">"${r.txt}"</span>`;
+  });
+  return h+`<span style="color:#8FBFA2">${')'.repeat(closers)}</span>`;
+}
+function nestUpdate(v){
+  let active=RAMI.length-1;
+  for(let i=0;i<RAMI.length-1;i++){ if(v>=RAMI[i].lim){ active=i; break; } }
+  RAMI.forEach((r,i)=>{
+    $('#step'+i).className='step '+(i<active?'falso':i===active?'vero':'wait');
+    $('#bdg'+i).textContent=i<active?'FALSO ✗':i===active?'VERO ✓':'—';
+  });
+  $('#nestVal').textContent=v;
+  const j=$('#nestJudge'), vd=$('#nestVerdict');
+  j.textContent=RAMI[active].txt; j.style.color=COLORS[active]; vd.style.borderLeftColor=COLORS[active];
+  $('#nestCode').innerHTML=nestCode(active);
+  let trail='Percorso: ';
+  for(let i=0;i<active;i++) trail+=`B2≥${RAMI[i].lim} FALSO → `;
+  trail+= active<RAMI.length-1 ? `B2≥${RAMI[active].lim} VERO ✓ → <b style="color:${COLORS[active]}">"${RAMI[active].txt}"</b>`
+                               : `nessun test superato → altrimenti → <b style="color:${COLORS[active]}">"${RAMI[active].txt}"</b>`;
+  $('#perc').innerHTML=trail;
+}
+$('#nestRange').addEventListener('input',e=>nestUpdate(+e.target.value));
+nestUpdate(73);
+
+/* E / O */
+function andRecalc(){
+  const b=parseFloat($('#andB').value)||0, c=parseFloat($('#andC').value)||0;
+  const c1=b>=60, c2=c>=60, ok=c1&&c2;
+  $('#andCh1').innerHTML=`Scritto: <b>${b}</b> ≥ 60 ${c1?'✓':'✗'}`; $('#andCh1').className='cchip '+(c1?'ok':'ko');
+  $('#andCh2').innerHTML=`Orale: <b>${c}</b> ≥ 60 ${c2?'✓':'✗'}`; $('#andCh2').className='cchip '+(c2?'ok':'ko');
+  $('#andFx').innerHTML=
+    `=<span class="fn">SE</span>(<span class="fn">E</span>(<span class="num">${b}</span><span class="op">&gt;=</span>60; <span class="num">${c}</span><span class="op">&gt;=</span>60); <span class="str">"Ammesso"</span>; <span class="str">"Rimandato"</span>)`;
+  const o=$('#andOut'); o.textContent=ok?'Ammesso ✔':'Rimandato'; o.className='eo-out '+(ok?'ok':'ko');
+}
+function orRecalc(){
+  const b=parseFloat($('#orB').value)||0, vip=$('#orVip').checked;
+  const c1=b>100, c2=vip, ok=c1||c2;
+  $('#orCh1').innerHTML=`Importo: <b>${b} €</b> &gt; 100 ${c1?'✓':'✗'}`; $('#orCh1').className='cchip '+(c1?'ok':'ko');
+  $('#orCh2').innerHTML=`VIP: <b>${vip?'Sì':'No'}</b> ${c2?'✓':'✗'}`; $('#orCh2').className='cchip '+(c2?'ok':'ko');
+  $('#orFx').innerHTML=
+    `=<span class="fn">SE</span>(<span class="fn">O</span>(<span class="num">${b}</span><span class="op">&gt;</span>100; C2<span class="op">=</span><span class="str">"VIP"</span>); <span class="str">"Sconto 10%"</span>; <span class="str">"Prezzo pieno"</span>)`;
+  const o=$('#orOut'); o.textContent=ok?'Sconto 10% 🎉':'Prezzo pieno'; o.className='eo-out '+(ok?'ok':'ko');
+}
+$('#andB').addEventListener('input',andRecalc); $('#andC').addEventListener('input',andRecalc);
+$('#orB').addEventListener('input',orRecalc); $('#orVip').addEventListener('change',orRecalc);
+andRecalc(); orRecalc();
+
+/* ERRORI */
+const ERRORI=[
+ {chip:'#NOME?',warn:false,t:'Testo senza virgolette',
+  d:'Se scrivi una parola senza virgolette, Excel la interpreta come nome definito o funzione inesistente e restituisce l\u2019errore #NOME?.',
+  bad:'=SE(A1=1;Ok;No)', good:'=SE(A1=1;"Ok";"No")'},
+ {chip:'FALSO?',warn:true,t:'se_falso dimenticato',
+  d:'Se ometti il terzo argomento, quando il test è falso la cella mostra FALSO (o 0 nelle versioni vecchie). Usa "" per lasciare vuoto.',
+  bad:'=SE(A1>=60;"Promosso")', good:'=SE(A1>=60;"Promosso";"")'},
+ {chip:'#VALORE!',warn:false,t:'Test non valutabile',
+  d:'Se il test logico non può essere ricondotto a VERO/FALSO (argomenti rotti, riferimenti a errori, operatori digitati male), la formula restituisce #VALORE!.',
+  bad:'=SE(A1++;)"Sì";"No")', good:'=SE(A1>5;"Sì";"No")'},
+ {chip:'LOGICA',warn:true,t:'Rami irraggiungibili nell\u2019annidamento',
+  d:'Se la condizione più larga viene prima, cattura tutto e quelle dopo non verranno mai eseguite. Qui "Distinto" è impossibile: qualsiasi voto ≥60 è già "Sufficiente".',
+  bad:'=SE(A1>=60;"Sufficiente";SE(A1>=80;"Distinto";"Insufficiente"))',
+  good:'=SE(A1>=80;"Distinto";SE(A1>=60;"Sufficiente";"Insufficiente"))'},
+ {chip:'LOCALE',warn:true,t:'Virgola contro punto e virgola',
+  d:'In italiano gli argomenti si separano con ; — la virgola fa parte dei decimali. Una formula copiata da un tutorial inglese va adattata (e IF diventa SE).',
+  bad:'=SE(A1>=60,"Promosso","Bocciato")  ← inglese', good:'=SE(A1>=60;"Promosso";"Bocciato")  ← italiano'}
+];
+$('#accList').innerHTML=ERRORI.map((e,i)=>`
+ <div class="acc reveal" style="--d:${i*0.06}s">
+   <button class="acc-h" aria-expanded="false">
+     <span class="err-chip ${e.warn?'warn-chip':''}">${e.chip}</span><b>${e.t}</b><span class="chev">▾</span>
+   </button>
+   <div class="acc-b"><div>
+     <p>${e.d}</p>
+     <div class="codepair">
+       <div class="codeline bad"><small>✗ Sbagliato</small>${esc(e.bad)}</div>
+       <div class="codeline good"><small>✓ Corretto</small>${esc(e.good)}</div>
+     </div>
+   </div></div>
+ </div>`).join('');
+$$('.acc-h').forEach(h=>h.addEventListener('click',()=>{
+  const a=h.parentElement, open=a.classList.contains('open');
+  $$('.acc').forEach(x=>{x.classList.remove('open');x.querySelector('.acc-h').setAttribute('aria-expanded','false');});
+  if(!open){a.classList.add('open');h.setAttribute('aria-expanded','true');}
+}));
+
+/* QUIZ */
+const QUIZ=[
+ {q:'Cosa restituisce =SE(5>3;"Sì";"No") ?',op:['"Sì"','"No"','VERO','#ERRORE'],ok:0,
+  sp:'5>3 è VERO, quindi vale il secondo argomento: "Sì".'},
+ {q:'Se A1 contiene 60, cosa mostra =SE(A1>60;"Promosso";"Bocciato") ?',op:['Promosso','Bocciato','60','#VALORE!'],ok:1,
+  sp:'L\u2019operatore > è stretto: 60 non è maggiore di 60, quindi FALSO → "Bocciato". Con >= sarebbe promosso.'},
+ {q:'Quante SE si possono infilare una dentro l\u2019altra (annidare) nelle versioni moderne di Excel?',op:['7','64','255','Illimitate'],ok:1,
+  sp:'Il limite è 64 livelli (Excel 2007+); le versioni precedenti si fermavano a 7. In pratica, meglio restare sotto i 3 per leggibilità.'},
+ {q:'Con A1 vuota, cosa restituisce =SE(A1="";"Vuota";"Piena") ?',op:['"Piena"','FALSO','"Vuota"','#NOME?'],ok:2,
+  sp:'Una cella vuota è uguale alla stringa vuota "", quindi il test è VERO → "Vuota".'},
+ {q:'Quale scrittura è corretta in Excel in italiano?',
+  op:['=SE(A1>=60;"Promosso";"Bocciato")','=SE(A1>=60;"Promosso","Bocciato")','=SE("Promosso";A1>=60;"Bocciato")','=IF(A1>=60;"Promosso";"Bocciato")'],ok:0,
+  sp:'Ordine degli argomenti corretto e separatore ; . La virgola è per la locale inglese; IF è il nome inglese; il testo non può stare al posto del test.'},
+ {q:'In =SE(E(A1>=60;B1>=60);"Ok";"No"), quando si ottiene "Ok"?',op:['Se basta una delle due','Solo se entrambe sono vere','Mai, E è un errore','Sempre, se i numeri sono positivi'],ok:1,
+  sp:'E() è VERO solo quando TUTTE le condizioni al suo interno sono vere; con O() ne basterebbe una.'}
+];
+function buildQuiz(){
+  $('#quizBox').innerHTML=QUIZ.map((q,i)=>`
+   <div class="qcard reveal" style="--d:${i*0.05}s" id="qc${i}">
+     <div class="qq"><span class="qn">${i+1}</span><h3>${q.q}</h3></div>
+     <div class="opts">${q.op.map((o,j)=>`
+       <label class="opt" id="q${i}o${j}"><input type="radio" name="q${i}" value="${j}"><span>${esc(o)}</span></label>`).join('')}
+     </div>
+     <div class="qexp">💡 ${q.sp}</div>
+   </div>`).join('');
+  $$('#quizBox .reveal').forEach(el=>io.observe(el));
+}
+$('#btnGrade').addEventListener('click',()=>{
+  let score=0, unanswered=0;
+  QUIZ.forEach((q,i)=>{
+    const sel=document.querySelector(`input[name="q${i}"]:checked`);
+    const card=$('#qc'+i); card.classList.add('graded');
+    if(!sel){ unanswered++; }
+    const chosen=sel?+sel.value:-1;
+    if(chosen===q.ok)score++;
+    q.op.forEach((_,j)=>{
+      const lab=$(`#q${i}o${j}`); lab.classList.remove('is-right','is-wrong');
+      if(j===q.ok)lab.classList.add('is-right');
+      else if(j===chosen)lab.classList.add('is-wrong');
+    });
+    card.classList.toggle('right',chosen===q.ok);
+    card.classList.toggle('wrong',chosen!==q.ok);
+    $$(`input[name="q${i}"]`).forEach(r=>r.disabled=true);
+  });
+  if(unanswered===QUIZ.length){ showToast('Rispondi almeno a una domanda 🙂'); return; }
+  $('#scoreNum').textContent=`${score}/${QUIZ.length}`;
+  const msg= score===6 ? 'Perfetto! Padronanza totale: ora prova a scrivere le formule su un foglio vero. 🏆'
+          : score>=4 ? 'Ottimo lavoro: rileggi solo le domande segnate in rosso. 👍'
+          : score>=2 ? 'Buona base, ma riguarda le sezioni Anatomia e Annidato. 📖'
+          : 'Niente panico: riparti dal foglio interattivo in cima alla pagina. 🟩';
+  $('#scoreMsg').textContent=msg;
+  $('#scorePanel').classList.add('show');
+  $('#btnGrade').style.display='none'; $('#btnRetry').style.display='inline-flex';
+  $('#scorePanel').scrollIntoView({behavior:'smooth',block:'center'});
+});
+$('#btnRetry').addEventListener('click',()=>{
+  buildQuiz();
+  $('#scorePanel').classList.remove('show');
+  $('#btnGrade').style.display='inline-flex'; $('#btnRetry').style.display='none';
+  $('#quizBox').scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+/* SCROLL */
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('in'); io.unobserve(e.target);} }),{threshold:.12});
+$$('.reveal').forEach(el=>io.observe(el));
+buildQuiz();
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement, max=h.scrollHeight-h.clientHeight;
+  $('#progress').style.width=(max>0?(h.scrollTop/max)*100:0)+'%';
+},{passive:true});
+const secIO=new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting){
+    $$('#tabs a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id));
+  }});
+},{rootMargin:'-35% 0px -55% 0px'});
+['anatomia','operatori','playground','annidato','eo','errori','quiz'].forEach(id=>{const s=document.getElementById(id); if(s)secIO.observe(s);});
+</script>
+</body>
+</html>
