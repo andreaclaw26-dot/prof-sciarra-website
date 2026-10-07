@@ -275,7 +275,7 @@
 
 <div class="status-bar">
   <div><span class="status-dot loading" id="status-dot"></span><span id="status-text">Inizializzazione SQLite...</span></div>
-  <div id="status-right">SQL Lab · SQLite nel browser (WebAssembly)</div>
+  <div id="status-right">SQL Lab · SQLite · 💾 Autosalvataggio attivo</div>
 </div>
 
 <!-- MODAL SALVA -->
@@ -555,15 +555,23 @@ function initEditors() {
     hintOptions: { completeSingle: false }
   });
 
-  // Carica sempre la Demo al primo avvio assoluto, o se non c'è bozza
+  // Carica la bozza salvata, oppure il database demo
   const DRAFT_KEY = 'sql_lab_draft';
   let draft = null;
   try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch(e) {}
   
-  if (draft && draft.schema && draft.schema.trim().length > 0) {
-    schemaEditor.setValue(draft.schema);
+  const hasSchema = draft && draft.schema && draft.schema.trim().length > 0;
+  const hasQuery  = draft && draft.query  && draft.query.trim().length > 0;
+  
+  if (hasSchema || hasQuery) {
+    // Recupera il lavoro precedente
+    schemaEditor.setValue(draft.schema || '');
     queryEditor.setValue(draft.query || '');
+    // Mostra un messaggio per rassicurare lo studente
+    document.getElementById('build-output').innerHTML = 
+      '<div class="result-info success">📂 <strong>Lavoro precedente recuperato automaticamente!</strong><br>Premi <strong>▶ Esegui Schema</strong> per ricaricare il database.</div>';
   } else {
+    // Primo avvio: carica il database demo
     schemaEditor.setValue(DEMO_DB);
     queryEditor.setValue(DEMO_QUERY);
   }
@@ -840,10 +848,23 @@ function toggleTheme() {
 function attachAutoSave() {
   const DRAFT_KEY = 'sql_lab_draft';
   let t;
-  const saveDraft = () => { clearTimeout(t); t = setTimeout(() => {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ schema: schemaEditor.getValue(), query: queryEditor.getValue() }));
-  }, 500); };
-  schemaEditor.on('change', saveDraft); queryEditor.on('change', saveDraft);
+  const saveDraft = () => { 
+    clearTimeout(t); 
+    t = setTimeout(() => {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ schema: schemaEditor.getValue(), query: queryEditor.getValue() }));
+      // Feedback visivo temporaneo
+      const statusRight = document.getElementById('status-right');
+      const originalText = 'SQL Lab · SQLite · 💾 Autosalvataggio attivo';
+      statusRight.innerHTML = '✅ Salvato!';
+      statusRight.style.color = 'var(--success)';
+      setTimeout(() => {
+        statusRight.innerHTML = originalText;
+        statusRight.style.color = '';
+      }, 1500);
+    }, 500); 
+  };
+  schemaEditor.on('change', saveDraft); 
+  queryEditor.on('change', saveDraft);
 }
 
 function openModal(id) {
