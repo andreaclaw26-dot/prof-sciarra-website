@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ER Diagram Designer - Laboratorio Didattico</title>
+<style>
+  :root {
+    --bg-primary: #1e1e2e;
+    --bg-secondary: #282a36;
+    --bg-tertiary: #44475a;
+    --text-primary: #f8f8f2;
+    --text-secondary: #cdd6f4;
+    --accent: #89b4fa;
+    --accent-hover: #b4d0fb;
+    --success: #50fa7b;
+    --warning: #f1fa8c;
+    --error: #ff5555;
+    --border: #585b70;
+    --entity-fill: #2d3250;
+    --entity-border: #89b4fa;
+    --relation-line: #cba6f7;
+    --selected: #f38ba8;
+    --diamond-fill: #313244;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--accent);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  header h1 {
+    font-size: 1.3rem;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  button {
+    background: var(--btn-bg, var(--bg-tertiary));
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  button:hover {
+    background: var(--accent);
+    color: #000;
+    transform: translateY(-1px);
+  }
+
+  button.primary { background: var(--accent); color: #000; font-weight: 600; }
+  button.success { background: var(--success); color: #000; font-weight: 600; }
+  button.active { background: var(--selected); color: #000; }
+
+  .main-container {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  #canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+    background: var(--bg-primary);
+    background-image: radial-gradient(circle, var(--bg-tertiary) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  #er-canvas {
+    width: 3000px;
+    height: 2000px;
+    cursor: default;
+  }
+
+  #properties-panel {
+    width: 300px;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border);
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .panel-section {
+    background: var(--bg-primary);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .panel-section h3 {
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .form-group {
+    margin-bottom: 10px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 6px 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+  }
+
+  .card-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .attribute-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .attribute-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  .attribute-item .pk { color: var(--warning); font-weight: bold; }
+  .attribute-item .fk { color: var(--accent); font-weight: bold; }
+  .attribute-item .name { flex: 1; }
+  .attribute-item .actions { display: flex; gap: 2px; }
+  .attribute-item button {
+    padding: 2px 4px;
+    font-size: 0.7rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+  }
+  .attribute-item button:hover { color: var(--error); background: transparent; }
+
+  .status-bar {
+    background: var(--bg-secondary);
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary);
+  }
+
+  /* SVG Styles */
+  .entity-box {
+    fill: var(--entity-fill);
+    stroke: var(--entity-border);
+    stroke-width: 2;
+    cursor: move;
+  }
+
+  .entity-box.selected {
+    stroke: var(--selected);
+    stroke-width: 3;
+  }
+
+  .entity-title {
+    fill: var(--text-primary);
+    font-size: 14px;
+    font-weight: bold;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+
+  .entity-header {
+    fill: var(--bg-tertiary);
+  }
+
+  .attribute-text {
+    fill: var(--text-secondary);
+    font-size: 12px;
+    pointer-events: none;
+  }
+
+  .attribute-text.pk { fill: var(--warning); }
+  .attribute-text.fk { fill: var(--accent); }
+
+  /* Relation Styles */
+  .relation-line {
+    stroke: var(--relation-line);
+    stroke-width: 2;
+    fill: none;
+  }
+
+  .relation-line.selected {
+    stroke: var(--selected);
+    stroke-width: 3;
+  }
+
+  .relation-diamond {
+    fill: var(--diamond-fill);
+    stroke: var(--relation-line);
+    stroke-width: 2;
+    cursor: move;
+  }
+
+  .relation-diamond.selected {
+    stroke: var(--selected);
+    stroke-width: 3;
+  }
+
+  .relation-name {
+    fill: var(--text-primary);
+    font-size: 11px;
+    font-weight: 500;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+
+  .cardinality-label {
+    fill: var(--warning);
+    font-size: 13px;
+    font-weight: bold;
+    text-anchor: middle;
+    cursor: pointer;
+  }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-backdrop.active { display: flex; }
+
+  .modal {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  }
+
+  .modal h2 {
+    margin-bottom: 16px;
+    color: var(--accent);
+    font-size: 1.2rem;
+  }
+
+  .modal pre {
+    background: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .modal .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .hint-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+  }
+
+  select, input {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;left:16px;bottom:44px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+
+<header>
+  <h1>🔷 ER Diagram Designer <small style="font-weight:400;font-size:0.8rem;color:var(--text-secondary)">Progettazione Database</small></h1>
+  <div class="toolbar">
+    <button id="btn-add-entity" class="primary">➕ Entità</button>
+    <button id="btn-add-relation">🔗 Relazione</button>
+    <button id="btn-delete">🗑 Elimina</button>
+    <span style="width:1px;height:24px;background:var(--border);margin:0 4px;"></span>
+    <button id="btn-generate-sql" class="success">⚡ Genera SQL</button>
+    <button id="btn-export-png">🖼 PNG</button>
+    <button id="btn-save">💾 Salva</button>
+    <button id="btn-load">📂 Carica</button>
+    <button id="btn-clear">🆕 Nuovo</button>
+  </div>
+</header>
+
+<div class="main-container">
+  <div id="canvas-container">
+    <svg id="er-canvas">
+      <g id="relations-layer"></g>
+      <g id="entities-layer"></g>
+    </svg>
+  </div>
+
+  <div id="properties-panel">
+    <div class="hint-text">
+      👆 Seleziona un elemento per modificarlo<br><br>
+      💡 <strong>Suggerimenti:</strong><br>
+      • Doppio click sul canvas → nuova entità<br>
+      • Trascina le <strong>entità</strong> per posizionarle<br>
+      • Trascina il <strong>rombo</strong> per spostare la relazione<br>
+      • Usa "🔗 Relazione" poi clicca due entità<br>
+      • Doppio click su un nome per rinominare
+    </div>
+
+    <div class="panel-section" id="entity-properties" style="display:none;">
+      <h3>📦 Entità</h3>
+      <div class="form-group">
+        <label>Nome Entità</label>
+        <input type="text" id="entity-name" placeholder="Es. STUDENTE">
+      </div>
+      <div class="form-group">
+        <label>Attributi</label>
+        <div class="attribute-list" id="attribute-list"></div>
+        <div style="display:flex;gap:4px;margin-top:8px;">
+          <input type="text" id="new-attr-name" placeholder="nome attributo" style="flex:1;">
+          <button id="btn-add-attr" style="padding:4px 8px;">+</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px;font-size:0.75rem;color:var(--text-secondary);">
+          <label><input type="checkbox" id="new-attr-pk"> PK</label>
+          <label><input type="checkbox" id="new-attr-fk"> FK</label>
+          <select id="new-attr-type" style="flex:1;padding:2px;">
+            <option value="INTEGER">INTEGER</option>
+            <option value="TEXT">TEXT</option>
+            <option value="REAL">REAL</option>
+            <option value="DATE">DATE</option>
+            <option value="BOOLEAN">BOOLEAN</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section" id="relation-properties" style="display:none;">
+      <h3>🔗 Relazione</h3>
+      <div class="form-group">
+        <label>Nome Relazione</label>
+        <input type="text" id="relation-name-input" placeholder="Es. frequenta">
+      </div>
+      <div class="form-group">
+        <label>Entità collegate</label>
+        <div id="relation-entities" style="font-size:0.85rem;color:var(--text-secondary);padding:4px;"></div>
+      </div>
+      
+      <div class="form-group" style="border-top:1px solid var(--border);padding-top:10px;margin-top:6px;">
+        <label style="color:var(--accent);font-weight:600;" id="from-entity-label">📌 Partecipazione di ...</label>
+        <div class="card-row">
+          <select id="from-min" title="Partecipazione minima">
+            <option value="0">min 0 (opzionale)</option>
+            <option value="1">min 1 (obbligatoria)</option>
+          </select>
+          <select id="from-max" title="Partecipazione massima">
+            <option value="1">max 1</option>
+            <option value="N">max N</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label style="color:var(--accent);font-weight:600;" id="to-entity-label">📌 Partecipazione di ...</label>
+        <div class="card-row">
+          <select id="to-min" title="Partecipazione minima">
+            <option value="0">min 0 (opzionale)</option>
+            <option value="1">min 1 (obbligatoria)</option>
+          </select>
+          <select id="to-max" title="Partecipazione massima">
+            <option value="1">max 1</option>
+            <option value="N">max N</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="hint-text" style="font-size:0.72rem;text-align:left;padding:6px;background:var(--bg-tertiary);border-radius:4px;">
+        💡 La coppia <strong>(min, max)</strong> indica quante volte ogni istanza dell'entità partecipa alla relazione.<br><br>
+        <strong>Esempio:</strong> STUDENTE <em>(1,N)</em> in "frequenta" = ogni studente frequenta <strong>da 1 a N</strong> corsi.<br>
+        CORSO <em>(0,N)</em> = un corso può essere frequentato da <strong>0 a N</strong> studenti (anche nessuno).
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <div id="status-text">Pronto · Doppio click sul canvas per creare un'entità</div>
+  <div id="status-info">ER Designer v1.3 · rombi trascinabili</div>
+</div>
+
+<!-- Modal SQL -->
+<div class="modal-backdrop" id="modal-sql">
+  <div class="modal">
+    <h2>⚡ SQL Generato dal Diagramma</h2>
+    <pre id="generated-sql"></pre>
+    <div class="actions">
+      <button onclick="closeModal('modal-sql')">Chiudi</button>
+      <button class="primary" id="btn-copy-sql">📋 Copia negli appunti</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept=".json" style="display:none">
+
+<script>
+// ============================================
+// ER DIAGRAM DESIGNER v1.3
+// Relazioni con rombo trascinabile + cardinalità (min,max)
+// ============================================
+
+let state = {
+  entities: [],
+  relations: [],
+  nextId: 1,
+  selectedElement: null,
+  selectedType: null,
+  connecting: false,
+  connectSource: null,
+  dragging: false,
+  dragOffset: { x: 0, y: 0 },
+  draggingRelation: false,
+  relationDragStart: { mouseX: 0, mouseY: 0, offsetX: 0, offsetY: 0 }
+};
+
+const svg = document.getElementById('er-canvas');
+const entitiesLayer = document.getElementById('entities-layer');
+const relationsLayer = document.getElementById('relations-layer');
+const canvasContainer = document.getElementById('canvas-container');
+
+// ============================================
+// UTILITY
+// ============================================
+
+function generateId() {
+  return state.nextId++;
+}
+
+function getMousePos(evt) {
+  const rect = svg.getBoundingClientRect();
+  const scrollTop = canvasContainer.scrollTop;
+  const scrollLeft = canvasContainer.scrollLeft;
+  return {
+    x: evt.clientX - rect.left + scrollLeft,
+    y: evt.clientY - rect.top + scrollTop
+  };
+}
+
+function setStatus(text) {
+  document.getElementById('status-text').textContent = text;
+}
+
+function getEntityHeight(entity) {
+  return 30 + (entity.attributes.length * 20) + 10;
+}
+
+function getEntityCenter(entity) {
+  return {
+    x: entity.x + entity.width / 2,
+    y: entity.y + getEntityHeight(entity) / 2
+  };
+}
+
+function getConnectionPoint(entity, targetX, targetY) {
+  const height = getEntityHeight(entity);
+  const cx = entity.x + entity.width / 2;
+  const cy = entity.y + height / 2;
+  
+  const dx = targetX - cx;
+  const dy = targetY - cy;
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+  
+  if (absDx === 0 && absDy === 0) return { x: cx, y: cy };
+  
+  if (absDx * height > absDy * entity.width) {
+    const sign = dx > 0 ? 1 : -1;
+    return {
+      x: cx + sign * entity.width / 2,
+      y: cy + (dy * (entity.width / 2)) / absDx
+    };
+  } else {
+    const sign = dy > 0 ? 1 : -1;
+    return {
+      x: cx + (dx * (height / 2)) / absDy,
+      y: cy + sign * height / 2
+    };
+  }
+}
+
+function migrateRelations(relations) {
+  if (!Array.isArray(relations)) return [];
+  return relations.map(r => {
+    let nr = { ...r };
+    if (nr.fromMin === undefined) {
+      let fromMin=1, fromMax='N', toMin=0, toMax='N';
+      if (nr.cardinality === '1:1') { fromMin=1; fromMax='1'; toMin=1; toMax='1'; }
+      else if (nr.cardinality === '1:N') { fromMin=1; fromMax='1'; toMin=0; toMax='N'; }
+      else if (nr.cardinality === 'N:M') { fromMin=0; fromMax='N'; toMin=0; toMax='N'; }
+      nr.fromMin = fromMin; nr.fromMax = fromMax; nr.toMin = toMin; nr.toMax = toMax;
+      delete nr.cardinality;
+    }
+    if (nr.offsetX === undefined) nr.offsetX = 0;
+    if (nr.offsetY === undefined) nr.offsetY = 0;
+    return nr;
+  });
+}
+
+// ============================================
+// ENTITY MANAGEMENT
+// ============================================
+
+function createEntity(x, y, name = 'NUOVA_ENTITA') {
+  const entity = {
+    id: generateId(),
+    name: name,
+    x: x,
+    y: y,
+    width: 180,
+    attributes: [
+      { name: 'id', type: 'INTEGER', pk: true, fk: false }
+    ]
+  };
+  state.entities.push(entity);
+  render();
+  selectElement(entity, 'entity');
+  setStatus(`Entità "${name}" creata`);
+  return entity;
+}
+
+function deleteEntity(id) {
+  state.entities = state.entities.filter(e => e.id !== id);
+  state.relations = state.relations.filter(r => r.from !== id && r.to !== id);
+  render();
+}
+
+function addAttribute(entityId, name, type, pk, fk) {
+  const entity = state.entities.find(e => e.id === entityId);
+  if (entity) {
+    entity.attributes.push({ name, type, pk, fk });
+    render();
+    updatePropertiesPanel();
+  }
+}
+
+function removeAttribute(entityId, index) {
+  const entity = state.entities.find(e => e.id === entityId);
+  if (entity) {
+    entity.attributes.splice(index, 1);
+    render();
+    updatePropertiesPanel();
+  }
+}
+
+// ============================================
+// RELATION MANAGEMENT
+// ============================================
+
+function createRelation(fromId, toId, name = 'relazione') {
+  const relation = {
+    id: generateId(),
+    from: fromId,
+    to: toId,
+    name: name,
+    fromMin: 1, fromMax: 'N',
+    toMin: 1, toMax: 'N',
+    offsetX: 0, offsetY: 0
+  };
+  state.relations.push(relation);
+  render();
+  selectElement(relation, 'relation');
+  setStatus(`Relazione "${name}" creata · imposta le cardinalità nel pannello`);
+  return relation;
+}
+
+function deleteRelation(id) {
+  state.relations = state.relations.filter(r => r.id !== id);
+  render();
+}
+
+function renameRelation(relation) {
+  const newName = prompt('Nome relazione:', relation.name);
+  if (newName && newName.trim()) {
+    relation.name = newName.trim().toLowerCase();
+    render();
+    updatePropertiesPanel();
+  }
+}
+
+// ============================================
+// RENDERING
+// ============================================
+
+function render() {
+  renderEntities();
+  renderRelations();
+}
+
+function renderEntities() {
+  entitiesLayer.innerHTML = '';
+  
+  state.entities.forEach(entity => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('data-entity-id', entity.id);
+    
+    const isSelected = state.selectedElement && state.selectedType === 'entity' && state.selectedElement.id === entity.id;
+    const totalHeight = getEntityHeight(entity);
+    
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', entity.x);
+    rect.setAttribute('y', entity.y);
+    rect.setAttribute('width', entity.width);
+    rect.setAttribute('height', totalHeight);
+    rect.setAttribute('class', 'entity-box' + (isSelected ? ' selected' : ''));
+    rect.setAttribute('rx', '8');
+    g.appendChild(rect);
+    
+    const header = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    header.setAttribute('x', entity.x);
+    header.setAttribute('y', entity.y);
+    header.setAttribute('width', entity.width);
+    header.setAttribute('height', 30);
+    header.setAttribute('class', 'entity-header');
+    header.setAttribute('rx', '8');
+    g.appendChild(header);
+    
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    title.setAttribute('x', entity.x + entity.width / 2);
+    title.setAttribute('y', entity.y + 20);
+    title.setAttribute('class', 'entity-title');
+    title.textContent = entity.name;
+    g.appendChild(title);
+    
+    entity.attributes.forEach((attr, idx) => {
+      const attrText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      attrText.setAttribute('x', entity.x + 10);
+      attrText.setAttribute('y', entity.y + 45 + (idx * 20));
+      
+      let attrClass = 'attribute-text';
+      let prefix = '';
+      if (attr.pk) { attrClass += ' pk'; prefix = 'PK '; }
+      else if (attr.fk) { attrClass += ' fk'; prefix = 'FK '; }
+      
+      attrText.setAttribute('class', attrClass);
+      attrText.textContent = `${prefix}${attr.name} (${attr.type})`;
+      g.appendChild(attrText);
+    });
+    
+    g.addEventListener('mousedown', (e) => handleEntityMouseDown(e, entity));
+    g.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      renameEntity(entity);
+    });
+    
+    entitiesLayer.appendChild(g);
+  });
+}
+
+function createSVGLine(x1, y1, x2, y2, isSelected, relation) {
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', x1);
+  line.setAttribute('y1', y1);
+  line.setAttribute('x2', x2);
+  line.setAttribute('y2', y2);
+  line.setAttribute('class', 'relation-line' + (isSelected ? ' selected' : ''));
+  line.addEventListener('click', (e) => { e.stopPropagation(); selectElement(relation, 'relation'); });
+  return line;
+}
+
+function createSVGText(x, y, text, className, relation) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  el.setAttribute('x', x);
+  el.setAttribute('y', y);
+  el.setAttribute('class', className);
+  el.textContent = text;
+  el.addEventListener('click', (e) => { e.stopPropagation(); selectElement(relation, 'relation'); });
+  return el;
+}
+
+function renderRelations() {
+  relationsLayer.innerHTML = '';
+  
+  state.relations.forEach(relation => {
+    const fromEntity = state.entities.find(e => e.id === relation.from);
+    const toEntity = state.entities.find(e => e.id === relation.to);
+    
+    if (!fromEntity || !toEntity) return;
+    
+    const isSelected = state.selectedElement && state.selectedType === 'relation' && state.selectedElement.id === relation.id;
+    
+    const fromCenter = getEntityCenter(fromEntity);
+    const toCenter = getEntityCenter(toEntity);
+    
+    // Punto medio base tra i centri delle entità
+    const baseMidX = (fromCenter.x + toCenter.x) / 2;
+    const baseMidY = (fromCenter.y + toCenter.y) / 2;
+    
+    // Applica l'offset del rombo (trascinabile)
+    const offsetX = relation.offsetX || 0;
+    const offsetY = relation.offsetY || 0;
+    const midX = baseMidX + offsetX;
+    const midY = baseMidY + offsetY;
+    
+    // Punti di connessione sulle entità, orientati verso il rombo
+    const fromConn = getConnectionPoint(fromEntity, midX, midY);
+    const toConn = getConnectionPoint(toEntity, midX, midY);
+    
+    // Dimensioni del rombo
+    const nameLength = relation.name.length;
+    const diamondW = Math.max(50, nameLength * 7 + 20);
+    const diamondH = 30;
+    
+    // Linee dal punto di connessione al centro del rombo
+    relationsLayer.appendChild(createSVGLine(fromConn.x, fromConn.y, midX, midY, isSelected, relation));
+    relationsLayer.appendChild(createSVGLine(midX, midY, toConn.x, toConn.y, isSelected, relation));
+    
+    // Rombo (disegnato sopra le linee, le copre al centro)
+    const diamondPoints = [
+      { x: midX, y: midY - diamondH },
+      { x: midX + diamondW, y: midY },
+      { x: midX, y: midY + diamondH },
+      { x: midX - diamondW, y: midY }
+    ];
+    
+    const diamond = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    diamond.setAttribute('points', diamondPoints.map(p => `${p.x},${p.y}`).join(' '));
+    diamond.setAttribute('class', 'relation-diamond' + (isSelected ? ' selected' : ''));
+    diamond.addEventListener('mousedown', (e) => handleRelationMouseDown(e, relation));
+    diamond.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      renameRelation(relation);
+    });
+    relationsLayer.appendChild(diamond);
+    
+    // Nome nel rombo
+    const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    nameText.setAttribute('x', midX);
+    nameText.setAttribute('y', midY + 4);
+    nameText.setAttribute('class', 'relation-name');
+    nameText.textContent = relation.name;
+    relationsLayer.appendChild(nameText);
+    
+    // Cardinalità (min,max) vicino alle entità
+    const fromCardText = `(${relation.fromMin},${relation.fromMax})`;
+    const toCardText = `(${relation.toMin},${relation.toMax})`;
+    
+    const card1Pos = getCardinalityPosition(fromConn, midX, midY);
+    relationsLayer.appendChild(createSVGText(card1Pos.x, card1Pos.y, fromCardText, 'cardinality-label', relation));
+    
+    const card2Pos = getCardinalityPosition(toConn, midX, midY);
+    relationsLayer.appendChild(createSVGText(card2Pos.x, card2Pos.y, toCardText, 'cardinality-label', relation));
+  });
+}
+
+function getCardinalityPosition(connPoint, midX, midY) {
+  const dx = midX - connPoint.x;
+  const dy = midY - connPoint.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  
+  if (dist === 0) return { x: connPoint.x, y: connPoint.y - 15 };
+  
+  const offset = Math.min(40, dist * 0.3);
+  return {
+    x: connPoint.x + (dx/dist) * offset,
+    y: connPoint.y + (dy/dist) * offset - 10
+  };
+}
+
+// ============================================
+// INTERACTION HANDLERS
+// ============================================
+
+function handleEntityMouseDown(e, entity) {
+  e.stopPropagation();
+  
+  if (state.connecting) {
+    if (!state.connectSource) {
+      state.connectSource = entity;
+      setStatus(`Seleziona la seconda entità per la relazione...`);
+      selectElement(entity, 'entity');
+    } else if (state.connectSource.id !== entity.id) {
+      createRelation(state.connectSource.id, entity.id);
+      state.connecting = false;
+      state.connectSource = null;
+      document.getElementById('btn-add-relation').classList.remove('active');
+    }
+    return;
+  }
+  
+  selectElement(entity, 'entity');
+  
+  const pos = getMousePos(e);
+  state.dragging = true;
+  state.dragOffset = {
+    x: pos.x - entity.x,
+    y: pos.y - entity.y
+  };
+}
+
+function handleRelationMouseDown(e, relation) {
+  e.stopPropagation();
+  
+  if (state.connecting) return;
+  
+  selectElement(relation, 'relation');
+  
+  const pos = getMousePos(e);
+  state.draggingRelation = true;
+  state.relationDragStart = {
+    mouseX: pos.x,
+    mouseY: pos.y,
+    offsetX: relation.offsetX || 0,
+    offsetY: relation.offsetY || 0
+  };
+}
+
+svg.addEventListener('mousemove', (e) => {
+  const pos = getMousePos(e);
+  
+  if (state.dragging && state.selectedElement && state.selectedType === 'entity') {
+    state.selectedElement.x = Math.max(0, pos.x - state.dragOffset.x);
+    state.selectedElement.y = Math.max(0, pos.y - state.dragOffset.y);
+    render();
+  } 
+  else if (state.draggingRelation && state.selectedElement && state.selectedType === 'relation') {
+    const dx = pos.x - state.relationDragStart.mouseX;
+    const dy = pos.y - state.relationDragStart.mouseY;
+    state.selectedElement.offsetX = state.relationDragStart.offsetX + dx;
+    state.selectedElement.offsetY = state.relationDragStart.offsetY + dy;
+    render();
+  }
+});
+
+svg.addEventListener('mouseup', () => {
+  state.dragging = false;
+  state.draggingRelation = false;
+});
+
+svg.addEventListener('mouseleave', () => {
+  state.dragging = false;
+  state.draggingRelation = false;
+});
+
+svg.addEventListener('dblclick', (e) => {
+  if (e.target === svg || e.target.tagName === 'svg') {
+    const pos = getMousePos(e);
+    createEntity(pos.x - 90, pos.y - 15);
+  }
+});
+
+svg.addEventListener('click', (e) => {
+  if (e.target === svg || e.target.tagName === 'svg') {
+    deselectAll();
+  }
+});
+
+function selectElement(element, type) {
+  state.selectedElement = element;
+  state.selectedType = type;
+  render();
+  updatePropertiesPanel();
+}
+
+function deselectAll() {
+  state.selectedElement = null;
+  state.selectedType = null;
+  render();
+  updatePropertiesPanel();
+}
+
+function renameEntity(entity) {
+  const newName = prompt('Nome entità:', entity.name);
+  if (newName && newName.trim()) {
+    entity.name = newName.trim().toUpperCase();
+    render();
+    updatePropertiesPanel();
+  }
+}
+
+// ============================================
+// PROPERTIES PANEL
+// ============================================
+
+function updatePropertiesPanel() {
+  const entityProps = document.getElementById('entity-properties');
+  const relationProps = document.getElementById('relation-properties');
+  const hint = document.querySelector('.hint-text');
+  
+  entityProps.style.display = 'none';
+  relationProps.style.display = 'none';
+  hint.style.display = 'block';
+  
+  if (!state.selectedElement) return;
+  
+  hint.style.display = 'none';
+  
+  if (state.selectedType === 'entity') {
+    entityProps.style.display = 'block';
+    const entity = state.selectedElement;
+    document.getElementById('entity-name').value = entity.name;
+    renderAttributeList(entity);
+  } else if (state.selectedType === 'relation') {
+    relationProps.style.display = 'block';
+    const relation = state.selectedElement;
+    document.getElementById('relation-name-input').value = relation.name;
+    
+    const fromEntity = state.entities.find(e => e.id === relation.from);
+    const toEntity = state.entities.find(e => e.id === relation.to);
+    
+    document.getElementById('relation-entities').textContent = 
+      `${fromEntity?.name || '?'} ⟷ ${toEntity?.name || '?'}`;
+    document.getElementById('from-entity-label').textContent = 
+      `📌 Partecipazione di ${fromEntity?.name || '?'}`;
+    document.getElementById('to-entity-label').textContent = 
+      `📌 Partecipazione di ${toEntity?.name || '?'}`;
+    
+    document.getElementById('from-min').value = relation.fromMin;
+    document.getElementById('from-max').value = relation.fromMax;
+    document.getElementById('to-min').value = relation.toMin;
+    document.getElementById('to-max').value = relation.toMax;
+  }
+}
+
+function renderAttributeList(entity) {
+  const list = document.getElementById('attribute-list');
+  list.innerHTML = '';
+  
+  entity.attributes.forEach((attr, idx) => {
+    const item = document.createElement('div');
+    item.className = 'attribute-item';
+    
+    let badge = '';
+    if (attr.pk) badge = '<span class="pk">PK</span>';
+    else if (attr.fk) badge = '<span class="fk">FK</span>';
+    
+    item.innerHTML = `
+      ${badge}
+      <span class="name">${attr.name}</span>
+      <span style="color:var(--text-secondary);font-size:0.7rem;">${attr.type}</span>
+      <div class="actions">
+        <button onclick="removeAttribute(${entity.id}, ${idx})">✕</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('entity-name').addEventListener('change', (e) => {
+  if (state.selectedElement && state.selectedType === 'entity') {
+    state.selectedElement.name = e.target.value.toUpperCase();
+    render();
+  }
+});
+
+document.getElementById('relation-name-input').addEventListener('change', (e) => {
+  if (state.selectedElement && state.selectedType === 'relation') {
+    state.selectedElement.name = e.target.value;
+    render();
+  }
+});
+
+['from-min','from-max','to-min','to-max'].forEach(id => {
+  document.getElementById(id).addEventListener('change', (e) => {
+    if (state.selectedElement && state.selectedType === 'relation') {
+      const rel = state.selectedElement;
+      if (id === 'from-min') rel.fromMin = parseInt(e.target.value);
+      if (id === 'from-max') rel.fromMax = e.target.value;
+      if (id === 'to-min') rel.toMin = parseInt(e.target.value);
+      if (id === 'to-max') rel.toMax = e.target.value;
+      render();
+      setStatus(`Cardinalità aggiornata: (${rel.fromMin},${rel.fromMax}) ⟷ (${rel.toMin},${rel.toMax})`);
+    }
+  });
+});
+
+document.getElementById('btn-add-attr').addEventListener('click', () => {
+  const name = document.getElementById('new-attr-name').value.trim();
+  const type = document.getElementById('new-attr-type').value;
+  const pk = document.getElementById('new-attr-pk').checked;
+  const fk = document.getElementById('new-attr-fk').checked;
+  
+  if (name && state.selectedElement && state.selectedType === 'entity') {
+    addAttribute(state.selectedElement.id, name, type, pk, fk);
+    document.getElementById('new-attr-name').value = '';
+    document.getElementById('new-attr-pk').checked = false;
+    document.getElementById('new-attr-fk').checked = false;
+  }
+});
+
+// ============================================
+// TOOLBAR ACTIONS
+// ============================================
+
+document.getElementById('btn-add-entity').addEventListener('click', () => {
+  const scrollLeft = canvasContainer.scrollLeft;
+  const scrollTop = canvasContainer.scrollTop;
+  createEntity(scrollLeft + 100, scrollTop + 100);
+});
+
+document.getElementById('btn-add-relation').addEventListener('click', () => {
+  state.connecting = !state.connecting;
+  state.connectSource = null;
+  
+  const btn = document.getElementById('btn-add-relation');
+  btn.classList.toggle('active', state.connecting);
+  
+  if (state.connecting) {
+    setStatus('Modalità relazione: clicca sulla prima entità...');
+  } else {
+    setStatus('Pronto');
+  }
+});
+
+document.getElementById('btn-delete').addEventListener('click', () => {
+  if (!state.selectedElement) {
+    alert('Seleziona prima un elemento da eliminare');
+    return;
+  }
+  
+  if (confirm('Eliminare l\'elemento selezionato?')) {
+    if (state.selectedType === 'entity') {
+      deleteEntity(state.selectedElement.id);
+    } else if (state.selectedType === 'relation') {
+      deleteRelation(state.selectedElement.id);
+    }
+    deselectAll();
+    setStatus('Elemento eliminato');
+  }
+});
+
+document.getElementById('btn-generate-sql').addEventListener('click', generateSQL);
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (confirm('Creare un nuovo diagramma? Il diagramma attuale verrà perso.')) {
+    state.entities = [];
+    state.relations = [];
+    state.nextId = 1;
+    deselectAll();
+    setStatus('Nuovo diagramma creato');
+  }
+});
+
+// ============================================
+// SQL GENERATION (con logica min,max)
+// ============================================
+
+function generateSQL() {
+  let sql = '-- ============================================\n';
+  sql += '-- SQL Generato da ER Diagram Designer\n';
+  sql += '-- Compatibile con SQLite / SQL Lab\n';
+  sql += '-- ============================================\n\n';
+  sql += 'PRAGMA foreign_keys = ON;\n\n';
+  
+  const fkAdditions = {};
+  
+  state.relations.forEach(relation => {
+    const fromEntity = state.entities.find(e => e.id === relation.from);
+    const toEntity = state.entities.find(e => e.id === relation.to);
+    if (!fromEntity || !toEntity) return;
+    
+    const fMax = relation.fromMax;
+    const tMax = relation.toMax;
+    
+    if (fMax === '1' && tMax === '1') {
+      const fkCol = `${fromEntity.name.toLowerCase()}_id`;
+      const notNull = relation.toMin >= 1 ? ' NOT NULL' : '';
+      if (!fkAdditions[toEntity.name]) fkAdditions[toEntity.name] = [];
+      fkAdditions[toEntity.name].push(`  ${fkCol} INTEGER${notNull} REFERENCES ${fromEntity.name}(id)`);
+    } 
+    else if (fMax === '1' && tMax === 'N') {
+      const fkCol = `${fromEntity.name.toLowerCase()}_id`;
+      const notNull = relation.toMin >= 1 ? ' NOT NULL' : '';
+      if (!fkAdditions[toEntity.name]) fkAdditions[toEntity.name] = [];
+      fkAdditions[toEntity.name].push(`  ${fkCol} INTEGER${notNull} REFERENCES ${fromEntity.name}(id)`);
+    } 
+    else if (fMax === 'N' && tMax === '1') {
+      const fkCol = `${toEntity.name.toLowerCase()}_id`;
+      const notNull = relation.fromMin >= 1 ? ' NOT NULL' : '';
+      if (!fkAdditions[fromEntity.name]) fkAdditions[fromEntity.name] = [];
+      fkAdditions[fromEntity.name].push(`  ${fkCol} INTEGER${notNull} REFERENCES ${toEntity.name}(id)`);
+    }
+  });
+  
+  state.entities.forEach(entity => {
+    sql += `-- Tabella: ${entity.name}\n`;
+    sql += `CREATE TABLE ${entity.name} (\n`;
+    
+    const columns = entity.attributes.map(attr => {
+      let col = `  ${attr.name} ${attr.type}`;
+      if (attr.pk) col += ' PRIMARY KEY';
+      return col;
+    });
+    
+    if (fkAdditions[entity.name]) {
+      columns.push(...fkAdditions[entity.name]);
+    }
+    
+    sql += columns.join(',\n');
+    sql += '\n);\n\n';
+  });
+  
+  state.relations.forEach(relation => {
+    if (relation.fromMax === 'N' && relation.toMax === 'N') {
+      const fromEntity = state.entities.find(e => e.id === relation.from);
+      const toEntity = state.entities.find(e => e.id === relation.to);
+      if (!fromEntity || !toEntity) return;
+      
+      const junctionName = `${fromEntity.name}_${toEntity.name}`;
+      sql += `-- Relazione N:M "${relation.name}":\n`;
+      sql += `--   ${fromEntity.name} partecipa (${relation.fromMin},${relation.fromMax})\n`;
+      sql += `--   ${toEntity.name} partecipa (${relation.toMin},${relation.toMax})\n`;
+      sql += `CREATE TABLE ${junctionName} (\n`;
+      sql += `  ${fromEntity.name.toLowerCase()}_id INTEGER NOT NULL,\n`;
+      sql += `  ${toEntity.name.toLowerCase()}_id INTEGER NOT NULL,\n`;
+      sql += `  PRIMARY KEY (${fromEntity.name.toLowerCase()}_id, ${toEntity.name.toLowerCase()}_id),\n`;
+      sql += `  FOREIGN KEY (${fromEntity.name.toLowerCase()}_id) REFERENCES ${fromEntity.name}(id),\n`;
+      sql += `  FOREIGN KEY (${toEntity.name.toLowerCase()}_id) REFERENCES ${toEntity.name}(id)\n`;
+      sql += `);\n\n`;
+    }
+  });
+  
+  document.getElementById('generated-sql').textContent = sql;
+  openModal('modal-sql');
+}
+
+document.getElementById('btn-copy-sql').addEventListener('click', () => {
+  const sql = document.getElementById('generated-sql').textContent;
+  navigator.clipboard.writeText(sql).then(() => {
+    alert('SQL copiato negli appunti!\n\nOra puoi incollarlo in SQL Lab.');
+  });
+});
+
+// ============================================
+// SAVE / LOAD
+// ============================================
+
+document.getElementById('btn-save').addEventListener('click', () => {
+  const data = {
+    version: '1.3',
+    entities: state.entities,
+    relations: state.relations,
+    nextId: state.nextId
+  };
+  
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `er-diagram-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  setStatus('Diagramma salvato');
+});
+
+document.getElementById('btn-load').addEventListener('click', () => {
+  document.getElementById('file-input').click();
+});
+
+document.getElementById('file-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try {
+      const data = JSON.parse(evt.target.result);
+      state.entities = data.entities || [];
+      state.relations = migrateRelations(data.relations || []);
+      state.nextId = data.nextId || 1;
+      deselectAll();
+      render();
+      setStatus('Diagramma caricato');
+    } catch (err) {
+      alert('Errore nel caricamento del file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ============================================
+// EXPORT PNG
+// ============================================
+
+document.getElementById('btn-export-png').addEventListener('click', () => {
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  
+  canvas.width = 3000;
+  canvas.height = 2000;
+  
+  img.onload = () => {
+    ctx.fillStyle = '#1e1e2e';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    
+    const a = document.createElement('a');
+    a.download = `er-diagram-${new Date().toISOString().slice(0,10)}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  };
+  
+  img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+});
+
+// ============================================
+// MODAL
+// ============================================
+
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+document.querySelectorAll('.modal-backdrop').forEach(m => {
+  m.addEventListener('click', (e) => {
+    if (e.target === m) m.classList.remove('active');
+  });
+});
+
+// ============================================
+// AUTOSAVE
+// ============================================
+
+function autoSave() {
+  localStorage.setItem('er_diagram_autosave', JSON.stringify({
+    entities: state.entities,
+    relations: state.relations,
+    nextId: state.nextId
+  }));
+}
+
+function autoLoad() {
+  try {
+    const saved = localStorage.getItem('er_diagram_autosave');
+    if (saved) {
+      const data = JSON.parse(saved);
+      state.entities = data.entities || [];
+      state.relations = migrateRelations(data.relations || []);
+      state.nextId = data.nextId || 1;
+      setStatus('Diagramma precedente recuperato');
+    }
+  } catch (e) {
+    console.warn('Autosave recovery failed', e);
+  }
+}
+
+setInterval(autoSave, 2000);
+
+// ============================================
+// INIT
+// ============================================
+
+function init() {
+  autoLoad();
+  render();
+  
+  if (state.entities.length === 0) {
+    const e1 = createEntity(100, 150, 'STUDENTE');
+    const e2 = createEntity(520, 150, 'CORSO');
+    
+    e1.attributes = [
+      { name: 'id', type: 'INTEGER', pk: true, fk: false },
+      { name: 'nome', type: 'TEXT', pk: false, fk: false },
+      { name: 'cognome', type: 'TEXT', pk: false, fk: false }
+    ];
+    
+    e2.attributes = [
+      { name: 'id', type: 'INTEGER', pk: true, fk: false },
+      { name: 'titolo', type: 'TEXT', pk: false, fk: false },
+      { name: 'docente', type: 'TEXT', pk: false, fk: false }
+    ];
+    
+    const rel = createRelation(e1.id, e2.id, 'frequenta');
+    rel.fromMin = 1; rel.fromMax = 'N';
+    rel.toMin = 1; rel.toMax = 'N';
+    
+    deselectAll();
+    setStatus('Demo: STUDENTE (1,N) frequenta CORSO (1,N) · Trascina entità e rombi!');
+  }
+}
+
+init();
+</script>
+
+</body>
+</html>
