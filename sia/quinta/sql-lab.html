@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Lab - Laboratorio SQL per la Didattica</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/sql-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+
+<style>
+  :root {
+    --bg-primary: #1e1e2e; --bg-secondary: #282a36; --bg-tertiary: #44475a;
+    --text-primary: #f8f8f2; --text-secondary: #cdd6f4;
+    --accent: #89b4fa; --accent-hover: #b4d0fb;
+    --success: #50fa7b; --warning: #f1fa8c; --error: #ff5555;
+    --border: #585b70; --btn-bg: #44475a;
+  }
+  [data-theme="light"] {
+    --bg-primary: #ffffff; --bg-secondary: #f5f5f5; --bg-tertiary: #e0e0e0;
+    --text-primary: #1e1e1e; --text-secondary: #555555;
+    --accent: #0066cc; --accent-hover: #0080ff;
+    --success: #28a745; --warning: #b8860b; --error: #dc3545;
+    --border: #cccccc; --btn-bg: #e8e8e8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary); color: var(--text-primary);
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+  }
+  header {
+    background: var(--bg-secondary); border-bottom: 2px solid var(--accent);
+    padding: 10px 20px; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 10px;
+  }
+  header h1 { font-size: 1.4rem; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+  header h1 .icon { font-size: 1.8rem; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  button {
+    background: var(--btn-bg); color: var(--text-primary);
+    border: 1px solid var(--border); padding: 8px 14px; border-radius: 6px;
+    cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  button:hover { background: var(--accent); color: #000; transform: translateY(-1px); }
+  button.primary { background: var(--accent); color: #000; font-weight: 600; }
+  button.primary:hover { background: var(--accent-hover); }
+  button.danger:hover { background: var(--error); color: #fff; }
+  button.help-btn { background: linear-gradient(135deg, #f1fa8c, #ffb86c); color: #000; font-weight: 600; }
+  button.help-btn:hover { filter: brightness(1.1); color: #000; }
+  button.demo-btn { background: var(--bg-tertiary); color: var(--warning); border: 1px solid var(--warning); font-weight: 600;}
+  button.demo-btn:hover { background: var(--warning); color: #000; }
+  select, input[type="text"] {
+    background: var(--btn-bg); color: var(--text-primary);
+    border: 1px solid var(--border); padding: 8px 12px;
+    border-radius: 6px; font-size: 0.9rem;
+  }
+  .main-container {
+    flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr; gap: 1px; background: var(--border); overflow: hidden;
+  }
+  .panel { background: var(--bg-primary); display: flex; flex-direction: column; overflow: hidden; }
+  .panel-header {
+    background: var(--bg-secondary); padding: 8px 14px; font-weight: 600;
+    font-size: 0.95rem; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .panel-header .hint { font-weight: 400; font-size: 0.8rem; color: var(--text-secondary); }
+  .panel-header .actions { display: flex; gap: 6px; }
+  .panel-body { flex: 1; overflow: auto; position: relative; }
+  .CodeMirror { height: 100% !important; font-size: 14px; background: var(--bg-primary); color: var(--text-primary); }
+  [data-theme="light"] .CodeMirror { background: #fff; color: #000; }
+  .result-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .result-table th {
+    background: var(--bg-secondary); padding: 10px 12px; text-align: left;
+    border-bottom: 2px solid var(--accent); position: sticky; top: 0; font-weight: 600;
+  }
+  .result-table td {
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+    font-family: 'Consolas', 'Monaco', monospace; white-space: nowrap;
+  }
+  .result-table tr:hover td { background: var(--bg-secondary); }
+  .result-info {
+    padding: 14px; color: var(--text-secondary); font-size: 0.9rem;
+    border-bottom: 1px solid var(--border); background: var(--bg-secondary);
+  }
+  .result-info.success { color: var(--success); }
+  .result-info.error { color: var(--error); }
+  .error-message {
+    padding: 14px; background: rgba(255, 85, 85, 0.15); color: var(--error);
+    border-left: 4px solid var(--error); margin: 10px; border-radius: 4px;
+    font-family: monospace; white-space: pre-wrap;
+  }
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100%; color: var(--text-secondary);
+    text-align: center; padding: 20px;
+  }
+  .empty-state .emoji { font-size: 3rem; margin-bottom: 10px; }
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+  }
+  .modal-backdrop.active { display: flex; }
+  .modal {
+    background: var(--bg-primary); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px; max-width: 600px; width: 90%;
+    max-height: 85vh; overflow: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  }
+  .modal h2 { margin-bottom: 16px; color: var(--accent); font-size: 1.3rem; }
+  .modal h3 { color: var(--accent); margin: 18px 0 8px; font-size: 1.05rem; }
+  .modal h4 { color: var(--text-primary); margin: 14px 0 6px; font-size: 0.95rem; }
+  .modal p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px; }
+  .modal code {
+    background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace; font-size: 0.85em;
+    color: var(--warning);
+  }
+  .modal .form-group { margin-bottom: 16px; }
+  .modal label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; }
+  .modal input, .modal textarea {
+    width: 100%; padding: 10px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary);
+    font-family: inherit; font-size: 0.9rem;
+  }
+  .modal textarea { min-height: 80px; resize: vertical; font-family: monospace; }
+  .modal .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .help-note {
+    background: rgba(80, 250, 123, 0.08); border-left: 3px solid var(--success);
+    padding: 12px 14px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 10px;
+    line-height: 1.6;
+  }
+  .saved-list {
+    max-height: 300px; overflow-y: auto;
+    border: 1px solid var(--border); border-radius: 6px; margin-bottom: 16px;
+  }
+  .saved-item {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .saved-item:last-child { border-bottom: none; }
+  .saved-item:hover { background: var(--bg-secondary); }
+  .saved-item .name { font-weight: 500; }
+  .saved-item .date { font-size: 0.8rem; color: var(--text-secondary); }
+  .saved-item .delete-btn {
+    background: transparent; border: none; color: var(--error);
+    cursor: pointer; font-size: 1.1rem; padding: 2px 6px;
+  }
+  .snippet-btn {
+    background: var(--bg-tertiary); border: 1px solid var(--border);
+    color: var(--text-secondary); padding: 4px 10px; font-size: 0.8rem;
+    border-radius: 4px; cursor: pointer; margin-right: 4px; margin-bottom: 4px;
+  }
+  .snippet-btn:hover { background: var(--accent); color: #000; }
+  .snippets-bar {
+    padding: 6px 10px; background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 2px;
+  }
+  .status-bar {
+    background: var(--bg-secondary); padding: 6px 14px; font-size: 0.82rem;
+    border-top: 1px solid var(--border); display: flex;
+    justify-content: space-between; color: var(--text-secondary);
+  }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-dot.ready { background: var(--success); }
+  .status-dot.loading { background: var(--warning); }
+  .status-dot.error { background: var(--error); }
+  @media (max-width: 900px) {
+    .main-container { grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body data-theme="dark">
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;right:16px;bottom:44px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+
+<header>
+  <h1><span class="icon">🗄️</span> SQL Lab <small style="font-weight:400;font-size:0.85rem;color:var(--text-secondary)">Laboratorio SQL per la Didattica</small></h1>
+  <div class="toolbar">
+    <select id="project-select" title="Progetti salvati">
+      <option value="">-- Carica un progetto --</option>
+    </select>
+    <button id="btn-new" title="Nuovo progetto">📄 Nuovo</button>
+    <button id="btn-save" title="Salva progetto">💾 Salva</button>
+    <button id="btn-projects" title="Gestisci progetti salvati">📚 Gestisci</button>
+    <button id="btn-export" title="Esporta come file JSON">⬇️ Esporta</button>
+    <button id="btn-import" title="Importa da file JSON">⬆️ Importa</button>
+    <button id="btn-theme" title="Cambia tema">🌓 Tema</button>
+    <button id="btn-help" class="help-btn" title="Cos'è SQL, cos'è SQLite e perché lo usiamo">❓ Guida SQL</button>
+  </div>
+</header>
+
+<div class="main-container">
+  <!-- SCHEMA PANEL -->
+  <div class="panel" id="schema-panel">
+    <div class="panel-header">
+      <span>📋 Schema e Dati (SQLite)</span>
+      <div class="actions">
+        <button class="demo-btn" id="btn-load-demo" title="Ricarica il database Scuola di prova">🔄 Demo</button>
+        <button class="primary" id="btn-run-schema">▶ Esegui Schema</button>
+      </div>
+    </div>
+    <div class="panel-body">
+      <textarea id="schema-editor"></textarea>
+    </div>
+  </div>
+
+  <!-- QUERY PANEL -->
+  <div class="panel" id="query-panel">
+    <div class="panel-header">
+      <span>⚡ Query (SQL)</span>
+      <span class="hint">Scrivi SELECT, UPDATE, DELETE...</span>
+    </div>
+    <div class="panel-body" style="display:flex;flex-direction:column;">
+      <div class="snippets-bar">
+        <span style="font-size:0.8rem;color:var(--text-secondary);margin-right:6px;">Snippet:</span>
+        <button class="snippet-btn" data-snippet="select">SELECT * FROM</button>
+        <button class="snippet-btn" data-snippet="select-join">JOIN</button>
+        <button class="snippet-btn" data-snippet="group-by">GROUP BY</button>
+        <button class="snippet-btn" data-snippet="order-by">ORDER BY</button>
+        <button class="snippet-btn" data-snippet="insert">INSERT</button>
+        <button class="snippet-btn" data-snippet="update">UPDATE</button>
+        <button class="snippet-btn" data-snippet="delete">DELETE</button>
+        <button class="snippet-btn" data-snippet="subquery">Subquery</button>
+        <button class="snippet-btn" data-snippet="cte">CTE (WITH)</button>
+        <button class="snippet-btn" data-snippet="window">Finestra</button>
+      </div>
+      <div style="flex:1;overflow:hidden;">
+        <textarea id="query-editor"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUILD OUTPUT PANEL -->
+  <div class="panel" id="build-panel">
+    <div class="panel-header">
+      <span>🔨 Esecuzione Schema</span>
+      <span class="hint">Output dell'esecuzione</span>
+    </div>
+    <div class="panel-body" id="build-output">
+      <div class="empty-state">
+        <div class="emoji">🎓</div>
+        <div>Benvenuto in <strong>SQL Lab</strong>!</div>
+        <div style="margin-top:8px;font-size:0.85rem;">
+          C'è già un database di prova caricato: premi <em>"▶ Esegui Schema"</em> per attivarlo,<br>
+          poi scrivi le tue query a destra. ❓ Premi <em>"Guida SQL"</em> per iniziare.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS PANEL -->
+  <div class="panel" id="results-panel">
+    <div class="panel-header">
+      <span>📊 Risultati Query</span>
+      <button class="primary" id="btn-run-query">▶ Esegui Query (Ctrl+Enter)</button>
+    </div>
+    <div class="panel-body" id="query-output">
+      <div class="empty-state">
+        <div class="emoji">🔍</div>
+        <div>Scrivi una query e premi "Esegui Query"</div>
+        <div style="margin-top:8px;font-size:0.85rem;">Oppure <kbd>Ctrl</kbd>+<kbd>Enter</kbd> nell'editor</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <div><span class="status-dot loading" id="status-dot"></span><span id="status-text">Inizializzazione SQLite...</span></div>
+  <div id="status-right">SQL Lab · SQLite nel browser (WebAssembly)</div>
+</div>
+
+<!-- MODAL SALVA -->
+<div class="modal-backdrop" id="modal-save">
+  <div class="modal">
+    <h2>💾 Salva Progetto</h2>
+    <div class="form-group">
+      <label>Nome del progetto</label>
+      <input type="text" id="save-name" placeholder="Es. Lezione 1 - JOIN" autofocus>
+    </div>
+    <div class="form-group">
+      <label>Descrizione (opzionale)</label>
+      <textarea id="save-desc" placeholder="Descrizione del progetto..."></textarea>
+    </div>
+    <div class="actions">
+      <button onclick="closeModal('modal-save')">Annulla</button>
+      <button class="primary" id="btn-confirm-save">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROGETTI -->
+<div class="modal-backdrop" id="modal-projects">
+  <div class="modal">
+    <h2>📚 Progetti Salvati</h2>
+    <div class="saved-list" id="saved-list"></div>
+    <div class="actions">
+      <button onclick="closeModal('modal-projects')">Chiudi</button>
+      <button class="danger" id="btn-clear-all">🗑 Cancella tutto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GUIDA: SQL e SQLite -->
+<div class="modal-backdrop" id="modal-help">
+  <div class="modal" style="max-width:820px;">
+    <h2>📘 SQL e SQLite: cosa sono e perché li usiamo</h2>
+
+    <h3>1️⃣ Cos'è SQL?</h3>
+    <div class="help-note">
+      <strong>SQL</strong> (Structured Query Language) è il <strong>linguaggio standard</strong> per parlare con i database relazionali.
+      Si usa per creare tabelle, inserire dati e soprattutto per <strong>fare domande</strong> (query) ai dati.
+      È lo stesso linguaggio usato da banche, social network, e-commerce... e all'<strong>esame di Stato</strong>! 🎓
+    </div>
+
+    <h3>2️⃣ Cos'è SQLite?</h3>
+    <div class="help-note">
+      <strong>SQLite</strong> è una versione "leggera" di SQL. Invece di richiedere un server,
+      vive in un <strong>singolo file</strong> ed è così compatto da poter girare <strong>dentro il tuo browser</strong>.
+      È il database più diffuso al mondo: è dentro ogni smartphone Android e iPhone! 📱
+    </div>
+
+    <h3>3️⃣ Perché usiamo SQLite in questo laboratorio?</h3>
+    <div class="help-note">
+      ✅ <strong>Zero installazioni</strong>: funziona in qualsiasi browser, anche senza internet<br>
+      ✅ <strong>Perfetto per imparare</strong>: ti concentri sulle query, non sulla configurazione<br>
+      ✅ <strong>Le query sono identiche</strong>: quello che impari qui funziona anche su MySQL<br>
+      ✅ <strong>Ogni alunno ha il suo database</strong>: massima libertà di provare e sbagliare
+    </div>
+
+    <h3>4️⃣ Le piccole differenze (solo il 5%!)</h3>
+    <p>Il <strong style="color:var(--success);">95% di SQL è identico</strong> in tutti i database.
+    Ecco le uniche differenze che potresti incontrare passando da SQLite a MySQL (che userai all'esame).</p>
+
+    <h4>📋 Creazione delle tabelle</h4>
+    <table class="result-table" style="font-size:0.85rem;">
+      <thead><tr><th>SQLite</th><th>MySQL</th></tr></thead>
+      <tbody>
+        <tr><td><code>INTEGER PRIMARY KEY</code></td><td><code>INT AUTO_INCREMENT</code></td></tr>
+        <tr><td><code>TEXT</code></td><td><code>VARCHAR(100)</code></td></tr>
+        <tr><td><code>TEXT</code> (data come '2025-09-15')</td><td><code>DATE / DATETIME</code></td></tr>
+        <tr><td>nessun ENGINE</td><td><code>ENGINE = InnoDB</code></td></tr>
+      </tbody>
+    </table>
+
+    <h4>📅 Funzioni di data (le più diverse)</h4>
+    <table class="result-table" style="font-size:0.85rem;">
+      <thead><tr><th>SQLite</th><th>MySQL</th><th>Cosa fa</th></tr></thead>
+      <tbody>
+        <tr><td><code>DATE('now')</code></td><td><code>CURDATE()</code></td><td>Data attuale</td></tr>
+        <tr><td><code>strftime('%Y', col)</code></td><td><code>YEAR(col)</code></td><td>Estrai anno</td></tr>
+        <tr><td><code>strftime('%m', col)</code></td><td><code>MONTH(col)</code></td><td>Estrai mese</td></tr>
+        <tr><td><code>a || b</code></td><td><code>CONCAT(a, b)</code></td><td>Unire stringhe</td></tr>
+      </tbody>
+    </table>
+
+    <div class="help-note" style="margin-top:12px;">
+      💡 <strong>Ricorda:</strong> le differenze riguardano quasi solo la <em>creazione delle tabelle</em> e le <em>funzioni di data</em>.
+      Tutte le query che imparerai (<code>SELECT</code>, <code>JOIN</code>, <code>GROUP BY</code>, subquery...) funzionano allo stesso modo ovunque!
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="closeModal('modal-help')">Ho capito ✔</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-import" accept=".json" style="display:none">
+
+<script>
+// ============================================
+// SQL LAB - Laboratorio SQL per la Didattica (solo SQLite)
+// ============================================
+
+let SQL = null;
+let db = null;
+let schemaEditor, queryEditor;
+let currentProjectId = null;
+const STORAGE_KEY = 'sql_lab_projects';
+const SETTINGS_KEY = 'sql_lab_settings';
+
+const SNIPPETS = {
+  'select': 'SELECT * FROM nome_tabella;',
+  'select-join': 'SELECT a.*, b.*\nFROM tabella_a a\nINNER JOIN tabella_b b ON a.id = b.a_id;',
+  'group-by': 'SELECT colonna, COUNT(*) AS totale\nFROM nome_tabella\nGROUP BY colonna\nHAVING COUNT(*) > 1;',
+  'order-by': 'SELECT *\nFROM nome_tabella\nORDER BY colonna DESC\nLIMIT 10;',
+  'insert': "INSERT INTO nome_tabella (col1, col2)\nVALUES ('valore1', 'valore2');",
+  'update': "UPDATE nome_tabella\nSET colonna = 'nuovo_valore'\nWHERE condizione;",
+  'delete': 'DELETE FROM nome_tabella\nWHERE condizione;',
+  'subquery': 'SELECT *\nFROM nome_tabella\nWHERE colonna IN (\n  SELECT colonna FROM altra_tabella\n);',
+  'cte': "WITH cte_nome AS (\n  SELECT * FROM nome_tabella\n)\nSELECT * FROM cte_nome;",
+  'window': 'SELECT *,\n  ROW_NUMBER() OVER (PARTITION BY colonna ORDER BY altra_col) AS rank\nFROM nome_tabella;'
+};
+
+// ============================================
+// DATABASE DI PROVA (SQLite, già popolato)
+// ============================================
+const DEMO_DB = `-- =====================================================
+-- Database di prova: SCUOLA (SQLite)
+-- Già popolato con dati.
+-- 1) Premi "▶ Esegui Schema" per caricarlo
+-- 2) Scrivi le tue query nel pannello a destra!
+-- =====================================================
+
+PRAGMA foreign_keys = ON;
+
+-- Tabella Studenti
+CREATE TABLE studenti (
+  id INTEGER PRIMARY KEY,
+  nome TEXT NOT NULL,
+  cognome TEXT NOT NULL,
+  classe TEXT,
+  data_nascita TEXT
+);
+
+-- Tabella Materie
+CREATE TABLE materie (
+  id INTEGER PRIMARY KEY,
+  nome TEXT NOT NULL,
+  docente TEXT
+);
+
+-- Tabella Voti
+CREATE TABLE voti (
+  id INTEGER PRIMARY KEY,
+  studente_id INTEGER NOT NULL,
+  materia_id INTEGER NOT NULL,
+  voto REAL NOT NULL,
+  data TEXT NOT NULL,
+  FOREIGN KEY (studente_id) REFERENCES studenti(id),
+  FOREIGN KEY (materia_id) REFERENCES materie(id)
+);
+
+CREATE INDEX idx_voti_studente ON voti(studente_id);
+CREATE INDEX idx_studenti_classe ON studenti(classe);
+
+-- =====================================================
+-- DATI DI PROVA
+-- =====================================================
+
+-- 8 studenti in 3 classi diverse
+INSERT INTO studenti (nome, cognome, classe, data_nascita) VALUES
+  ('Mario',     'Rossi',   '3A', '2008-03-15'),
+  ('Laura',     'Bianchi', '3A', '2008-07-22'),
+  ('Giuseppe',  'Verdi',   '4B', '2007-11-05'),
+  ('Anna',      'Neri',    '4B', '2007-09-30'),
+  ('Luca',      'Ferrari', '3A', '2008-01-12'),
+  ('Sofia',     'Romano',  '5C', '2006-04-18'),
+  ('Alessandro','Greco',   '5C', '2006-12-01'),
+  ('Martina',   'Conti',   '4B', '2007-06-25');
+
+-- 4 materie
+INSERT INTO materie (nome, docente) VALUES
+  ('Matematica',  'Prof. Smith'),
+  ('Italiano',    'Prof.ssa Dante'),
+  ('Storia',      'Prof. Cesare'),
+  ('Informatica', 'Prof. Turing');
+
+-- 20 voti distribuiti tra studenti e materie
+INSERT INTO voti (studente_id, materia_id, voto, data) VALUES
+  (1, 1, 8.5, '2025-09-15'),
+  (1, 2, 7.0, '2025-09-20'),
+  (1, 4, 9.0, '2025-10-01'),
+  (2, 1, 9.0, '2025-09-15'),
+  (2, 2, 8.5, '2025-09-20'),
+  (3, 1, 6.5, '2025-09-15'),
+  (3, 3, 7.5, '2025-09-25'),
+  (4, 1, 9.5, '2025-09-15'),
+  (4, 2, 8.0, '2025-09-20'),
+  (4, 4, 9.0, '2025-10-01'),
+  (5, 1, 5.5, '2025-09-15'),
+  (5, 3, 6.0, '2025-09-25'),
+  (6, 1, 8.0, '2025-09-15'),
+  (6, 2, 9.5, '2025-09-20'),
+  (7, 4, 7.0, '2025-10-01'),
+  (7, 3, 6.5, '2025-09-25'),
+  (8, 1, 7.5, '2025-09-15'),
+  (8, 2, 8.5, '2025-09-20'),
+  (2, 3, 8.0, '2025-09-25'),
+  (6, 4, 9.5, '2025-10-01');`;
+
+const DEMO_QUERY = `-- Esempio: media dei voti per ogni studente
+-- Modifica questa query o usa gli snippet qui sopra!
+SELECT 
+  s.nome || ' ' || s.cognome AS studente,
+  s.classe,
+  COUNT(v.id)                AS num_voti,
+  ROUND(AVG(v.voto), 2)      AS media
+FROM studenti s
+JOIN voti v ON s.id = v.studente_id
+GROUP BY s.id
+ORDER BY media DESC;`;
+
+// ============================================
+// UTILITÀ: divide il testo in statement SQL
+// (rispetta le stringhe, quindi i ';' dentro
+// apici o virgolette non spezzano lo statement)
+// ============================================
+function splitStatements(sql) {
+  const stmts = [];
+  let current = '', inString = false, stringChar = '';
+  for (let i = 0; i < sql.length; i++) {
+    const c = sql[i];
+    if (!inString && (c === "'" || c === '"')) { inString = true; stringChar = c; current += c; }
+    else if (inString && c === stringChar) { if (sql[i-1] !== '\\') inString = false; current += c; }
+    else if (!inString && c === ';') { stmts.push(current); current = ''; }
+    else current += c;
+  }
+  if (current.trim()) stmts.push(current);
+  return stmts;
+}
+
+// ============================================
+// INIT
+// ============================================
+async function init() {
+  try {
+    SQL = await initSqlJs({
+      locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`
+    });
+    db = new SQL.Database();
+    setStatus('ready', 'SQLite pronto');
+    initEditors();
+    initUI();
+    loadProjectList();
+    loadSettings();
+    attachAutoSave();
+  } catch (err) {
+    setStatus('error', 'Errore caricamento SQLite: ' + err.message);
+    console.error(err);
+  }
+}
+
+function setStatus(state, text) {
+  document.getElementById('status-dot').className = 'status-dot ' + state;
+  document.getElementById('status-text').textContent = text;
+}
+
+function initEditors() {
+  schemaEditor = CodeMirror.fromTextArea(document.getElementById('schema-editor'), {
+    mode: 'text/x-sql', theme: 'dracula', lineNumbers: true, matchBrackets: true,
+    extraKeys: { 'Ctrl-Space': 'autocomplete' }, hintOptions: { completeSingle: false }
+  });
+  queryEditor = CodeMirror.fromTextArea(document.getElementById('query-editor'), {
+    mode: 'text/x-sql', theme: 'dracula', lineNumbers: true, matchBrackets: true,
+    extraKeys: { 'Ctrl-Space': 'autocomplete', 'Ctrl-Enter': runQuery, 'Cmd-Enter': runQuery },
+    hintOptions: { completeSingle: false }
+  });
+
+  // Carica sempre la Demo al primo avvio assoluto, o se non c'è bozza
+  const DRAFT_KEY = 'sql_lab_draft';
+  let draft = null;
+  try { draft = JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch(e) {}
+  
+  if (draft && draft.schema && draft.schema.trim().length > 0) {
+    schemaEditor.setValue(draft.schema);
+    queryEditor.setValue(draft.query || '');
+  } else {
+    schemaEditor.setValue(DEMO_DB);
+    queryEditor.setValue(DEMO_QUERY);
+  }
+}
+
+// ============================================
+// ESECUZIONE SCHEMA
+// ============================================
+function runSchema() {
+  if (!db) return;
+  const schema = schemaEditor.getValue().trim();
+  const output = document.getElementById('build-output');
+  if (!schema) { output.innerHTML = '<div class="error-message">Schema vuoto!</div>'; return; }
+
+  try { db.close(); } catch (e) {}
+  db = new SQL.Database();
+
+  const start = performance.now();
+  try {
+    const statements = splitStatements(schema).map(s => s.trim()).filter(s => s.length > 0);
+    let successCount = 0, errors = [];
+    for (const stmt of statements) {
+      try { db.run(stmt + ';'); successCount++; }
+      catch (e) { errors.push({ stmt: stmt.substring(0,100), error: e.message }); }
+    }
+    const elapsed = (performance.now() - start).toFixed(1);
+    let html = `<div class="result-info success">✅ Schema eseguito: ${successCount} statement OK in ${elapsed}ms</div>`;
+
+    if (errors.length > 0) {
+      html += '<div style="padding:10px;">';
+      errors.forEach((e,i) => {
+        html += `<div class="error-message">Errore #${i+1}: ${e.error}\nStatement: ${e.stmt}${e.stmt.length===100?'...':''}</div>`;
+      });
+      html += '</div>';
+    } else {
+      try {
+        const tables = db.exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
+        if (tables.length > 0 && tables[0].values.length > 0) {
+          html += '<div class="result-info">📋 Tabelle presenti nel database:</div>';
+          html += '<table class="result-table"><thead><tr><th>Nome Tabella</th><th>Righe</th><th>Azioni</th></tr></thead><tbody>';
+          tables[0].values.forEach(row => {
+            const t = row[0];
+            let rowCount = 0;
+            try { rowCount = db.exec(`SELECT COUNT(*) FROM "${t}";`)[0].values[0][0]; } catch(e){}
+            const rowColor = rowCount > 0 ? 'var(--success)' : 'var(--warning)';
+            html += `<tr><td><strong>${t}</strong></td><td style="color:${rowColor};font-weight:700;">${rowCount}</td>
+              <td><button class="snippet-btn" onclick="previewTable('${t}')">👁 Anteprima</button>
+              <button class="snippet-btn" onclick="describeTable('${t}')">📐 Struttura</button></td></tr>`;
+          });
+          html += '</tbody></table>';
+        }
+      } catch(e){}
+    }
+    output.innerHTML = html;
+    setStatus('ready', `Schema eseguito · ${successCount} statement OK`);
+  } catch (err) {
+    output.innerHTML = `<div class="error-message">Errore fatale: ${err.message}</div>`;
+    setStatus('error', 'Errore esecuzione schema');
+  }
+}
+
+function previewTable(t) { queryEditor.setValue(`SELECT * FROM "${t}" LIMIT 100;`); runQuery(); }
+function describeTable(t) { queryEditor.setValue(`PRAGMA table_info("${t}");`); runQuery(); }
+
+// ============================================
+// ESECUZIONE QUERY
+// ============================================
+function runQuery() {
+  if (!db) { alert('Prima esegui lo schema!'); return; }
+  const query = queryEditor.getValue().trim();
+  const output = document.getElementById('query-output');
+  if (!query) { output.innerHTML = '<div class="error-message">Query vuota!</div>'; return; }
+  const start = performance.now();
+  try {
+    const results = db.exec(query);
+    const elapsed = (performance.now() - start).toFixed(1);
+    if (!results || results.length === 0) {
+      output.innerHTML = `<div class="result-info success">✅ Query eseguita in ${elapsed}ms · ${db.getRowsModified()} righe modificate</div>`;
+    } else {
+      let html = `<div class="result-info success">✅ Query completata in ${elapsed}ms</div>`;
+      results.forEach((r, idx) => {
+        html += `<div class="result-info">📊 Risultato ${idx+1}: ${r.values.length} righe · Colonne: ${r.columns.join(', ')}</div>`;
+        html += renderTable(r.columns, r.values);
+      });
+      output.innerHTML = html;
+    }
+    setStatus('ready', `Query OK · ${elapsed}ms`);
+  } catch (err) {
+    output.innerHTML = `<div class="error-message">❌ Errore SQL: ${err.message}\n\nQuery: ${query}</div>`;
+    setStatus('error', 'Errore query');
+  }
+}
+
+function renderTable(columns, rows) {
+  if (rows.length === 0) return '<div class="result-info">Nessuna riga.</div>';
+  let html = '<table class="result-table"><thead><tr>';
+  columns.forEach(c => html += `<th>${escapeHtml(c)}</th>`);
+  html += '</tr></thead><tbody>';
+  rows.forEach(row => {
+    html += '<tr>';
+    row.forEach(cell => {
+      html += `<td>${cell === null ? '<em style="color:var(--text-secondary)">NULL</em>' : escapeHtml(String(cell))}</td>`;
+    });
+    html += '</tr>';
+  });
+  return html + '</tbody></table>';
+}
+
+function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ============================================
+// UI
+// ============================================
+function initUI() {
+  document.getElementById('btn-run-schema').addEventListener('click', runSchema);
+  document.getElementById('btn-run-query').addEventListener('click', runQuery);
+  
+  // Pulsante per ricaricare il DB Demo
+  document.getElementById('btn-load-demo').addEventListener('click', () => {
+    if (confirm('Vuoi ricaricare il database "Scuola" di prova? Il testo attuale nello schema verrà sostituito.')) {
+      schemaEditor.setValue(DEMO_DB);
+      queryEditor.setValue(DEMO_QUERY);
+    }
+  });
+
+  document.getElementById('btn-new').addEventListener('click', newProject);
+  document.getElementById('btn-save').addEventListener('click', () => openModal('modal-save'));
+  document.getElementById('btn-projects').addEventListener('click', () => { renderProjectList(); openModal('modal-projects'); });
+  document.getElementById('btn-export').addEventListener('click', exportProject);
+  document.getElementById('btn-import').addEventListener('click', () => document.getElementById('file-import').click());
+  document.getElementById('btn-theme').addEventListener('click', toggleTheme);
+  document.getElementById('btn-help').addEventListener('click', () => openModal('modal-help'));
+  document.getElementById('btn-confirm-save').addEventListener('click', confirmSave);
+  document.getElementById('btn-clear-all').addEventListener('click', clearAllProjects);
+  document.getElementById('file-import').addEventListener('change', importProject);
+  document.getElementById('project-select').addEventListener('change', e => { if (e.target.value) loadProject(e.target.value); });
+
+  document.querySelectorAll('.snippet-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.snippet;
+      if (SNIPPETS[key]) {
+        queryEditor.replaceRange('\n' + SNIPPETS[key] + '\n', queryEditor.getCursor());
+        queryEditor.focus();
+      }
+    });
+  });
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); openModal('modal-save'); }
+  });
+}
+
+// ============================================
+// PROGETTI (localStorage)
+// ============================================
+function getProjects() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; } }
+function saveProjects(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+
+function newProject() {
+  if (!confirm('Creare un nuovo progetto? I dati non salvati andranno persi.')) return;
+  currentProjectId = null;
+  schemaEditor.setValue(''); queryEditor.setValue('');
+  document.getElementById('build-output').innerHTML = '<div class="empty-state"><div class="emoji">🎓</div><div>Nuovo progetto creato</div></div>';
+  document.getElementById('query-output').innerHTML = '<div class="empty-state"><div class="emoji">🔍</div><div>Inizia a scrivere...</div></div>';
+  try { db.close(); } catch(e){}
+  db = new SQL.Database();
+}
+
+function confirmSave() {
+  const name = document.getElementById('save-name').value.trim();
+  if (!name) { alert('Inserisci un nome!'); return; }
+  const projects = getProjects();
+  const id = currentProjectId || 'proj_' + Date.now();
+  projects[id] = { id, name, description: document.getElementById('save-desc').value.trim(),
+    schema: schemaEditor.getValue(), query: queryEditor.getValue(), savedAt: new Date().toISOString() };
+  saveProjects(projects);
+  currentProjectId = id;
+  closeModal('modal-save'); loadProjectList();
+  alert(`✅ Progetto "${name}" salvato!`);
+}
+
+function loadProject(id) {
+  const proj = getProjects()[id];
+  if (!proj) return;
+  currentProjectId = id;
+  schemaEditor.setValue(proj.schema || ''); queryEditor.setValue(proj.query || '');
+  document.getElementById('project-select').value = id;
+  setStatus('ready', `Progetto caricato: ${proj.name}`);
+}
+
+function loadProjectList() {
+  const select = document.getElementById('project-select');
+  select.innerHTML = '<option value="">-- Carica un progetto --</option>';
+  Object.values(getProjects()).sort((a,b) => new Date(b.savedAt) - new Date(a.savedAt)).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = p.name;
+    if (p.id === currentProjectId) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+function renderProjectList() {
+  const list = document.getElementById('saved-list');
+  const arr = Object.values(getProjects()).sort((a,b) => new Date(b.savedAt) - new Date(a.savedAt));
+  if (arr.length === 0) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Nessun progetto salvato</div>'; return; }
+  list.innerHTML = arr.map(p => `
+    <div class="saved-item">
+      <div onclick="loadProject('${p.id}'); closeModal('modal-projects');" style="flex:1;cursor:pointer;">
+        <div class="name">${escapeHtml(p.name)}</div>
+        <div class="date">${p.description ? escapeHtml(p.description) + ' · ' : ''}${new Date(p.savedAt).toLocaleString('it-IT')}</div>
+      </div>
+      <button class="delete-btn" onclick="deleteProject('${p.id}')" title="Elimina">🗑</button>
+    </div>`).join('');
+}
+
+function deleteProject(id) {
+  if (!confirm('Eliminare questo progetto?')) return;
+  const p = getProjects(); delete p[id]; saveProjects(p);
+  if (currentProjectId === id) currentProjectId = null;
+  renderProjectList(); loadProjectList();
+}
+
+function clearAllProjects() {
+  if (!confirm('ATTENZIONE: Eliminare TUTTI i progetti salvati?')) return;
+  saveProjects({}); currentProjectId = null;
+  loadProjectList(); renderProjectList();
+  alert('Tutti i progetti eliminati.');
+}
+
+// ============================================
+// IMPORT / EXPORT
+// ============================================
+function exportProject() {
+  const data = { type: 'sql-lab-project', version: '3.0', projects: getProjects(), exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `sql-lab-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importProject(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.type !== 'sql-lab-project') throw new Error('File non valido');
+      saveProjects({ ...getProjects(), ...(data.projects || {}) });
+      loadProjectList();
+      alert(`✅ Importati ${Object.keys(data.projects || {}).length} progetti!`);
+    } catch (err) { alert('Errore importazione: ' + err.message); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ============================================
+// IMPOSTAZIONI E AUTOSALVAGGIO
+// ============================================
+function loadSettings() {
+  try { const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); if (s.theme === 'light') document.body.dataset.theme = 'light'; } catch {}
+}
+
+function toggleTheme() {
+  const next = document.body.dataset.theme === 'light' ? 'dark' : 'light';
+  document.body.dataset.theme = next;
+  const cmTheme = next === 'dark' ? 'dracula' : 'default';
+  schemaEditor.setOption('theme', cmTheme); queryEditor.setOption('theme', cmTheme);
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({ theme: next }));
+}
+
+function attachAutoSave() {
+  const DRAFT_KEY = 'sql_lab_draft';
+  let t;
+  const saveDraft = () => { clearTimeout(t); t = setTimeout(() => {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ schema: schemaEditor.getValue(), query: queryEditor.getValue() }));
+  }, 500); };
+  schemaEditor.on('change', saveDraft); queryEditor.on('change', saveDraft);
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+  const f = document.getElementById(id).querySelector('input, textarea');
+  if (f) setTimeout(() => f.focus(), 50);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.modal-backdrop').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
+});
+
+init();
+</script>
+
+</body>
+</html>
