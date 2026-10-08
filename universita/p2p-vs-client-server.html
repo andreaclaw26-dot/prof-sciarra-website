@@ -266,8 +266,9 @@ nav.main-nav a:hover::after{width:100%}
 .hist-card.c3 .hist-year{background:var(--cs);color:#241300;box-shadow:0 6px 18px -4px rgba(255,182,72,.5)}
 .hist-card.c4 .hist-year{background:var(--purple);color:#160d28;box-shadow:0 6px 18px -4px rgba(167,139,250,.5)}
 .hist-img{height:160px;overflow:hidden;position:relative}
-.hist-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(12,20,36,.95))}
+.hist-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(12,20,36,.78))}
 .hist-img img{width:100%;height:100%;object-fit:cover;filter:saturate(.75) contrast(1.08)}
+.hist-img svg{width:100%;height:100%;display:block}
 .hist-body{padding:1.3rem 1.3rem 1.5rem}
 .hist-body h3{font-family:var(--fd);font-weight:700;font-size:1.05rem;margin-bottom:.5rem}
 .hist-body p{font-size:.82rem;color:var(--muted);line-height:1.5}
@@ -784,7 +785,7 @@ footer{border-top:1px solid var(--line);padding:2.6rem 0;background:var(--bg2)}
     <div class="timeline">
       <article class="hist-card rv d1">
         <div class="hist-year">1999</div>
-        <div class="hist-img"><img src="https://picsum.photos/seed/napster-mp3-music/640/420" alt="Napster" loading="lazy"></div>
+        <div class="hist-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Napster: condivisione musicale P2P"><defs><radialGradient id="hg1" cx="50%" cy="28%" r="82%"><stop offset="0%" stop-color="#1c6b52"/><stop offset="100%" stop-color="#07131f"/></radialGradient></defs><rect width="320" height="200" fill="url(#hg1)"/><g stroke="#34f5b1" stroke-opacity=".32" fill="none" stroke-width="1.2"><path d="M40 152 L110 120 L180 152 L250 120 L286 160"/><path d="M110 120 L150 62 L250 120"/></g><g fill="#34f5b1"><circle cx="40" cy="152" r="4"/><circle cx="110" cy="120" r="4"/><circle cx="180" cy="152" r="4"/><circle cx="250" cy="120" r="4"/><circle cx="286" cy="160" r="4"/><circle cx="150" cy="62" r="4"/></g><g fill="#eafff5"><circle cx="140" cy="88" r="13"/><rect x="150" y="30" width="6" height="58" rx="3"/><circle cx="184" cy="80" r="13"/><rect x="194" y="24" width="6" height="56" rx="3"/><rect x="150" y="30" width="50" height="9" rx="3"/></g></svg></div>
         <div class="hist-body">
           <h3>🎵 Napster</h3>
           <p>Il primo P2P di massa. <b>Ibrido</b>: server centrale per l'indice, trasferimento P2P. Ha cambiato la musica e sollevato questioni legali epocali sul copyright.</p>
@@ -793,7 +794,7 @@ footer{border-top:1px solid var(--line);padding:2.6rem 0;background:var(--bg2)}
       </article>
       <article class="hist-card c2 rv d2">
         <div class="hist-year">2001</div>
-        <div class="hist-img"><img src="https://picsum.photos/seed/bittorrent-swarm-network/640/420" alt="BitTorrent" loading="lazy"></div>
+        <div class="hist-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BitTorrent: swarm e frammenti di file"><defs><radialGradient id="hg2" cx="50%" cy="30%" r="82%"><stop offset="0%" stop-color="#1a4f86"/><stop offset="100%" stop-color="#060f1c"/></radialGradient></defs><rect width="320" height="200" fill="url(#hg2)"/><g stroke="#4da3ff" stroke-opacity=".42" stroke-dasharray="4 5" fill="none"><path d="M160 78 L80 48 M160 78 L240 48 M160 78 L80 118 M160 78 L240 118 M160 78 L160 22 M160 78 L160 138"/></g><rect x="136" y="56" width="48" height="44" rx="6" fill="#0c1424" stroke="#4da3ff" stroke-width="2"/><rect x="142" y="62" width="17" height="17" rx="3" fill="#34f5b1"/><rect x="161" y="62" width="17" height="17" rx="3" fill="#ffb648"/><rect x="142" y="81" width="17" height="12" rx="3" fill="#a78bfa"/><rect x="161" y="81" width="17" height="12" rx="3" fill="#f472b6"/><g fill="#34f5b1"><circle cx="80" cy="48" r="8"/><circle cx="240" cy="48" r="8"/><circle cx="80" cy="118" r="8"/><circle cx="240" cy="118" r="8"/><circle cx="160" cy="22" r="8"/><circle cx="160" cy="138" r="8"/></g></svg></div>
         <div class="hist-body">
           <h3>⚡ BitTorrent</h3>
           <p>Inventato da Bram Cohen. Divide file in pezzi, distribuisce il carico, incentiva condivisione con <b>tit-for-tat</b>. Ancora oggi genera ~3-5% del traffico globale.</p>
@@ -802,7 +803,7 @@ footer{border-top:1px solid var(--line);padding:2.6rem 0;background:var(--bg2)}
       </article>
       <article class="hist-card c3 rv d3">
         <div class="hist-year">2009</div>
-        <div class="hist-img"><img src="https://picsum.photos/seed/bitcoin-blockchain-ledger/640/420" alt="Bitcoin" loading="lazy"></div>
+        <div class="hist-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bitcoin: blockchain e moneta decentralizzata"><defs><radialGradient id="hg3" cx="50%" cy="28%" r="82%"><stop offset="0%" stop-color="#6b4a12"/><stop offset="100%" stop-color="#0b0d16"/></radialGradient></defs><rect width="320" height="200" fill="url(#hg3)"/><g stroke="#ffb648" stroke-opacity=".5" stroke-width="2"><path d="M96 78 H124 M196 78 H224"/></g><rect x="44" y="50" width="52" height="56" rx="8" fill="#0c1424" stroke="#ffb648" stroke-width="2"/><rect x="124" y="44" width="72" height="68" rx="10" fill="#0c1424" stroke="#ffb648" stroke-width="2.5"/><rect x="224" y="50" width="52" height="56" rx="8" fill="#0c1424" stroke="#ffb648" stroke-width="2"/><text x="160" y="92" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="42" font-weight="700" fill="#ffb648">₿</text></svg></div>
         <div class="hist-body">
           <h3>₿ Bitcoin</h3>
           <p>Satoshi risolve il <b>Byzantine Fault Tolerance</b> su scala globale con Proof-of-Work. Moneta digitale senza banca centrale: il consenso emerge dalla rete P2P stessa.</p>
@@ -811,7 +812,7 @@ footer{border-top:1px solid var(--line);padding:2.6rem 0;background:var(--bg2)}
       </article>
       <article class="hist-card c4 rv d4">
         <div class="hist-year">2015</div>
-        <div class="hist-img"><img src="https://picsum.photos/seed/ipfs-decentralized-web/640/420" alt="IPFS" loading="lazy"></div>
+        <div class="hist-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IPFS: web decentralizzato e content addressing"><defs><radialGradient id="hg4" cx="50%" cy="28%" r="82%"><stop offset="0%" stop-color="#3a2a6b"/><stop offset="100%" stop-color="#0a0b16"/></radialGradient></defs><rect width="320" height="200" fill="url(#hg4)"/><g stroke="#a78bfa" stroke-opacity=".45" stroke-width="1.3" fill="none"><circle cx="160" cy="82" r="46"/><ellipse cx="160" cy="82" rx="18" ry="46"/><path d="M114 82 H206 M160 36 V128"/></g><g fill="#c4b5fd"><circle cx="160" cy="36" r="4"/><circle cx="160" cy="128" r="4"/><circle cx="114" cy="82" r="4"/><circle cx="206" cy="82" r="4"/><circle cx="194" cy="50" r="4"/><circle cx="126" cy="114" r="4"/></g><text x="160" y="94" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="30" fill="#f5f3ff" opacity=".92">#</text></svg></div>
         <div class="hist-body">
           <h3>🌌 IPFS</h3>
           <p>InterPlanetary File System. File identificati da <b>content hash</b> invece che posizione. Il web decentralizzato: un file esiste ovunque qualcuno lo ospiti.</p>
