@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RETI P2P ⟷ CLIENT-SERVER — Laboratorio Interattivo 2.0</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='8' cy='8' r='4' fill='%2334f5b1'/><circle cx='24' cy='12' r='4' fill='%234da3ff'/><circle cx='14' cy='24' r='4' fill='%23ffb648'/><path d='M8 8L24 12M24 12L14 24M14 24L8 8' stroke='%2334f5b1' stroke-width='1.5'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#05080f; --bg2:#080d19; --panel:#0c1424; --panel2:#0f1a30;
+  --line:#1b2a47; --line-soft:#14203a;
+  --ink:#e9f1f7; --muted:#8ea1bd; --faint:#5c6f8f;
+  --p2p:#34f5b1; --p2p-dim:rgba(52,245,177,.12);
+  --cs:#ffb648; --cs-dim:rgba(255,182,72,.12);
+  --blue:#4da3ff; --red:#ff5d7a; --pink:#f472b6; --purple:#a78bfa; --warn:#f59e0b;
+  --fd:'Unbounded',sans-serif; --fb:'Space Grotesk',sans-serif; --fm:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--fb);
+  font-size:16px; line-height:1.6; overflow-x:hidden;
+  background-image:
+    radial-gradient(900px 500px at 85% -5%, rgba(52,245,177,.06), transparent 60%),
+    radial-gradient(800px 500px at 5% 30%, rgba(255,182,72,.05), transparent 60%);
+}
+::selection{background:var(--p2p); color:#04120c}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+section{scroll-margin-top:84px;position:relative}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.grid-bg::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 75%);
+}
+.noise{position:fixed;inset:0;z-index:200;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* ============ TYPO ============ */
+.kicker{font-family:var(--fm);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.7rem}
+.kicker::before{content:"";width:9px;height:9px;background:var(--p2p);box-shadow:0 0 12px var(--p2p)}
+.kicker.amber::before{background:var(--cs);box-shadow:0 0 12px var(--cs)}
+.kicker.blue::before{background:var(--blue);box-shadow:0 0 12px var(--blue)}
+.kicker.red::before{background:var(--red);box-shadow:0 0 12px var(--red)}
+.kicker.purple::before{background:var(--purple);box-shadow:0 0 12px var(--purple)}
+.kicker.warn::before{background:var(--warn);box-shadow:0 0 12px var(--warn)}
+h2.sec-title{font-family:var(--fd);font-weight:700;font-size:clamp(1.7rem,3.6vw,2.9rem);line-height:1.12;margin:.8rem 0 .6rem;letter-spacing:-.01em}
+.sec-head{margin-bottom:2.6rem;max-width:760px}
+.sec-head p{color:var(--muted);font-size:1.05rem}
+.num-ghost{font-family:var(--fd);font-weight:900;color:transparent;-webkit-text-stroke:1px var(--line);font-size:clamp(3rem,7vw,5rem);position:absolute;right:24px;top:-14px;user-select:none;pointer-events:none}
+
+/* ============ HEADER ============ */
+header{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;transition:background .35s,border-color .35s;border-bottom:1px solid transparent}
+header.scrolled{background:rgba(5,8,15,.82);backdrop-filter:blur(12px);border-color:var(--line-soft)}
+.logo{font-family:var(--fd);font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.6rem}
+.logo .lg-dot{width:10px;height:10px;background:var(--p2p);border-radius:2px;transform:rotate(45deg);box-shadow:0 0 14px var(--p2p);animation:pulse 2.4s ease-in-out infinite}
+.logo b{color:var(--p2p)}
+nav.main-nav{display:flex;gap:1.4rem;font-family:var(--fm);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase}
+nav.main-nav a{color:var(--muted);transition:color .25s;position:relative;padding:4px 0}
+nav.main-nav a:hover{color:var(--p2p)}
+nav.main-nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--p2p);transition:width .3s}
+nav.main-nav a:hover::after{width:100%}
+.live-chip{font-family:var(--fm);font-size:.68rem;letter-spacing:.18em;border:1px solid var(--line);padding:6px 12px;border-radius:99px;display:flex;align-items:center;gap:8px;color:var(--muted)}
+.live-chip i{width:7px;height:7px;border-radius:50%;background:var(--p2p);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+@media(max-width:960px){nav.main-nav{display:none}}
+
+/* ============ HERO ============ */
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%}
+.hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.55) 0%,rgba(5,8,15,.15) 40%,rgba(5,8,15,.92) 100%);pointer-events:none}
+.hero-inner{position:relative;z-index:2;padding:130px 0 40px;width:100%}
+.hero-grid{display:grid;grid-template-columns:1.35fr .85fr;gap:3rem;align-items:end}
+.hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(2.2rem,6.2vw,5.1rem);line-height:1.02;letter-spacing:-.015em}
+.hero h1 .l2{display:block;color:transparent;-webkit-text-stroke:1.5px var(--cs);font-weight:700;font-size:.72em;margin-top:.35em}
+.hero .lead{margin-top:1.6rem;max-width:560px;color:var(--muted);font-size:1.08rem}
+.hero .lead b{color:var(--p2p);font-weight:600}
+.hero .lead em{color:var(--cs);font-style:normal;font-weight:600}
+.hero .lead code{color:var(--blue);font-family:var(--fm);font-size:.9em;background:rgba(77,163,255,.12);padding:1px 6px;border-radius:4px}
+.hero-cta{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.hstat{background:rgba(10,16,30,.75);backdrop-filter:blur(6px);padding:1.1rem 1.2rem}
+.hstat .hl{font-family:var(--fm);font-size:.62rem;letter-spacing:.22em;color:var(--faint);text-transform:uppercase}
+.hstat .hv{font-family:var(--fd);font-weight:600;font-size:1.5rem;margin-top:.3rem}
+.hstat .hv.g{color:var(--p2p)} .hstat .hv.a{color:var(--cs)} .hstat .hv.b{color:var(--blue)} .hstat .hv.p{color:var(--purple)}
+.scroll-cue{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;width:1px;height:52px;background:var(--line);overflow:hidden}
+.scroll-cue::after{content:"";position:absolute;left:0;top:-20px;width:1px;height:20px;background:var(--p2p);animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{to{top:60px}}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.hero-stats{max-width:420px}}
+
+/* buttons */
+.btn{font-family:var(--fm);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;padding:.9rem 1.5rem;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);transition:all .25s;display:inline-flex;align-items:center;gap:.6rem}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn-p2p{border-color:rgba(52,245,177,.5);color:var(--p2p);background:var(--p2p-dim)}
+.btn-p2p:hover{background:rgba(52,245,177,.22);box-shadow:0 6px 24px -6px rgba(52,245,177,.5)}
+.btn-cs{border-color:rgba(255,182,72,.5);color:var(--cs);background:var(--cs-dim)}
+.btn-cs:hover{background:rgba(255,182,72,.22);box-shadow:0 6px 24px -6px rgba(255,182,72,.5)}
+.btn-danger{border-color:rgba(255,93,122,.5);color:var(--red);background:rgba(255,93,122,.1)}
+.btn-ghost:hover{border-color:var(--muted);background:rgba(142,161,189,.08)}
+.btn.sm{padding:.62rem 1rem;font-size:.66rem}
+.btn:disabled{opacity:.4;pointer-events:none}
+
+/* marquee */
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2);overflow:hidden;position:relative;z-index:2}
+.marquee-track{display:flex;gap:0;width:max-content;animation:mq 40s linear infinite}
+.marquee-track span{font-family:var(--fm);font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--faint);padding:14px 0;white-space:nowrap}
+.marquee-track b{color:var(--p2p);font-weight:500;padding:0 1.4rem}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}.rv.d4{transition-delay:.4s}
+.sec{padding:110px 0}
+.sec-alt{background:var(--bg2)}
+
+/* ============ INTRO ============ */
+.intro-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:3.5rem;align-items:start}
+.def-quote{border-left:3px solid var(--p2p);padding:1.2rem 1.6rem;background:linear-gradient(90deg,var(--p2p-dim),transparent 70%);border-radius:0 12px 12px 0;font-size:1.08rem;margin-top:1.6rem}
+.def-quote strong{color:var(--p2p)}
+.fact-list{margin-top:2rem;display:grid;gap:.9rem}
+.fact{display:flex;gap:1rem;align-items:flex-start;padding:.9rem 1.1rem;border:1px solid var(--line-soft);border-radius:10px;background:rgba(12,20,36,.5);transition:border-color .3s,transform .3s}
+.fact:hover{border-color:var(--line);transform:translateX(6px)}
+.fact .fi{flex:0 0 34px;height:34px;border-radius:8px;display:grid;place-items:center;font-family:var(--fm);font-size:.8rem;background:var(--p2p-dim);color:var(--p2p);border:1px solid rgba(52,245,177,.3)}
+.fact.a .fi{background:var(--cs-dim);color:var(--cs);border-color:rgba(255,182,72,.3)}
+.fact h4{font-size:.95rem;font-weight:600}
+.fact p{font-size:.85rem;color:var(--muted);line-height:1.5}
+.panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.panel-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--line-soft);background:rgba(5,8,15,.5)}
+.panel-bar .pb-title{font-family:var(--fm);font-size:.68rem;letter-spacing:.2em;color:var(--muted);display:flex;align-items:center;gap:.6rem}
+.led{width:8px;height:8px;border-radius:50%;background:var(--p2p);box-shadow:0 0 10px var(--p2p);animation:pulse 2s infinite}
+.led.amber{background:var(--cs);box-shadow:0 0 10px var(--cs)}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font-family:var(--fm);font-size:.64rem;letter-spacing:.14em;padding:.5rem .9rem;background:transparent;color:var(--muted);border:none;transition:all .25s;text-transform:uppercase}
+.seg button.on-p2p{background:var(--p2p);color:#04120c;font-weight:600}
+.seg button.on-cs{background:var(--cs);color:#241300;font-weight:600}
+.canvas-box{position:relative;height:400px}
+.canvas-box canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.canvas-note{position:absolute;left:14px;bottom:12px;font-family:var(--fm);font-size:.62rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;pointer-events:none;z-index:2}
+.morph-caption{padding:1rem 1.2rem;font-size:.9rem;color:var(--muted);border-top:1px solid var(--line-soft);min-height:3.4rem}
+.morph-caption b{color:var(--p2p)} .morph-caption.cs b{color:var(--cs)}
+@media(max-width:960px){.intro-grid{grid-template-columns:1fr}}
+
+/* ============ TIPOLOGIE P2P (NEW) ============ */
+.types-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:2rem}
+.type-card{border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden;transition:transform .3s,border-color .3s;position:relative}
+.type-card:hover{transform:translateY(-6px);border-color:rgba(52,245,177,.4)}
+.type-canvas{height:180px;position:relative;background-image:linear-gradient(rgba(27,42,71,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(27,42,71,.3) 1px,transparent 1px);background-size:22px 22px}
+.type-canvas canvas{position:absolute;inset:0;width:100%;height:100%}
+.type-badge{position:absolute;top:12px;left:12px;font-family:var(--fm);font-size:.6rem;letter-spacing:.18em;padding:4px 10px;border-radius:99px;background:rgba(5,8,15,.8);border:1px solid var(--p2p);color:var(--p2p);text-transform:uppercase;z-index:2}
+.type-body{padding:1.5rem 1.6rem 1.7rem}
+.type-body h3{font-family:var(--fd);font-size:1.2rem;font-weight:700;margin-bottom:.5rem;color:var(--p2p)}
+.type-body .tag{font-family:var(--fm);font-size:.64rem;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;margin-bottom:1rem;display:block}
+.type-body p{font-size:.9rem;color:var(--muted);line-height:1.55;margin-bottom:1rem}
+.type-body h5{font-family:var(--fm);font-size:.64rem;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;margin:.8rem 0 .5rem}
+.type-examples{list-style:none;display:flex;flex-wrap:wrap;gap:.4rem}
+.type-examples li{font-family:var(--fm);font-size:.7rem;padding:4px 10px;border-radius:6px;background:var(--p2p-dim);color:var(--p2p);border:1px solid rgba(52,245,177,.25)}
+@media(max-width:900px){.types-grid{grid-template-columns:1fr}}
+
+/* ============ CONFRONTO ============ */
+.split{display:grid;grid-template-columns:.85fr 1.15fr;gap:4rem;align-items:start}
+.sticky-col{position:sticky;top:110px}
+.big-index{font-family:var(--fd);font-weight:900;font-size:clamp(4.5rem,9vw,7.5rem);line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--p2p);transition:all .4s;margin:.8rem 0 .4rem}
+#diffTitle{font-family:var(--fd);font-weight:700;font-size:clamp(1.3rem,2.4vw,1.9rem);min-height:2.4em}
+.diff-nav{margin-top:1.8rem;display:grid;gap:.4rem;list-style:none}
+.diff-nav button{width:100%;text-align:left;font-family:var(--fm);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);background:none;border:1px solid transparent;border-radius:8px;padding:.7rem .9rem;transition:all .25s;display:flex;gap:.8rem}
+.diff-nav button span{color:var(--line);transition:color .25s}
+.diff-nav button.active{color:var(--p2p);border-color:var(--line);background:var(--p2p-dim)}
+.diff-nav button.active span{color:var(--p2p)}
+.diff-nav button:hover{color:var(--ink)}
+.diff-block{min-height:56vh;display:flex;flex-direction:column;justify-content:center;gap:1.2rem;border-left:1px solid var(--line-soft);padding-left:2.4rem;margin-left:.5rem;position:relative}
+.diff-block::before{content:"";position:absolute;left:-5px;top:50%;width:9px;height:9px;background:var(--bg);border:1px solid var(--faint);border-radius:50%;transition:all .3s}
+.diff-block.hot::before{background:var(--p2p);border-color:var(--p2p);box-shadow:0 0 12px var(--p2p)}
+.diff-block h3{font-family:var(--fd);font-size:1.3rem;font-weight:600;display:flex;align-items:center;gap:.8rem}
+.diff-block h3 .tag{font-family:var(--fm);font-size:.6rem;letter-spacing:.2em;color:var(--faint);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.duo-card{border:1px solid var(--line);border-radius:12px;padding:1.3rem;background:var(--panel);transition:transform .3s,border-color .3s,box-shadow .3s;position:relative;overflow:hidden}
+.duo-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--p2p)}
+.duo-card.cs::before{background:var(--cs)}
+.duo-card:hover{transform:translateY(-5px);box-shadow:0 18px 40px -18px rgba(0,0,0,.8)}
+.duo-card.p2p:hover{border-color:rgba(52,245,177,.45)}
+.duo-card.cs:hover{border-color:rgba(255,182,72,.45)}
+.duo-card .dc-h{font-family:var(--fm);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.7rem;display:flex;align-items:center;gap:.5rem}
+.duo-card.p2p .dc-h{color:var(--p2p)} .duo-card.cs .dc-h{color:var(--cs)}
+.duo-card p{font-size:.92rem;color:var(--muted)}
+@media(max-width:960px){.split{grid-template-columns:1fr}.sticky-col{position:static}.diff-block{min-height:0;padding:2.5rem 0 2.5rem 1.6rem}.duo{grid-template-columns:1fr}}
+
+/* ============ PRO & CONTRO (NEW EVIDENCE CARDS) ============ */
+.pc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+.pc-col{display:flex;flex-direction:column;gap:1.2rem}
+.pc-col-head{border:1px solid var(--line);border-radius:14px;padding:1.8rem;background:linear-gradient(135deg,var(--panel),var(--bg2));position:relative;overflow:hidden}
+.pc-col-head::before{content:"";position:absolute;top:0;left:0;right:0;height:3px}
+.pc-col.in .pc-col-head::before{background:linear-gradient(90deg,var(--p2p),var(--blue))}
+.pc-col.ex .pc-col-head::before{background:linear-gradient(90deg,var(--cs),var(--warn))}
+.pc-col-head h3{font-family:var(--fd);font-weight:700;font-size:1.4rem;display:flex;align-items:center;gap:.8rem;margin-bottom:.3rem}
+.pc-col-head .sub{font-family:var(--fm);font-size:.66rem;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.pc-col-head .big-ico{font-size:2.4rem;margin-right:.3rem}
+.ev-section{margin-top:1rem}
+.ev-section-label{font-family:var(--fm);font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;margin-bottom:.8rem;display:flex;align-items:center;gap:.6rem}
+.ev-section-label.plus{color:var(--p2p)}
+.pc-col.ex .ev-section-label.plus{color:var(--cs)}
+.ev-section-label.minus{color:var(--red)}
+.ev-section-label::before{content:"";width:20px;height:1px;background:currentColor}
+.ev-grid{display:grid;gap:.8rem}
+.ev{border:1px solid var(--line-soft);border-radius:12px;padding:1.1rem 1.2rem;background:rgba(12,20,36,.5);transition:all .3s;position:relative;overflow:hidden}
+.ev:hover{border-color:var(--line);transform:translateY(-2px);background:rgba(12,20,36,.8)}
+.ev-top{display:flex;align-items:flex-start;gap:.9rem;margin-bottom:.6rem}
+.ev-mark{flex:0 0 38px;height:38px;border-radius:10px;display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:1.1rem}
+.ev-mark.plus{background:var(--p2p-dim);color:var(--p2p);border:1px solid rgba(52,245,177,.3)}
+.pc-col.ex .ev-mark.plus{background:var(--cs-dim);color:var(--cs);border-color:rgba(255,182,72,.3)}
+.ev-mark.minus{background:rgba(255,93,122,.12);color:var(--red);border:1px solid rgba(255,93,122,.35)}
+.ev-title{font-family:var(--fd);font-weight:600;font-size:1.02rem;line-height:1.3}
+.ev-why{font-size:.84rem;color:var(--muted);line-height:1.55;padding-left:calc(38px + .9rem);font-style:italic;position:relative}
+.ev-why::before{content:"▸";position:absolute;left:calc(38px + .2rem);top:0;color:var(--faint);font-style:normal}
+.ev-why b{color:var(--ink);font-weight:600;font-style:normal}
+@media(max-width:900px){.pc-wrap{grid-template-columns:1fr}}
+
+/* ============ PROBLEMI TECNICI (NEW) ============ */
+.problems-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.4rem;margin-top:2rem}
+.prob{border:1px solid var(--line);border-radius:14px;padding:1.8rem;background:var(--panel);position:relative;overflow:hidden;transition:transform .3s}
+.prob:hover{transform:translateY(-4px)}
+.prob::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:var(--warn)}
+.prob.danger::before{background:var(--red)}
+.prob-head{display:flex;align-items:center;gap:.9rem;margin-bottom:.9rem}
+.prob-ico{flex:0 0 48px;height:48px;border-radius:11px;display:grid;place-items:center;font-size:1.6rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3)}
+.prob.danger .prob-ico{background:rgba(255,93,122,.1);border-color:rgba(255,93,122,.3)}
+.prob-head h3{font-family:var(--fd);font-size:1.1rem;font-weight:600}
+.prob-head .severity{font-family:var(--fm);font-size:.58rem;letter-spacing:.18em;padding:3px 8px;border-radius:4px;margin-top:.3rem;display:inline-block}
+.prob-head .severity.warn{background:rgba(245,158,11,.1);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.prob-head .severity.danger{background:rgba(255,93,122,.1);color:var(--red);border:1px solid rgba(255,93,122,.3)}
+.prob p{font-size:.92rem;color:var(--muted);line-height:1.6;margin-bottom:.8rem}
+.prob p b{color:var(--ink);font-weight:600}
+.prob .solution{border-top:1px dashed var(--line-soft);padding-top:.8rem;font-size:.82rem;color:#c5d4ea}
+.prob .solution b{color:var(--p2p);font-family:var(--fm);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:.3rem;font-weight:500}
+@media(max-width:800px){.problems-grid{grid-template-columns:1fr}}
+
+/* ============ NAT SIMULATOR (NEW) ============ */
+.nat-sim{border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden;margin-top:2.4rem}
+.nat-bar{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.2rem;border-bottom:1px solid var(--line-soft);background:rgba(5,8,15,.5);flex-wrap:wrap;gap:.8rem}
+.nat-bar .nb-title{font-family:var(--fm);font-size:.68rem;letter-spacing:.18em;color:var(--muted);display:flex;align-items:center;gap:.6rem;text-transform:uppercase}
+.nat-canvas-wrap{height:360px;position:relative;background-image:linear-gradient(rgba(27,42,71,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(27,42,71,.3) 1px,transparent 1px);background-size:30px 30px}
+.nat-canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.nat-controls{display:flex;flex-wrap:wrap;gap:.5rem;padding:.9rem 1.1rem;border-top:1px solid var(--line-soft);background:rgba(5,8,15,.5)}
+.nat-legend{display:flex;gap:1.2rem;padding:.7rem 1.1rem;border-top:1px dashed var(--line-soft);flex-wrap:wrap;font-family:var(--fm);font-size:.64rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+.nat-legend span{display:flex;align-items:center;gap:.5rem}
+.nat-legend i{width:10px;height:10px;border-radius:2px}
+
+/* ============ STORIA ============ */
+.timeline{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:1.4rem;margin-top:3.4rem}
+.timeline::before{content:"";position:absolute;top:26px;left:3%;right:3%;height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent)}
+.hist-card{position:relative;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;transition:transform .35s,border-color .35s,box-shadow .35s}
+.hist-card:nth-child(even){transform:translateY(1.8rem)}
+.hist-card:hover{transform:translateY(-8px);border-color:rgba(52,245,177,.4);box-shadow:0 26px 50px -20px rgba(0,0,0,.85)}
+.hist-card:nth-child(even):hover{transform:translateY(calc(1.8rem - 8px))}
+.hist-year{position:absolute;top:0;left:1.2rem;z-index:3;font-family:var(--fd);font-weight:700;font-size:.8rem;background:var(--p2p);color:#04120c;padding:.5rem .9rem;border-radius:0 0 9px 9px;box-shadow:0 6px 18px -4px rgba(52,245,177,.5)}
+.hist-card.c2 .hist-year{background:var(--blue);color:#031225;box-shadow:0 6px 18px -4px rgba(77,163,255,.5)}
+.hist-card.c3 .hist-year{background:var(--cs);color:#241300;box-shadow:0 6px 18px -4px rgba(255,182,72,.5)}
+.hist-card.c4 .hist-year{background:var(--purple);color:#160d28;box-shadow:0 6px 18px -4px rgba(167,139,250,.5)}
+.hist-img{height:160px;overflow:hidden;position:relative}
+.hist-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(12,20,36,.95))}
+.hist-img img{width:100%;height:100%;object-fit:cover;filter:saturate(.75) contrast(1.08)}
+.hist-body{padding:1.3rem 1.3rem 1.5rem}
+.hist-body h3{font-family:var(--fd);font-weight:700;font-size:1.05rem;margin-bottom:.5rem}
+.hist-body p{font-size:.82rem;color:var(--muted);line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.9rem}
+.chip{font-family:var(--fm);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:3px 9px;border-radius:99px}
+@media(max-width:960px){.timeline{grid-template-columns:1fr 1fr}.hist-card:nth-child(even){transform:none}.hist-card:nth-child(even):hover{transform:translateY(-8px)}}
+@media(max-width:600px){.timeline{grid-template-columns:1fr;max-width:440px;margin-left:auto;margin-right:auto}.timeline::before{display:none}}
+
+/* ============ P2P OGGI (NEW) ============ */
+.today-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:2rem}
+.today-card{border:1px solid var(--line);border-radius:14px;padding:1.5rem;background:var(--panel);transition:transform .3s,border-color .3s;position:relative}
+.today-card:hover{transform:translateY(-5px);border-color:rgba(52,245,177,.4)}
+.today-card .tc-ico{font-size:2rem;margin-bottom:.8rem;display:block}
+.today-card h3{font-family:var(--fd);font-weight:600;font-size:1.05rem;margin-bottom:.2rem;display:flex;align-items:center;gap:.5rem}
+.today-card .tc-year{font-family:var(--fm);font-size:.6rem;letter-spacing:.14em;color:var(--p2p);background:var(--p2p-dim);padding:2px 8px;border-radius:4px;border:1px solid rgba(52,245,177,.3)}
+.today-card p{font-size:.85rem;color:var(--muted);line-height:1.55;margin-top:.6rem}
+.today-card .tc-usage{margin-top:.9rem;padding-top:.9rem;border-top:1px dashed var(--line-soft);font-family:var(--fm);font-size:.7rem;color:var(--faint);letter-spacing:.1em;text-transform:uppercase}
+.today-card .tc-usage b{color:var(--p2p);font-weight:500}
+@media(max-width:900px){.today-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.today-grid{grid-template-columns:1fr}}
+
+/* ============ IBRIDI (NEW) ============ */
+.hybrid-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2rem}
+.hybrid{border:1px solid var(--line);border-radius:16px;padding:2rem;background:linear-gradient(135deg,var(--panel),var(--bg2));position:relative;overflow:hidden;transition:transform .3s}
+.hybrid:hover{transform:translateY(-4px)}
+.hybrid::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--p2p),var(--cs))}
+.hybrid-head{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem}
+.hybrid-logo{flex:0 0 54px;height:54px;border-radius:12px;display:grid;place-items:center;font-size:1.8rem;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.hybrid-head h3{font-family:var(--fd);font-size:1.15rem;font-weight:700}
+.hybrid-head .ht{font-family:var(--fm);font-size:.6rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-top:.3rem;display:block}
+.hybrid-arch{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:center;margin:1.2rem 0;padding:1rem;background:rgba(5,8,15,.5);border-radius:10px;border:1px solid var(--line-soft)}
+.hybrid-node{background:var(--panel);border:1px solid;border-radius:9px;padding:.7rem .8rem;text-align:center}
+.hybrid-node.cs{border-color:var(--cs)}
+.hybrid-node.p2p{border-color:var(--p2p)}
+.hybrid-node .hn-l{font-family:var(--fm);font-size:.62rem;letter-spacing:.12em;color:var(--faint);text-transform:uppercase;display:block;margin-bottom:.2rem}
+.hybrid-node.cs .hn-l{color:var(--cs)}
+.hybrid-node.p2p .hn-l{color:var(--p2p)}
+.hybrid-node strong{font-size:.82rem;display:block;color:var(--ink)}
+.hybrid-arrow{font-family:var(--fm);color:var(--faint);font-size:1.2rem}
+.hybrid-desc{font-size:.88rem;color:var(--muted);line-height:1.6}
+.hybrid-desc b{color:var(--ink);font-weight:600}
+@media(max-width:800px){.hybrid-grid{grid-template-columns:1fr}.hybrid-arch{grid-template-columns:1fr;text-align:center}.hybrid-arrow{transform:rotate(90deg)}}
+
+/* ============ LEGALE (NEW) ============ */
+.legal-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:2rem;margin-top:2rem;align-items:start}
+.legal-main{border:1px solid var(--line);border-radius:16px;padding:2rem;background:var(--panel)}
+.legal-main h3{font-family:var(--fd);font-size:1.3rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.7rem}
+.legal-main .case{border-left:3px solid var(--red);padding:.9rem 1.1rem;background:rgba(255,93,122,.06);border-radius:0 9px 9px 0;margin:1.2rem 0}
+.legal-main .case h4{font-family:var(--fd);font-size:1rem;margin-bottom:.4rem;color:var(--red)}
+.legal-main .case p{font-size:.88rem;color:#c5d4ea;line-height:1.55}
+.legal-main p{font-size:.95rem;color:#c5d4ea;line-height:1.7;margin-bottom:.9rem}
+.legal-side{display:grid;gap:1rem}
+.legal-card{border:1px solid var(--line);border-radius:12px;padding:1.3rem;background:var(--panel);transition:transform .3s}
+.legal-card:hover{transform:translateY(-3px)}
+.legal-card h4{font-family:var(--fd);font-size:1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.legal-card h4 .ic{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:.9rem;background:var(--p2p-dim);color:var(--p2p);border:1px solid rgba(52,245,177,.3);flex:0 0 28px}
+.legal-card p{font-size:.85rem;color:var(--muted);line-height:1.55}
+.legal-callout{border:1px solid rgba(52,245,177,.3);background:var(--p2p-dim);border-radius:12px;padding:1.4rem;margin-top:1.4rem}
+.legal-callout h4{font-family:var(--fd);font-size:1rem;color:var(--p2p);margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem}
+.legal-callout p{font-size:.9rem;color:#c5d4ea;line-height:1.6;margin:0}
+@media(max-width:900px){.legal-grid{grid-template-columns:1fr}}
+
+/* ============ SALA CONTROLLO ============ */
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.8rem;align-items:stretch}
+.sim-panel{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),#0a1120);overflow:hidden;transition:border-color .4s}
+.sim-panel.p2p-side:hover{border-color:rgba(52,245,177,.4)}
+.sim-panel.cs-side:hover{border-color:rgba(255,182,72,.4)}
+.sim-panel.down{border-color:rgba(255,93,122,.55)!important;animation:alarm 1s ease-in-out infinite}
+@keyframes alarm{0%,100%{box-shadow:0 0 0 0 rgba(255,93,122,0)}50%{box-shadow:0 0 34px -6px rgba(255,93,122,.5)}}
+.sim-canvas{position:relative;height:390px;border-bottom:1px solid var(--line-soft);background-image:linear-gradient(rgba(27,42,71,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(27,42,71,.35) 1px,transparent 1px);background-size:34px 34px}
+.sim-canvas canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+.sim-canvas canvas:active{cursor:grabbing}
+.sim-controls{display:flex;flex-wrap:wrap;gap:.6rem;padding:1.1rem 1.2rem .4rem}
+.sim-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-soft);border-top:1px solid var(--line-soft);margin-top:auto}
+.sm{background:rgba(5,8,15,.6);padding:.9rem 1rem}
+.sm .sl{font-family:var(--fm);font-size:.56rem;letter-spacing:.2em;color:var(--faint);text-transform:uppercase}
+.sm .sv{font-family:var(--fd);font-weight:600;font-size:1.15rem;margin-top:.25rem}
+.p2p-side .sv.hl{color:var(--p2p)} .cs-side .sv.hl{color:var(--cs)}
+.sv.bad{color:var(--red)!important}
+.sim-status{font-family:var(--fm);font-size:.62rem;letter-spacing:.18em;padding:.5rem 1.2rem;border-top:1px dashed var(--line-soft);color:var(--faint);text-transform:uppercase;display:flex;justify-content:space-between}
+.sim-status b{color:var(--p2p);font-weight:500}
+.cs-side .sim-status b{color:var(--cs)}
+@media(max-width:1020px){.sim-grid{grid-template-columns:1fr}}
+
+/* ============ QUIZ ============ */
+.quiz-shell{max-width:760px;margin:0 auto;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 40px 80px -40px rgba(0,0,0,.9)}
+.quiz-top{padding:1.4rem 1.8rem;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.quiz-top .qt-l{font-family:var(--fm);font-size:.66rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:.7rem}
+#qCount{font-family:var(--fd);font-weight:600;font-size:.9rem;color:var(--p2p)}
+.q-progress{height:3px;background:var(--line-soft)}
+.q-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--p2p),var(--blue));transition:width .6s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 10px var(--p2p)}
+.quiz-body{padding:2.2rem 2rem}
+#qText{font-family:var(--fd);font-weight:600;font-size:clamp(1.05rem,2.2vw,1.35rem);line-height:1.4;margin-bottom:1.6rem}
+.opt{width:100%;display:flex;gap:1rem;align-items:center;text-align:left;background:rgba(5,8,15,.5);border:1px solid var(--line);border-radius:11px;padding:1rem 1.1rem;margin-bottom:.7rem;color:var(--ink);font-size:.96rem;font-family:var(--fb);transition:all .22s}
+.opt:hover{border-color:var(--p2p);background:var(--p2p-dim);transform:translateX(6px)}
+.opt .ol{flex:0 0 30px;height:30px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;font-family:var(--fm);font-size:.74rem;color:var(--muted);transition:all .22s}
+.opt:hover .ol{border-color:var(--p2p);color:var(--p2p)}
+.opt.ok{border-color:var(--p2p);background:var(--p2p-dim)}
+.opt.ok .ol{background:var(--p2p);color:#04120c;border-color:var(--p2p);font-weight:600}
+.opt.bad{border-color:var(--red);background:rgba(255,93,122,.1);animation:shake .4s}
+.opt.bad .ol{background:var(--red);color:#2a0510;border-color:var(--red)}
+.opt.dim{opacity:.4;pointer-events:none}
+.opt:disabled{cursor:default}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.q-feedback{display:none;margin-top:1.2rem;padding:1.1rem 1.3rem;border-radius:11px;font-size:.92rem;line-height:1.55;border:1px solid}
+.q-feedback.show{display:block;animation:fbIn .45s cubic-bezier(.2,.8,.2,1)}
+.q-feedback.good{border-color:rgba(52,245,177,.4);background:var(--p2p-dim);color:#c9fdee}
+.q-feedback.evil{border-color:rgba(255,93,122,.4);background:rgba(255,93,122,.08);color:#ffd4dd}
+.q-feedback b{display:block;font-family:var(--fm);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.4rem}
+@keyframes fbIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.quiz-foot{padding:0 2rem 2rem;display:flex;justify-content:flex-end}
+.quiz-result{display:none;text-align:center;padding:3rem 2rem}
+.quiz-result.show{display:block;animation:fbIn .5s}
+.score-ring{position:relative;width:150px;height:150px;margin:0 auto 1.4rem}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .ring-bg{fill:none;stroke:var(--line);stroke-width:8}
+.score-ring .ring-fg{fill:none;stroke:var(--p2p);stroke-width:8;stroke-linecap:round;stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 8px rgba(52,245,177,.6))}
+.score-ring .score-num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:1.9rem}
+#verdict{font-family:var(--fd);font-weight:700;font-size:1.4rem;margin-bottom:.6rem}
+#verdictMsg{color:var(--muted);max-width:420px;margin:0 auto 1.8rem}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:2.6rem 0;background:var(--bg2)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.foot .f-nav{display:flex;flex-wrap:wrap;gap:1.4rem;font-family:var(--fm);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.foot .f-nav a:hover{color:var(--p2p)}
+.foot small{font-family:var(--fm);font-size:.66rem;letter-spacing:.12em;color:var(--faint)}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .marquee-track{animation:none;transform:none}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<a href="../index.html" aria-label="Torna alla home" style="position:fixed;right:16px;bottom:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+<div class="noise"></div>
+
+<header id="hdr">
+  <a class="logo" href="#top"><span class="lg-dot"></span>P2P<b>//</b>CS</a>
+  <nav class="main-nav">
+    <a href="#intro">Introduzione</a>
+    <a href="#tipologie">Tipologie</a>
+    <a href="#confronto">Confronto</a>
+    <a href="#procontro">Pro &amp; Contro</a>
+    <a href="#problemi">Problemi</a>
+    <a href="#storia">Storia</a>
+    <a href="#oggi">Oggi</a>
+    <a href="#legal">Legale</a>
+    <a href="#sim">Simulazione</a>
+    <a href="#quiz">Quiz</a>
+  </nav>
+  <div class="live-chip"><i></i>DEMO LIVE</div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-veil"></div>
+  <div class="hero-inner wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="kicker" style="margin-bottom:1.4rem">Architetture di rete distribuite · Laboratorio interattivo 2.0</p>
+        <h1><span id="titleA" data-text="RETI PEER-TO-PEER">RETI PEER-TO-PEER</span>
+          <span class="l2" id="titleB" data-text="VS CLIENT-SERVER">VS CLIENT-SERVER</span></h1>
+        <p class="lead">Due filosofie opposte per connettere il mondo: una <b>rete distribuita</b> dove ogni nodo è protagonista, oppure un <em>centro di comando</em> potente e ordinato. Esplora tipologie, problemi reali, modelli ibridi e <code>simula</code> in tempo reale.</p>
+        <div class="hero-cta">
+          <a href="#sim" class="btn btn-p2p">▸ Avvia la simulazione</a>
+          <a href="#tipologie" class="btn btn-ghost">Esplora le tipologie</a>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hl">Nodi nella mesh</div><div class="hv g" id="heroNodes">—</div></div>
+        <div class="hstat"><div class="hl">Pacchetti / sec</div><div class="hv b" id="heroPps">—</div></div>
+        <div class="hstat"><div class="hl">Latenza media</div><div class="hv a" id="heroLat">—</div></div>
+        <div class="hstat"><div class="hl">Uptime rete</div><div class="hv">99.98%</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue"></div>
+</section>
+
+<div class="marquee"><div class="marquee-track" id="mqTrack">
+  <span>Decentralizzazione <b>✦</b> Napster 1999 <b>✦</b> BitTorrent 2001 <b>✦</b> Bitcoin 2009 <b>✦</b> IPFS <b>✦</b> WebRTC <b>✦</b> Tor <b>✦</b> DHT <b>✦</b> Blockchain <b>✦</b> Kademlia <b>✦</b> NAT Traversal <b>✦</b>&nbsp;</span>
+</div></div>
+
+<!-- ================= INTRO ================= -->
+<section class="sec grid-bg" id="intro">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">01 · Introduzione</p>
+      <h2 class="sec-title">Che cos'è una rete Peer-to-Peer?</h2>
+      <p>Un'architettura in cui non esistono ruoli fissi: ogni dispositivo è allo stesso tempo consumatore e fornitore di risorse.</p>
+    </div>
+    <div class="intro-grid">
+      <div class="rv d1">
+        <div class="def-quote">Una rete <strong>peer-to-peer (P2P)</strong> è un'architettura in cui ogni nodo — o "peer" — condivide le stesse responsabilità e funziona sia come <strong>client</strong> che come <strong>server</strong>. Nel modello <strong>client-server</strong>, invece, server dedicati forniscono risorse e servizi che i client utilizzano.</div>
+        <div class="fact-list">
+          <div class="fact"><div class="fi">⇄</div><div><h4>Comunicazione diretta</h4><p>I peer si scambiano dati senza intermediari: la banda cresce con il numero di partecipanti.</p></div></div>
+          <div class="fact a"><div class="fi">▣</div><div><h4>Gerarchia centralizzata</h4><p>Il server è l'unica fonte di verità: controllo totale, ma anche unico punto di fallimento.</p></div></div>
+          <div class="fact"><div class="fi">◈</div><div><h4>Resilienza per design</h4><p>Se un nodo cade, la mesh si riorganizza: nessun interruttore può spegnere l'intera rete.</p></div></div>
+        </div>
+      </div>
+      <div class="panel rv d2">
+        <div class="panel-bar">
+          <div class="pb-title"><span class="led" id="morphLed"></span><span id="morphLabel">TOPOLOGIA: MESH P2P</span></div>
+          <div class="seg">
+            <button id="segP2p" class="on-p2p">P2P</button>
+            <button id="segCs">Client-Server</button>
+          </div>
+        </div>
+        <div class="canvas-box"><canvas id="morphCanvas"></canvas><div class="canvas-note" id="morphCorner">9 NODI · 0 SERVER</div></div>
+        <div class="morph-caption" id="morphCaption"><b>Rete P2P decentralizzata</b> — ogni nodo comunica direttamente con gli altri, senza un centro di controllo.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TIPOLOGIE (NEW) ================= -->
+<section class="sec sec-alt" id="tipologie">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker blue">02 · Tipologie di P2P</p>
+      <h2 class="sec-title">Non esiste un solo "P2P"</h2>
+      <p>"Peer-to-peer" è un termine ombrello. In realtà esistono <b>tre architetture profondamente diverse</b>, ognuna con compromessi, punti di forza e vulnerabilità specifiche.</p>
+    </div>
+    <div class="types-grid">
+      <article class="type-card rv d1">
+        <div class="type-canvas"><span class="type-badge">PURO</span><canvas id="typePure"></canvas></div>
+        <div class="type-body">
+          <h3>P2P puro (non strutturato)</h3>
+          <span class="tag">Gnutella · Freenet · primi anni 2000</span>
+          <p>Nessun server centrale, nessun ruolo speciale. Ogni nodo è <b>assolutamente identico</b>. Quando cerchi un file, la richiesta viene propagata a tutti i vicini tramite <b>flooding</b>.</p>
+          <h5>Punto di forza</h5>
+          <p>Completamente resistente: non c'è <b>nessun punto</b> da attaccare per chiudere la rete.</p>
+          <h5>Esempi storici</h5>
+          <ul class="type-examples"><li>Gnutella</li><li>Freenet</li><li>Early eDonkey</li></ul>
+        </div>
+      </article>
+      <article class="type-card rv d2">
+        <div class="type-canvas"><span class="type-badge">IBRIDO</span><canvas id="typeHybrid"></canvas></div>
+        <div class="type-body">
+          <h3>P2P ibrido</h3>
+          <span class="tag">Napster · BitTorrent con tracker</span>
+          <p>Un <b>server centrale</b> gestisce l'indice (chi ha cosa), ma il trasferimento dati avviene direttamente tra peer. È il compromesso storico tra efficienza e decentralizzazione.</p>
+          <h5>Perché Napster fu chiuso</h5>
+          <p>Aveva <b>un server indice centrale</b>: i giudici ordinarono di spegnerlo, e la rete cadde. BitTorrent sopravvive perché il tracker è sostituibile.</p>
+          <h5>Esempi</h5>
+          <ul class="type-examples"><li>Napster</li><li>BitTorrent</li><li>Spotify (fino 2014)</li></ul>
+        </div>
+      </article>
+      <article class="type-card rv d3">
+        <div class="type-canvas"><span class="type-badge">STRUTTURATO</span><canvas id="typeDht"></canvas></div>
+        <div class="type-body">
+          <h3>P2P strutturato (DHT)</h3>
+          <span class="tag">Kademlia · IPFS · Ethereum</span>
+          <p>I nodi sono organizzati in una <b>Distributed Hash Table</b>. Ogni file ha un ID crittografico; il routing è deterministico in O(log N) hop. La base delle blockchain moderne.</p>
+          <h5>Perché è rivoluzionario</h5>
+          <p>Trovi qualsiasi contenuto <b>senza flooding</b>, senza server, senza conoscere la rete. È il cuore di IPFS, BitTorrent moderno, Ethereum.</p>
+          <h5>Esempi</h5>
+          <ul class="type-examples"><li>Kademlia</li><li>IPFS</li><li>Ethereum</li><li>BitTorrent DHT</li></ul>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONFRONTO ================= -->
+<section class="sec" id="confronto">
+  <div class="wrap split">
+    <aside class="sticky-col rv">
+      <p class="kicker">03 · Confronto</p>
+      <div class="big-index" id="diffIndex">01</div>
+      <h3 id="diffTitle">Struttura della Rete</h3>
+      <ul class="diff-nav" id="diffNav">
+        <li><button data-i="0" class="active"><span>01</span> Struttura della rete</button></li>
+        <li><button data-i="1"><span>02</span> Gestione delle risorse</button></li>
+        <li><button data-i="2"><span>03</span> Scalabilità</button></li>
+      </ul>
+    </aside>
+    <div>
+      <article class="diff-block rv" data-i="0">
+        <h3>Struttura della Rete <span class="tag">TOPOLOGIA</span></h3>
+        <div class="duo">
+          <div class="duo-card p2p"><div class="dc-h">⟠ Peer-to-Peer</div><p>Non ci sono server centralizzati. Ogni nodo può funzionare come client e server. I peer comunicano direttamente tra loro.</p></div>
+          <div class="duo-card cs"><div class="dc-h">▣ Client-Server</div><p>Uno o più server centrali gestiscono dati e risorse, mentre i client si connettono ai server per accedere a tali risorse.</p></div>
+        </div>
+      </article>
+      <article class="diff-block rv" data-i="1">
+        <h3>Gestione delle Risorse <span class="tag">DATI</span></h3>
+        <div class="duo">
+          <div class="duo-card p2p"><div class="dc-h">⟠ Peer-to-Peer</div><p>Le risorse e i dati sono distribuiti tra tutti i nodi della rete.</p></div>
+          <div class="duo-card cs"><div class="dc-h">▣ Client-Server</div><p>Le risorse sono centralizzate nei server, facilitando gestione e sicurezza dei dati.</p></div>
+        </div>
+      </article>
+      <article class="diff-block rv" data-i="2">
+        <h3>Scalabilità <span class="tag">CRESCITA</span></h3>
+        <div class="duo">
+          <div class="duo-card p2p"><div class="dc-h">⟠ Peer-to-Peer</div><p>Scala efficacemente aggiungendo più nodi. Ogni nuovo nodo aumenta la capacità di risorse della rete.</p></div>
+          <div class="duo-card cs"><div class="dc-h">▣ Client-Server</div><p>Limitata dalla capacità del server. Richiede investimenti significativi in hardware quando la rete cresce.</p></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRO & CONTRO (NEW EVIDENCE CARDS) ================= -->
+<section class="sec sec-alt" id="procontro">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker amber">04 · Pro &amp; Contro</p>
+      <h2 class="sec-title">Vantaggi e Svantaggi</h2>
+      <p>Nessuna architettura vince sempre: <b>dipende dal problema</b>. Ecco ogni punto spiegato con il <em>perché</em> tecnico, non solo la conseguenza.</p>
+    </div>
+    <div class="pc-wrap">
+      <!-- P2P -->
+      <div class="pc-col in rv d1">
+        <div class="pc-col-head">
+          <h3><span class="big-ico">⟠</span> Rete P2P</h3>
+          <div class="sub">DECENTRALIZZATA · ORIZZONTALE</div>
+        </div>
+        <div class="ev-section">
+          <div class="ev-section-label plus">VANTAGGI</div>
+          <div class="ev-grid">
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark plus">+</div><div class="ev-title">Decentralizzazione</div></div>
+              <div class="ev-why"><b>Perché:</b> nessun singolo nodo possiede l'indice o controlla il routing. La rete sopravvive anche se il 50% dei peer scompare.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark plus">+</div><div class="ev-title">Scalabilità organica</div></div>
+              <div class="ev-why"><b>Perché:</b> ogni nuovo peer porta con sé banda, storage e CPU. Più utenti = rete più veloce (al contrario del C/S).</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark plus">+</div><div class="ev-title">Costi infrastrutturali bassi</div></div>
+              <div class="ev-why"><b>Perché:</b> non serve un datacenter. L'infrastruttura è distribuita tra i partecipanti stessi.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark plus">+</div><div class="ev-title">Resistenza alla censura</div></div>
+              <div class="ev-why"><b>Perché:</b> senza server da oscurare, è quasi impossibile bloccare la rete per motivi legali o politici. Vedi: BitTorrent, Tor.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ev-section">
+          <div class="ev-section-label minus">SVANTAGGI</div>
+          <div class="ev-grid">
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark minus">−</div><div class="ev-title">Sicurezza complessa</div></div>
+              <div class="ev-why"><b>Perché:</b> ogni peer è un potenziale punto di attacco. Non esiste un'autorità che possa revocare credenziali o applicare patch globali.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark minus">−</div><div class="ev-title">Consistenza difficile</div></div>
+              <div class="ev-why"><b>Perché:</b> il teorema CAP impone che in reti distribuite non si possano avere contemporaneamente consistenza, disponibilità e tolleranza ai guasti.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark minus">−</div><div class="ev-title">Prestazioni irregolari</div></div>
+              <div class="ev-why"><b>Perché:</b> dipendono dalla qualità della connessione dei singoli peer. Un nodo lento rallenta tutti quelli che scaricano da lui.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark minus">−</div><div class="ev-title">Free-riding</div></div>
+              <div class="ev-why"><b>Perché:</b> razionalmente ogni utente preferisce scaricare senza condividere. Senza incentivi, la rete si svuota (problema risolto dal tit-for-tat di BitTorrent).</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- CS -->
+      <div class="pc-col ex rv d2">
+        <div class="pc-col-head">
+          <h3><span class="big-ico">▣</span> Client-Server</h3>
+          <div class="sub">CENTRALIZZATA · GERARCHICA</div>
+        </div>
+        <div class="ev-section">
+          <div class="ev-section-label plus">VANTAGGI</div>
+          <div class="ev-grid">
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark plus">+</div><div class="ev-title">Controllo centralizzato</div></div>
+              <div class="ev-why"><b>Perché:</b> un amministratore può applicare policy, aggiornamenti e blocchi a milioni di utenti con un singolo deploy.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark plus">+</div><div class="ev-title">Prestazioni garantite</div></div>
+              <div class="ev-why"><b>Perché:</b> il server è hardware dedicato, spesso ridondato, con banda contrattuale. SLA di 99.99% è normale.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark plus">+</div><div class="ev-title">Consistenza forte</div></div>
+              <div class="ev-why"><b>Perché:</b> esiste una fonte di verità unica. ACID transactions sono facili da implementare su un singolo DB.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark plus">+</div><div class="ev-title">Backup e manutenzione</div></div>
+              <div class="ev-why"><b>Perché:</b> i dati stanno in un punto fisico. Backup, disaster recovery e compliance GDPR sono gestibili.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ev-section">
+          <div class="ev-section-label minus">SVANTAGGI</div>
+          <div class="ev-grid">
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark minus">−</div><div class="ev-title">Single point of failure</div></div>
+              <div class="ev-why"><b>Perché:</b> se il server cade, l'intero servizio è offline. Per mitigarlo serve ridondanza costosa (multi-regione, failover).</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark minus">−</div><div class="ev-title">Costi infrastrutturali</div></div>
+              <div class="ev-why"><b>Perché:</b> server farm, banda, personale specializzato. AWS, Azure o datacenter proprietario: il costo è ricorrente e significativo.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark minus">−</div><div class="ev-title">Scalabilità a gradini</div></div>
+              <div class="ev-why"><b>Perché:</b> oltre una certa soglia bisogna rifare l'architettura (sharding, replica): investimenti enormi a salti discreti.</div>
+            </div>
+            <div class="ev">
+              <div class="ev-top"><div class="ev-mark minus">−</div><div class="ev-title">Colli di bottiglia</div></div>
+              <div class="ev-why"><b>Perché:</b> tutto il traffico passa dal server. Eventi virali (slashdot effect) lo saturano rapidamente.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROBLEMI TECNICI (NEW) ================= -->
+<section class="sec" id="problemi">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker red">05 · Problemi tecnici reali</p>
+      <h2 class="sec-title">Le sfide che i libri non raccontano</h2>
+      <p>Il P2P sembra magico sulla carta. Nella pratica deve risolvere problemi di rete, di comportamento umano e di sicurezza che non esistono nel client-server.</p>
+    </div>
+    <div class="problems-grid">
+      <article class="prob rv d1">
+        <div class="prob-head">
+          <div class="prob-ico">🚧</div>
+          <div><h3>NAT Traversal</h3><span class="severity warn">CRITICO</span></div>
+        </div>
+        <p><b>Il problema:</b> la maggior parte dei dispositivi è dietro un router con NAT. Due peer in reti diverse non possono connettersi direttamente: non hanno IP pubblici.</p>
+        <div class="solution"><b>Soluzione</b>Tecniche di <i>hole punching</i> (UDP/TCP), server STUN per scoprire l'IP pubblico, server TURN come relay di fallback quando il punching fallisce (~20% dei casi).</div>
+      </article>
+      <article class="prob rv d2">
+        <div class="prob-head">
+          <div class="prob-ico">🦊</div>
+          <div><h3>Free Riding</h3><span class="severity warn">SISTEMICO</span></div>
+        </div>
+        <p><b>Il problema:</b> il 70% degli utenti di Gnutella scaricava senza condividere nulla. La rete moriva di altruismo insufficiente.</p>
+        <div class="solution"><b>Soluzione</b>Il protocollo <i>tit-for-tat</i> di BitTorrent: "ti do pezzi se tu mi dai pezzi". Chi non condivide viene rallentato. Incentivi economici in Filecoin.</div>
+      </article>
+      <article class="prob danger rv d3">
+        <div class="prob-head">
+          <div class="prob-ico">🎭</div>
+          <div><h3>Sybil Attack</h3><span class="severity danger">CRITICO</span></div>
+        </div>
+        <p><b>Il problema:</b> un attaccante crea migliaia di identità false ("sybil") per controllare una frazione significativa della rete e manipolarla.</p>
+        <div class="solution"><b>Soluzione</b>Proof-of-Work (Bitcoin), Proof-of-Stake (Ethereum), identità legate a risorse costose (IP, storage, reputazione). Rende costoso creare identità finte.</div>
+      </article>
+      <article class="prob danger rv d4">
+        <div class="prob-head">
+          <div class="prob-ico">🌑</div>
+          <div><h3>Eclipse Attack</h3><span class="severity danger">AVANZATO</span></div>
+        </div>
+        <p><b>Il problema:</b> l'attaccante isola un nodo vittima circondandolo di nodi malevoli. La vittima vede solo una versione falsa della rete.</p>
+        <div class="solution"><b>Soluzione</b>Connessioni multiple a nodi scelti casualmente, indirizzi IP diversi, DNS seed randomici. Bitcoin ha fix specifici dal 2015 (CVE-2015-3470).</div>
+      </article>
+      <article class="prob rv d1">
+        <div class="prob-head">
+          <div class="prob-ico">☠️</div>
+          <div><h3>Data Poisoning</h3><span class="severity warn">CONCRETO</span></div>
+        </div>
+        <p><b>Il problema:</b> peer malevoli distribuiscono file corrotti o infetti, avvelenando la rete. Difficile da rilevare senza autorità centrale.</p>
+        <div class="solution"><b>Soluzione</b>Hash crittografici dei file verificabili (Merkle trees), reputazione dei peer, chunk verificati uno a uno prima di accettare.</div>
+      </article>
+      <article class="prob rv d2">
+        <div class="prob-head">
+          <div class="prob-ico">⏱️</div>
+          <div><h3>Churn (nodi volatili)</h3><span class="severity warn">STRUTTURALE</span></div>
+        </div>
+        <p><b>Il problema:</b> i peer entrano ed escono dalla rete in continuazione (laptop che si chiudono, mobile senza campo). La tabella di routing diventa obsoleta.</p>
+        <div class="solution"><b>Soluzione</b>Kademlia ha refresh continui della DHT, ridondanza dei dati su più nodi, TTL brevi sui percorsi. Reti con churn &gt;50%/h funzionano ancora.</div>
+      </article>
+    </div>
+
+    <!-- NAT SIMULATOR -->
+    <div class="nat-sim rv">
+      <div class="nat-bar">
+        <div class="nb-title"><span class="led amber"></span>Simulazione NAT Traversal</div>
+        <div class="seg">
+          <button class="on-p2p" id="natModeDirect">Connessione diretta</button>
+          <button id="natModeHole">Hole punching</button>
+          <button id="natModeRelay">Relay TURN</button>
+        </div>
+      </div>
+      <div class="nat-canvas-wrap"><canvas id="natCanvas"></canvas></div>
+      <div class="nat-controls">
+        <button class="btn btn-p2p sm" id="natSpawn">📤 Invia pacchetto</button>
+        <button class="btn btn-ghost sm" id="natReset">↺ Reset</button>
+        <span style="font-family:var(--fm);font-size:.66rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;padding:.6rem .6rem" id="natStatus">MODALITÀ: DIRETTA</span>
+      </div>
+      <div class="nat-legend">
+        <span><i style="background:var(--p2p)"></i>Peer A</span>
+        <span><i style="background:var(--blue)"></i>Peer B</span>
+        <span><i style="background:var(--cs)"></i>NAT Router</span>
+        <span><i style="background:var(--purple)"></i>STUN / TURN Server</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STORIA (EXPANDED) ================= -->
+<section class="sec sec-alt grid-bg" id="storia">
+  <span class="num-ghost">P2P</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">06 · Storia</p>
+      <h2 class="sec-title">Quattro rivoluzioni in ventisei anni</h2>
+      <p>Dai primi MP3 condivisi alla finanza decentralizzata: i software che hanno cambiato Internet.</p>
+    </div>
+    <div class="timeline">
+      <article class="hist-card rv d1">
+        <div class="hist-year">1999</div>
+        <div class="hist-img"><img src="https://picsum.photos/seed/napster-mp3-music/640/420" alt="Napster" loading="lazy"></div>
+        <div class="hist-body">
+          <h3>🎵 Napster</h3>
+          <p>Il primo P2P di massa. <b>Ibrido</b>: server centrale per l'indice, trasferimento P2P. Ha cambiato la musica e sollevato questioni legali epocali sul copyright.</p>
+          <div class="chips"><span class="chip">MP3</span><span class="chip">Ibrido</span><span class="chip">Chiuso 2001</span></div>
+        </div>
+      </article>
+      <article class="hist-card c2 rv d2">
+        <div class="hist-year">2001</div>
+        <div class="hist-img"><img src="https://picsum.photos/seed/bittorrent-swarm-network/640/420" alt="BitTorrent" loading="lazy"></div>
+        <div class="hist-body">
+          <h3>⚡ BitTorrent</h3>
+          <p>Inventato da Bram Cohen. Divide file in pezzi, distribuisce il carico, incentiva condivisione con <b>tit-for-tat</b>. Ancora oggi genera ~3-5% del traffico globale.</p>
+          <div class="chips"><span class="chip">Tit-for-tat</span><span class="chip">Swarm</span><span class="chip">DHT</span></div>
+        </div>
+      </article>
+      <article class="hist-card c3 rv d3">
+        <div class="hist-year">2009</div>
+        <div class="hist-img"><img src="https://picsum.photos/seed/bitcoin-blockchain-ledger/640/420" alt="Bitcoin" loading="lazy"></div>
+        <div class="hist-body">
+          <h3>₿ Bitcoin</h3>
+          <p>Satoshi risolve il <b>Byzantine Fault Tolerance</b> su scala globale con Proof-of-Work. Moneta digitale senza banca centrale: il consenso emerge dalla rete P2P stessa.</p>
+          <div class="chips"><span class="chip">PoW</span><span class="chip">Blockchain</span><span class="chip">BFT</span></div>
+        </div>
+      </article>
+      <article class="hist-card c4 rv d4">
+        <div class="hist-year">2015</div>
+        <div class="hist-img"><img src="https://picsum.photos/seed/ipfs-decentralized-web/640/420" alt="IPFS" loading="lazy"></div>
+        <div class="hist-body">
+          <h3>🌌 IPFS</h3>
+          <p>InterPlanetary File System. File identificati da <b>content hash</b> invece che posizione. Il web decentralizzato: un file esiste ovunque qualcuno lo ospiti.</p>
+          <div class="chips"><span class="chip">Merkle DAG</span><span class="chip">Content addressing</span><span class="chip">Filecoin</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= P2P OGGI (NEW) ================= -->
+<section class="sec" id="oggi">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker purple">07 · Il P2P nel 2026</p>
+      <h2 class="sec-title">Dove il P2P vive oggi (e non lo sapevi)</h2>
+      <p>Il P2P non è roba da pirati degli anni 2000. È dentro i prodotti che usi ogni giorno, spesso senza saperlo.</p>
+    </div>
+    <div class="today-grid">
+      <article class="today-card rv d1">
+        <span class="tc-ico">🎥</span>
+        <h3>WebRTC <span class="tc-year">2011-oggi</span></h3>
+        <p>Videochiamate nel browser <b>senza server di media</b>. Dopo il signaling iniziale (C/S), audio/video viaggiano P2P tra i browser. Base di Google Meet, Jitsi, Discord (in parte).</p>
+        <div class="tc-usage">Usato da: <b>Google Meet, Discord, Whereby</b></div>
+      </article>
+      <article class="today-card rv d2">
+        <span class="tc-ico">🧅</span>
+        <h3>Tor <span class="tc-year">2002-oggi</span></h3>
+        <p>Rete P2P di <b>relay volontari</b> (7000+). Il traffico rimbalza su tre nodi scelti a caso, cifrato a cipolla. Fondamentale per giornalisti e dissidenti.</p>
+        <div class="tc-usage">Utenti giornalieri: <b>~2 milioni</b></div>
+      </article>
+      <article class="today-card rv d3">
+        <span class="tc-ico">🪟</span>
+        <h3>Windows Update P2P <span class="tc-year">2015-oggi</span></h3>
+        <p><i>Delivery Optimization</i>: i PC nella tua rete locale e i peer Microsoft vicini <b>si scambiano gli aggiornamenti</b>. Riduce del 60-90% il traffico dai server Microsoft.</p>
+        <div class="tc-usage">Dispositivi: <b>~1.4 miliardi</b></div>
+      </article>
+      <article class="today-card rv d1">
+        <span class="tc-ico">🎵</span>
+        <h3>Spotify (storico) <span class="tc-year">2008-2014</span></h3>
+        <p>Per anni usò <b>P2P per la cache</b>: se un collega aveva già streammato un brano, lo ricevevi dal suo PC. Abbandonato per ragioni di licensing e mobile.</p>
+        <div class="tc-usage">Picco: <b>60% del traffico P2P</b></div>
+      </article>
+      <article class="today-card rv d2">
+        <span class="tc-ico">🚗</span>
+        <h3>Tesla OTA <span class="tc-year">2020-oggi</span></h3>
+        <p>Aggiornamenti firmware <b>condivisi tra veicoli</b> nello stesso parcheggio o stazione Supercharger. Riduce drasticamente la banda dai server Tesla.</p>
+        <div class="tc-usage">Veicoli: <b>~6 milioni</b></div>
+      </article>
+      <article class="today-card rv d3">
+        <span class="tc-ico">💬</span>
+        <h3>Signal <span class="tc-year">2014-oggi</span></h3>
+        <p>Messaggistica <b>end-to-end encrypted</b>. I server servono solo per routing e key exchange; il contenuto viaggia cifrato P2P tra i dispositivi degli utenti.</p>
+        <div class="tc-usage">Utenti: <b>~100 milioni</b></div>
+      </article>
+      <article class="today-card rv d1">
+        <span class="tc-ico">🪙</span>
+        <h3>Ethereum <span class="tc-year">2015-oggi</span></h3>
+        <p>Tutti i <b>smart contract</b> vivono su una rete P2P di nodi validatori. La DHT Kademlia fa scoprire i peer, il gossip protocol propaga blocchi e transazioni.</p>
+        <div class="tc-usage">Nodi: <b>~900.000</b></div>
+      </article>
+      <article class="today-card rv d2">
+        <span class="tc-ico">🎮</span>
+        <h3>Gaming P2P <span class="tc-year">sempre</span></h3>
+        <p>Molti giochi multiplayer usano P2P per il <b>game state</b> per ridurre la latenza (fighting games, Mario Kart). Server solo per matchmaking e anti-cheat.</p>
+        <div class="tc-usage">Esempi: <b>Street Fighter, FIFA, Smash Bros</b></div>
+      </article>
+      <article class="today-card rv d3">
+        <span class="tc-ico">📡</span>
+        <h3>IPFS &amp; Filecoin <span class="tc-year">2015-oggi</span></h3>
+        <p>Il <b>web decentralizzato</b>. File indirizzati da hash crittografico, non da URL. Chiunque ospiti il file diventa mirror. Filecoin aggiunge incentivi economici.</p>
+        <div class="tc-usage">Storage: <b>oltre 18 EiB</b></div>
+      </article>
+    </div>
+
+    <!-- IBRIDI -->
+    <div class="sec-head rv" style="margin-top:5rem">
+      <p class="kicker blue">07b · Modelli ibridi moderni</p>
+      <h2 class="sec-title">La realtà del 2026 è quasi sempre ibrida</h2>
+      <p>Puro P2P o puro client-server esistono raramente. I sistemi moderni combinano entrambi i modelli, sfruttando il meglio di ciascuno.</p>
+    </div>
+    <div class="hybrid-grid">
+      <article class="hybrid rv d1">
+        <div class="hybrid-head">
+          <div class="hybrid-logo">🎬</div>
+          <div><h3>Netflix</h3><span class="ht">VIDEO ON DEMAND · 260M+ UTENTI</span></div>
+        </div>
+        <div class="hybrid-arch">
+          <div class="hybrid-node cs"><span class="hn-l">Catalogo + Auth</span><strong>Client-Server</strong></div>
+          <div class="hybrid-arrow">⇄</div>
+          <div class="hybrid-node p2p"><span class="hn-l">Delivery video</span><strong>CDN (cache P2P)</strong></div>
+        </div>
+        <p class="hybrid-desc"><b>Catalogo, login, pagamenti</b> sono su server centrali (devi sapere chi paga cosa). Ma il <b>video arriva da CDN edge</b>: server vicini a te che si comportano come peer della rete Netflix, scambiandosi contenuti popolari.</p>
+      </article>
+      <article class="hybrid rv d2">
+        <div class="hybrid-head">
+          <div class="hybrid-logo">📹</div>
+          <div><h3>Zoom</h3><span class="ht">VIDEOCONFERENZE · 300M+ UTENTI/GIORNO</span></div>
+        </div>
+        <div class="hybrid-arch">
+          <div class="hybrid-node cs"><span class="hn-l">Signaling</span><strong>Client-Server</strong></div>
+          <div class="hybrid-arrow">⇄</div>
+          <div class="hybrid-node p2p"><span class="hn-l">Media (quando possibile)</span><strong>WebRTC P2P</strong></div>
+        </div>
+        <p class="hybrid-desc"><b>Signaling</b> (chi partecipa, chi parla, chi ha il microfono aperto) passa dai server Zoom. Ma quando due persone sono in 1-to-1 o in condizioni di rete buone, <b>audio e video vanno P2P</b> via WebRTC, riducendo la latenza.</p>
+      </article>
+      <article class="hybrid rv d1">
+        <div class="hybrid-head">
+          <div class="hybrid-logo">💬</div>
+          <div><h3>Slack</h3><span class="ht">TEAM COMMUNICATION · 32M+ UTENTI</span></div>
+        </div>
+        <div class="hybrid-arch">
+          <div class="hybrid-node cs"><span class="hn-l">Messaggistica</span><strong>Client-Server</strong></div>
+          <div class="hybrid-arrow">⇄</div>
+          <div class="hybrid-node p2p"><span class="hn-l">Chiamate voice/video</span><strong>WebRTC P2P</strong></div>
+        </div>
+        <p class="hybrid-desc"><b>Messaggi, canali, file, ricerche</b>: tutto centralizzato per persistenza e search. Ma <b>le chiamate huddle</b> in piccoli gruppi usano WebRTC peer-to-peer per ridurre la latenza e i costi server.</p>
+      </article>
+      <article class="hybrid rv d2">
+        <div class="hybrid-head">
+          <div class="hybrid-logo">🎵</div>
+          <div><h3>Spotify (oggi)</h3><span class="ht">MUSIC STREAMING · 600M+ UTENTI</span></div>
+        </div>
+        <div class="hybrid-arch">
+          <div class="hybrid-node cs"><span class="hn-l">Catalogo + streaming</span><strong>Client-Server + CDN</strong></div>
+          <div class="hybrid-arrow">⇄</div>
+          <div class="hybrid-node p2p"><span class="hn-l">Cache locale</span><strong>P2P tra dispositivi utente</strong></div>
+        </div>
+        <p class="hybrid-desc"><b>Streaming principale</b> da CDN Akamai/CloudFront. Ma <b>la cache dei brani già ascoltati</b> può essere scambiata P2P tra i tuoi dispositivi e, in alcuni mercati, tra dispositivi sulla stessa rete locale.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LEGALE (NEW) ================= -->
+<section class="sec sec-alt" id="legal">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker warn">08 · Aspetti legali</p>
+      <h2 class="sec-title">Il P2P davanti alla legge</h2>
+      <p>La tecnologia P2P è <b>di per sé legale</b>. Ma l'uso che se ne fa ha generato alcune delle cause più importanti della storia di Internet.</p>
+    </div>
+    <div class="legal-grid">
+      <div class="legal-main rv d1">
+        <h3>⚖️ La distinzione fondamentale</h3>
+        <p>La legge distingue tra <b>la tecnologia</b> (il protocollo, il software) e <b>l'uso che se ne fa</b>. È la stessa differenza tra un coltello da cucina e un'arma: lo strumento non è illegale, l'uso può esserlo.</p>
+        <div class="case">
+          <h4>🏴‍☠️ The Pirate Bay (2009)</h4>
+          <p>I quattro fondatori furono condannati a un anno di carcere e 30 milioni di corone di danni. La sentenza svedese stabilì che <b>chi fornisce l'infrastruttura</b> (tracker, ricerca) <b>per la condivisione illegale</b> è responsabile quanto chi condivide, anche se non ospita direttamente i file.</p>
+        </div>
+        <div class="case" style="border-color:var(--blue);background:rgba(77,163,255,.06)">
+          <h4 style="color:var(--blue)">🎓 MGM vs Grokster (2005, USA)</h4>
+          <p>La Corte Suprema USA stabilì il principio dell'<b>"inducement"</b>: se promuovi attivamente l'uso illegale di un software (marketing, tutorial), sei responsabile. Ma il P2P in sé non fu dichiarato illegale.</p>
+        </div>
+        <p style="margin-top:1.2rem">Oggi il P2P è usato legalmente per distribuire Linux, giochi (Blizzard, Wargaming), aggiornamenti Windows, dataset scientifici enormi.</p>
+      </div>
+      <div class="legal-side rv d2">
+        <div class="legal-card">
+          <h4><span class="ic">🇪🇺</span> GDPR e P2P</h4>
+          <p>Problema moderno enorme: se i dati personali sono distribuiti su 10.000 nodi, <b>chi è il titolare del trattamento?</b> Chi risponde alle richieste di cancellazione? La questione è ancora aperta.</p>
+        </div>
+        <div class="legal-card">
+          <h4><span class="ic">🔗</span> ISP e responsabilità</h4>
+          <p>Per la direttiva UE sul copyright (art. 17), le piattaforme possono essere responsabili se non fanno "best efforts" per bloccare contenuti protetti. Ha impattato anche servizi P2P.</p>
+        </div>
+        <div class="legal-card">
+          <h4><span class="ic">🪙</span> Criptovalute</h4>
+          <p>MiCA in Europa (2024) regola gli exchange, ma <b>non può regolare i nodi Bitcoin</b>: sono troppo decentralizzati. È il vero banco di prova del diritto moderno.</p>
+        </div>
+        <div class="legal-callout">
+          <h4>💡 Principio chiave</h4>
+          <p>Una rete P2P veramente decentralizzata è <b>intrinsecamente resistente alla regolamentazione</b>. Questo è il motivo per cui Bitcoin esiste nonostante i divieti in molti paesi: non c'è un "centro" da chiudere.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SIMULAZIONE ================= -->
+<section class="sec" id="sim">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">09 · Sala di controllo</p>
+      <h2 class="sec-title" id="simTitle" data-text="SIMULA LE DUE RETI IN TEMPO REALE">SIMULA LE DUE RETI IN TEMPO REALE</h2>
+      <p>Aggiungi nodi, lancia trasferimenti, trascina i peer, spegni il server: tocca con mano le differenze tra le due architetture.</p>
+    </div>
+    <div class="sim-grid">
+      <div class="sim-panel p2p-side rv d1">
+        <div class="panel-bar">
+          <div class="pb-title"><span class="led"></span>RETE PEER-TO-PEER · MESH</div>
+          <span class="pb-title" id="p2pHint" style="letter-spacing:.1em">TRASCINA I NODI</span>
+        </div>
+        <div class="sim-canvas"><canvas id="p2pCanvas"></canvas><div class="canvas-note">FILE = 6 FRAMMENTI · ROUTING GOSSIP</div></div>
+        <div class="sim-controls">
+          <button class="btn btn-p2p sm" id="btnP2pAdd">➕ Aggiungi peer</button>
+          <button class="btn btn-ghost sm" id="btnP2pRemove">➖ Rimuovi</button>
+          <button class="btn btn-p2p sm" id="btnP2pTransfer">📤 Trasferimento</button>
+          <button class="btn btn-ghost sm" id="btnP2pReset">↺ Reset</button>
+        </div>
+        <div class="sim-metrics">
+          <div class="sm"><div class="sl">Peer</div><div class="sv hl" id="mP2pPeers">0</div></div>
+          <div class="sm"><div class="sl">Chunk consegnati</div><div class="sv" id="mP2pChunks">0</div></div>
+          <div class="sm"><div class="sl">Latenza</div><div class="sv" id="mP2pLat">—</div></div>
+          <div class="sm"><div class="sl">Stato</div><div class="sv hl" id="mP2pStatus" style="font-size:.8rem">MESH ATTIVA</div></div>
+        </div>
+      </div>
+      <div class="sim-panel cs-side rv d2" id="csPanel">
+        <div class="panel-bar">
+          <div class="pb-title"><span class="led amber" id="csLed"></span>RETE CLIENT-SERVER · STELLA</div>
+          <span class="pb-title" style="letter-spacing:.1em">CLICCA UN CLIENT PER RICHIEDERE</span>
+        </div>
+        <div class="sim-canvas"><canvas id="csCanvas"></canvas><div class="canvas-note">CODA FIFO SUL SERVER · PROVA IL SOVRACCARICO</div></div>
+        <div class="sim-controls">
+          <button class="btn btn-cs sm" id="btnCsAdd">➕ Aggiungi client</button>
+          <button class="btn btn-ghost sm" id="btnCsRemove">➖ Rimuovi</button>
+          <button class="btn btn-cs sm" id="btnCsReq">📤 Richiesta</button>
+          <button class="btn btn-ghost sm" id="btnCsAuto">◉ Traffico auto: OFF</button>
+          <button class="btn btn-danger sm" id="btnCsPower">⏻ Spegni server</button>
+          <button class="btn btn-ghost sm" id="btnCsReset">↺ Reset</button>
+        </div>
+        <div class="sim-metrics">
+          <div class="sm"><div class="sl">Client</div><div class="sv hl" id="mCsClients">0</div></div>
+          <div class="sm"><div class="sl">Coda server</div><div class="sv" id="mCsQueue">0</div></div>
+          <div class="sm"><div class="sl">Risposta</div><div class="sv" id="mCsRt">—</div></div>
+          <div class="sm"><div class="sl">Stato</div><div class="sv hl" id="mCsStatus" style="font-size:.8rem">SERVER ONLINE</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= QUIZ (EXPANDED) ================= -->
+<section class="sec sec-alt grid-bg" id="quiz">
+  <div class="wrap">
+    <div class="sec-head rv" style="text-align:center;margin-left:auto;margin-right:auto">
+      <p class="kicker" style="justify-content:center">10 · Verifica</p>
+      <h2 class="sec-title">Verifica le tue conoscenze</h2>
+      <p>Sei domande che coprono teoria, problemi tecnici e casi reali.</p>
+    </div>
+    <div class="quiz-shell rv d1">
+      <div id="quizBox">
+        <div class="quiz-top">
+          <div class="qt-l"><span class="led"></span> QUESTIONARIO</div>
+          <div id="qCount">1 / 6</div>
+        </div>
+        <div class="q-progress"><i id="qProg"></i></div>
+        <div class="quiz-body">
+          <div id="qText"></div>
+          <div id="qOptions"></div>
+          <div class="q-feedback" id="qFeedback"></div>
+        </div>
+        <div class="quiz-foot"><button class="btn btn-p2p sm" id="qNext" style="display:none">Prossima domanda ▸</button></div>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <div class="score-ring">
+          <svg width="150" height="150"><circle class="ring-bg" cx="75" cy="75" r="54"/><circle class="ring-fg" id="ringFg" cx="75" cy="75" r="54"/></svg>
+          <div class="score-num" id="scoreNum">0/6</div>
+        </div>
+        <div id="verdict"></div>
+        <p id="verdictMsg"></p>
+        <button class="btn btn-p2p sm" id="btnRestart">↺ Riprova</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="logo" href="#top" style="font-size:.85rem"><span class="lg-dot"></span>P2P<b>//</b>CS</a>
+    <div class="f-nav">
+      <a href="#intro">Intro</a><a href="#tipologie">Tipologie</a><a href="#problemi">Problemi</a><a href="#oggi">Oggi</a><a href="#legal">Legale</a><a href="#sim">Sim</a><a href="#quiz">Quiz</a>
+    </div>
+    <small>DEMO DIDATTICA · RETI P2P VS CLIENT-SERVER · V2.0</small>
+  </div>
+</footer>
+
+<script>
+/* ============ UTILS ============ */
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TAU = Math.PI*2;
+const qs = s=>document.querySelector(s), qsa = s=>[...document.querySelectorAll(s)];
+const rand=(a,b)=>a+Math.random()*(b-a);
+const irand=n=>Math.floor(Math.random()*n);
+const pick=a=>a[irand(a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const dist=(x1,y1,x2,y2)=>Math.hypot(x2-x1,y2-y1);
+const easeOutBack=t=>{const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)};
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+function fitCanvas(cv,h){
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const w=cv.parentElement.getBoundingClientRect().width;
+  cv.width=w*dpr; cv.height=h*dpr;
+  cv.style.height=h+'px';
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,w,h};
+}
+function scramble(el,dur=1100){
+  const final=el.dataset.text||el.textContent;
+  if(RM){el.textContent=final;return;}
+  const chars='!<>-_\\/[]{}=+*^?#010101';
+  const start=performance.now();
+  (function frame(t){
+    const p=clamp((t-start)/dur,0,1), reveal=Math.floor(p*final.length);
+    let out='';
+    for(let i=0;i<final.length;i++){
+      out += i<reveal ? final[i] : (final[i]===' '?' ':chars[irand(chars.length)]);
+    }
+    el.textContent=out;
+    if(p<1)requestAnimationFrame(frame); else el.textContent=final;
+  })(start);
+}
+const hdr=qs('#hdr');
+addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>24),{passive:true});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.15});
+qsa('.rv').forEach(el=>io.observe(el));
+
+/* ============ HERO ============ */
+(function(){
+  const cv=qs('#heroCanvas');
+  const {ctx,w,h}=fitCanvas(cv,Math.max(innerHeight,600));
+  const N=clamp(Math.round(w*h/26000),26,54);
+  const nodes=Array.from({length:N},()=>({x:rand(0,w),y:rand(0,h),vx:rand(-9,9),vy:rand(-9,9),r:rand(1.6,3.2),flash:0}));
+  let packets=[], pktCount=0, pps=0, lastPpsT=performance.now();
+  qs('#heroNodes').textContent=N;
+  function step(dt,now){
+    nodes.forEach(n=>{
+      n.x+=n.vx*dt; n.y+=n.vy*dt;
+      if(n.x<0||n.x>w)n.vx*=-1; if(n.y<0||n.y>h)n.vy*=-1;
+    });
+    if(packets.length<N/3 && Math.random()<.14){
+      const a=pick(nodes);
+      const near=nodes.filter(o=>o!==a&&dist(a.x,a.y,o.x,o.y)<190);
+      if(near.length){packets.push({a,b:pick(near),t:0,s:rand(.6,1.4),c:Math.random()<.75?'#34f5b1':'#4da3ff'});pktCount++;}
+    }
+    packets=packets.filter(p=>{p.t+=p.s*dt;if(p.t>=1){p.a.flash=p.b.flash=now;return false;}return true;});
+  }
+  function draw(now){
+    ctx.clearRect(0,0,w,h);
+    ctx.lineWidth=1;
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j],d=dist(a.x,a.y,b.x,b.y);
+      if(d<160){ctx.strokeStyle=`rgba(77,163,255,${(1-d/160)*.16})`;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+    }
+    packets.forEach(p=>{
+      const x=lerp(p.a.x,p.b.x,p.t),y=lerp(p.a.y,p.b.y,p.t);
+      ctx.fillStyle=p.c; ctx.shadowColor=p.c; ctx.shadowBlur=8;
+      ctx.beginPath();ctx.arc(x,y,2,0,TAU);ctx.fill();ctx.shadowBlur=0;
+    });
+    nodes.forEach(n=>{
+      const f=now-n.flash<400?1-(now-n.flash)/400:0;
+      ctx.fillStyle=f>0?'#34f5b1':'rgba(142,161,189,.8)';
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r+f*2,0,TAU);ctx.fill();
+    });
+  }
+  if(RM){draw(performance.now());}
+  else{
+    let last=performance.now();
+    (function loop(now){
+      const dt=clamp((now-last)/1000,0,.05); last=now;
+      if(!document.hidden){step(dt,now);draw(now);}
+      requestAnimationFrame(loop);
+    })(last);
+    setInterval(()=>{
+      const now=performance.now();
+      pps=Math.round(pktCount*1000/(now-lastPpsT)); pktCount=0; lastPpsT=now;
+      qs('#heroPps').textContent=pps;
+      qs('#heroLat').textContent=Math.round(14+rand(0,9)+N*.2)+' ms';
+    },1000);
+  }
+})();
+
+addEventListener('load',()=>{scramble(qs('#titleA'),1000);setTimeout(()=>scramble(qs('#titleB'),1000),350);
+  const ioT=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){scramble(e.target,900);ioT.unobserve(e.target);}}),{threshold:.5});
+  ioT.observe(qs('#simTitle'));
+});
+qs('#mqTrack').innerHTML+=qs('#mqTrack').innerHTML;
+
+/* ============ MORPH ============ */
+(function(){
+  const cv=qs('#morphCanvas');
+  const {ctx,w,h}=fitCanvas(cv,400);
+  const N=9, cx=w/2, cy=h/2;
+  const p2pPos=[],csPos=[];
+  for(let i=0;i<N;i++){
+    const a=i/N*TAU-Math.PI/2;
+    const jr=1+((i*37)%13-6)/40;
+    p2pPos.push({x:cx+Math.cos(a)*w*.34*jr,y:cy+Math.sin(a)*h*.36*jr});
+    csPos.push(i===0?{x:cx,y:cy}:{x:cx+Math.cos(a)*w*.3,y:cy+Math.sin(a)*h*.3});
+  }
+  const nodes=p2pPos.map(p=>({x:p.x,y:p.y}));
+  const p2pEdges=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,0],[0,4],[2,6],[1,5],[3,7]];
+  let mode='p2p', t=0, target=0;
+  let packets=[];
+  const capEl=qs('#morphCaption'), labEl=qs('#morphLabel'), cornerEl=qs('#morphCorner'), ledEl=qs('#morphLed');
+  function setMode(m){
+    if(m===mode)return; mode=m; target=m==='cs'?1:0;
+    if(m==='cs'){
+      labEl.textContent='TOPOLOGIA: STELLA CLIENT-SERVER'; cornerEl.textContent='1 SERVER · 8 CLIENT';
+      ledEl.className='led amber';
+      capEl.className='morph-caption cs';
+      capEl.innerHTML='<b>Rete Client-Server centralizzata</b> — il server centrale gestisce tutto: i client devono passare da lui per ogni risorsa.';
+      qs('#segCs').className='on-cs'; qs('#segP2p').className='';
+    }else{
+      labEl.textContent='TOPOLOGIA: MESH P2P'; cornerEl.textContent='9 NODI · 0 SERVER';
+      ledEl.className='led';
+      capEl.className='morph-caption';
+      capEl.innerHTML='<b>Rete P2P decentralizzata</b> — ogni nodo comunica direttamente con gli altri, senza un centro di controllo.';
+      qs('#segP2p').className='on-p2p'; qs('#segCs').className='';
+    }
+    packets=[];
+  }
+  qs('#segP2p').onclick=()=>setMode('p2p');
+  qs('#segCs').onclick=()=>setMode('cs');
+  function spawn(){
+    if(t<.5){
+      const e=pick(p2pEdges);
+      packets.push({path:Math.random()<.5?[e[0],e[1]]:[e[1],e[0]],seg:0,p:0,c:'#34f5b1'});
+    }else{
+      const a=1+irand(N-1); let b=1+irand(N-1); while(b===a)b=1+irand(N-1);
+      packets.push({path:[a,0,b],seg:0,p:0,c:'#ffb648'});
+    }
+  }
+  let last=performance.now();
+  (function loop(now){
+    const dt=clamp((now-last)/1000,0,.05); last=now;
+    t+=(target-t)*Math.min(1,dt*4);
+    if(Math.abs(target-t)<.001)t=target;
+    for(let i=0;i<N;i++){nodes[i].x=lerp(p2pPos[i].x,csPos[i].x,easeIO(t));nodes[i].y=lerp(p2pPos[i].y,csPos[i].y,easeIO(t));}
+    if(!document.hidden){
+      if(packets.length<5&&Math.random()<.06)spawn();
+      packets=packets.filter(pk=>{
+        pk.p+=dt*1.4;
+        if(pk.p>=1){pk.seg++;pk.p=0;if(pk.seg>=pk.path.length-1)return false;}
+        return true;
+      });
+    }
+    ctx.clearRect(0,0,w,h);
+    ctx.lineWidth=1;
+    p2pEdges.forEach(e=>{
+      ctx.strokeStyle=`rgba(52,245,177,${(1-t)*.35})`;
+      ctx.beginPath();ctx.moveTo(nodes[e[0]].x,nodes[e[0]].y);ctx.lineTo(nodes[e[1]].x,nodes[e[1]].y);ctx.stroke();
+    });
+    for(let i=1;i<N;i++){
+      ctx.strokeStyle=`rgba(255,182,72,${t*.4})`;
+      ctx.beginPath();ctx.moveTo(nodes[0].x,nodes[0].y);ctx.lineTo(nodes[i].x,nodes[i].y);ctx.stroke();
+    }
+    packets.forEach(pk=>{
+      const a=nodes[pk.path[pk.seg]],b=nodes[pk.path[pk.seg+1]];
+      if(!b)return;
+      const x=lerp(a.x,b.x,pk.p),y=lerp(a.y,b.y,pk.p);
+      ctx.fillStyle=pk.c;ctx.shadowColor=pk.c;ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(x,y,3,0,TAU);ctx.fill();ctx.shadowBlur=0;
+    });
+    nodes.forEach((n,i)=>{
+      const isC=i===0;
+      const r=isC?lerp(6,11,t):6;
+      const col=isC?(t>.5?'#ffb648':'#34f5b1'):'#34f5b1';
+      ctx.shadowColor=col;ctx.shadowBlur=isC?16:8;
+      ctx.fillStyle='#0c1424';ctx.strokeStyle=col;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(n.x,n.y,r,0,TAU);ctx.fill();ctx.stroke();
+      ctx.fillStyle=col;ctx.beginPath();ctx.arc(n.x,n.y,r*.35,0,TAU);ctx.fill();
+      ctx.shadowBlur=0;
+    });
+    requestAnimationFrame(loop);
+  })(last);
+})();
+
+/* ============ TIPOLOGIE CANVASES ============ */
+function drawType(canvasId,mode){
+  const cv=qs(canvasId);
+  const {ctx,w,h}=fitCanvas(cv,180);
+  let packets=[], last=performance.now();
+  
+  function drawPure(){
+    // mesh random nodes
+    const nodes=[];
+    const N=14;
+    for(let i=0;i<N;i++)nodes.push({x:rand(30,w-30),y:rand(30,h-30)});
+    function step(now,dt){
+      if(packets.length<4&&Math.random()<.04){
+        const a=nodes[irand(N)];
+        // flood: send to 2-3 random neighbors
+        const targets=[];
+        const sorted=[...nodes].filter(n=>n!==a).sort((x,y)=>dist(a.x,a.y,x.x,x.y)-dist(a.x,a.y,y.x,y.y));
+        for(let i=0;i<Math.min(3,sorted.length);i++){
+          packets.push({a,b:sorted[i],t:0,c:'#34f5b1'});
+        }
+      }
+      packets=packets.filter(p=>{p.t+=dt*1.2;if(p.t>=1)return false;return true;});
+    }
+    function render(){
+      ctx.clearRect(0,0,w,h);
+      // all-to-all within distance
+      ctx.lineWidth=1;
+      for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+        const a=nodes[i],b=nodes[j],d=dist(a.x,a.y,b.x,b.y);
+        if(d<90){ctx.strokeStyle='rgba(52,245,177,.15)';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+      }
+      packets.forEach(p=>{
+        const x=lerp(p.a.x,p.b.x,p.t),y=lerp(p.a.y,p.b.y,p.t);
+        ctx.fillStyle=p.c;ctx.shadowColor=p.c;ctx.shadowBlur=8;
+        ctx.beginPath();ctx.arc(x,y,2.5,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      });
+      nodes.forEach(n=>{
+        ctx.fillStyle='#34f5b1';
+        ctx.beginPath();ctx.arc(n.x,n.y,4,0,TAU);ctx.fill();
+      });
+    }
+    return {step,render};
+  }
+  
+  function drawHybrid(){
+    const cx=w/2,cy=h/2;
+    const server={x:cx,y:cy};
+    const peers=[];
+    const N=10;
+    for(let i=0;i<N;i++){
+      const a=i/N*TAU;
+      peers.push({x:cx+Math.cos(a)*w*.35,y:cy+Math.sin(a)*h*.35});
+    }
+    function step(now,dt){
+      if(packets.length<3&&Math.random()<.05){
+        const a=peers[irand(N)];
+        const b=peers[irand(N)];
+        if(a===b)return;
+        // peer -> server -> peer
+        packets.push({path:[a,server,b],seg:0,p:0,c:'#ffb648'});
+      }
+      packets=packets.filter(p=>{
+        p.p+=dt*1.3;
+        if(p.p>=1){p.seg++;p.p=0;if(p.seg>=p.path.length-1)return false;}
+        return true;
+      });
+    }
+    function render(){
+      ctx.clearRect(0,0,w,h);
+      ctx.lineWidth=1;
+      peers.forEach(p=>{
+        ctx.strokeStyle='rgba(255,182,72,.2)';
+        ctx.beginPath();ctx.moveTo(server.x,server.y);ctx.lineTo(p.x,p.y);ctx.stroke();
+      });
+      packets.forEach(p=>{
+        const a=p.path[p.seg],b=p.path[p.seg+1];
+        if(!b)return;
+        const x=lerp(a.x,b.x,p.p),y=lerp(a.y,b.y,p.p);
+        ctx.fillStyle=p.c;ctx.shadowColor=p.c;ctx.shadowBlur=8;
+        ctx.beginPath();ctx.arc(x,y,2.5,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      });
+      peers.forEach(p=>{
+        ctx.fillStyle='#34f5b1';
+        ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,TAU);ctx.fill();
+      });
+      // server
+      ctx.fillStyle='#0c1424';ctx.strokeStyle='#ffb648';ctx.lineWidth=2;
+      ctx.shadowColor='#ffb648';ctx.shadowBlur=10;
+      ctx.beginPath();ctx.rect(cx-9,cy-9,18,18);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.fillStyle='#ffb648';ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('IDX',cx,cy);
+    }
+    return {step,render};
+  }
+  
+  function drawDht(){
+    const cx=w/2,cy=h/2;
+    const N=16;
+    const nodes=[];
+    for(let i=0;i<N;i++){
+      const a=i/N*TAU-Math.PI/2;
+      nodes.push({x:cx+Math.cos(a)*Math.min(w,h)*.38,y:cy+Math.sin(a)*Math.min(w,h)*.38,i});
+    }
+    function step(now,dt){
+      if(packets.length<2&&Math.random()<.04){
+        const src=nodes[irand(N)];
+        const dst=nodes[irand(N)];
+        if(src===dst)return;
+        // Kademlia-like routing: jump halfway around the ring
+        const path=[src];
+        let current=src.i;
+        const target=dst.i;
+        let hops=0;
+        while(current!==target&&hops<6){
+          const diff=(target-current+N)%N;
+          const jump=Math.max(1,Math.floor(diff/2));
+          current=(current+jump)%N;
+          path.push(nodes[current]);
+          hops++;
+        }
+        packets.push({path,seg:0,p:0,c:'#4da3ff'});
+      }
+      packets=packets.filter(p=>{
+        p.p+=dt*1.4;
+        if(p.p>=1){p.seg++;p.p=0;if(p.seg>=p.path.length-1)return false;}
+        return true;
+      });
+    }
+    function render(){
+      ctx.clearRect(0,0,w,h);
+      ctx.lineWidth=1;
+      for(let i=0;i<N;i++){
+        const a=nodes[i],b=nodes[(i+1)%N];
+        ctx.strokeStyle='rgba(77,163,255,.25)';
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      }
+      packets.forEach(p=>{
+        const a=p.path[p.seg],b=p.path[p.seg+1];
+        if(!b)return;
+        const x=lerp(a.x,b.x,p.p),y=lerp(a.y,b.y,p.p);
+        ctx.fillStyle=p.c;ctx.shadowColor=p.c;ctx.shadowBlur=10;
+        ctx.beginPath();ctx.arc(x,y,3,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      });
+      nodes.forEach((n,i)=>{
+        ctx.fillStyle='#0c1424';ctx.strokeStyle='#4da3ff';ctx.lineWidth=1.3;
+        ctx.beginPath();ctx.arc(n.x,n.y,4.5,0,TAU);ctx.fill();ctx.stroke();
+        ctx.fillStyle='#4da3ff';ctx.font='500 7px IBM Plex Mono';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(i.toString(16).toUpperCase(),n.x,n.y);
+      });
+    }
+    return {step,render};
+  }
+  
+  const sim = mode==='pure'?drawPure():mode==='hybrid'?drawHybrid():drawDht();
+  (function loop(now){
+    const dt=clamp((now-last)/1000,0,.05); last=now;
+    if(!document.hidden){sim.step(now,dt);sim.render();}
+    requestAnimationFrame(loop);
+  })(last);
+}
+drawType('#typePure','pure');
+drawType('#typeHybrid','hybrid');
+drawType('#typeDht','dht');
+
+/* ============ CONFRONTO SCROLLSPY ============ */
+(function(){
+  const blocks=qsa('.diff-block'), navBtns=qsa('#diffNav button');
+  const data=[['01','Struttura della Rete'],['02','Gestione delle Risorse'],['03','Scalabilità']];
+  const spy=new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(e.isIntersecting){
+        const i=+e.target.dataset.i;
+        qs('#diffIndex').textContent=data[i][0];
+        qs('#diffTitle').textContent=data[i][1];
+        navBtns.forEach(b=>b.classList.toggle('active',+b.dataset.i===i));
+        blocks.forEach(b=>b.classList.toggle('hot',+b.dataset.i===i));
+      }
+    });
+  },{rootMargin:'-42% 0px -42% 0px'});
+  blocks.forEach(b=>spy.observe(b));
+  navBtns.forEach(b=>b.onclick=()=>blocks[+b.dataset.i].scrollIntoView({behavior:RM?'auto':'smooth',block:'center'}));
+})();
+
+/* ============ NAT SIMULATOR ============ */
+(function(){
+  const cv=qs('#natCanvas');
+  let {ctx,w,h}=fitCanvas(cv,360);
+  let mode='direct';
+  let packets=[];
+  
+  // geometry
+  let peerA, peerB, natA, natB, stunServer;
+  function calcGeometry(){
+    peerA={x:w*.12,y:h*.5,r:16};
+    peerB={x:w*.88,y:h*.5,r:16};
+    natA={x:w*.3,y:h*.5,r:12};
+    natB={x:w*.7,y:h*.5,r:12};
+    stunServer={x:w*.5,y:h*.18,r:14};
+  }
+  calcGeometry();
+  
+  function setStatus(t,color){
+    const el=qs('#natStatus');
+    el.textContent=t;
+    el.style.color=color||'var(--muted)';
+  }
+  
+  function setMode(m){
+    mode=m;
+    packets=[];
+    qsa('.nat-bar .seg button').forEach(b=>b.classList.remove('on-p2p'));
+    if(m==='direct'){qs('#natModeDirect').classList.add('on-p2p');setStatus('MODALITÀ: DIRETTA (bloccata dal NAT)','var(--red)');}
+    else if(m==='hole'){qs('#natModeHole').classList.add('on-p2p');setStatus('MODALITÀ: UDP HOLE PUNCHING','var(--p2p)');}
+    else{qs('#natModeRelay').classList.add('on-p2p');setStatus('MODALITÀ: RELAY TURN (fallback)','var(--cs)');}
+  }
+  
+  function spawn(){
+    if(mode==='direct'){
+      // fails: packet hits NAT and bounces back
+      packets.push({type:'direct',from:peerA,to:natA,t:0,c:'#ff5d7a',born:performance.now()});
+    }else if(mode==='hole'){
+      // 1. both peers ping STUN to discover public IP
+      // 2. exchange info via signaling (skipped visually)
+      // 3. simultaneous UDP punch
+      packets.push({type:'stun1',from:peerA,to:stunServer,t:0,c:'#a78bfa',born:performance.now()});
+      packets.push({type:'stun2',from:peerB,to:stunServer,t:0,c:'#a78bfa',born:performance.now()+200});
+      packets.push({type:'punch',from:peerA,to:peerB,t:0,c:'#34f5b1',born:performance.now()+900,avoidNAT:true});
+      packets.push({type:'punch',from:peerB,to:peerA,t:0,c:'#34f5b1',born:performance.now()+900,avoidNAT:true});
+    }else{
+      // relay through TURN
+      packets.push({type:'relay1',from:peerA,to:stunServer,t:0,c:'#ffb648',born:performance.now()});
+      packets.push({type:'relay2',from:stunServer,to:peerB,t:0,c:'#ffb648',born:performance.now()+600});
+    }
+  }
+  
+  let last=performance.now();
+  (function loop(now){
+    const dt=clamp((now-last)/1000,0,.05); last=now;
+    if(!document.hidden){
+      packets=packets.filter(p=>{
+        if(now-p.born<0)return true;
+        p.t+=dt*(p.type==='punch'?0.6:p.type.startsWith('relay')?0.9:1.1);
+        return p.t<1.4;
+      });
+      draw();
+    }
+    requestAnimationFrame(loop);
+  })(last);
+  
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    
+    // NAT walls (vertical bars)
+    ctx.fillStyle='rgba(255,182,72,.08)';
+    ctx.fillRect(w*.25,h*.15,10,h*.7);
+    ctx.fillRect(w*.75,h*.15,10,h*.7);
+    ctx.strokeStyle='rgba(255,182,72,.6)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(w*.25,h*.15);ctx.lineTo(w*.25,h*.85);ctx.moveTo(w*.75,h*.15);ctx.lineTo(w*.75,h*.85);ctx.stroke();
+    ctx.setLineDash([4,4]);
+    ctx.strokeStyle='rgba(255,182,72,.3)';
+    ctx.beginPath();ctx.moveTo(w*.25+10,h*.15);ctx.lineTo(w*.25+10,h*.85);ctx.moveTo(w*.75-10,h*.15);ctx.lineTo(w*.75-10,h*.85);ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // connection line peer to peer
+    ctx.strokeStyle='rgba(142,161,189,.15)';ctx.lineWidth=1;ctx.setLineDash([3,6]);
+    ctx.beginPath();ctx.moveTo(peerA.x,peerA.y);ctx.lineTo(peerB.x,peerB.y);ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // STUN connection
+    if(mode!=='direct'){
+      ctx.strokeStyle='rgba(167,139,250,.2)';
+      ctx.beginPath();ctx.moveTo(peerA.x,peerA.y);ctx.lineTo(stunServer.x,stunServer.y);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(peerB.x,peerB.y);ctx.lineTo(stunServer.x,stunServer.y);ctx.stroke();
+    }
+    
+    // packets
+    packets.forEach(p=>{
+      if(performance.now()-p.born<0)return;
+      let x,y;
+      const t=clamp(p.t,0,1);
+      if(p.type==='direct'){
+        x=lerp(p.from.x,p.to.x,t);y=lerp(p.from.y,p.to.y,t);
+        if(p.t>1){
+          // bounce back
+          const bt=p.t-1;
+          x=lerp(p.to.x,p.from.x,bt*0.7);
+          y=lerp(p.to.y,p.from.y+40,bt*0.7);
+        }
+      }else if(p.type==='stun1'||p.type==='stun2'){
+        x=lerp(p.from.x,p.to.x,t);y=lerp(p.from.y,p.to.y,t);
+      }else if(p.type==='punch'){
+        // arc above NAT
+        const mid={x:(p.from.x+p.to.x)/2,y:h*.3};
+        const ct=t;
+        x=(1-ct)*(1-ct)*p.from.x + 2*(1-ct)*ct*mid.x + ct*ct*p.to.x;
+        y=(1-ct)*(1-ct)*p.from.y + 2*(1-ct)*ct*mid.y + ct*ct*p.to.y;
+      }else if(p.type==='relay1'){
+        x=lerp(p.from.x,p.to.x,t);y=lerp(p.from.y,p.to.y,t);
+      }else if(p.type==='relay2'){
+        x=lerp(p.from.x,p.to.x,t);y=lerp(p.from.y,p.to.y,t);
+      }
+      
+      ctx.fillStyle=p.c;ctx.shadowColor=p.c;ctx.shadowBlur=12;
+      ctx.beginPath();ctx.arc(x,y,3.5,0,TAU);ctx.fill();
+      ctx.shadowBlur=0;
+      
+      // X for blocked
+      if(p.type==='direct'&&p.t>1.2){
+        ctx.strokeStyle='#ff5d7a';ctx.lineWidth=2;
+        const cx=p.to.x,cy=p.to.y;
+        ctx.beginPath();ctx.moveTo(cx-6,cy-6);ctx.lineTo(cx+6,cy+6);ctx.moveTo(cx+6,cy-6);ctx.lineTo(cx-6,cy+6);ctx.stroke();
+      }
+    });
+    
+    // nodes
+    // peer A
+    ctx.shadowColor='#34f5b1';ctx.shadowBlur=10;
+    ctx.fillStyle='#0c1424';ctx.strokeStyle='#34f5b1';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(peerA.x,peerA.y,peerA.r,0,TAU);ctx.fill();ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#34f5b1';ctx.font='bold 10px IBM Plex Mono';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('A',peerA.x,peerA.y);
+    
+    // peer B
+    ctx.shadowColor='#4da3ff';ctx.shadowBlur=10;
+    ctx.fillStyle='#0c1424';ctx.strokeStyle='#4da3ff';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(peerB.x,peerB.y,peerB.r,0,TAU);ctx.fill();ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#4da3ff';
+    ctx.fillText('B',peerB.x,peerB.y);
+    
+    // NATs
+    ctx.fillStyle='rgba(255,182,72,.15)';ctx.strokeStyle='#ffb648';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.rect(natA.x-natA.r,natA.y-natA.r,natA.r*2,natA.r*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#ffb648';ctx.font='bold 8px IBM Plex Mono';
+    ctx.fillText('NAT',natA.x,natA.y);
+    ctx.beginPath();ctx.rect(natB.x-natB.r,natB.y-natB.r,natB.r*2,natB.r*2);ctx.fill();ctx.stroke();
+    ctx.fillText('NAT',natB.x,natB.y);
+    
+    // STUN/TURN
+    if(mode!=='direct'){
+      ctx.shadowColor='#a78bfa';ctx.shadowBlur=12;
+      ctx.fillStyle='#0c1424';ctx.strokeStyle='#a78bfa';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(stunServer.x,stunServer.y,stunServer.r,0,TAU);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.fillStyle='#a78bfa';ctx.font='bold 8px IBM Plex Mono';
+      ctx.fillText(mode==='hole'?'STUN':'TURN',stunServer.x,stunServer.y);
+    }
+    
+    // labels
+    ctx.fillStyle='var(--muted)';ctx.font='500 10px IBM Plex Mono';
+    ctx.fillStyle='#8ea1bd';
+    ctx.fillText('RETE PRIVATA A',peerA.x,h*.92);
+    ctx.fillText('RETE PRIVATA B',peerB.x,h*.92);
+    ctx.fillText('INTERNET',w*.5,h*.92);
+  }
+  
+  qs('#natModeDirect').onclick=()=>setMode('direct');
+  qs('#natModeHole').onclick=()=>setMode('hole');
+  qs('#natModeRelay').onclick=()=>setMode('relay');
+  qs('#natSpawn').onclick=spawn;
+  qs('#natReset').onclick=()=>{packets=[];setMode('direct');};
+  setMode('direct');
+  
+  window.addEventListener('resize',()=>{
+    ({ctx,w,h}=fitCanvas(cv,360));
+    calcGeometry();
+  });
+})();
+
+/* ============ P2P SIMULATOR ============ */
+P2P_SEQ=0;
+class P2PSim{
+  constructor(cv){
+    this.cv=cv; const f=fitCanvas(cv,390); this.ctx=f.ctx; this.w=f.w; this.h=f.h;
+    this.peers=[]; this.chunks=[]; this.delivered=0; this.lastLat=null; this.drag=null;
+    this.COLORS=['#34f5b1','#4da3ff','#ffd166','#f472b6','#a78bfa','#fb7185'];
+    this.seed(); this.bind();
+    this.last=performance.now();
+    requestAnimationFrame(t=>this.tick(t));
+    setInterval(()=>this.metrics(),300);
+  }
+  seed(){
+    this.peers=[];
+    for(let i=0;i<5;i++){
+      const a=i/5*TAU-Math.PI/2;
+      this.peers.push(this.mk(this.w/2+Math.cos(a)*this.w*.3,this.h/2+Math.sin(a)*this.h*.32));
+    }
+  }
+  mk(x,y){return {x,y,id:++P2P_SEQ,born:performance.now(),wob:rand(0,TAU),flash:-9e9,color:this.COLORS[irand(this.COLORS.length)]}}
+  add(){
+    if(this.peers.length>=12)return this.status('LIMITE: 12 PEER');
+    for(let k=0;k<30;k++){
+      const x=rand(46,this.w-46),y=rand(46,this.h-46);
+      if(this.peers.every(p=>dist(x,y,p.x,p.y)>52)){this.peers.push(this.mk(x,y));this.status('NUOVO PEER IN RETE ✓');return;}
+    }
+    this.peers.push(this.mk(rand(46,this.w-46),rand(46,this.h-46)));
+  }
+  remove(){
+    if(this.peers.length<=2)return this.status('MINIMO 2 PEER');
+    let idx=-1;
+    for(let i=this.peers.length-1;i>=0;i--)if(this.drag?.p!==this.peers[i]){idx=i;break;}
+    const gone=this.peers.splice(idx,1)[0];
+    this.chunks=this.chunks.filter(c=>!c.path.includes(gone));
+    this.status('PEER USCITO DALLA RETE');
+  }
+  transfer(){
+    if(this.peers.length<2)return this.status('SERVONO ≥ 2 PEER');
+    const src=pick(this.peers); let dst=pick(this.peers); while(dst===src)dst=pick(this.peers);
+    const n=6, now=performance.now();
+    for(let i=0;i<n;i++){
+      let path=[src];
+      if(this.peers.length>2&&Math.random()<.6){
+        let via=pick(this.peers); while(via===src||via===dst)via=pick(this.peers);
+        path.push(via);
+      }
+      path.push(dst);
+      this.chunks.push({path,seg:0,t:0,delay:i*140,born:now,color:this.COLORS[i%this.COLORS.length],speed:rand(120,190)});
+    }
+    this.status('📤 FILE DIVISO IN 6 CHUNK');
+  }
+  status(s){qs('#mP2pStatus').textContent=s;}
+  reset(){this.seed();this.chunks=[];this.delivered=0;this.lastLat=null;this.status('RETE REINIZIALIZZATA');}
+  bind(){
+    const cv=this.cv;
+    const pos=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
+    cv.addEventListener('pointerdown',e=>{
+      const p=pos(e);
+      const hit=this.peers.find(n=>dist(p.x,p.y,n.x,n.y)<18);
+      if(hit){this.drag={p:hit};cv.setPointerCapture(e.pointerId);}
+    });
+    cv.addEventListener('pointermove',e=>{
+      if(!this.drag)return; const p=pos(e);
+      this.drag.p.x=clamp(p.x,20,this.w-20); this.drag.p.y=clamp(p.y,20,this.h-20);
+    });
+    const up=()=>this.drag=null;
+    cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+  }
+  tick(now){
+    const dt=clamp((now-this.last)/1000,0,.05); this.last=now;
+    if(!document.hidden){
+      this.chunks=this.chunks.filter(c=>{
+        if(now-c.born<c.delay)return true;
+        const a=c.path[c.seg],b=c.path[c.seg+1];
+        if(!b){this.delivered++;this.lastLat=Math.round(45+this.peers.length*4+rand(0,25));c.path[c.path.length-1].flash=now;return false;}
+        const d=Math.max(1,dist(a.x,a.y,b.x,b.y));
+        c.t+=c.speed*dt/d;
+        if(c.t>=1){c.seg++;c.t=0;}
+        return true;
+      });
+      this.draw(now);
+    }
+    requestAnimationFrame(t=>this.tick(t));
+  }
+  draw(now){
+    const ctx=this.ctx; ctx.clearRect(0,0,this.w,this.h);
+    ctx.lineWidth=1;
+    for(let i=0;i<this.peers.length;i++)for(let j=i+1;j<this.peers.length;j++){
+      const a=this.peers[i],b=this.peers[j],d=dist(a.x,a.y,b.x,b.y);
+      if(d<210){ctx.strokeStyle=`rgba(52,245,177,${(1-d/210)*.22})`;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+    }
+    this.chunks.forEach(c=>{
+      if(now-c.born<c.delay)return;
+      const a=c.path[c.seg],b=c.path[c.seg+1]; if(!b)return;
+      const x=lerp(a.x,b.x,c.t),y=lerp(a.y,b.y,c.t);
+      ctx.strokeStyle=c.color+'44';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(x,y);ctx.stroke();
+      ctx.save();ctx.translate(x,y);ctx.rotate(now/300);
+      ctx.fillStyle=c.color;ctx.shadowColor=c.color;ctx.shadowBlur=10;
+      ctx.fillRect(-3.5,-3.5,7,7);ctx.restore();
+    });
+    ctx.font='600 9px "IBM Plex Mono"';ctx.textAlign='center';
+    this.peers.forEach(p=>{
+      const sc=easeOutBack(clamp((now-p.born)/450,0,1));
+      const bob=RM?0:Math.sin(now/900+p.wob)*2;
+      const x=p.x,y=p.y+bob,r=9*sc;
+      const fl=now-p.flash<500?1-(now-p.flash)/500:0;
+      if(fl>0){ctx.strokeStyle=`rgba(52,245,177,${fl*.8})`;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,r+10*(1-fl)+4,0,TAU);ctx.stroke();}
+      ctx.shadowColor='#34f5b1';ctx.shadowBlur=14;
+      ctx.fillStyle='#0c1424';ctx.strokeStyle=p.color;ctx.lineWidth=1.6;
+      ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(x,y,r*.34,0,TAU);ctx.fill();
+      ctx.fillStyle='#5c6f8f';ctx.fillText('P'+p.id,x,y+r+13);
+    });
+  }
+  metrics(){
+    qs('#mP2pPeers').textContent=this.peers.length;
+    qs('#mP2pChunks').textContent=this.delivered;
+    qs('#mP2pLat').textContent=this.lastLat?this.lastLat+' ms':'—';
+  }
+}
+
+/* ============ CS SIMULATOR ============ */
+CS_SEQ=0;
+class CSSim{
+  constructor(cv){
+    this.cv=cv; const f=fitCanvas(cv,390); this.ctx=f.ctx; this.w=f.w; this.h=f.h;
+    this.cx=this.w/2; this.cy=this.h/2; this.R=Math.min(this.w,this.h)*.36;
+    this.clients=[]; this.pkts=[]; this.queue=[]; this.processing=null;
+    this.up=true; this.served=0; this.failed=0; this.lastRT=null; this.auto=false; this.autoT=null;
+    for(let i=0;i<4;i++)this.addClient(true);
+    this.bind();
+    this.last=performance.now();
+    requestAnimationFrame(t=>this.tick(t));
+    setInterval(()=>this.metrics(),300);
+  }
+  addClient(silent){
+    if(this.clients.length>=12){if(!silent)this.status('LIMITE: 12 CLIENT');return;}
+    const a=this.clients.length*2.399+rand(-.15,.15);
+    this.clients.push({a,id:++CS_SEQ,born:performance.now(),flash:-9e9,fc:'#34f5b1'});
+    if(!silent)this.status('CLIENT C'+CS_SEQ+' CONNESSO ✓');
+  }
+  removeClient(){
+    if(this.clients.length<=1)return this.status('MINIMO 1 CLIENT');
+    const gone=this.clients.pop();
+    this.pkts=this.pkts.filter(p=>p.c!==gone);
+    this.queue=this.queue.filter(p=>p.c!==gone);
+    if(this.processing?.p.c===gone)this.processing=null;
+    this.status('CLIENT DISCONNESSO');
+  }
+  clientPos(c){return {x:this.cx+Math.cos(c.a)*this.R,y:this.cy+Math.sin(c.a)*this.R*.86};}
+  request(c){
+    c=c||pick(this.clients); if(!c)return;
+    this.pkts.push({c,phase:'req',t:0,born:performance.now()});
+  }
+  togglePower(){
+    this.up=!this.up;
+    const btn=qs('#btnCsPower'),led=qs('#csLed'),st=qs('#mCsStatus');
+    if(this.up){
+      btn.textContent='⏻ Spegni server'; btn.className='btn btn-danger sm';
+      led.className='led amber'; st.textContent='SERVER ONLINE'; st.classList.remove('bad');
+      qs('#csPanel').classList.remove('down');
+      this.status('SERVER RIPRISTINATO ✓');
+    }else{
+      btn.textContent='⏻ Riaccendi server'; btn.className='btn btn-p2p sm';
+      led.className='led red'; st.textContent='SERVER DOWN'; st.classList.add('bad');
+      qs('#csPanel').classList.add('down');
+      this.status('⚠ SINGLE POINT OF FAILURE!');
+    }
+  }
+  toggleAuto(){
+    this.auto=!this.auto;
+    qs('#btnCsAuto').textContent='◉ Traffico auto: '+(this.auto?'ON':'OFF');
+    qs('#btnCsAuto').classList.toggle('btn-cs',this.auto);
+    if(this.auto){
+      this.autoT=setInterval(()=>{if(this.clients.length&&!document.hidden)this.request();},850);
+      this.status('TRAFFICO CONTINUO ATTIVO');
+    }else{clearInterval(this.autoT);this.status('TRAFFICO AUTO FERMO');}
+  }
+  status(s){qs('#mCsStatus').textContent=s; if(this.up)qs('#mCsStatus').classList.remove('bad');}
+  reset(){
+    clearInterval(this.autoT); this.auto=false;
+    qs('#btnCsAuto').textContent='◉ Traffico auto: OFF'; qs('#btnCsAuto').classList.remove('btn-cs');
+    this.clients=[]; CS_SEQ=0; for(let i=0;i<4;i++)this.addClient(true);
+    this.pkts=[]; this.queue=[]; this.processing=null; this.served=0; this.failed=0; this.lastRT=null;
+    if(!this.up)this.togglePower();
+    this.status('RETE REINIZIALIZZATA');
+  }
+  bind(){
+    this.cv.addEventListener('pointerdown',e=>{
+      const r=this.cv.getBoundingClientRect();
+      const x=e.clientX-r.left,y=e.clientY-r.top;
+      const hit=this.clients.find(c=>{const p=this.clientPos(c);return dist(x,y,p.x,p.y)<18;});
+      if(hit)this.request(hit);
+    });
+  }
+  tick(now){
+    const dt=clamp((now-this.last)/1000,0,.05); this.last=now;
+    if(!document.hidden){
+      if(this.up){
+        if(!this.processing&&this.queue.length){
+          const p=this.queue.shift();
+          this.processing={p,done:now+260+this.clients.length*30+this.queue.length*140};
+        }
+        if(this.processing&&now>=this.processing.done){
+          this.processing.p.phase='res'; this.processing.p.t=0;
+          this.pkts.push(this.processing.p); this.processing=null;
+        }
+      }
+      this.pkts=this.pkts.filter(p=>{
+        p.t+=dt*(p.phase==='req'?1.5:1.3);
+        if(p.t<1)return true;
+        if(p.phase==='req'){
+          if(!this.up){p.phase='fail';p.t=0;return true;}
+          this.queue.push(p); return false;
+        }
+        if(p.phase==='res'){this.served++;this.lastRT=Math.round((now-p.born)/4);p.c.flash=now;p.c.fc='#34f5b1';return false;}
+        if(p.phase==='fail'){this.failed++;p.c.flash=now;p.c.fc='#ff5d7a';if(this.up===false)this.status('⚠ RICHIESTE RESPINTE');return false;}
+        return false;
+      });
+      this.draw(now);
+    }
+    requestAnimationFrame(t=>this.tick(t));
+  }
+  draw(now){
+    const ctx=this.ctx; ctx.clearRect(0,0,this.w,this.h);
+    ctx.setLineDash([3,7]);ctx.strokeStyle='rgba(255,182,72,.18)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(this.cx,this.cy,this.R,this.R*.86,0,0,TAU);ctx.stroke();ctx.setLineDash([]);
+    this.pkts.forEach(p=>{
+      const cp=this.clientPos(p.c);
+      let x,y;
+      if(p.phase==='req'){x=lerp(cp.x,this.cx,p.t);y=lerp(cp.y,this.cy,p.t);}
+      else if(p.phase==='res'){x=lerp(this.cx,cp.x,p.t);y=lerp(this.cy,cp.y,p.t);}
+      else{x=lerp(this.cx,cp.x,p.t);y=lerp(this.cy,cp.y,p.t);}
+      const col=p.phase==='req'?'#4da3ff':p.phase==='res'?'#34f5b1':'#ff5d7a';
+      ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(x,y,3.4,0,TAU);ctx.fill();ctx.shadowBlur=0;
+    });
+    const glitch=(!this.up&&!RM&&Math.random()<.12)?rand(-3,3):0;
+    const sx=this.cx-24+glitch, sy=this.cy-24;
+    const scol=this.up?'#ffb648':'#ff5d7a';
+    ctx.shadowColor=scol;ctx.shadowBlur=22;
+    ctx.fillStyle='#0c1424';ctx.strokeStyle=scol;ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(sx,sy,48,48,7);ctx.fill();ctx.stroke();
+    ctx.shadowBlur=0;
+    for(let i=0;i<3;i++){
+      ctx.strokeStyle=scol+'88';ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.moveTo(sx+8,sy+13+i*11);ctx.lineTo(sx+40,sy+13+i*11);ctx.stroke();
+      ctx.fillStyle=this.up?(Math.sin(now/300+i)>0?'#34f5b1':'#173a2e'):'#ff5d7a';
+      ctx.beginPath();ctx.arc(sx+36,sy+13+i*11,1.8,0,TAU);ctx.fill();
+    }
+    ctx.font='600 9px "IBM Plex Mono"';ctx.textAlign='center';
+    ctx.fillStyle=this.up?'#ffb648':'#ff5d7a';
+    ctx.fillText(this.up?'SERVER':'OFFLINE',this.cx,this.cy+42);
+    const qn=this.queue.length+(this.processing?1:0);
+    for(let i=0;i<Math.min(qn,8);i++){
+      ctx.fillStyle='#4da3ff';ctx.fillRect(this.cx+34,this.cy+18-i*6,10,3.5);
+    }
+    if(qn>0){ctx.fillStyle='#8ea1bd';ctx.fillText('coda '+qn,this.cx+40,this.cy-32);}
+    this.clients.forEach(c=>{
+      const p=this.clientPos(c);
+      const sc=easeOutBack(clamp((now-c.born)/450,0,1));
+      const fl=now-c.flash<500?1-(now-c.flash)/500:0;
+      if(fl>0){ctx.strokeStyle=c.fc+'';ctx.globalAlpha=fl;ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,9+12*(1-fl),0,TAU);ctx.stroke();ctx.globalAlpha=1;}
+      ctx.shadowColor='#ffb648';ctx.shadowBlur=10;
+      ctx.fillStyle='#0c1424';ctx.strokeStyle='#ffb648';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.arc(p.x,p.y,8*sc,0,TAU);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.fillStyle='#ffb648';ctx.beginPath();ctx.arc(p.x,p.y,2.6*sc,0,TAU);ctx.fill();
+      ctx.fillStyle='#5c6f8f';ctx.fillText('C'+c.id,p.x,p.y+21);
+    });
+  }
+  metrics(){
+    qs('#mCsClients').textContent=this.clients.length;
+    const q=this.queue.length+(this.processing?1:0);
+    const qEl=qs('#mCsQueue'); qEl.textContent=q; qEl.classList.toggle('bad',q>4);
+    qs('#mCsRt').textContent=this.lastRT?this.lastRT+' ms':'—';
+  }
+}
+const p2pSim=new P2PSim(qs('#p2pCanvas'));
+const csSim=new CSSim(qs('#csCanvas'));
+qs('#btnP2pAdd').onclick=()=>p2pSim.add();
+qs('#btnP2pRemove').onclick=()=>p2pSim.remove();
+qs('#btnP2pTransfer').onclick=()=>p2pSim.transfer();
+qs('#btnP2pReset').onclick=()=>p2pSim.reset();
+qs('#btnCsAdd').onclick=()=>csSim.addClient();
+qs('#btnCsRemove').onclick=()=>csSim.removeClient();
+qs('#btnCsReq').onclick=()=>csSim.request();
+qs('#btnCsAuto').onclick=()=>csSim.toggleAuto();
+qs('#btnCsPower').onclick=()=>csSim.togglePower();
+qs('#btnCsReset').onclick=()=>csSim.reset();
+
+/* ============ QUIZ (EXPANDED TO 6 Q) ============ */
+(function(){
+  const QUIZ=[
+    {q:"1. Qual è la caratteristica principale di una rete P2P?",
+     opts:["Ha sempre un server centrale che coordina tutto","Ogni nodo funziona sia come client che come server","È più lenta delle reti tradizionali","Non può essere utilizzata per condividere file"],
+     a:1, why:"In una rete P2P non esistono server dedicati: ogni nodo (peer) condivide le stesse responsabilità e può sia richiedere sia fornire risorse."},
+    {q:"2. Quale tipologia di P2P è BitTorrent moderno (con DHT)?",
+     opts:["Puro non strutturato (flooding)","Ibrido (server indice centrale)","Strutturato (DHT Kademlia)","Centralizzato con cache P2P"],
+     a:2, why:"BitTorrent moderno usa una Distributed Hash Table basata su Kademlia: i peer trovano chi ha quali pezzi con routing deterministico in O(log N) hop, senza server indice."},
+    {q:"3. Perché Napster fu chiuso nel 2001, ma BitTorrent sopravvive ancora?",
+     opts:["BitTorrent era illegale ma più nascosto","Napster aveva un server indice centrale; BitTorrent no","BitTorrent pagava i diritti d'autore","Napster era solo per musica, BitTorrent per video"],
+     a:1, why:"Napster era un P2P ibrido con un server centrale che indicizzava i file: i giudici ordinarono di spegnerlo e la rete cadde. BitTorrent non ha un singolo punto da colpire."},
+    {q:"4. Cos'è il 'free riding' nel P2P e come lo risolve BitTorrent?",
+     opts:["Utenti che scaricano senza condividere; risolto con tit-for-tat","Attacchi DDoS; risolto con firewall","Problema di NAT; risolto con hole punching","Bug del protocollo; risolto con aggiornamenti"],
+     a:0, why:"Il free riding è quando utenti scaricano senza mai condividere. BitTorrent usa il tit-for-tat: chi non condivide viene rallentato o escluso dallo swarm."},
+    {q:"5. Cos'è un 'Sybil attack' in una rete P2P?",
+     opts:["Attacco DDoS sul server centrale","Intercettazione del traffico","Creazione di molte identità false per manipolare la rete","Furto di credenziali utente"],
+     a:2, why:"In un Sybil attack, l'attaccante crea migliaia di nodi finti (identità multiple) per controllare una frazione della rete e manipolarla. Bitcoin lo mitiga con Proof-of-Work."},
+    {q:"6. Quale di questi servizi usa il P2P nel 2026 senza che la maggior parte degli utenti lo sappia?",
+     opts:["Microsoft Word","Windows Update (Delivery Optimization)","Adobe Photoshop","Google Docs"],
+     a:1, why:"Windows Update dal 2015 usa Delivery Optimization: i PC nella stessa rete o vicini si scambiano gli aggiornamenti P2P, riducendo del 60-90% il traffico dai server Microsoft."}
+  ];
+  const L=['A','B','C','D'];
+  let idx=0,score=0,answered=false;
+  const box=qs('#quizBox'),res=qs('#quizResult');
+  function render(){
+    answered=false;
+    const q=QUIZ[idx];
+    qs('#qCount').textContent=(idx+1)+' / '+QUIZ.length;
+    qs('#qProg').style.width=(idx/QUIZ.length*100)+'%';
+    qs('#qText').textContent=q.q;
+    const optBox=qs('#qOptions'); optBox.innerHTML='';
+    q.opts.forEach((o,i)=>{
+      const b=document.createElement('button');
+      b.className='opt'; b.innerHTML=`<span class="ol">${L[i]}</span><span>${o}</span>`;
+      b.onclick=()=>answer(i,b);
+      optBox.appendChild(b);
+    });
+    qs('#qFeedback').className='q-feedback';
+    qs('#qNext').style.display='none';
+  }
+  function answer(i,btn){
+    if(answered)return; answered=true;
+    const q=QUIZ[idx], fb=qs('#qFeedback');
+    const opts=qsa('.opt');
+    opts.forEach(o=>o.disabled=true);
+    if(i===q.a){
+      score++; btn.classList.add('ok');
+      fb.className='q-feedback show good';
+      fb.innerHTML='<b>✓ Corretto</b>'+q.why;
+    }else{
+      btn.classList.add('bad'); opts[q.a].classList.add('ok');
+      opts.forEach((o,j)=>{if(j!==i&&j!==q.a)o.classList.add('dim');});
+      fb.className='q-feedback show evil';
+      fb.innerHTML='<b>✗ Non esattamente</b>'+q.why;
+    }
+    qs('#qProg').style.width=((idx+1)/QUIZ.length*100)+'%';
+    const nx=qs('#qNext'); nx.style.display='inline-flex';
+    nx.textContent=idx===QUIZ.length-1?'Vedi il risultato ▸':'Prossima domanda ▸';
+  }
+  qs('#qNext').onclick=()=>{
+    idx++;
+    if(idx>=QUIZ.length)showResult(); else render();
+  };
+  function showResult(){
+    box.style.display='none'; res.classList.add('show');
+    qs('#scoreNum').textContent=score+'/'+QUIZ.length;
+    const C=339.3;
+    requestAnimationFrame(()=>{qs('#ringFg').style.strokeDashoffset=C*(1-score/QUIZ.length);});
+    const v=[
+      ['Ripassa la teoria','Rileggi le nuove sezioni e riprova.'],
+      ['Apprendista di rete','Buona base, ma le tipologie P2P vanno approfondite.'],
+      ['Tecnico in crescita','Conosci i fondamentali, ora studia i problemi tecnici reali.'],
+      ['Network Engineer','Ottimo lavoro: ti manca poco per la certificazione.'],
+      ['Architetto distribuito','Quasi perfetto: le tue conoscenze sono solide.'],
+      ['Master of P2P 🏆','Punteggio pieno! Satoshi Nakamoto sarebbe fiero di te.']
+    ][score];
+    qs('#verdict').textContent=v[0];
+    qs('#verdictMsg').textContent=v[1];
+  }
+  qs('#btnRestart').onclick=()=>{
+    idx=0;score=0; box.style.display='block'; res.classList.remove('show');
+    qs('#ringFg').style.strokeDashoffset=339.3; render();
+  };
+  render();
+})();
+</script>
+</body>
+</html>

@@ -17,6 +17,7 @@
     --afm: #ff6b9d;
     --sia: #7cffb2;
     --ai: #b388ff;
+    --uni: #ffc857;
     --shadow: 0 10px 40px rgba(0,0,0,0.3);
   }
 
@@ -142,6 +143,7 @@
   .track-badge.afm { background: rgba(255, 107, 157, 0.15); color: var(--afm); border: 1px solid rgba(255,107,157,0.4); }
   .track-badge.sia { background: rgba(124, 255, 178, 0.15); color: var(--sia); border: 1px solid rgba(124,255,178,0.4); }
   .track-badge.ai { background: rgba(179, 136, 255, 0.15); color: var(--ai); border: 1px solid rgba(179,136,255,0.4); }
+  .track-badge.uni { background: rgba(255, 200, 87, 0.15); color: var(--uni); border: 1px solid rgba(255,200,87,0.4); }
 
   .track-title {
     font-size: 1.5rem;
@@ -184,6 +186,7 @@
   .class-card.afm::before { background: var(--afm); }
   .class-card.sia::before { background: var(--sia); }
   .class-card.ai::before { background: var(--ai); }
+  .class-card.uni::before { background: var(--uni); }
 
   .class-card:hover {
     transform: translateY(-4px);
@@ -211,6 +214,7 @@
   .year-circle.afm { background: var(--afm); }
   .year-circle.sia { background: var(--sia); }
   .year-circle.ai { background: var(--ai); }
+  .year-circle.uni { background: var(--uni); }
 
   .class-name h3 {
     margin: 0;
@@ -550,6 +554,34 @@
           <li>
             <a href="ai/sito_web_con_AI.html">
               <span class="icon">🤖</span> Il prompt perfetto per creare un sito web
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== UNIVERSITÀ ============== -->
+  <section class="track" id="universita">
+    <div class="track-header">
+      <span class="track-badge uni">UNI</span>
+      <h2 class="track-title">Università</h2>
+      <span class="track-desc">Approfondimenti di livello universitario</span>
+    </div>
+
+    <div class="classes">
+      <div class="class-card uni">
+        <div class="class-year">
+          <div class="year-circle uni">UNI</div>
+          <div class="class-name">
+            <h3>Approfondimenti</h3>
+            <small>Lezioni avanzate · taglio universitario</small>
+          </div>
+        </div>
+        <ul class="class-subjects">
+          <li>
+            <a href="universita/p2p-vs-client-server.html">
+              <span class="icon">🕸️</span> Reti P2P ⟷ Client-Server (2.0)
             </a>
           </li>
         </ul>
