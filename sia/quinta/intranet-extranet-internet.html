@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INTRANET ⟷ EXTRANET ⟷ INTERNET — Laboratorio 3.0</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='4' y='4' width='10' height='10' rx='2' fill='%230284c7'/><rect x='18' y='4' width='10' height='10' rx='2' fill='%238b5cf6'/><rect x='4' y='18' width='10' height='10' rx='2' fill='%2310b981'/><rect x='18' y='18' width='10' height='10' rx='2' fill='%23f59e0b'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060a14; --bg2:#0a1224; --panel:#0d1730; --panel2:#101c38;
+  --line:#1b2d4f; --line-soft:#14213e;
+  --ink:#eaf2fb; --muted:#8ea5c9; --faint:#5d7598;
+  --intranet:#38bdf8; --intranet-dim:rgba(56,189,248,.12);
+  --extranet:#a78bfa; --extranet-dim:rgba(167,139,250,.12);
+  --internet:#10b981; --internet-dim:rgba(16,185,129,.12);
+  --warn:#f59e0b; --warn-dim:rgba(245,158,11,.1);
+  --red:#ef4444; --pink:#f472b6; --blue:#60a5fa;
+  --fd:'Unbounded',sans-serif; --fb:'Space Grotesk',sans-serif; --fm:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;overflow-x:hidden;
+  background-image:radial-gradient(1000px 600px at 90% -10%, rgba(56,189,248,.06), transparent 60%),
+    radial-gradient(900px 600px at 0% 40%, rgba(167,139,250,.05), transparent 60%);}
+::selection{background:var(--intranet);color:#001018}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+section{scroll-margin-top:84px;position:relative}
+.wrap{max-width:1280px;margin:0 auto;padding:0 28px}
+.grid-bg::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.45;
+  background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 30%,transparent 75%);}
+.noise{position:fixed;inset:0;z-index:200;pointer-events:none;opacity:.04;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.kicker{font-family:var(--fm);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.7rem}
+.kicker::before{content:"";width:9px;height:9px;background:var(--intranet);box-shadow:0 0 12px var(--intranet)}
+.kicker.purple::before{background:var(--extranet);box-shadow:0 0 12px var(--extranet)}
+.kicker.green::before{background:var(--internet);box-shadow:0 0 12px var(--internet)}
+.kicker.amber::before{background:var(--warn);box-shadow:0 0 12px var(--warn)}
+.kicker.red::before{background:var(--red);box-shadow:0 0 12px var(--red)}
+.kicker.blue::before{background:var(--blue);box-shadow:0 0 12px var(--blue)}
+h2.sec-title{font-family:var(--fd);font-weight:700;font-size:clamp(1.7rem,3.6vw,2.9rem);line-height:1.12;margin:.8rem 0 .6rem;letter-spacing:-.01em}
+.sec-head{margin-bottom:2.6rem;max-width:760px}
+.sec-head p{color:var(--muted);font-size:1.05rem}
+.sec-head p b{color:var(--ink);font-weight:600}
+.sec{padding:110px 0}
+.sec-alt{background:var(--bg2)}
+.num-ghost{font-family:var(--fd);font-weight:900;color:transparent;-webkit-text-stroke:1px var(--line);font-size:clamp(3rem,7vw,5rem);position:absolute;right:24px;top:-14px;user-select:none;pointer-events:none}
+header{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;transition:background .35s,border-color .35s;border-bottom:1px solid transparent}
+header.scrolled{background:rgba(6,10,20,.85);backdrop-filter:blur(12px);border-color:var(--line-soft)}
+.logo{font-family:var(--fd);font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.6rem}
+.logo .lg-dots{display:grid;grid-template-columns:repeat(2,6px);gap:2px}
+.logo .lg-dots span{width:6px;height:6px;border-radius:1px}
+.logo b{color:var(--extranet)}
+nav.main-nav{display:flex;gap:1.2rem;font-family:var(--fm);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase}
+nav.main-nav a{color:var(--muted);transition:color .25s;position:relative;padding:4px 0}
+nav.main-nav a:hover{color:var(--intranet)}
+nav.main-nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--intranet);transition:width .3s}
+nav.main-nav a:hover::after{width:100%}
+.live-chip{font-family:var(--fm);font-size:.68rem;letter-spacing:.18em;border:1px solid var(--line);padding:6px 12px;border-radius:99px;display:flex;align-items:center;gap:8px;color:var(--muted)}
+.live-chip i{width:7px;height:7px;border-radius:50%;background:var(--internet);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+@media(max-width:1100px){nav.main-nav{display:none}}
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%}
+.hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,10,20,.6) 0%,rgba(6,10,20,.25) 40%,rgba(6,10,20,.95) 100%);pointer-events:none}
+.hero-inner{position:relative;z-index:2;padding:130px 0 40px;width:100%}
+.hero-grid{display:grid;grid-template-columns:1.35fr .85fr;gap:3rem;align-items:end}
+.hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(2.2rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.015em}
+.hero h1 .l2{display:block;color:transparent;-webkit-text-stroke:1.5px var(--extranet);font-weight:700;font-size:.68em;margin-top:.35em}
+.hero h1 .l3{display:block;color:transparent;-webkit-text-stroke:1.5px var(--internet);font-weight:700;font-size:.68em;margin-top:.2em}
+.hero .lead{margin-top:1.6rem;max-width:580px;color:var(--muted);font-size:1.08rem}
+.hero .lead b{color:var(--intranet);font-weight:600}
+.hero .lead em{color:var(--extranet);font-style:normal;font-weight:600}
+.hero .lead code{color:var(--internet);font-family:var(--fm);font-size:.92em;background:var(--internet-dim);padding:1px 7px;border-radius:4px}
+.hero-cta{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.hstat{background:rgba(10,18,36,.75);backdrop-filter:blur(6px);padding:1.1rem 1.2rem}
+.hstat .hl{font-family:var(--fm);font-size:.6rem;letter-spacing:.22em;color:var(--faint);text-transform:uppercase}
+.hstat .hv{font-family:var(--fd);font-weight:600;font-size:1.45rem;margin-top:.3rem}
+.hv.c-blue{color:var(--intranet)} .hv.c-purple{color:var(--extranet)} .hv.c-green{color:var(--internet)} .hv.c-amber{color:var(--warn)}
+.scroll-cue{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;width:1px;height:52px;background:var(--line);overflow:hidden}
+.scroll-cue::after{content:"";position:absolute;left:0;top:-20px;width:1px;height:20px;background:var(--intranet);animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{to{top:60px}}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.hero-stats{max-width:420px}}
+.btn{font-family:var(--fm);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;padding:.85rem 1.4rem;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);transition:all .25s;display:inline-flex;align-items:center;gap:.6rem}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn-in{border-color:rgba(56,189,248,.5);color:var(--intranet);background:var(--intranet-dim)}
+.btn-in:hover{background:rgba(56,189,248,.22);box-shadow:0 6px 24px -6px rgba(56,189,248,.5)}
+.btn-ex{border-color:rgba(167,139,250,.5);color:var(--extranet);background:var(--extranet-dim)}
+.btn-ex:hover{background:rgba(167,139,250,.22);box-shadow:0 6px 24px -6px rgba(167,139,250,.5)}
+.btn-net{border-color:rgba(16,185,129,.5);color:var(--internet);background:var(--internet-dim)}
+.btn-net:hover{background:rgba(16,185,129,.22);box-shadow:0 6px 24px -6px rgba(16,185,129,.5)}
+.btn-ghost:hover{border-color:var(--muted);background:rgba(142,165,201,.08)}
+.btn-danger{border-color:rgba(239,68,68,.5);color:var(--red);background:rgba(239,68,68,.1)}
+.btn.sm{padding:.6rem .95rem;font-size:.64rem}
+.btn:disabled{opacity:.4;pointer-events:none}
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2);overflow:hidden;position:relative;z-index:2}
+.marquee-track{display:flex;gap:0;width:max-content;animation:mq 42s linear infinite}
+.marquee-track span{font-family:var(--fm);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--faint);padding:14px 0;white-space:nowrap}
+.marquee-track b{color:var(--intranet);font-weight:500;padding:0 1.4rem}
+@keyframes mq{to{transform:translateX(-50%)}}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}.rv.d4{transition-delay:.4s}
+/* ============ TRIANGLE v2 (FIXED) ============ */
+.triangle-wrap{border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden;margin-top:2rem}
+.triangle-bar{padding:.8rem 1.2rem;border-bottom:1px solid var(--line-soft);background:rgba(5,8,15,.5);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem}
+.triangle-bar .tb-title{font-family:var(--fm);font-size:.68rem;letter-spacing:.18em;color:var(--muted);display:flex;align-items:center;gap:.6rem;text-transform:uppercase}
+.triangle-canvas-wrap{height:520px;position:relative;background-image:linear-gradient(rgba(27,45,79,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(27,45,79,.25) 1px,transparent 1px);background-size:30px 30px}
+.triangle-canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.triangle-caption{padding:1.2rem 1.4rem;border-top:1px solid var(--line-soft);font-size:.9rem;color:var(--muted);line-height:1.65}
+.triangle-caption b{color:var(--ink);font-weight:600}
+.triangle-legend{display:flex;gap:1.5rem;padding:.9rem 1.2rem;border-top:1px dashed var(--line-soft);flex-wrap:wrap}
+.triangle-legend span{font-family:var(--fm);font-size:.66rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.triangle-legend i{width:12px;height:12px;border-radius:50%;border:2px solid}
+/* ============ INTERNET NEED v2 (FIXED) ============ */
+.internet-answer{border:1px solid var(--intranet);border-radius:18px;background:linear-gradient(135deg,var(--panel),rgba(56,189,248,.06));padding:2.4rem;margin-top:2rem;position:relative;overflow:hidden}
+.internet-answer::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--intranet),var(--warn),var(--extranet))}
+.internet-answer .big-answer{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.6rem 0}
+.answer-box{padding:1.6rem;border-radius:12px;background:rgba(5,8,15,.6);border:1px solid var(--line)}
+.answer-box.yes{border-color:rgba(56,189,248,.5)}
+.answer-box.no{border-color:rgba(16,185,129,.5)}
+.answer-box .ab-label{font-family:var(--fm);font-size:.66rem;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;margin-bottom:.7rem;display:block}
+.answer-box.yes .ab-label{color:var(--intranet)}
+.answer-box.no .ab-label{color:var(--internet)}
+.answer-box .ab-big{font-family:var(--fd);font-weight:700;font-size:1.8rem;line-height:1.1;margin-bottom:.5rem}
+.answer-box.yes .ab-big{color:var(--intranet)}
+.answer-box.no .ab-big{color:var(--internet)}
+.answer-box p{font-size:.9rem;color:#c5d4ea;line-height:1.55}
+.scenario-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:2rem}
+.sc-card{border:1px solid var(--line);border-radius:14px;padding:1.5rem;background:var(--panel);position:relative;overflow:hidden;transition:transform .3s,border-color .3s}
+.sc-card:hover{transform:translateY(-4px)}
+.sc-card.sc-a{border-color:rgba(56,189,248,.35)}
+.sc-card.sc-b{border-color:rgba(245,158,11,.35)}
+.sc-card.sc-c{border-color:rgba(167,139,250,.35)}
+.sc-card .sc-badge{position:absolute;top:0;right:0;font-family:var(--fm);font-size:.58rem;letter-spacing:.14em;padding:5px 10px;border-radius:0 0 0 8px;text-transform:uppercase;font-weight:600}
+.sc-card.sc-a .sc-badge{background:var(--intranet-dim);color:var(--intranet);border-left:1px solid rgba(56,189,248,.4);border-bottom:1px solid rgba(56,189,248,.4)}
+.sc-card.sc-b .sc-badge{background:var(--warn-dim);color:var(--warn);border-left:1px solid rgba(245,158,11,.4);border-bottom:1px solid rgba(245,158,11,.4)}
+.sc-card.sc-c .sc-badge{background:var(--extranet-dim);color:var(--extranet);border-left:1px solid rgba(167,139,250,.4);border-bottom:1px solid rgba(167,139,250,.4)}
+.sc-card .sc-icon{font-size:2.2rem;margin-bottom:.7rem}
+.sc-card h3{font-family:var(--fd);font-size:1.05rem;font-weight:700;margin-bottom:.3rem}
+.sc-card.sc-a h3{color:var(--intranet)}
+.sc-card.sc-b h3{color:var(--warn)}
+.sc-card.sc-c h3{color:var(--extranet)}
+.sc-card .sc-loc{font-family:var(--fm);font-size:.62rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:.9rem;display:block}
+.sc-card p{font-size:.86rem;color:var(--muted);line-height:1.55;margin-bottom:.8rem}
+.sc-card .verdict{padding:.7rem .9rem;border-radius:8px;font-family:var(--fm);font-size:.76rem;font-weight:600;display:flex;align-items:center;gap:.5rem}
+.sc-card.sc-a .verdict{background:var(--intranet-dim);color:var(--intranet);border:1px solid rgba(56,189,248,.3)}
+.sc-card.sc-b .verdict{background:var(--warn-dim);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.sc-card.sc-c .verdict{background:var(--extranet-dim);color:var(--extranet);border:1px solid rgba(167,139,250,.3)}
+.sc-card .verdict small{font-weight:400;opacity:.8;font-size:.85em}
+.path-flow{display:flex;flex-direction:column;gap:.35rem;font-family:var(--fm);font-size:.7rem;color:#c5d4ea;margin-top:.8rem;padding:.7rem;background:rgba(5,8,15,.5);border-radius:7px;border:1px solid var(--line-soft)}
+.path-flow div{display:flex;align-items:center;gap:.4rem}
+.path-flow .arr{color:var(--faint)}
+.browser-myth{margin-top:2.2rem;border:1px solid var(--warn);border-left:4px solid var(--warn);border-radius:12px;background:var(--warn-dim);padding:1.6rem 1.8rem}
+.browser-myth h3{font-family:var(--fd);font-size:1.1rem;color:var(--warn);margin-bottom:.8rem;display:flex;align-items:center;gap:.6rem}
+.browser-myth p{font-size:.95rem;color:#c5d4ea;line-height:1.65;margin-bottom:.9rem}
+.browser-myth .compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+.browser-myth .cmp-item{padding:1rem;background:rgba(5,8,15,.6);border-radius:8px;border:1px solid var(--line)}
+.browser-myth .cmp-item.in{border-left:3px solid var(--intranet)}
+.browser-myth .cmp-item.net{border-left:3px solid var(--internet)}
+.browser-myth .cmp-item h4{font-family:var(--fm);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:.4rem}
+.browser-myth .cmp-item.in h4{color:var(--intranet)}
+.browser-myth .cmp-item.net h4{color:var(--internet)}
+.browser-myth .cmp-item p{font-size:.84rem;margin:0;color:#c5d4ea}
+@media(max-width:900px){.scenario-cards{grid-template-columns:1fr}.internet-answer .big-answer{grid-template-columns:1fr}.browser-myth .compare{grid-template-columns:1fr}}
+/* ============ DMZ v2 (DEFINITION BOX) ============ */
+.dmz-definition{border:2px solid var(--warn);border-radius:14px;background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02));padding:1.8rem 2rem;margin:2rem 0;position:relative}
+.dmz-definition::before{content:"📖 DEFINIZIONE";position:absolute;top:-11px;left:20px;background:var(--bg);padding:0 10px;font-family:var(--fm);font-size:.62rem;letter-spacing:.24em;color:var(--warn);font-weight:600}
+.dmz-definition h3{font-family:var(--fd);font-size:1.3rem;color:var(--warn);margin-bottom:.7rem}
+.dmz-definition p{font-size:1rem;color:#e5edf5;line-height:1.7}
+.dmz-definition p b{color:var(--ink);font-weight:600}
+.dmz-wrap{border:1px solid var(--line);border-radius:18px;background:var(--panel);overflow:hidden}
+.dmz-bar{padding:.9rem 1.2rem;border-bottom:1px solid var(--line-soft);background:rgba(5,8,15,.5);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem}
+.dmz-bar .db-title{font-family:var(--fm);font-size:.68rem;letter-spacing:.18em;color:var(--muted);display:flex;align-items:center;gap:.6rem;text-transform:uppercase}
+.dmz-canvas-wrap{height:380px;position:relative;background-image:linear-gradient(rgba(27,45,79,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(27,45,79,.3) 1px,transparent 1px);background-size:30px 30px}
+.dmz-canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.dmz-explain{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding:1.4rem}
+.dmz-zone{border:1px solid var(--line);border-radius:10px;padding:1.1rem;background:rgba(5,8,15,.5)}
+.dmz-zone h4{font-family:var(--fd);font-size:.9rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem}
+.dmz-zone.internet h4{color:var(--internet)}
+.dmz-zone.fw h4{color:var(--warn)}
+.dmz-zone.dmz h4{color:var(--extranet)}
+.dmz-zone.lan h4{color:var(--intranet)}
+.dmz-zone p{font-size:.78rem;color:var(--muted);line-height:1.5}
+.dmz-zone ul{list-style:none;margin-top:.5rem;display:grid;gap:.3rem}
+.dmz-zone li{font-family:var(--fm);font-size:.68rem;color:#c5d4ea;padding:2px 0}
+.dmz-zone li::before{content:"▸ ";color:var(--faint)}
+@media(max-width:900px){.dmz-explain{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.dmz-explain{grid-template-columns:1fr}}
+/* ============ CONFRONTO v3 (READABLE) ============ */
+.cmp3{display:grid;grid-template-columns:200px 1fr 1fr 1fr;gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel)}
+.cmp3-header{display:contents}
+.cmp3-header > div{padding:1.4rem 1.3rem;border-bottom:2px solid var(--line);background:rgba(5,8,15,.6);display:flex;align-items:center;gap:.7rem}
+.cmp3-header .ch-label{font-family:var(--fm);font-size:.66rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;justify-content:flex-end}
+.cmp3-header .ch-net{flex-direction:column;align-items:flex-start;gap:.3rem;border-bottom-color:var(--internet)}
+.cmp3-header .ch-in{flex-direction:column;align-items:flex-start;gap:.3rem;border-bottom-color:var(--intranet)}
+.cmp3-header .ch-ex{flex-direction:column;align-items:flex-start;gap:.3rem;border-bottom-color:var(--extranet)}
+.cmp3-header .ch-icon{font-size:1.6rem}
+.cmp3-header .ch-name{font-family:var(--fd);font-weight:700;font-size:1.05rem}
+.cmp3-header .ch-net .ch-name{color:var(--internet)}
+.cmp3-header .ch-in .ch-name{color:var(--intranet)}
+.cmp3-header .ch-ex .ch-name{color:var(--extranet)}
+.cmp3-header .ch-tag{font-family:var(--fm);font-size:.58rem;letter-spacing:.16em;color:var(--faint);text-transform:uppercase}
+.cmp3-row{display:contents}
+.cmp3-row > div{padding:1.1rem 1.3rem;border-bottom:1px solid var(--line-soft);font-size:.9rem;line-height:1.5}
+.cmp3-row:last-child > div{border-bottom:none}
+.cmp3-row .cr-label{background:rgba(5,8,15,.4);display:flex;align-items:flex-start;gap:.6rem;font-weight:600;color:var(--ink)}
+.cmp3-row .cr-label .ico{font-size:1.1rem;margin-top:1px}
+.cmp3-row .cr-net{color:#c5eadf;background:rgba(16,185,129,.05)}
+.cmp3-row .cr-in{color:#c5e4f5;background:rgba(56,189,248,.05)}
+.cmp3-row .cr-ex{color:#dcd4f5;background:rgba(167,139,250,.05)}
+.cmp3-row .cr-net b,.cmp3-row .cr-in b,.cmp3-row .cr-ex b{font-family:var(--fm);font-size:.6rem;letter-spacing:.14em;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:.3rem;font-weight:600}
+.cmp3-row .cr-net b{color:var(--internet);background:var(--internet-dim);border:1px solid rgba(16,185,129,.3)}
+.cmp3-row .cr-in b{color:var(--intranet);background:var(--intranet-dim);border:1px solid rgba(56,189,248,.3)}
+.cmp3-row .cr-ex b{color:var(--extranet);background:var(--extranet-dim);border:1px solid rgba(167,139,250,.3)}
+.cmp3-row .cr-net span,.cmp3-row .cr-in span,.cmp3-row .cr-ex span{display:block;font-size:.86rem;color:#c5d4ea}
+@media(max-width:900px){
+  .cmp3{grid-template-columns:1fr}
+  .cmp3-header{display:none}
+  .cmp3-row{display:block;border-bottom:1px solid var(--line);margin:1rem;border-radius:10px;overflow:hidden}
+  .cmp3-row:last-child{border-bottom:1px solid var(--line)}
+  .cmp3-row > div{border-bottom:1px dashed var(--line-soft)}
+  .cmp3-row .cr-label{background:var(--panel2)}
+  .cmp3-row > div::before{display:block;font-family:var(--fm);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:.3rem;opacity:.7}
+  .cmp3-row .cr-net::before{content:"🌍 INTERNET";color:var(--internet)}
+  .cmp3-row .cr-in::before{content:"🔒 INTRANET";color:var(--intranet)}
+  .cmp3-row .cr-ex::before{content:"🌐 EXTRANET";color:var(--extranet)}
+}
+/* ============ INTRO FACTS ============ */
+.intro-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:3.5rem;align-items:start}
+.def-quote{border-left:3px solid var(--intranet);padding:1.2rem 1.6rem;background:linear-gradient(90deg,var(--intranet-dim),transparent 70%);border-radius:0 12px 12px 0;font-size:1.05rem;margin-top:1.6rem;line-height:1.65}
+.def-quote strong{color:var(--intranet)}
+.def-quote em{color:var(--extranet);font-style:normal;font-weight:600}
+.def-quote code{color:var(--internet);font-family:var(--fm);font-size:.9em;background:var(--internet-dim);padding:1px 6px;border-radius:4px}
+.fact-list{margin-top:2rem;display:grid;gap:.9rem}
+.fact{display:flex;gap:1rem;align-items:flex-start;padding:.9rem 1.1rem;border:1px solid var(--line-soft);border-radius:10px;background:rgba(12,20,36,.5);transition:border-color .3s,transform .3s}
+.fact:hover{border-color:var(--line);transform:translateX(6px)}
+.fact .fi{flex:0 0 38px;height:38px;border-radius:9px;display:grid;place-items:center;font-family:var(--fm);font-size:.9rem;font-weight:600;background:var(--intranet-dim);color:var(--intranet);border:1px solid rgba(56,189,248,.3)}
+.fact.p .fi{background:var(--extranet-dim);color:var(--extranet);border-color:rgba(167,139,250,.3)}
+.fact.g .fi{background:var(--internet-dim);color:var(--internet);border-color:rgba(16,185,129,.3)}
+.fact h4{font-size:.98rem;font-weight:600}
+.fact p{font-size:.88rem;color:var(--muted);line-height:1.55}
+.panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.panel-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--line-soft);background:rgba(5,8,15,.5);flex-wrap:wrap}
+.panel-bar .pb-title{font-family:var(--fm);font-size:.68rem;letter-spacing:.2em;color:var(--muted);display:flex;align-items:center;gap:.6rem}
+.led{width:8px;height:8px;border-radius:50%;background:var(--intranet);box-shadow:0 0 10px var(--intranet);animation:pulse 2s infinite}
+.led.purple{background:var(--extranet);box-shadow:0 0 10px var(--extranet)}
+.led.green{background:var(--internet);box-shadow:0 0 10px var(--internet)}
+.canvas-box{position:relative;height:440px}
+.canvas-box canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.canvas-note{position:absolute;left:14px;bottom:12px;font-family:var(--fm);font-size:.62rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;pointer-events:none;z-index:2}
+.legend-row{display:flex;gap:1rem;padding:.9rem 1.2rem;border-top:1px solid var(--line-soft);flex-wrap:wrap}
+.legend-row span{font-family:var(--fm);font-size:.64rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.legend-row i{width:9px;height:9px;border-radius:2px}
+@media(max-width:960px){.intro-grid{grid-template-columns:1fr}}
+/* ============ SIMULATORE ============ */
+.sim-wrap{display:grid;grid-template-columns:320px 1fr 340px;gap:1.4rem;align-items:stretch}
+@media(max-width:1200px){.sim-wrap{grid-template-columns:1fr}}
+.role-picker{border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden;display:flex;flex-direction:column}
+.role-picker .rp-head{padding:1.4rem 1.4rem 1rem;border-bottom:1px solid var(--line-soft)}
+.role-picker h3{font-family:var(--fd);font-weight:600;font-size:1rem;margin-bottom:.4rem}
+.role-picker p{font-size:.82rem;color:var(--muted);line-height:1.5}
+.role-btns{padding:1rem;display:grid;gap:.7rem}
+.role-card{border:2px solid var(--line);border-radius:12px;padding:1.1rem;background:rgba(5,8,15,.5);cursor:pointer;text-align:left;transition:all .3s;position:relative;overflow:hidden}
+.role-card:hover{border-color:var(--intranet);background:var(--intranet-dim)}
+.role-card.active-in{border-color:var(--intranet);background:var(--intranet-dim);box-shadow:0 0 30px -8px rgba(56,189,248,.5)}
+.role-card.active-ex{border-color:var(--extranet);background:var(--extranet-dim);box-shadow:0 0 30px -8px rgba(167,139,250,.5)}
+.role-card .rc-icon{font-size:2rem;margin-bottom:.5rem}
+.role-card h4{font-family:var(--fd);font-weight:600;font-size:.95rem;margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem}
+.role-card p{font-size:.8rem;color:var(--muted);line-height:1.45}
+.role-card .rc-tag{font-family:var(--fm);font-size:.58rem;letter-spacing:.18em;padding:3px 8px;border-radius:4px;margin-top:.5rem;display:inline-block}
+.role-card.in-card .rc-tag{color:var(--intranet);background:var(--intranet-dim);border:1px solid rgba(56,189,248,.3)}
+.role-card.ex-card .rc-tag{color:var(--extranet);background:var(--extranet-dim);border:1px solid rgba(167,139,250,.3)}
+.role-card .badge-ok{position:absolute;top:10px;right:10px;font-size:.9rem;opacity:0;transition:opacity .3s}
+.role-card.active-in .badge-ok,.role-card.active-ex .badge-ok{opacity:1}
+.sim-help{padding:1rem 1.4rem 1.4rem;font-size:.78rem;color:var(--faint);line-height:1.55;border-top:1px dashed var(--line-soft)}
+.sim-help b{color:var(--ink);font-weight:500}
+.sim-stage{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#0a1224,#060a14);overflow:hidden;position:relative;min-height:600px;display:flex;flex-direction:column}
+.sim-topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1.2rem;border-bottom:1px solid var(--line-soft);background:rgba(5,8,15,.6);flex-wrap:wrap}
+.sim-topbar .stb-left{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
+.stb-status{font-family:var(--fm);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;padding:5px 11px;border-radius:5px;border:1px solid var(--line);background:rgba(5,8,15,.6);color:var(--muted)}
+.stb-status.ok{border-color:rgba(16,185,129,.4);color:var(--internet);background:var(--internet-dim)}
+.stb-status.warn{border-color:rgba(245,158,11,.4);color:var(--warn);background:rgba(245,158,11,.1)}
+.stb-status.err{border-color:rgba(239,68,68,.4);color:var(--red);background:rgba(239,68,68,.1)}
+.sim-canvas-wrap{flex:1;position:relative;background-image:linear-gradient(rgba(27,45,79,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(27,45,79,.3) 1px,transparent 1px);background-size:30px 30px}
+.sim-canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.sim-actions{display:flex;flex-wrap:wrap;gap:.5rem;padding:.9rem 1.1rem;border-top:1px solid var(--line-soft);background:rgba(5,8,15,.5)}
+.sim-actions .label{font-family:var(--fm);font-size:.58rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;padding:.6rem 0;width:100%}
+.sim-actions .label b{color:var(--intranet)}
+.sim-actions .label.purple b{color:var(--extranet)}
+.login-overlay{position:absolute;inset:0;background:rgba(6,10,20,.94);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:5;opacity:0;pointer-events:none;transition:opacity .4s}
+.login-overlay.show{opacity:1;pointer-events:auto}
+.login-box{max-width:420px;width:90%;border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:2rem;box-shadow:0 30px 60px -20px rgba(0,0,0,.9)}
+.login-box h3{font-family:var(--fd);font-weight:600;font-size:1.2rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.6rem}
+.login-box p{color:var(--muted);font-size:.85rem;margin-bottom:1.4rem}
+.login-box .form-field{margin-bottom:.9rem}
+.login-box .form-field label{font-family:var(--fm);font-size:.62rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;display:block;margin-bottom:.3rem}
+.login-box .form-field input{width:100%;background:rgba(5,8,15,.6);border:1px solid var(--line);border-radius:7px;padding:.7rem .9rem;color:var(--ink);font-family:var(--fm);font-size:.85rem;transition:border-color .25s}
+.login-box .form-field input:focus{outline:none;border-color:var(--intranet)}
+.login-box.purple .form-field input:focus{border-color:var(--extranet)}
+.mfa-code{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;margin-top:.4rem}
+.mfa-code span{aspect-ratio:.7;background:rgba(5,8,15,.6);border:1px solid var(--line);border-radius:6px;display:grid;place-items:center;font-family:var(--fd);font-weight:600;font-size:1.1rem;color:var(--intranet)}
+.login-box.purple .mfa-code span{color:var(--extranet)}
+.login-box .btn-full{width:100%;margin-top:1rem;justify-content:center}
+.vpn-anim{font-family:var(--fm);font-size:.72rem;color:var(--warn);margin:.8rem 0;display:flex;align-items:center;gap:.5rem}
+.vpn-anim .spin{width:14px;height:14px;border:2px solid var(--warn);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.log-panel{border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden;display:flex;flex-direction:column;max-height:620px}
+.log-head{padding:.9rem 1.2rem;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;background:rgba(5,8,15,.5)}
+.log-head h4{font-family:var(--fm);font-size:.66rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:.6rem}
+.log-head .count{font-family:var(--fm);font-size:.62rem;color:var(--faint);background:rgba(5,8,15,.7);padding:3px 8px;border-radius:4px;border:1px solid var(--line-soft)}
+.log-list{flex:1;overflow-y:auto;padding:.8rem;background:#040814;font-family:var(--fm);font-size:.74rem;line-height:1.7}
+.log-list::-webkit-scrollbar{width:6px}
+.log-list::-webkit-scrollbar-track{background:transparent}
+.log-list::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.log-line{padding:3px 8px;border-radius:4px;animation:logIn .4s ease-out}
+.log-line .ts{color:var(--faint);margin-right:.6rem}
+.log-line .lvl{font-weight:600;margin-right:.6rem;padding:1px 6px;border-radius:3px;font-size:.68rem}
+.log-line.info .lvl{color:var(--intranet);background:var(--intranet-dim)}
+.log-line.info-p .lvl{color:var(--extranet);background:var(--extranet-dim)}
+.log-line.ok .lvl{color:var(--internet);background:var(--internet-dim)}
+.log-line.warn .lvl{color:var(--warn);background:rgba(245,158,11,.1)}
+.log-line.err .lvl{color:var(--red);background:rgba(239,68,68,.1)}
+.log-line .msg{color:#c5d4ea}
+@keyframes logIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.log-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft);border-top:1px solid var(--line-soft)}
+.log-stats > div{background:rgba(5,8,15,.6);padding:.6rem .8rem;text-align:center}
+.log-stats .sl{font-family:var(--fm);font-size:.56rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.log-stats .sv{font-family:var(--fd);font-weight:600;font-size:.95rem;margin-top:.2rem;color:var(--intranet)}
+.log-stats .sv.p{color:var(--extranet)}
+.log-stats .sv.g{color:var(--internet)}
+/* ============ LAN vs INTRANET ============ */
+.lan-split{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin-bottom:2rem}
+.lan-card{border:1px solid var(--line);border-radius:16px;padding:2rem;background:var(--panel);position:relative;overflow:hidden;transition:transform .3s,border-color .3s}
+.lan-card:hover{transform:translateY(-5px)}
+.lan-card.lan{border-color:rgba(16,185,129,.3)}
+.lan-card.lan:hover{border-color:rgba(16,185,129,.7)}
+.lan-card.intranet{border-color:rgba(56,189,248,.3)}
+.lan-card.intranet:hover{border-color:rgba(56,189,248,.7)}
+.lan-card .lc-icon{font-size:2.8rem;margin-bottom:1rem}
+.lan-card h3{font-family:var(--fd);font-weight:700;font-size:1.35rem;margin-bottom:.5rem}
+.lan-card.lan h3{color:var(--internet)}
+.lan-card.intranet h3{color:var(--intranet)}
+.lan-card .def{font-family:var(--fm);font-size:.78rem;color:var(--muted);margin-bottom:1.3rem;font-style:italic}
+.lan-card ul{list-style:none;display:grid;gap:.6rem}
+.lan-card li{display:flex;gap:.8rem;align-items:flex-start;font-size:.9rem;padding:.55rem .8rem;background:rgba(5,8,15,.4);border-radius:7px;border:1px solid var(--line-soft)}
+.lan-card li::before{content:"▸";color:var(--internet);flex:0 0 14px;font-weight:600}
+.lan-card.intranet li::before{color:var(--intranet)}
+.analogy{border:1px solid var(--line);border-radius:16px;background:linear-gradient(135deg,var(--internet-dim),var(--intranet-dim));padding:2.2rem;margin-top:2rem}
+.analogy h3{font-family:var(--fd);font-size:1.15rem;margin-bottom:1.2rem}
+.analogy-flow{display:grid;grid-template-columns:1fr auto 1fr;gap:1.2rem;align-items:center;margin:1.6rem 0}
+.analogy-node{background:rgba(5,8,15,.7);border:2px solid;border-radius:12px;padding:1.3rem 1.5rem;text-align:center}
+.analogy-node.road{border-color:var(--internet)}
+.analogy-node.service{border-color:var(--intranet)}
+.analogy-node .an-icon{font-size:2.4rem;margin-bottom:.6rem}
+.analogy-node h4{font-family:var(--fd);font-size:.95rem;margin-bottom:.3rem}
+.analogy-node.road h4{color:var(--internet)}
+.analogy-node.service h4{color:var(--intranet)}
+.analogy-node p{font-size:.82rem;color:var(--muted)}
+.analogy-arrow{font-family:var(--fm);font-size:1.5rem;color:var(--muted);text-align:center;padding:0 .5rem}
+.analogy-caption{padding:1.2rem 1.4rem;background:rgba(5,8,15,.5);border-left:3px solid var(--intranet);border-radius:0 9px 9px 0;font-size:.92rem;color:#c5d4ea;margin-top:1rem}
+.analogy-caption b{color:var(--internet);font-weight:600}
+.analogy-caption em{color:var(--intranet);font-style:normal;font-weight:600}
+@media(max-width:780px){.lan-split{grid-template-columns:1fr}.analogy-flow{grid-template-columns:1fr}}
+/* ============ VPN ============ */
+.vpn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.3rem;margin-top:2rem}
+.vpn-card{border:1px solid var(--line);border-radius:14px;padding:1.6rem;background:var(--panel);transition:transform .3s,border-color .3s}
+.vpn-card:hover{transform:translateY(-5px);border-color:rgba(167,139,250,.4)}
+.vpn-card .vc-icon{font-size:2.2rem;margin-bottom:.7rem}
+.vpn-card h3{font-family:var(--fd);font-weight:600;font-size:1.05rem;margin-bottom:.3rem;color:var(--extranet)}
+.vpn-card .vc-sub{font-family:var(--fm);font-size:.62rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:1rem;display:block}
+.vpn-card p{font-size:.88rem;color:var(--muted);line-height:1.55;margin-bottom:.8rem}
+.vpn-card .use{padding:.7rem .9rem;background:rgba(5,8,15,.5);border-radius:7px;font-size:.82rem;color:#c5d4ea;border-left:2px solid var(--extranet)}
+.vpn-card .use b{color:var(--extranet);font-family:var(--fm);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:.3rem;font-weight:500}
+.vpn-card .proto{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.8rem}
+.vpn-card .proto span{font-family:var(--fm);font-size:.62rem;padding:3px 8px;border-radius:4px;background:var(--extranet-dim);color:var(--extranet);border:1px solid rgba(167,139,250,.3)}
+@media(max-width:900px){.vpn-grid{grid-template-columns:1fr}}
+/* ============ ZERO TRUST ============ */
+.zt-wrap{display:grid;grid-template-columns:1.2fr 1fr;gap:2rem;align-items:start;margin-top:2rem}
+.zt-wrap > *{min-width:0}
+.zt-pillar > div{min-width:0;overflow-wrap:anywhere}
+.zt-main{border:1px solid var(--line);border-radius:16px;padding:2rem;background:var(--panel)}
+.zt-main h3{font-family:var(--fd);font-weight:700;font-size:1.3rem;margin-bottom:.5rem}
+.zt-main .zt-motto{font-family:var(--fd);font-style:italic;font-size:1.1rem;color:var(--warn);padding:1rem 1.3rem;background:rgba(245,158,11,.08);border-left:3px solid var(--warn);border-radius:0 9px 9px 0;margin:1rem 0}
+.zt-main p{color:#c5d4ea;line-height:1.7;margin-bottom:1rem;font-size:.95rem}
+.zt-main p b{color:var(--ink);font-weight:600}
+.zt-pillars{display:grid;gap:.8rem;margin-top:1.2rem}
+.zt-pillar{display:flex;gap:.9rem;align-items:flex-start;padding:.9rem 1.1rem;background:rgba(5,8,15,.5);border-radius:9px;border:1px solid var(--line-soft)}
+.zt-pillar .zp-num{flex:0 0 34px;height:34px;border-radius:9px;background:var(--warn);color:#241300;display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:.95rem}
+.zt-pillar h4{font-family:var(--fd);font-size:.95rem;margin-bottom:.2rem}
+.zt-pillar p{font-size:.82rem;color:var(--muted);margin:0}
+.zt-side{display:grid;gap:1.2rem}
+.zt-compare{border:1px solid var(--line);border-radius:12px;padding:1.4rem;background:var(--panel)}
+.zt-compare h4{font-family:var(--fd);font-size:1rem;margin-bottom:.9rem}
+.zt-compare .zt-row{display:grid;grid-template-columns:1fr;gap:.4rem;padding:.7rem 0;border-bottom:1px dashed var(--line-soft)}
+.zt-compare .zt-row:last-child{border:none}
+.zt-compare .zt-row .zr-label{font-family:var(--fm);font-size:.64rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+.zt-compare .zt-row .zr-old{font-size:.85rem;color:var(--red);text-decoration:line-through;opacity:.7}
+.zt-compare .zt-row .zr-new{font-size:.88rem;color:var(--internet);font-weight:500}
+@media(max-width:900px){.zt-wrap{grid-template-columns:1fr}}
+/* ============ CASO ============ */
+.case-hero{border:1px solid var(--line);border-radius:16px;background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(167,139,250,.08));padding:2.2rem;margin-bottom:2rem}
+.case-hero h3{font-family:var(--fd);font-size:1.6rem;font-weight:700;margin-bottom:.4rem;display:flex;align-items:center;gap:.8rem}
+.case-hero .case-meta{font-family:var(--fm);font-size:.72rem;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.case-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:1.5rem}
+.case-card{border:1px solid var(--line);border-radius:14px;padding:1.5rem;background:var(--panel);transition:transform .3s}
+.case-card:hover{transform:translateY(-4px)}
+.case-card.in{border-color:rgba(56,189,248,.3)}
+.case-card.ex{border-color:rgba(167,139,250,.3)}
+.case-card .cc-head{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;padding-bottom:.8rem;border-bottom:1px solid var(--line-soft)}
+.case-card .cc-head .ic{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;font-size:1.4rem}
+.case-card.in .ic{background:var(--intranet-dim);color:var(--intranet)}
+.case-card.ex .ic{background:var(--extranet-dim);color:var(--extranet)}
+.case-card .cc-head h4{font-family:var(--fd);font-weight:600;font-size:1.05rem}
+.case-card .cc-head span{font-family:var(--fm);font-size:.6rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;display:block;margin-top:.2rem}
+.case-card dl{display:grid;grid-template-columns:auto 1fr;gap:.5rem .9rem;font-size:.85rem}
+.case-card dt{font-family:var(--fm);font-size:.68rem;letter-spacing:.12em;color:var(--faint);text-transform:uppercase;padding-top:3px}
+.case-card dd{color:#c5d4ea}
+.case-examples{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
+.example{border:1px solid var(--line);border-radius:12px;padding:1.3rem;background:var(--panel)}
+.example .ex-h{display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem;font-family:var(--fd);font-weight:600;font-size:.95rem}
+.example .ex-h .ico{font-size:1.3rem}
+.example p{font-size:.85rem;color:var(--muted)}
+@media(max-width:780px){.case-grid,.case-examples{grid-template-columns:1fr}}
+/* ============ FALLIMENTI ============ */
+.fail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-top:2rem}
+.fail{border:1px solid var(--line);border-radius:14px;padding:1.8rem;background:var(--panel);position:relative;overflow:hidden;transition:transform .3s}
+.fail:hover{transform:translateY(-4px)}
+.fail::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--warn))}
+.fail .fail-year{font-family:var(--fd);font-weight:700;font-size:.9rem;color:var(--red);margin-bottom:.4rem}
+.fail h3{font-family:var(--fd);font-size:1.15rem;font-weight:700;margin-bottom:.7rem}
+.fail .fail-entry{font-family:var(--fm);font-size:.74rem;color:var(--warn);background:rgba(245,158,11,.08);padding:.5rem .8rem;border-radius:5px;margin-bottom:.9rem;border-left:2px solid var(--warn)}
+.fail p{font-size:.9rem;color:#c5d4ea;line-height:1.6;margin-bottom:.7rem}
+.fail p b{color:var(--ink);font-weight:600}
+.fail .lesson{border-top:1px dashed var(--line-soft);padding-top:.9rem;margin-top:.6rem}
+.fail .lesson b{color:var(--internet);font-family:var(--fm);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:.3rem;font-weight:500}
+.fail .lesson span{font-size:.85rem;color:#c5d4ea}
+@media(max-width:800px){.fail-grid{grid-template-columns:1fr}}
+/* ============ SAAS ============ */
+.saas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-top:2rem}
+.saas-card{border:1px solid var(--line);border-radius:12px;padding:1.4rem;background:var(--panel);transition:transform .3s,border-color .3s;text-align:center}
+.saas-card:hover{transform:translateY(-4px);border-color:rgba(167,139,250,.4)}
+.saas-card .sc-icon{font-size:2.2rem;margin-bottom:.6rem}
+.saas-card h3{font-family:var(--fd);font-size:.95rem;margin-bottom:.3rem;color:var(--extranet)}
+.saas-card .sc-type{font-family:var(--fm);font-size:.6rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:.8rem;display:block}
+.saas-card p{font-size:.82rem;color:var(--muted);line-height:1.5}
+@media(max-width:900px){.saas-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.saas-grid{grid-template-columns:1fr}}
+/* ============ QUIZ ============ */
+.quiz-shell{max-width:760px;margin:0 auto;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 40px 80px -40px rgba(0,0,0,.9)}
+.quiz-top{padding:1.4rem 1.8rem;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.quiz-top .qt-l{font-family:var(--fm);font-size:.66rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:.7rem}
+#qCount{font-family:var(--fd);font-weight:600;font-size:.9rem;color:var(--intranet)}
+.q-progress{height:3px;background:var(--line-soft)}
+.q-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--intranet),var(--extranet));transition:width .6s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 10px var(--intranet)}
+.quiz-body{padding:2.2rem 2rem}
+#qText{font-family:var(--fd);font-weight:600;font-size:clamp(1.05rem,2.2vw,1.35rem);line-height:1.4;margin-bottom:1.6rem}
+.opt{width:100%;display:flex;gap:1rem;align-items:center;text-align:left;background:rgba(5,8,15,.5);border:1px solid var(--line);border-radius:11px;padding:1rem 1.1rem;margin-bottom:.7rem;color:var(--ink);font-size:.96rem;font-family:var(--fb);transition:all .22s}
+.opt:hover{border-color:var(--intranet);background:var(--intranet-dim);transform:translateX(6px)}
+.opt .ol{flex:0 0 30px;height:30px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;font-family:var(--fm);font-size:.74rem;color:var(--muted);transition:all .22s}
+.opt:hover .ol{border-color:var(--intranet);color:var(--intranet)}
+.opt.ok{border-color:var(--intranet);background:var(--intranet-dim)}
+.opt.ok .ol{background:var(--intranet);color:#001018;border-color:var(--intranet);font-weight:600}
+.opt.bad{border-color:var(--red);background:rgba(239,68,68,.1);animation:shake .4s}
+.opt.bad .ol{background:var(--red);color:#2a0510;border-color:var(--red)}
+.opt.dim{opacity:.4;pointer-events:none}
+.opt:disabled{cursor:default}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.q-feedback{display:none;margin-top:1.2rem;padding:1.1rem 1.3rem;border-radius:11px;font-size:.92rem;line-height:1.55;border:1px solid}
+.q-feedback.show{display:block;animation:fbIn .45s cubic-bezier(.2,.8,.2,1)}
+.q-feedback.good{border-color:rgba(16,185,129,.4);background:var(--internet-dim);color:#c9fdee}
+.q-feedback.evil{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08);color:#ffd4dd}
+.q-feedback b{display:block;font-family:var(--fm);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.4rem}
+@keyframes fbIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.quiz-foot{padding:0 2rem 2rem;display:flex;justify-content:flex-end}
+.quiz-result{display:none;text-align:center;padding:3rem 2rem}
+.quiz-result.show{display:block;animation:fbIn .5s}
+.score-ring{position:relative;width:150px;height:150px;margin:0 auto 1.4rem}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .ring-bg{fill:none;stroke:var(--line);stroke-width:8}
+.score-ring .ring-fg{fill:none;stroke:var(--intranet);stroke-width:8;stroke-linecap:round;stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 8px rgba(56,189,248,.6))}
+.score-ring .score-num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:1.9rem}
+#verdict{font-family:var(--fd);font-weight:700;font-size:1.4rem;margin-bottom:.6rem}
+#verdictMsg{color:var(--muted);max-width:420px;margin:0 auto 1.8rem}
+/* ============ TUTORIAL ============ */
+.tutorial-wrap{display:grid;grid-template-columns:280px 1fr;gap:2rem;align-items:start}
+.toc{position:sticky;top:100px;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:1rem;max-height:70vh;overflow-y:auto}
+.toc h4{font-family:var(--fm);font-size:.66rem;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;margin-bottom:.8rem;padding:0 .6rem}
+.toc a{display:flex;gap:.7rem;align-items:flex-start;padding:.6rem .7rem;font-size:.85rem;border-radius:7px;color:var(--muted);transition:all .25s}
+.toc a:hover{background:var(--intranet-dim);color:var(--intranet)}
+.toc a .n{font-family:var(--fm);font-size:.68rem;color:var(--faint);flex:0 0 20px}
+.chapter{scroll-margin-top:100px;border-bottom:1px dashed var(--line-soft);padding-bottom:2.2rem;margin-bottom:2.2rem}
+.chapter:last-child{border:none;margin:0}
+.chapter .ch-num{font-family:var(--fd);font-weight:700;font-size:.8rem;color:var(--intranet);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.4rem}
+.chapter h3{font-family:var(--fd);font-weight:600;font-size:1.35rem;margin-bottom:1rem;line-height:1.3}
+.chapter p{margin-bottom:1rem;color:#c5d4ea;font-size:.95rem;line-height:1.7}
+.chapter .hl{background:var(--intranet-dim);color:var(--intranet);padding:1px 7px;border-radius:4px;font-family:var(--fm);font-size:.88em}
+.chapter .hl-p{background:var(--extranet-dim);color:var(--extranet)}
+.chapter .hl-g{background:var(--internet-dim);color:var(--internet)}
+.chapter .code-block{background:#040814;border:1px solid var(--line);border-radius:8px;padding:1rem;font-family:var(--fm);font-size:.82rem;overflow-x:auto;margin:1rem 0;color:#94a8c8;line-height:1.55}
+.chapter .code-block .k{color:var(--extranet)}
+.chapter .code-block .s{color:var(--internet)}
+.chapter .code-block .c{color:var(--faint);font-style:italic}
+.chapter ul{margin:1rem 0 1rem 1.4rem;display:grid;gap:.5rem}
+.chapter li{color:#c5d4ea;font-size:.92rem;line-height:1.6}
+.chapter .callout{border-left:3px solid var(--warn);background:rgba(245,158,11,.08);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.4rem 0;font-size:.9rem}
+.chapter .callout b{color:var(--warn);font-family:var(--fm);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:.4rem}
+@media(max-width:900px){.tutorial-wrap{grid-template-columns:1fr}.toc{position:static;max-height:none}}
+.inline-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.inline-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+@media(max-width:760px){.inline-grid-2,.inline-grid-3{grid-template-columns:1fr}}
+footer{border-top:1px solid var(--line);padding:2.6rem 0;background:var(--bg2)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.foot .f-nav{display:flex;flex-wrap:wrap;gap:1.4rem;font-family:var(--fm);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.foot .f-nav a:hover{color:var(--intranet)}
+.foot small{font-family:var(--fm);font-size:.66rem;letter-spacing:.12em;color:var(--faint)}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .marquee-track{animation:none;transform:none}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;right:16px;bottom:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+<div class="noise"></div>
+<header id="hdr">
+  <a class="logo" href="#top"><span class="lg-dots"><span style="background:var(--intranet)"></span><span style="background:var(--extranet)"></span><span style="background:var(--internet)"></span><span style="background:var(--warn)"></span></span>IN<b>/</b>EX<b>/</b>NET</a>
+  <nav class="main-nav">
+    <a href="#tre-reti">Le 3 reti</a>
+    <a href="#serve-internet">Serve Internet?</a>
+    <a href="#dmz">DMZ</a>
+    <a href="#simulatore">Simulatore</a>
+    <a href="#confronto">Confronto</a>
+    <a href="#vpn">VPN</a>
+    <a href="#zero-trust">Zero Trust</a>
+    <a href="#fallimenti">Fallimenti</a>
+    <a href="#quiz">Quiz</a>
+  </nav>
+  <div class="live-chip"><i></i>LAB 3.0</div>
+</header>
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-veil"></div>
+  <div class="hero-inner wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="kicker" style="margin-bottom:1.4rem">Reti aziendali · Laboratorio interattivo 3.0</p>
+        <h1><span id="titleA" data-text="INTRANET">INTRANET</span>
+          <span class="l2" id="titleB" data-text="⟷ EXTRANET">⟷ EXTRANET</span>
+          <span class="l3" id="titleC" data-text="⟷ INTERNET">⟷ INTERNET</span></h1>
+        <p class="lead">Tre livelli di rete che ogni azienda deve conoscere: la rete <b>interna</b>, quella <em>estesa ai partner</em>, e quella <code>pubblica</code>. Scopri come funzionano, quando serve Internet davvero, e simula in prima persona i flussi dei dati.</p>
+        <div class="hero-cta">
+          <a href="#simulatore" class="btn btn-in">▸ Entra nel simulatore</a>
+          <a href="#serve-internet" class="btn btn-ghost">Serve Internet?</a>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hl">Dipendenti attivi</div><div class="hv c-blue" id="heroEmp">500</div></div>
+        <div class="hstat"><div class="hl">Partner esterni</div><div class="hv c-purple" id="heroPart">38</div></div>
+        <div class="hstat"><div class="hl">Firewall rules</div><div class="hv c-amber" id="heroRules">1.247</div></div>
+        <div class="hstat"><div class="hl">Uptime aziendale</div><div class="hv">99.97%</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue"></div>
+</section>
+<div class="marquee"><div class="marquee-track" id="mqTrack">
+  <span>LAN <b>✦</b> DMZ <b>✦</b> Firewall <b>✦</b> VPN IPsec <b>✦</b> WireGuard <b>✦</b> Zero Trust <b>✦</b> MFA <b>✦</b> SSO <b>✦</b> Active Directory <b>✦</b> DMZ <b>✦</b> SAML <b>✦</b> OAuth2 <b>✦</b> ZTNA <b>✦</b>&nbsp;</span>
+</div></div>
+<!-- ============ LE 3 RETI (TRIANGLE v2) ============ -->
+<section class="sec grid-bg" id="tre-reti">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">01 · Le tre reti</p>
+      <h2 class="sec-title">Intranet, Extranet, Internet</h2>
+      <p>Immagina l'azienda come una <b>città fortificata</b>. Ecco le tre zone: l'area pubblica aperta a tutti, il recinto privato dei dipendenti, e l'area visitatori con ingresso controllato.</p>
+    </div>
+    <div class="triangle-wrap rv d1">
+      <div class="triangle-bar">
+        <div class="tb-title"><span class="led green"></span>LE TRE ZONE · CHI PUÒ ENTRARE?</div>
+        <button class="btn btn-ghost sm" id="triShuffle">🔀 Rimescola visitatori</button>
+      </div>
+      <div class="triangle-canvas-wrap"><canvas id="triCanvas"></canvas></div>
+      <div class="triangle-legend">
+        <span><i style="background:var(--internet);border-color:var(--internet)"></i>Visitatore pubblico</span>
+        <span><i style="background:var(--intranet);border-color:var(--intranet)"></i>Dipendente (badge blu)</span>
+        <span><i style="background:var(--extranet);border-color:var(--extranet)"></i>Partner (badge viola)</span>
+        <span style="color:var(--warn)">🛡️ Firewall / Guardiano</span>
+        <span style="color:var(--red)">✗ Accesso negato</span>
+      </div>
+      <div class="triangle-caption">
+        <b>Internet</b> è l'area pubblica aperta: chiunque può entrare, non ci sono muri. <b>Intranet</b> è il recinto privato con muri spessi e una porta sorvegliata: entrano solo i dipendenti con badge blu. <b>Extranet</b> è l'area visitatori con ingresso controllato: entrano i dipendenti E i partner autorizzati con badge viola, ma non il pubblico generico. Nota che un visitatore pubblico viene <b>respinto</b> sia dall'intranet che dall'extranet.
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ SERVE INTERNET? v2 ============ -->
+<section class="sec sec-alt" id="serve-internet">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker green">02 · La domanda cruciale</p>
+      <h2 class="sec-title">In ufficio, uso l'intranet. Mi serve Internet?</h2>
+      <p>La risposta definitiva, senza ambiguità.</p>
+    </div>
+    <div class="internet-answer rv d1">
+      <p style="font-size:1.05rem;color:#c5d4ea;line-height:1.6;margin-bottom:.5rem">Sei in sede, connesso al WiFi aziendale, e apri il portale <code style="background:var(--intranet-dim);color:var(--intranet);padding:2px 8px;border-radius:4px;font-family:var(--fm);font-size:.9em">intranet.tech.local</code>. Cosa stai facendo?</p>
+      <div class="big-answer">
+        <div class="answer-box yes">
+          <span class="ab-label">Stai usando l'intranet?</span>
+          <div class="ab-big">✓ SÌ</div>
+          <p>Stai accedendo al <b>servizio intranet</b>: portale HR, documenti, knowledge base. È un'applicazione web che vive sui server aziendali.</p>
+        </div>
+        <div class="answer-box no">
+          <span class="ab-label">Stai usando Internet?</span>
+          <div class="ab-big">✗ NO</div>
+          <p>Il traffico <b>non esce dall'edificio</b>. Il pacchetto va dal tuo PC al server interno passando solo per WiFi, switch e cavi aziendali. Internet non viene coinvolta.</p>
+        </div>
+      </div>
+      <p style="font-size:.95rem;color:var(--muted);margin-top:1rem"><b style="color:var(--warn)">Il punto chiave:</b> l'intranet <b>NON è "dentro" Internet</b>. È un servizio separato che si trova fisicamente nella LAN aziendale. Internet e intranet sono <b>due reti diverse</b> che possono essere usate dallo stesso computer, ma non sono la stessa cosa.</p>
+    </div>
+    <div class="scenario-cards">
+      <div class="sc-card sc-a rv d1">
+        <span class="sc-badge">NON SERVE INTERNET</span>
+        <div class="sc-icon">🏢</div>
+        <h3>In sede (ufficio)</h3>
+        <span class="sc-loc">WiFi aziendale / cavo Ethernet</span>
+        <p>Sei fisicamente dentro l'azienda. Il DNS interno risolve l'intranet a un IP privato e il pacchetto resta nella LAN.</p>
+        <div class="path-flow">
+          <div>💻 PC (10.0.1.45) <span class="arr">→</span></div>
+          <div>📡 Access Point WiFi <span class="arr">→</span></div>
+          <div>🔀 Switch di piano <span class="arr">→</span></div>
+          <div>🗄️ Server Intranet (10.0.0.10)</div>
+        </div>
+        <div class="verdict" style="margin-top:.9rem">✓ Intranet sì · Internet no</div>
+      </div>
+      <div class="sc-card sc-b rv d2">
+        <span class="sc-badge">SERVE INTERNET (come trasporto)</span>
+        <div class="sc-icon">🏠</div>
+        <h3>Da casa (smart working)</h3>
+        <span class="sc-loc">WiFi di casa + VPN</span>
+        <p>Sei fuori dall'azienda. Per raggiungere l'intranet devi prima attraversare Internet via VPN, che ti fa apparire "come se fossi in sede".</p>
+        <div class="path-flow">
+          <div>💻 PC di casa <span class="arr">→</span></div>
+          <div>🌐 Router + ISP (Internet) <span class="arr">→</span></div>
+          <div>🔐 Tunnel VPN cifrato <span class="arr">→</span></div>
+          <div>🏢 Firewall → Intranet</div>
+        </div>
+        <div class="verdict" style="margin-top:.9rem">✓ Intranet sì · Internet sì (trasporto)</div>
+      </div>
+      <div class="sc-card sc-c rv d3">
+        <span class="sc-badge">SERVE INTERNET (sempre)</span>
+        <div class="sc-icon">📦</div>
+        <h3>Fornitore esterno</h3>
+        <span class="sc-loc">Ufficio del partner</span>
+        <p>Sei un'azienda diversa. Accedi all'<b>extranet</b> via Internet + credenziali dedicate. Il traffico termina in DMZ, non entra nella LAN.</p>
+        <div class="path-flow">
+          <div>💻 PC del fornitore <span class="arr">→</span></div>
+          <div>🌐 Internet <span class="arr">→</span></div>
+          <div>🔥 Firewall aziendale <span class="arr">→</span></div>
+          <div>🛡️ DMZ (portal extranet)</div>
+        </div>
+        <div class="verdict" style="margin-top:.9rem">✓ Extranet sì · Internet sì (sempre)</div>
+      </div>
+    </div>
+    <div class="browser-myth rv d4">
+      <h3>⚠️ Il mito da sfatare: "uso il browser = uso Internet"</h3>
+      <p>Il browser è solo un <b>programma che parla HTTP</b>. Può parlare sia con server remoti (su Internet) sia con server locali (nella LAN). La differenza la fa il <b>DNS</b> e l'<b>IP di destinazione</b>, non il browser.</p>
+      <div class="compare">
+        <div class="cmp-item in">
+          <h4>📄 intranet.tech.local</h4>
+          <p>Il DNS interno risponde un IP <b>privato</b> (10.0.0.10). Il router vede "IP privato" e tiene il traffico dentro la LAN. <b>Non sei su Internet.</b></p>
+        </div>
+        <div class="cmp-item net">
+          <h4>🌍 google.com</h4>
+          <p>Il DNS risponde un IP <b>pubblico</b> (142.250.x.x). Il router vede "IP pubblico" e inoltra il pacchetto al tuo ISP. <b>Ora sei su Internet.</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ INTRO ============ -->
+<section class="sec" id="intro">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker blue">03 · Definizioni</p>
+      <h2 class="sec-title">Cosa sono Intranet ed Extranet?</h2>
+      <p>Definizioni precise e il loro ruolo nell'architettura aziendale.</p>
+    </div>
+    <div class="intro-grid">
+      <div class="rv d1">
+        <div class="def-quote">L'<strong>Intranet</strong> è una rete privata interna all'azienda, accessibile solo ai dipendenti. L'<em>Extranet</em> è un'estensione controllata che permette a partner, fornitori e clienti autorizzati di accedere a risorse specifiche. <code>Internet</code> è la rete pubblica che connette tutto il mondo.</div>
+        <div class="fact-list">
+          <div class="fact"><div class="fi">🔒</div><div><h4>Intranet — Rete Privata</h4><p>Contiene documenti interni, portale HR, knowledge base. Accessibile solo da dentro l'azienda o tramite VPN.</p></div></div>
+          <div class="fact p"><div class="fi">🌐</div><div><h4>Extranet — Rete Estesa</h4><p>Consente collaborazioni con terze parti (fornitori, clienti, partner) attraverso portali dedicati e accesso controllato.</p></div></div>
+          <div class="fact g"><div class="fi">🔌</div><div><h4>LAN — Infrastruttura</h4><p>È il "tubo fisico" (cavi, switch, router, WiFi) su cui corrono i dati. L'Intranet e l'Extranet sono servizi che girano sopra.</p></div></div>
+        </div>
+      </div>
+      <div class="panel rv d2">
+        <div class="panel-bar">
+          <div class="pb-title"><span class="led" id="introLed"></span><span id="introLab">ARCHITETTURA AZIENDALE</span></div>
+          <div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.16em;color:var(--faint);text-transform:uppercase" id="introPkt">0 pkt/s</div>
+        </div>
+        <div class="canvas-box"><canvas id="introCanvas"></canvas></div>
+        <div class="legend-row">
+          <span><i style="background:var(--intranet)"></i>Intranet</span>
+          <span><i style="background:var(--extranet)"></i>Extranet</span>
+          <span><i style="background:var(--internet)"></i>Internet</span>
+          <span><i style="background:var(--warn)"></i>Firewall</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ DMZ v2 (with definition) ============ -->
+<section class="sec sec-alt" id="dmz">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker amber">04 · La zona cuscinetto</p>
+      <h2 class="sec-title">La DMZ: esporre servizi senza esporre tutto</h2>
+      <p>Come fa un'azienda a rendere raggiungibile un portale extranet da Internet <b>senza aprire la LAN interna</b> al mondo?</p>
+    </div>
+    <div class="dmz-definition rv d1">
+      <h3>DMZ — Demilitarized Zone</h3>
+      <p>La DMZ è una <b>sottorete isolata</b>, posizionata tra Internet e la LAN interna, che ospita i servizi che devono essere raggiungibili dall'esterno (web server, portal extranet, mail server). È protetta da <b>due firewall</b>: uno verso Internet e uno verso la LAN. Se un attaccante compromette un server nella DMZ, <b>non può accedere direttamente</b> alla LAN interna: deve superare un secondo firewall con regole molto restrittive.</p>
+    </div>
+    <div class="dmz-wrap rv d2">
+      <div class="dmz-bar">
+        <div class="db-title"><span class="led green"></span>ARCHITETTURA DMZ · 4 ZONE</div>
+        <span style="font-family:var(--fm);font-size:.62rem;letter-spacing:.16em;color:var(--faint)" id="dmzNote">defense in depth</span>
+      </div>
+      <div class="dmz-canvas-wrap"><canvas id="dmzCanvas"></canvas></div>
+      <div class="dmz-explain">
+        <div class="dmz-zone internet">
+          <h4>🌍 INTERNET</h4>
+          <p>Rete pubblica, non fidata.</p>
+          <ul><li>Traffico da tutto il mondo</li><li>Potenzialmente ostile</li><li>Nessun controllo</li></ul>
+        </div>
+        <div class="dmz-zone fw">
+          <h4>🔥 FIREWALL ESTERNO</h4>
+          <p>Filtra cosa può entrare.</p>
+          <ul><li>Apre solo porte 443, 22</li><li>Blocca tutto il resto</li><li>Ispeziona pacchetti</li></ul>
+        </div>
+        <div class="dmz-zone dmz">
+          <h4>🛡️ DMZ</h4>
+          <p>Zona semi-fidata. Ospita i servizi esposti.</p>
+          <ul><li>Web server pubblico</li><li>Portal extranet</li><li>Mail server</li><li>VPN gateway</li></ul>
+        </div>
+        <div class="dmz-zone lan">
+          <h4>🔒 LAN INTERNA</h4>
+          <p>Zona fidata. Protetta da un secondo firewall.</p>
+          <ul><li>Database</li><li>Active Directory</li><li>File server</li><li>Intranet</li></ul>
+        </div>
+      </div>
+    </div>
+    <div class="rv d3" style="margin-top:2rem;border:1px solid var(--line);border-radius:14px;padding:1.8rem;background:var(--panel)">
+      <h3 style="font-family:var(--fd);font-size:1.1rem;margin-bottom:1rem">🛡️ Il principio del "Defense in Depth"</h3>
+      <p style="font-size:.92rem;color:#c5d4ea;line-height:1.65;margin-bottom:1rem">
+        Un attaccante che compromette il web server nella DMZ <b>non ha ancora vinto</b>. Deve superare un secondo firewall per raggiungere la LAN. Nella pratica:
+      </p>
+      <div class="inline-grid-2">
+        <div style="padding:1rem;background:rgba(239,68,68,.06);border-left:3px solid var(--red);border-radius:0 8px 8px 0">
+          <b style="color:var(--red);font-family:var(--fm);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:.3rem">❌ SENZA DMZ</b>
+          <p style="font-size:.85rem;color:#c5d4ea;margin:0">Web server direttamente su Internet con accesso al DB aziendale. Se viene compromesso, l'attaccante ha tutto.</p>
+        </div>
+        <div style="padding:1rem;background:var(--internet-dim);border-left:3px solid var(--internet);border-radius:0 8px 8px 0">
+          <b style="color:var(--internet);font-family:var(--fm);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:.3rem">✓ CON DMZ</b>
+          <p style="font-size:.85rem;color:#c5d4ea;margin:0">Web server in DMZ, DB in LAN. Il firewall interno permette al web server solo query specifiche. Compromissione contenuta.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ SIMULATORE ============ -->
+<section class="sec" id="simulatore">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker purple">05 · Simulatore interattivo</p>
+      <h2 class="sec-title" id="simTitle" data-text="ENTRA NELL'AZIENDA: SCEGLI IL TUO RUOLO">ENTRA NELL'AZIENDA: SCEGLI IL TUO RUOLO</h2>
+      <p>Sperimenta in prima persona la differenza: collegati come <b>dipendente</b> all'intranet o come <b>fornitore esterno</b> all'extranet.</p>
+    </div>
+    <div class="sim-wrap">
+      <aside class="role-picker rv d1">
+        <div class="rp-head">
+          <h3>👤 Scegli il tuo ruolo</h3>
+          <p>Seleziona chi vuoi impersonare. Cambiare ruolo resetta la sessione.</p>
+        </div>
+        <div class="role-btns">
+          <button class="role-card in-card active-in" id="btnRoleIn">
+            <span class="badge-ok">✓</span>
+            <div class="rc-icon">👨‍💼</div>
+            <h4>Dipendente · Mario Rossi</h4>
+            <p>Lavoro nel reparto HR di TechSolutions. Voglio accedere a buste paga, documenti e chat interna.</p>
+            <span class="rc-tag">INTRANET</span>
+          </button>
+          <button class="role-card ex-card" id="btnRoleEx">
+            <span class="badge-ok">✓</span>
+            <div class="rc-icon">📦</div>
+            <h4>Fornitore · CloudCorp SRL</h4>
+            <p>Siamo partner tecnologici. Dobbiamo inviare ordini, vedere fatture e tracciare progetti condivisi.</p>
+            <span class="rc-tag">EXTRANET</span>
+          </button>
+        </div>
+        <div class="sim-help">
+          <b>Suggerimento:</b> prova entrambi i ruoli per vedere come cambia il percorso del pacchetto, l'autenticazione richiesta e il livello di accesso ai dati.
+        </div>
+      </aside>
+      <div class="sim-stage rv d2" id="simStage">
+        <div class="sim-topbar">
+          <div class="stb-left">
+            <span class="stb-status ok" id="simStatus">🟢 CONNESSO</span>
+            <span style="font-family:var(--fm);font-size:.66rem;color:var(--faint);letter-spacing:.12em" id="simRole">DIPENDENTE · INTRANET</span>
+          </div>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-ghost sm" id="btnHack">⚠ Simula attacco</button>
+            <button class="btn btn-ghost sm" id="btnReset">↺ Reset</button>
+          </div>
+        </div>
+        <div class="sim-canvas-wrap"><canvas id="simCanvas"></canvas></div>
+        <div class="sim-actions">
+          <div class="label"><b id="actLabel">Azioni dipendente</b></div>
+          <button class="btn btn-in sm act-btn" data-act="hr" data-role="in">📋 Buste paga</button>
+          <button class="btn btn-in sm act-btn" data-act="docs" data-role="in">📄 Documenti</button>
+          <button class="btn btn-in sm act-btn" data-act="chat" data-role="in">💬 Chat interna</button>
+          <button class="btn btn-in sm act-btn" data-act="calendar" data-role="in">📅 Calendario</button>
+          <button class="btn btn-ex sm act-btn" data-act="order" data-role="ex" style="display:none">📦 Nuovo ordine</button>
+          <button class="btn btn-ex sm act-btn" data-act="invoice" data-role="ex" style="display:none">💶 Vedi fattura</button>
+          <button class="btn btn-ex sm act-btn" data-act="tracking" data-role="ex" style="display:none">🛰 Tracking progetto</button>
+          <button class="btn btn-ex sm act-btn" data-act="code" data-role="ex" style="display:none">🔀 Condividi codice</button>
+        </div>
+        <div class="login-overlay" id="loginOverlay">
+          <div class="login-box" id="loginBox">
+            <h3 id="loginTitle">🔐 Accesso Intranet</h3>
+            <p id="loginDesc">Inserisci le tue credenziali aziendali per accedere.</p>
+            <div class="form-field">
+              <label>Username</label>
+              <input type="text" id="loginUser" value="m.rossi" readonly>
+            </div>
+            <div class="form-field">
+              <label>Password</label>
+              <input type="password" id="loginPass" value="••••••••••" readonly>
+            </div>
+            <div class="vpn-anim" id="vpnBlock" style="display:none">
+              <span class="spin"></span><span id="vpnMsg">Stabilendo tunnel VPN cifrato...</span>
+            </div>
+            <div class="form-field" id="mfaBlock">
+              <label>Codice MFA (autocompilato)</label>
+              <div class="mfa-code" id="mfaCode">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <button class="btn btn-in btn-full sm" id="btnLogin">Autenticazione ▸</button>
+          </div>
+        </div>
+      </div>
+      <aside class="log-panel rv d3">
+        <div class="log-head">
+          <h4><span class="led"></span>Security Log Live</h4>
+          <span class="count" id="logCount">0 eventi</span>
+        </div>
+        <div class="log-list" id="logList"></div>
+        <div class="log-stats">
+          <div><div class="sl">Pacchetti</div><div class="sv" id="lsPkt">0</div></div>
+          <div><div class="sl">Login</div><div class="sv p" id="lsLogin">0</div></div>
+          <div><div class="sl">Block</div><div class="sv g" id="lsBlock">0</div></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+<!-- ============ CONFRONTO v3 (READABLE) ============ -->
+<section class="sec sec-alt" id="confronto">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker amber">06 · Confronto a tre</p>
+      <h2 class="sec-title">Intranet vs Extranet vs Internet</h2>
+      <p>Le tre reti messe a confronto su 8 dimensioni chiave, in un formato leggibile.</p>
+    </div>
+    <div class="cmp3 rv d1">
+      <div class="cmp3-header">
+        <div class="ch-label">Dimensione</div>
+        <div class="ch-net"><span class="ch-icon">🌍</span><span class="ch-name">Internet</span><span class="ch-tag">Pubblica · Globale</span></div>
+        <div class="ch-in"><span class="ch-icon">🔒</span><span class="ch-name">Intranet</span><span class="ch-tag">Privata · Aziendale</span></div>
+        <div class="ch-ex"><span class="ch-icon">🌐</span><span class="ch-name">Extranet</span><span class="ch-tag">Semi-privata · B2B</span></div>
+      </div>
+      <div class="cmp3-row">
+        <div class="cr-label"><span class="ico">👥</span>Chi può entrare</div>
+        <div class="cr-net"><b>CHIUNQUE</b><span>Qualsiasi persona al mondo con una connessione Internet</span></div>
+        <div class="cr-in"><b>SOLO DIPENDENTI</b><span>Personale interno con credenziali aziendali</span></div>
+        <div class="cr-ex"><b>PARTNER AUTORIZZATI</b><span>Fornitori, clienti, partner con credenziali dedicate</span></div>
+      </div>
+      <div class="cmp3-row">
+        <div class="cr-label"><span class="ico">🏢</span>Chi la possiede</div>
+        <div class="cr-net"><b>NESSUNO</b><span>È una rete di reti, gestita da migliaia di operatori</span></div>
+        <div class="cr-in"><b>L'AZIENDA</b><span>Singola organizzazione che la gestisce internamente</span></div>
+        <div class="cr-ex"><b>UNA O PIÙ AZIENDE</b><span>Condivisa tra l'azienda e i suoi partner</span></div>
+      </div>
+      <div class="cmp3-row">
+        <div class="cr-label"><span class="ico">🌐</span>Come si raggiunge</div>
+        <div class="cr-net"><b>DA OVUNQUE</b><span>Connessione ISP standard</span></div>
+        <div class="cr-in"><b>LAN O VPN</b><span>Dalla sede aziendale, o da remoto via VPN</span></div>
+        <div class="cr-ex"><b>INTERNET + VPN/PORTAL</b><span>Da Internet, con tunnel cifrato o portale in DMZ</span></div>
+      </div>
+      <div class="cmp3-row">
+        <div class="cr-label"><span class="ico">🔑</span>Credenziali</div>
+        <div class="cr-net"><b>PER-SERVIZIO</b><span>Account specifici per ogni sito/app (Google, Amazon...)</span></div>
+        <div class="cr-in"><b>SSO PERMANENTE</b><span>Single Sign-On aziendale + Active Directory + MFA</span></div>
+        <div class="cr-ex"><b>TEMPORANEE</b><span>Credenziali a scadenza + OAuth2 + MFA</span></div>
+      </div>
+      <div class="cmp3-row">
+        <div class="cr-label"><span class="ico">🔐</span>Livello di fiducia</div>
+        <div class="cr-net"><b>NESSUNA</b><span>Ogni richiesta è potenzialmente ostile</span></div>
+        <div class="cr-in"><b>ALTA</b><span>Gli utenti sono identificati e tracciati</span></div>
+        <div class="cr-ex"><b>LIMITATA</b><span>Fiducia circoscritta e revocabile</span></div>
+      </div>
+      <div class="cmp3-row">
+        <div class="cr-label"><span class="ico">🎯</span>Scopo principale</div>
+        <div class="cr-net"><b>INFORMAZIONE PUBBLICA</b><span>Siti web, social, e-commerce, servizi globali</span></div>
+        <div class="cr-in"><b>PRODUTTIVITÀ INTERNA</b><span>Buste paga, documenti, knowledge base, HR</span></div>
+        <div class="cr-ex"><b>COLLABORAZIONE ESTERNA</b><span>Ordini, fatture, tracking progetti, code sharing</span></div>
+      </div>
+      <div class="cmp3-row">
+        <div class="cr-label"><span class="ico">🛡️</span>Protezione</div>
+        <div class="cr-net"><b>FIREWALL PERSONALE</b><span>Ogni utente protegge il proprio dispositivo</span></div>
+        <div class="cr-in"><b>FIREWALL + AD</b><span>Perimetro aziendale + autenticazione centralizzata</span></div>
+        <div class="cr-ex"><b>DMZ + VPN</b><span>Zona cuscinetto + tunnel cifrati + permessi granulari</span></div>
+      </div>
+      <div class="cmp3-row">
+        <div class="cr-label"><span class="ico">💰</span>Costi</div>
+        <div class="cr-net"><b>CONNESSIONE ISP</b><span>Canone mensile per la connettività</span></div>
+        <div class="cr-in"><b>SERVER + IT</b><span>Infrastruttura interna + personale specializzato</span></div>
+        <div class="cr-ex"><b>VPN + PORTAL</b><span>Infrastruttura DMZ + coordinamento con partner</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ LAN vs INTRANET ============ -->
+<section class="sec" id="lan">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker green">07 · Differenze concettuali</p>
+      <h2 class="sec-title">LAN vs Intranet: hardware vs software</h2>
+      <p>Spesso confuse, ma sono due livelli dello stack completamente diversi.</p>
+    </div>
+    <div class="lan-split rv d1">
+      <div class="lan-card lan">
+        <div class="lc-icon">🔌</div>
+        <h3>LAN</h3>
+        <p class="def">Local Area Network — infrastruttura fisica</p>
+        <ul>
+          <li>Collega dispositivi fisici (PC, server, stampanti)</li>
+          <li>Area geografica limitata (ufficio, campus)</li>
+          <li>Hardware: cavi, switch, router, access point</li>
+          <li>Permette comunicazione a livello di bit</li>
+          <li>Condivide risorse fisiche</li>
+        </ul>
+      </div>
+      <div class="lan-card intranet">
+        <div class="lc-icon">🌐</div>
+        <h3>Intranet</h3>
+        <p class="def">Servizio software basato su tecnologia web</p>
+        <ul>
+          <li>Rete privata costruita con protocolli Internet</li>
+          <li>Utilizza HTTP, TCP/IP, HTTPS</li>
+          <li>Software: server web, DB, applicazioni</li>
+          <li>Organizza e presenta informazioni</li>
+          <li>Accessibile tramite browser web</li>
+        </ul>
+      </div>
+    </div>
+    <div class="analogy rv d2">
+      <h3>💡 L'analogia della città</h3>
+      <div class="analogy-flow">
+        <div class="analogy-node road"><div class="an-icon">🛣️</div><h4>LAN = Strade</h4><p>Asfalto, segnaletica, rotatorie. È l'infrastruttura che permette il trasporto.</p></div>
+        <div class="analogy-arrow">⟶</div>
+        <div class="analogy-node service"><div class="an-icon">🚐</div><h4>Intranet = Servizi</h4><p>Corrieri, taxi, trasporto pubblico. Usano le strade per fornire valore.</p></div>
+      </div>
+      <div class="analogy-caption">
+        <b>La LAN</b> fornisce il "tubo" fisico dove scorrono i dati. <em>L'Intranet</em> è l'insieme di servizi web che viaggiano su quel tubo. Una LAN può esistere senza intranet (solo condivisione file), ma un'intranet senza LAN (o Internet) non può funzionare.
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ VPN ============ -->
+<section class="sec sec-alt" id="vpn">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker purple">08 · Le VPN moderne</p>
+      <h2 class="sec-title">Non tutte le VPN sono uguali</h2>
+      <p>"VPN" è un termine ombrello. In realtà esistono <b>tecnologie e casi d'uso molto diversi</b>.</p>
+    </div>
+    <div class="vpn-grid">
+      <article class="vpn-card rv d1">
+        <div class="vc-icon">🏢</div>
+        <h3>Site-to-Site</h3>
+        <span class="vc-sub">UFFICIO ↔ UFFICIO</span>
+        <p>Collega <b>due sedi aziendali</b> in modo permanente, come se fossero sulla stessa LAN. Sempre attiva, trasparente per gli utenti.</p>
+        <div class="use"><b>Quando si usa</b>Sede di Milano ↔ sede di Roma. I dipendenti di Roma accedono ai server di Milano come se fossero in loco.</div>
+        <div class="proto"><span>IPsec</span><span>MPLS</span><span>WireGuard</span></div>
+      </article>
+      <article class="vpn-card rv d2">
+        <div class="vc-icon">🏠</div>
+        <h3>Remote Access</h3>
+        <span class="vc-sub">UTENTE ↔ AZIENDA</span>
+        <p>Il <b>singolo dipendente</b> (da casa, in trasferta) si connette all'azienda. Attiva on-demand, richiede credenziali.</p>
+        <div class="use"><b>Quando si usa</b>Smart working, trasferte, accesso da hotel. Il PC dell'utente ottiene un IP della LAN aziendale.</div>
+        <div class="proto"><span>SSL/TLS</span><span>OpenVPN</span><span>WireGuard</span></div>
+      </article>
+      <article class="vpn-card rv d3">
+        <div class="vc-icon">🤝</div>
+        <h3>B2B / Extranet</h3>
+        <span class="vc-sub">AZIENDA ↔ PARTNER</span>
+        <p>Collega <b>due aziende diverse</b> per progetti specifici. Accesso limitato a risorse concordate, credenziali temporanee.</p>
+        <div class="use"><b>Quando si usa</b>Fornitore che invia ordini, partner che condivide codice. Scade al termine del progetto.</div>
+        <div class="proto"><span>IPsec</span><span>Zero Trust</span><span>SAML</span></div>
+      </article>
+    </div>
+    <div class="rv d4" style="margin-top:2rem;border:1px solid var(--line);border-radius:14px;padding:1.8rem;background:var(--panel)">
+      <h3 style="font-family:var(--fd);font-size:1.1rem;margin-bottom:1rem">⚡ WireGuard: la VPN del futuro</h3>
+      <p style="font-size:.92rem;color:#c5d4ea;line-height:1.65;margin-bottom:1rem">
+        <b>WireGuard</b> (2020) sta sostituendo le vecchie IPsec/OpenVPN. È molto più veloce, ha solo 4.000 righe di codice (vs 400.000 di OpenVPN), handshake in &lt;100ms, nativo nel kernel Linux.
+      </p>
+      <div class="inline-grid-3">
+        <div style="padding:.9rem;background:rgba(5,8,15,.5);border-radius:8px;border:1px solid var(--line-soft);text-align:center">
+          <div style="font-family:var(--fd);font-size:1.6rem;font-weight:700;color:var(--internet)">~100ms</div>
+          <div style="font-family:var(--fm);font-size:.64rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-top:.3rem">Handshake</div>
+        </div>
+        <div style="padding:.9rem;background:rgba(5,8,15,.5);border-radius:8px;border:1px solid var(--line-soft);text-align:center">
+          <div style="font-family:var(--fd);font-size:1.6rem;font-weight:700;color:var(--internet)">4K</div>
+          <div style="font-family:var(--fm);font-size:.64rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-top:.3rem">Righe di codice</div>
+        </div>
+        <div style="padding:.9rem;background:rgba(5,8,15,.5);border-radius:8px;border:1px solid var(--line-soft);text-align:center">
+          <div style="font-family:var(--fd);font-size:1.6rem;font-weight:700;color:var(--internet)">30%</div>
+          <div style="font-family:var(--fm);font-size:.64rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-top:.3rem">Più veloce di IPsec</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ ZERO TRUST ============ -->
+<section class="sec" id="zero-trust">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker red">09 · Il nuovo paradigma</p>
+      <h2 class="sec-title">Zero Trust: il perimetro è morto</h2>
+      <p>Dal 2020 il modello dominante non è più "fidati di chi è dentro la LAN". È <b>"non fidarti mai, verifica sempre"</b>.</p>
+    </div>
+    <div class="zt-wrap">
+      <div class="zt-main rv d1">
+        <h3>🛡️ Zero Trust Architecture</h3>
+        <div class="zt-motto">"Never trust, always verify"</div>
+        <p>Nel vecchio modello <b>castle-and-moat</b> (castello e fossato), una volta superato il firewall eri "dentro" e avevi accesso a tutto. Oggi questo non funziona più: smart working, cloud, partner esterni hanno <b>dissolto il perimetro</b>.</p>
+        <p>Lo standard <b>NIST SP 800-207</b> (2020) definisce Zero Trust come modello in cui ogni richiesta è verificata come se venisse da Internet, indipendentemente dalla provenienza.</p>
+        <div class="zt-pillars">
+          <div class="zt-pillar"><div class="zp-num">1</div><div><h4>Identità come nuovo perimetro</h4><p>Non conta da dove ti connetti, ma <b>chi sei</b>. Ogni accesso richiede autenticazione forte.</p></div></div>
+          <div class="zt-pillar"><div class="zp-num">2</div><div><h4>Microsegmentazione</h4><p>Anche dentro la LAN, le risorse sono isolate. Un dipendente HR non accede ai server di sviluppo.</p></div></div>
+          <div class="zt-pillar"><div class="zp-num">3</div><div><h4>Least privilege</h4><p>Ogni identità ottiene solo i permessi <b>minimi necessari</b> per il suo ruolo, revocabili istantaneamente.</p></div></div>
+          <div class="zt-pillar"><div class="zp-num">4</div><div><h4>Verifica continua</h4><p>Non basta autenticarsi all'inizio. Il sistema verifica <b>comportamento, device, contesto</b> per tutta la sessione.</p></div></div>
+        </div>
+      </div>
+      <div class="zt-side rv d2">
+        <div class="zt-compare">
+          <h4>🔄 Vecchio vs Nuovo modello</h4>
+          <div class="zt-row"><div class="zr-label">Fiducia</div><div class="zr-old">Fidati di chi è dentro la LAN</div><div class="zr-new">✓ Verifica ogni richiesta</div></div>
+          <div class="zt-row"><div class="zr-label">Perimetro</div><div class="zr-old">Il firewall</div><div class="zr-new">✓ L'identità dell'utente</div></div>
+          <div class="zt-row"><div class="zr-label">Accesso</div><div class="zr-old">Tutto una volta dentro</div><div class="zr-new">✓ Solo risorse specifiche</div></div>
+          <div class="zt-row"><div class="zr-label">Durata</div><div class="zr-old">Sessione lunga</div><div class="zr-new">✓ Verifica continua</div></div>
+        </div>
+        <div style="border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:1.3rem;background:rgba(239,68,68,.05)">
+          <h4 style="font-family:var(--fd);font-size:1rem;color:var(--red);margin-bottom:.5rem">⚠ Cosa cambia per te</h4>
+          <p style="font-size:.88rem;color:#c5d4ea;line-height:1.55">In Zero Trust, anche un dipendente <b>in sede sulla LAN aziendale</b> deve ri-autenticarsi per accedere a dati sensibili. Il concetto di "intranet come zona fidata" sta scomparendo.</p>
+        </div>
+        <div style="border:1px solid var(--line);border-radius:12px;padding:1.3rem;background:var(--panel)">
+          <h4 style="font-family:var(--fd);font-size:1rem;margin-bottom:.5rem">🔮 ZTNA: il successore della VPN</h4>
+          <p style="font-size:.88rem;color:#c5d4ea;line-height:1.55"><b>Zero Trust Network Access</b> (ZTNA) sta sostituendo le VPN classiche. Invece di darti accesso a tutta la rete, ti connette solo alla specifica applicazione che ti serve.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ FALLIMENTI ============ -->
+<section class="sec sec-alt" id="fallimenti">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker red">10 · Quando le extranet vanno male</p>
+      <h2 class="sec-title">I data breach passati dai fornitori</h2>
+      <p>L'extranet è un'arma a doppio taglio: apre la collaborazione, ma anche una <b>porta laterale</b> verso l'azienda.</p>
+    </div>
+    <div class="fail-grid">
+      <article class="fail rv d1">
+        <div class="fail-year">2013</div>
+        <h3>🎯 Target Corporation</h3>
+        <div class="fail-entry">ENTRY POINT: Fournier (HVAC vendor)</div>
+        <p>Gli attaccanti hanno rubato le credenziali di <b>Fournier</b>, un fornitore di impianti di climatizzazione che aveva accesso all'extranet Target per la fatturazione.</p>
+        <p>Dal portal fatture si sono spostati lateralmente fino ai <b>POS dei negozi</b>, rubando i dati di <b>40 milioni di carte di credito</b>.</p>
+        <div class="lesson"><b>Lezione</b><span>Il fornitore aveva accesso molto più ampio del necessario. Violazione del principio del minimo privilegio.</span></div>
+      </article>
+      <article class="fail rv d2">
+        <div class="fail-year">2014</div>
+        <h3>🔨 Home Depot</h3>
+        <div class="fail-entry">ENTRY POINT: Fornitore terzo (non rivelato)</div>
+        <p>Stessa dinamica di Target: credenziali di un fornitore compromesse, accesso all'extranet, movimento laterale verso i sistemi di pagamento.</p>
+        <p><b>56 milioni di carte di credito</b> rubate. Costo totale: oltre $179 milioni.</p>
+        <div class="lesson"><b>Lezione</b><span>Microsegmentazione: l'extranet fornitori non deve mai avere rotta verso i sistemi di pagamento.</span></div>
+      </article>
+      <article class="fail rv d1">
+        <div class="fail-year">2020</div>
+        <h3>🚗 Honda / Nissan</h3>
+        <div class="fail-entry">ENTRY POINT: Server SAML Extranet esposto</div>
+        <p>Ricercatori hanno scoperto server di autenticazione extranet <b>senza MFA</b>, esposti direttamente su Internet con credenziali di default.</p>
+        <div class="lesson"><b>Lezione</b><span>Mai esporre portali extranet senza MFA obbligatorio. Credenziali di default = porta aperta.</span></div>
+      </article>
+      <article class="fail rv d2">
+        <div class="fail-year">2021</div>
+        <h3>🎮 Electronic Arts</h3>
+        <div class="fail-entry">ENTRY POINT: Slack token rubato da partner</div>
+        <p>Gli attaccanti hanno rubato un <b>token Slack</b> da un dipendente di un partner, poi hanno usato quel token per accedere al canale extranet di EA e scaricare 780 GB di codice sorgente.</p>
+        <div class="lesson"><b>Lezione</b><span>I token di sessione sono credenziali. Vanno trattati come password: scadenza breve, rotazione, audit.</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+<!-- ============ SAAS ============ -->
+<section class="sec" id="saas">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker purple">11 · Le extranet moderne</p>
+      <h2 class="sec-title">Oggi le extranet sono quasi sempre SaaS</h2>
+      <p>Nel 2026 poche aziende costruiscono extranet custom. Usano piattaforme cloud già pronte.</p>
+    </div>
+    <div class="saas-grid">
+      <article class="saas-card rv d1"><div class="sc-icon">📘</div><h3>Microsoft SharePoint</h3><span class="sc-type">EXTRANET PER PARTNER</span><p>Siti esterni per condividere documenti con partner. Autenticazione Azure AD, permessi granulari.</p></article>
+      <article class="saas-card rv d2"><div class="sc-icon">☁️</div><h3>Salesforce Experience</h3><span class="sc-type">CUSTOMER PORTAL</span><p>Portali self-service per clienti: ticket, tracking ordini, knowledge base.</p></article>
+      <article class="saas-card rv d3"><div class="sc-icon">🔗</div><h3>SAP Ariba</h3><span class="sc-type">SUPPLY CHAIN B2B</span><p>Marketplace per fornitori: ordini, fatture, catalogo. 5 milioni di aziende in 190 paesi.</p></article>
+      <article class="saas-card rv d4"><div class="sc-icon">⚡</div><h3>API B2B</h3><span class="sc-type">EXTRANET SENZA UI</span><p>Molte extranet moderne sono <b>solo API REST</b>: il partner integra i suoi sistemi direttamente.</p></article>
+    </div>
+  </div>
+</section>
+<!-- ============ CASO ============ -->
+<section class="sec sec-alt grid-bg" id="caso">
+  <span class="num-ghost">CASE</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">12 · Caso di studio</p>
+      <h2 class="sec-title">TechSolutions S.p.A.</h2>
+      <p>Come un'azienda italiana di 500 dipendenti ha implementato intranet ed extranet in parallelo.</p>
+    </div>
+    <div class="case-hero rv d1">
+      <div class="case-meta">MILANO · 500 DIPENDENTI · SETTORE IT</div>
+      <h3>🏢 TechSolutions — Software house con clienti B2B</h3>
+      <p style="margin-top:.6rem;color:var(--muted)">Sviluppano software enterprise per la logistica. Hanno dipendenti in sede e in smart working, 38 partner attivi, centinaia di clienti corporate.</p>
+    </div>
+    <div class="case-grid rv d2">
+      <div class="case-card in">
+        <div class="cc-head"><div class="ic">🔒</div><div><h4>Intranet TechSolutions</h4><span>PORTAL INTERNO</span></div></div>
+        <dl>
+          <dt>Utenti</dt><dd>500 dipendenti + 12 stagisti</dd>
+          <dt>Accesso</dt><dd>SSO aziendale + MFA su app</dd>
+          <dt>Moduli</dt><dd>HR Portal · Knowledge Base · Chat · Calendario ferie · PM</dd>
+          <dt>Sicurezza</dt><dd>Firewall perimetrale, Zero Trust, audit mensile</dd>
+          <dt>Risultato</dt><dd>−40% email interne, +25% velocità onboarding</dd>
+        </dl>
+      </div>
+      <div class="case-card ex">
+        <div class="cc-head"><div class="ic">🌐</div><div><h4>Extranet TechSolutions</h4><span>PORTAL B2B</span></div></div>
+        <dl>
+          <dt>Utenti</dt><dd>38 partner · 240 clienti · 15 consulenti</dd>
+          <dt>Accesso</dt><dd>WireGuard VPN + OAuth2 + MFA</dd>
+          <dt>Moduli</dt><dd>Portal fornitori · Tracking · Code sharing · Fatture</dd>
+          <dt>Sicurezza</dt><dd>Isolamento tenant, alert anomalie, audit settimanale</dd>
+          <dt>Risultato</dt><dd>−60% ticket supporto, tracking real-time</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="case-examples rv d3">
+      <div class="example"><div class="ex-h"><span class="ico">📊</span> Randstad France</div><p>Intranet per <b>4.800 dipendenti</b> distribuiti sul territorio francese. Migliorato comunicazione e onboarding.</p></div>
+      <div class="example"><div class="ex-h"><span class="ico">📮</span> Poste Italiane</div><p>Extranet clienti che permette tracking di <b>milioni di spedizioni</b>, gestione ricevute e reclami.</p></div>
+    </div>
+  </div>
+</section>
+<!-- ============ TUTORIAL ============ -->
+<section class="sec" id="tutorial">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">13 · Guida completa</p>
+      <h2 class="sec-title">Tutorial: padroneggiare le reti aziendali</h2>
+      <p>Sette capitoli per comprendere teoria, pratica e uso del simulatore.</p>
+    </div>
+    <div class="tutorial-wrap rv d1">
+      <nav class="toc">
+        <h4>📖 Indice</h4>
+        <a href="#ch1"><span class="n">01</span> Concetti base</a>
+        <a href="#ch2"><span class="n">02</span> Il triangolo</a>
+        <a href="#ch3"><span class="n">03</span> DMZ e defense in depth</a>
+        <a href="#ch4"><span class="n">04</span> VPN moderne</a>
+        <a href="#ch5"><span class="n">05</span> Zero Trust</a>
+        <a href="#ch6"><span class="n">06</span> Usare il simulatore</a>
+        <a href="#ch7"><span class="n">07</span> Analisi log</a>
+      </nav>
+      <div>
+        <div class="chapter" id="ch1">
+          <div class="ch-num">Capitolo 01</div>
+          <h3>I concetti base</h3>
+          <p>Immagina un'azienda come una <b>città fortificata</b>. Dentro le mura vivono i dipendenti. Fuori ci sono partner, fornitori, clienti. Le tre reti — <span class="hl">Intranet</span>, <span class="hl hl-p">Extranet</span>, <span class="hl hl-g">Internet</span> — rappresentano tre livelli di accesso a questa città.</p>
+          <div class="callout"><b>🎯 Idea chiave</b>Intranet ed Extranet non sono reti separate fisicamente, ma due livelli logici di accesso che girano sulla stessa infrastruttura, protetti da policy diverse.</div>
+        </div>
+        <div class="chapter" id="ch2">
+          <div class="ch-num">Capitolo 02</div>
+          <h3>Il triangolo Intranet / Extranet / Internet</h3>
+          <p>Il modo migliore per capire è confrontare. <b>Internet</b> è pubblica, <b>Intranet</b> è privata, <b>Extranet</b> è semi-privata. In sede con WiFi aziendale <b>non passi da Internet</b> per l'intranet: il traffico resta nella LAN. Da casa, Internet diventa il "trasporto" per il tunnel VPN.</p>
+        </div>
+        <div class="chapter" id="ch3">
+          <div class="ch-num">Capitolo 03</div>
+          <h3>DMZ e defense in depth</h3>
+          <p>La DMZ è la zona cuscinetto dove vivono i servizi esposti a Internet (web, mail, portal extranet). È protetta da due firewall: uno esterno e uno verso la LAN. Se il web server viene compromesso, l'attaccante <b>non ha ancora</b> accesso ai database interni.</p>
+          <div class="code-block">
+<span class="c">// Architettura tipica</span>
+INTERNET <span class="k">───[FW1]───</span> DMZ (web, mail, extranet)
+                  <span class="k">│</span>
+                <span class="k">[FW2]</span>  <span class="c">// permette solo query specifiche</span>
+                  <span class="k">│</span>
+                LAN (DB, AD, intranet)
+          </div>
+        </div>
+        <div class="chapter" id="ch4">
+          <div class="ch-num">Capitolo 04</div>
+          <h3>Le VPN moderne</h3>
+          <p>Esistono tre tipi principali di VPN: <b>site-to-site</b> (ufficio↔ufficio), <b>remote access</b> (utente↔azienda), <b>B2B</b> (azienda↔partner). <b>WireGuard</b> (2020) sta sostituendo le tecnologie più vecchie grazie a velocità, sicurezza e semplicità.</p>
+          <div class="callout"><b>🔮 Il futuro: ZTNA</b>Lo <span class="hl">Zero Trust Network Access</span> è il successore della VPN: invece di darti accesso a tutta la rete, ti connette solo alla specifica applicazione.</div>
+        </div>
+        <div class="chapter" id="ch5">
+          <div class="ch-num">Capitolo 05</div>
+          <h3>Zero Trust: il perimetro è morto</h3>
+          <p>Il modello "castle-and-moat" è superato. Con smart working, cloud e partner, <b>non esiste più un "dentro"</b> e un "fuori" sicuri. Il principio: <i>never trust, always verify</i>. Ogni richiesta è verificata come se venisse da Internet.</p>
+          <p>I quattro pilastri: identità come nuovo perimetro, microsegmentazione, least privilege, verifica continua.</p>
+        </div>
+        <div class="chapter" id="ch6">
+          <div class="ch-num">Capitolo 06</div>
+          <h3>Usare il simulatore</h3>
+          <ol style="margin-left:1.4rem;display:grid;gap:.7rem">
+            <li><b>Scegli un ruolo</b> (dipendente o fornitore)</li>
+            <li><b>Autenticati</b> nel popup (SSO+MFA per dipendente, VPN per fornitore)</li>
+            <li><b>Clicca un'azione</b> — ogni pulsante simula un'operazione reale</li>
+            <li><b>Osserva il pacchetto</b> attraversare firewall, DMZ, LAN</li>
+            <li><b>Leggi i log</b> a destra — come farebbe un vero SIEM</li>
+            <li><b>Simula attacco</b> per vedere come il firewall blocca</li>
+          </ol>
+        </div>
+        <div class="chapter" id="ch7">
+          <div class="ch-num">Capitolo 07</div>
+          <h3>Analisi dei log</h3>
+          <p>I log del simulatore sono modellati su veri sistemi SIEM (Splunk, ELK). Ogni riga ha timestamp, livello (<span style="color:var(--intranet)">INFO</span>, <span style="color:var(--internet)">OK</span>, <span style="color:var(--warn)">WARN</span>, <span style="color:var(--red)">ERR</span>) e messaggio.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ QUIZ ============ -->
+<section class="sec sec-alt grid-bg" id="quiz">
+  <div class="wrap">
+    <div class="sec-head rv" style="text-align:center;margin-left:auto;margin-right:auto">
+      <p class="kicker" style="justify-content:center">14 · Verifica</p>
+      <h2 class="sec-title">Verifica le tue conoscenze</h2>
+      <p>8 domande per testare quanto hai imparato.</p>
+    </div>
+    <div class="quiz-shell rv d1">
+      <div id="quizBox">
+        <div class="quiz-top"><div class="qt-l"><span class="led"></span> QUESTIONARIO</div><div id="qCount">1 / 8</div></div>
+        <div class="q-progress"><i id="qProg"></i></div>
+        <div class="quiz-body">
+          <div id="qText"></div>
+          <div id="qOptions"></div>
+          <div class="q-feedback" id="qFeedback"></div>
+        </div>
+        <div class="quiz-foot"><button class="btn btn-in sm" id="qNext" style="display:none">Prossima domanda ▸</button></div>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <div class="score-ring">
+          <svg width="150" height="150"><circle class="ring-bg" cx="75" cy="75" r="54"/><circle class="ring-fg" id="ringFg" cx="75" cy="75" r="54"/></svg>
+          <div class="score-num" id="scoreNum">0/8</div>
+        </div>
+        <div id="verdict"></div>
+        <p id="verdictMsg"></p>
+        <button class="btn btn-in sm" id="btnRestart">↺ Riprova</button>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="wrap foot">
+    <a class="logo" href="#top" style="font-size:.85rem"><span class="lg-dots"><span style="background:var(--intranet)"></span><span style="background:var(--extranet)"></span><span style="background:var(--internet)"></span><span style="background:var(--warn)"></span></span>IN<b>/</b>EX<b>/</b>NET</a>
+    <div class="f-nav">
+      <a href="#tre-reti">Tre reti</a><a href="#dmz">DMZ</a><a href="#vpn">VPN</a><a href="#zero-trust">Zero Trust</a><a href="#tutorial">Tutorial</a><a href="#quiz">Quiz</a>
+    </div>
+    <small>LABORATORIO DIDATTICO · V3.0</small>
+  </div>
+</footer>
+<script>
+const RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TAU=Math.PI*2;
+const qs=s=>document.querySelector(s),qsa=s=>[...document.querySelectorAll(s)];
+const rand=(a,b)=>a+Math.random()*(b-a);
+const irand=n=>Math.floor(Math.random()*n);
+const pick=a=>a[irand(a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const dist=(x1,y1,x2,y2)=>Math.hypot(x2-x1,y2-y1);
+function fitCanvas(cv,h){
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const r=cv.parentElement.getBoundingClientRect();
+  const w=r.width,hh=h||r.height;
+  cv.width=w*dpr;cv.height=hh*dpr;
+  cv.style.width=w+'px';cv.style.height=hh+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,w,h:hh};
+}
+function scramble(el,dur=900){
+  const final=el.dataset.text||el.textContent;
+  if(RM){el.textContent=final;return;}
+  const chars='!<>-_\\/[]{}=+*^?#01';
+  const start=performance.now();
+  (function frame(t){
+    const p=clamp((t-start)/dur,0,1),reveal=Math.floor(p*final.length);
+    let out='';
+    for(let i=0;i<final.length;i++){out+=i<reveal?final[i]:(final[i]===' '?' ':chars[irand(chars.length)]);}
+    el.textContent=out;
+    if(p<1)requestAnimationFrame(frame);else el.textContent=final;
+  })(start);
+}
+const hdr=qs('#hdr');
+addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>24),{passive:true});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+qsa('.rv').forEach(el=>io.observe(el));
+/* ============ HERO ============ */
+(function(){
+  const cv=qs('#heroCanvas');
+  const hh=Math.max(innerHeight,600);
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=innerWidth*dpr;cv.height=hh*dpr;cv.style.height=hh+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  const w=innerWidth,h=hh;
+  const N=clamp(Math.round(w*h/28000),28,52);
+  const nodes=Array.from({length:N},()=>({x:rand(0,w),y:rand(0,h),vx:rand(-8,8),vy:rand(-8,8),r:rand(1.5,3),type:Math.random()<.6?'in':(Math.random()<.6?'ex':'net'),flash:0}));
+  function draw(){
+    ctx.clearRect(0,0,w,h);ctx.lineWidth=1;
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j],d=dist(a.x,a.y,b.x,b.y);
+      if(d<170){ctx.strokeStyle=`rgba(167,139,250,${(1-d/170)*.14})`;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+    }
+    nodes.forEach(n=>{
+      n.x+=n.vx*.6;n.y+=n.vy*.6;
+      if(n.x<0||n.x>w)n.vx*=-1;if(n.y<0||n.y>h)n.vy*=-1;
+      const c=n.type==='in'?'#38bdf8':n.type==='ex'?'#a78bfa':'#10b981';
+      ctx.fillStyle=c;ctx.shadowColor=c;ctx.shadowBlur=6;
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,TAU);ctx.fill();ctx.shadowBlur=0;
+    });
+    requestAnimationFrame(draw);
+  }
+  if(!RM)draw();
+})();
+addEventListener('load',()=>{
+  scramble(qs('#titleA'),900);
+  setTimeout(()=>scramble(qs('#titleB'),900),300);
+  setTimeout(()=>scramble(qs('#titleC'),900),600);
+  const ioT=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){scramble(e.target,800);ioT.unobserve(e.target);}}),{threshold:.5});
+  ioT.observe(qs('#simTitle'));
+});
+qs('#mqTrack').innerHTML+=qs('#mqTrack').innerHTML;
+/* ============ TRIANGLE v2 (ZONE VISUALIZATION) ============ */
+(function(){
+  const cv=qs('#triCanvas');
+  let {ctx,w,h}=fitCanvas(cv,520);
+  const zones={
+    internet:{x:w*.25,y:h*.28,w:w*.45,h:h*.32,color:'#10b981',label:'INTERNET',labelColor:'#10b981'},
+    intranet:{x:w*.15,y:h*.68,w:w*.3,h:h*.26,color:'#38bdf8',label:'INTRANET',labelColor:'#38bdf8'},
+    extranet:{x:w*.6,y:h*.68,w:w*.3,h:h*.26,color:'#a78bfa',label:'EXTRANET',labelColor:'#a78bfa'}
+  };
+  let actors=[];
+  function spawnActors(){
+    actors=[];
+    for(let i=0;i<8;i++){
+      actors.push({type:'public',color:'#10b981',x:rand(zones.internet.x,zones.internet.x+zones.internet.w),y:rand(zones.internet.y,zones.internet.y+zones.internet.h),target:null,speed:rand(.3,.6),phase:Math.random()*TAU});
+    }
+    for(let i=0;i<6;i++){
+      const inIntranet=i<3;
+      actors.push({type:'employee',color:'#38bdf8',x:inIntranet?rand(zones.intranet.x,zones.intranet.x+zones.intranet.w):rand(zones.internet.x,zones.internet.x+zones.internet.w),y:inIntranet?rand(zones.intranet.y,zones.intranet.y+zones.intranet.h):rand(zones.internet.y,zones.internet.y+zones.internet.h),target:null,speed:rand(.3,.5),phase:Math.random()*TAU,allowed:['internet','intranet']});
+    }
+    for(let i=0;i<4;i++){
+      const inExtranet=i<2;
+      actors.push({type:'partner',color:'#a78bfa',x:inExtranet?rand(zones.extranet.x,zones.extranet.x+zones.extranet.w):rand(zones.internet.x,zones.internet.x+zones.internet.w),y:inExtranet?rand(zones.extranet.y,zones.extranet.y+zones.extranet.h):rand(zones.internet.y,zones.internet.y+zones.internet.h),target:null,speed:rand(.3,.5),phase:Math.random()*TAU,allowed:['internet','extranet']});
+    }
+  }
+  spawnActors();
+  let attempts=[];
+  let last=performance.now();
+  function pointInZone(x,y,z){return x>=z.x&&x<=z.x+z.w&&y>=z.y&&y<=z.y+z.h;}
+  function currentZone(x,y){
+    if(pointInZone(x,y,zones.intranet))return 'intranet';
+    if(pointInZone(x,y,zones.extranet))return 'extranet';
+    if(pointInZone(x,y,zones.internet))return 'internet';
+    return null;
+  }
+  function update(now,dt){
+    actors.forEach(a=>{
+      a.phase+=dt;
+      if(!a.target&&Math.random()<.005){
+        const zoneNames=a.allowed||['internet'];
+        const targetZoneName=pick(zoneNames);
+        const z=zones[targetZoneName];
+        a.target={x:rand(z.x+15,z.x+z.w-15),y:rand(z.y+15,z.y+z.h-15)};
+      }
+      if(a.type==='public'&&!a.target&&Math.random()<.003){
+        const forbidden=Math.random()<.5?zones.intranet:zones.extranet;
+        a.target={x:rand(forbidden.x+15,forbidden.x+forbidden.w-15),y:rand(forbidden.y+15,forbidden.y+forbidden.h-15),forbidden:true,zone:forbidden};
+      }
+      if(a.target){
+        const dx=a.target.x-a.x,dy=a.target.y-a.y;
+        const d=Math.hypot(dx,dy);
+        if(d<5){
+          if(a.target.forbidden){
+            attempts.push({x:a.x,y:a.y,born:now});
+          }
+          a.target=null;
+        }else{
+          const vx=dx/d*a.speed,vy=dy/d*a.speed;
+          const nx=a.x+vx*dt*60,ny=a.y+vy*dt*60;
+          if(a.target&&a.target.forbidden){
+            const tz=a.target.zone;
+            if(pointInZone(nx,ny,tz)){
+              attempts.push({x:nx,y:ny,born:now});
+              a.target=null;
+            }else{
+              a.x=nx;a.y=ny;
+            }
+          }else{
+            a.x=nx;a.y=ny;
+          }
+        }
+      }
+      a.x+=Math.sin(a.phase*.7)*.2;
+      a.y+=Math.cos(a.phase*.5)*.2;
+      a.x=clamp(a.x,10,w-10);
+      a.y=clamp(a.y,10,h-10);
+    });
+    attempts=attempts.filter(at=>now-at.born<2000);
+  }
+  function drawZone(z,isWalled){
+    ctx.fillStyle=z.color+'0d';
+    if(isWalled){
+      ctx.beginPath();
+      ctx.roundRect(z.x,z.y,z.w,z.h,14);
+      ctx.fill();
+      ctx.strokeStyle=z.color;
+      ctx.lineWidth=3;
+      ctx.stroke();
+    }else{
+      ctx.beginPath();
+      ctx.roundRect(z.x,z.y,z.w,z.h,14);
+      ctx.fill();
+      ctx.strokeStyle=z.color+'66';
+      ctx.lineWidth=2;
+      ctx.setLineDash([8,6]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.fillStyle=z.labelColor;
+    ctx.font='700 14px "IBM Plex Mono"';
+    ctx.textAlign='center';
+    ctx.fillText(z.label,z.x+z.w/2,z.y-10);
+  }
+  function draw(now){
+    ctx.clearRect(0,0,w,h);
+    drawZone(zones.internet,false);
+    drawZone(zones.intranet,true);
+    drawZone(zones.extranet,true);
+    const inDoorX=zones.intranet.x+zones.intranet.w/2;
+    const inDoorY=zones.intranet.y;
+    ctx.fillStyle='#38bdf8';
+    ctx.fillRect(inDoorX-8,inDoorY-3,16,6);
+    ctx.font='14px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('🛡️',inDoorX,inDoorY-12);
+    const exDoorX=zones.extranet.x+zones.extranet.w/2;
+    const exDoorY=zones.extranet.y;
+    ctx.fillStyle='#a78bfa';
+    ctx.fillRect(exDoorX-8,exDoorY-3,16,6);
+    ctx.font='14px sans-serif';
+    ctx.fillText('🛡️',exDoorX,exDoorY-12);
+    ctx.font='500 10px "IBM Plex Mono"';
+    ctx.fillStyle='#5d7598';
+    ctx.fillText('PUBBLICO · NESSUN MURO',zones.internet.x+zones.internet.w/2,zones.internet.y+zones.internet.h+18);
+    ctx.fillText('RECINTO PRIVATO',zones.intranet.x+zones.intranet.w/2,zones.intranet.y+zones.intranet.h+18);
+    ctx.fillText('AREA VISITATORI',zones.extranet.x+zones.extranet.w/2,zones.extranet.y+zones.extranet.h+18);
+    attempts.forEach(at=>{
+      const age=(now-at.born)/2000;
+      ctx.strokeStyle=`rgba(239,68,68,${1-age})`;
+      ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(at.x-6,at.y-6);ctx.lineTo(at.x+6,at.y+6);
+      ctx.moveTo(at.x+6,at.y-6);ctx.lineTo(at.x-6,at.y+6);
+      ctx.stroke();
+    });
+    actors.forEach(a=>{
+      ctx.fillStyle=a.color;
+      ctx.shadowColor=a.color;
+      ctx.shadowBlur=6;
+      ctx.beginPath();
+      ctx.arc(a.x,a.y,a.type==='public'?5:6,0,TAU);
+      ctx.fill();
+      ctx.shadowBlur=0;
+      if(a.type==='employee'||a.type==='partner'){
+        ctx.fillStyle=a.color;
+        ctx.font='bold 7px "IBM Plex Mono"';
+        ctx.textAlign='center';
+        ctx.fillText(a.type==='employee'?'DIP':'PAR',a.x,a.y+14);
+      }
+    });
+    ctx.font='500 11px "IBM Plex Mono"';
+    ctx.textAlign='left';
+    ctx.fillStyle='#5d7598';
+    ctx.fillText('✗ = accesso negato',10,h-10);
+  }
+  (function loop(now){
+    const dt=clamp((now-last)/1000,0,.05);last=now;
+    if(!document.hidden){
+      update(now,dt);
+      draw(now);
+    }
+    requestAnimationFrame(loop);
+  })(last);
+  qs('#triShuffle').onclick=()=>{spawnActors();attempts=[];};
+  window.addEventListener('resize',()=>{({ctx,w,h}=fitCanvas(cv,520));spawnActors();});
+})();
+/* ============ INTRO ARCHITECTURE ============ */
+(function(){
+  const cv=qs('#introCanvas');
+  const {ctx,w,h}=fitCanvas(cv,440);
+  const cx=w/2,cy=h/2;
+  const zones=[
+    {label:'INTERNET',x:cx,y:55,r:55,color:'#10b981'},
+    {label:'FIREWALL',x:cx,y:h*0.32,r:44,color:'#f59e0b'},
+    {label:'EXTRANET (DMZ)',x:cx-w*0.28,y:cy+20,r:68,color:'#a78bfa'},
+    {label:'INTRANET (LAN)',x:cx+w*0.28,y:cy+20,r:72,color:'#38bdf8'},
+    {label:'DATABASE',x:cx,y:h-60,r:48,color:'#f472b6'}
+  ];
+  let packets=[],pktCount=0;
+  function spawn(){
+    const path=Math.random()<.5?[0,1,2,4]:[0,1,3,4];
+    const color=path.includes(3)?'#38bdf8':'#a78bfa';
+    packets.push({path,seg:0,t:0,c:color});pktCount++;
+  }
+  let last=performance.now(),ppsTimer=0,pps=0,ppsLast=performance.now();
+  (function loop(now){
+    const dt=clamp((now-last)/1000,0,.05);last=now;
+    if(!document.hidden){
+      if(packets.length<6&&Math.random()<.08)spawn();
+      packets=packets.filter(p=>{
+        p.t+=dt*1.1;
+        if(p.t>=1){p.seg++;p.t=0;if(p.seg>=p.path.length-1)return false;}
+        return true;
+      });
+      draw();
+      ppsTimer++;
+      if(now-ppsLast>1000){pps=ppsTimer;ppsTimer=0;ppsLast=now;qs('#introPkt').textContent=pps+' pkt/s';}
+    }
+    requestAnimationFrame(loop);
+  })(last);
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    ctx.lineWidth=1.5;ctx.setLineDash([4,5]);ctx.strokeStyle='rgba(142,165,201,.25)';
+    [[0,1],[1,2],[1,3],[2,4],[3,4]].forEach(([a,b])=>{
+      const A=zones[a],B=zones[b];
+      ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    zones.forEach(z=>{
+      ctx.fillStyle=z.color+'18';ctx.strokeStyle=z.color;ctx.lineWidth=2;
+      ctx.shadowColor=z.color;ctx.shadowBlur=15;
+      ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.fillStyle=z.color;ctx.font='700 11px "IBM Plex Mono"';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(z.label,z.x,z.y);
+    });
+    packets.forEach(p=>{
+      const A=zones[p.path[p.seg]],B=zones[p.path[p.seg+1]];if(!B)return;
+      const x=lerp(A.x,B.x,p.t),y=lerp(A.y,B.y,p.t);
+      ctx.fillStyle=p.c;ctx.shadowColor=p.c;ctx.shadowBlur=12;
+      ctx.beginPath();ctx.arc(x,y,4,0,TAU);ctx.fill();ctx.shadowBlur=0;
+    });
+  }
+})();
+/* ============ DMZ CANVAS ============ */
+(function(){
+  const cv=qs('#dmzCanvas');
+  const {ctx,w,h}=fitCanvas(cv,380);
+  const zones=[
+    {label:'INTERNET',x:w*.1,y:h*.5,r:50,color:'#10b981'},
+    {label:'FW ESTERNO',x:w*.3,y:h*.5,r:38,color:'#f59e0b'},
+    {label:'DMZ',x:w*.5,y:h*.5,r:58,color:'#a78bfa'},
+    {label:'FW INTERNO',x:w*.7,y:h*.5,r:38,color:'#f59e0b'},
+    {label:'LAN INTERNA',x:w*.9,y:h*.5,r:52,color:'#38bdf8'}
+  ];
+  let packets=[],last=performance.now();
+  function spawn(){
+    const attempt=Math.random()<.18;
+    packets.push({t:0,c:attempt?'#ef4444':'#10b981',attempt,born:performance.now()});
+  }
+  (function loop(now){
+    const dt=clamp((now-last)/1000,0,.05);last=now;
+    if(!document.hidden){
+      if(packets.length<4&&Math.random()<.06)spawn();
+      packets=packets.filter(p=>{
+        p.t+=dt*.4;
+        if(p.attempt&&p.t>.8){p.stopped=true;}
+        return p.t<2.5;
+      });
+      draw();
+    }
+    requestAnimationFrame(loop);
+  })(last);
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle='rgba(142,165,201,.22)';ctx.lineWidth=1.5;ctx.setLineDash([4,6]);
+    ctx.beginPath();
+    zones.forEach((z,i)=>{if(i===0)ctx.moveTo(z.x,z.y);else ctx.lineTo(z.x,z.y);});
+    ctx.stroke();ctx.setLineDash([]);
+    zones.forEach(z=>{
+      ctx.fillStyle=z.color+'18';ctx.strokeStyle=z.color;ctx.lineWidth=2;
+      ctx.shadowColor=z.color;ctx.shadowBlur=12;
+      ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      ctx.fillStyle=z.color;ctx.font='700 10px "IBM Plex Mono"';ctx.textAlign='center';ctx.textBaseline='middle';
+      const lines=z.label.split(' ');
+      if(lines.length>1){
+        ctx.fillText(lines[0],z.x,z.y-5);
+        ctx.fillText(lines.slice(1).join(' '),z.x,z.y+7);
+      }else ctx.fillText(z.label,z.x,z.y);
+    });
+    packets.forEach(p=>{
+      if(performance.now()-p.born<0)return;
+      let x,y;
+      const t=p.stopped?.8:p.t;
+      const total=zones.length-1;
+      const pos=t*total;
+      const seg=Math.floor(pos);
+      const st=pos-seg;
+      if(seg>=total){x=zones[total].x;y=zones[total].y;}
+      else{
+        const A=zones[seg],B=zones[seg+1];
+        x=lerp(A.x,B.x,st);y=lerp(A.y,B.y,st);
+      }
+      ctx.fillStyle=p.c;ctx.shadowColor=p.c;ctx.shadowBlur=12;
+      ctx.beginPath();ctx.arc(x,y,p.stopped?3:4,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      if(p.stopped){
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=2;
+        ctx.beginPath();ctx.moveTo(x-5,y-5);ctx.lineTo(x+5,y+5);ctx.moveTo(x+5,y-5);ctx.lineTo(x-5,y+5);ctx.stroke();
+      }
+    });
+  }
+})();
+/* ============ SIMULATORE ============ */
+(function(){
+  const cv=qs('#simCanvas');
+  let {ctx,w,h}=fitCanvas(cv);
+  let zones=[],packets=[],logCount=0,loginCount=0,blockCount=0;
+  let role='in',authenticated=false,attackMode=false,attackPackets=[];
+  function calcGeometry(){
+    zones=[
+      {id:'user',label:role==='in'?'TU (DIPENDENTE)':'TU (FORNITORE)',x:w*0.12,y:h*0.5,r:Math.min(w,h)*0.075,color:role==='in'?'#38bdf8':'#a78bfa'},
+      {id:'internet',label:'INTERNET',x:w*0.32,y:h*0.5,r:Math.min(w,h)*0.065,color:'#10b981'},
+      {id:'vpn',label:'VPN GATEWAY',x:w*0.48,y:role==='in'?h*0.5:h*0.32,r:Math.min(w,h)*0.055,color:'#f59e0b'},
+      {id:'firewall',label:'FIREWALL',x:w*0.62,y:h*0.5,r:Math.min(w,h)*0.065,color:'#f59e0b'},
+      {id:'extranet',label:'EXTRANET DMZ',x:w*0.82,y:h*0.32,r:Math.min(w,h)*0.075,color:'#a78bfa'},
+      {id:'intranet',label:'INTRANET SERVER',x:w*0.82,y:h*0.68,r:Math.min(w,h)*0.075,color:'#38bdf8'},
+      {id:'db',label:'DATABASE',x:w*0.95,y:h*0.5,r:Math.min(w,h)*0.05,color:'#f472b6'}
+    ];
+  }
+  calcGeometry();
+  const LOG_TEMPLATES={
+    in:{
+      login:[
+        {lvl:'info',msg:'Autenticazione SSO richiesta per m.rossi'},
+        {lvl:'info',msg:'Validazione credenziali contro Active Directory'},
+        {lvl:'info',msg:'Codice MFA verificato correttamente'},
+        {lvl:'ok',msg:'Sessione intranet creata · TTL 8h · scope: HR,docs,chat'}
+      ],
+      hr:[{lvl:'info',msg:'GET /api/hr/bustepaga?month=current'},{lvl:'info',msg:'Query DB dipendente id=2847'},{lvl:'ok',msg:'Risposta 200 OK · 2.4 KB · 87ms'}],
+      docs:[{lvl:'info',msg:'GET /api/docs/list?folder=procedure'},{lvl:'ok',msg:'Elenco 142 documenti restituito · 4.2 KB'}],
+      chat:[{lvl:'info',msg:'WebSocket upgrade su wss://chat.internal'},{lvl:'ok',msg:'Canale #generale connesso · 147 utenti online'}],
+      calendar:[{lvl:'info',msg:'GET /api/calendar/events?week=current'},{lvl:'ok',msg:'12 eventi caricati · prossimi: riunione HR 15:00'}]
+    },
+    ex:{
+      login:[
+        {lvl:'info-p',msg:'Tentativo di connessione VPN da 82.57.104.x'},
+        {lvl:'warn',msg:'Negoziazione WireGuard in corso...'},
+        {lvl:'info-p',msg:'Certificato server verificato · ChaCha20'},
+        {lvl:'info-p',msg:'Credenziali partner validate · scadenza 12gg'},
+        {lvl:'ok',msg:'Tunnel VPN stabilito · IP virtuale 10.20.30.45'}
+      ],
+      order:[{lvl:'info-p',msg:'POST /api/extranet/orders/new (JSON · 1.8 KB)'},{lvl:'info-p',msg:'Validazione schema + stock check'},{lvl:'info-p',msg:'Ordine ORD-2026-0847 creato'},{lvl:'ok',msg:'Risposta 201 Created · ETA evasione: 3gg'}],
+      invoice:[{lvl:'info-p',msg:'GET /api/extranet/invoices?partner=cloudcorp'},{lvl:'ok',msg:'14 fatture restituite · totale: € 18.420,50'}],
+      tracking:[{lvl:'info-p',msg:'GET /api/extranet/projects/track?id=PRJ-2847'},{lvl:'ok',msg:'Stato: in produzione · 68% completato · consegna: 15/11'}],
+      code:[{lvl:'info-p',msg:'PUT /git/shared-libs/auth-module v2.4.1'},{lvl:'warn',msg:'Code review automatica: 0 vulnerabilità · 3 warning'},{lvl:'ok',msg:'Commit accettato · hash a3f8c21'}]
+    },
+    hack:[
+      {lvl:'warn',msg:'⚠ SYN flood rilevato da 185.220.101.42'},
+      {lvl:'warn',msg:'⚠ 247 richieste/sec · anomalia statistica'},
+      {lvl:'err',msg:'🛡 Rate limiter attivato sulla DMZ'},
+      {lvl:'ok',msg:'✓ IP bloccato · regola FW-2847 aggiunta automaticamente'}
+    ],
+    hackIn:[
+      {lvl:'warn',msg:'⚠ Tentativo brute-force su SSH 22 da 91.240.118.x'},
+      {lvl:'warn',msg:'⚠ 18 tentativi falliti in 40 secondi'},
+      {lvl:'err',msg:'🛡 fail2ban: IP bandito per 24h'},
+      {lvl:'ok',msg:'✓ Intranet non raggiunta · attacco fermato in perimetro'}
+    ]
+  };
+  function addLog(lvl,msg){
+    const list=qs('#logList');
+    const t=new Date().toTimeString().substring(0,8);
+    const label=lvl==='info'?'INFO':lvl==='info-p'?'INFO':lvl==='ok'?'OK':lvl==='warn'?'WARN':'ERR';
+    const line=document.createElement('div');
+    line.className='log-line '+lvl;
+    line.innerHTML=`<span class="ts">${t}</span><span class="lvl">${label}</span><span class="msg">${msg}</span>`;
+    list.prepend(line);
+    if(list.children.length>50)list.lastChild.remove();
+    logCount++;
+    qs('#logCount').textContent=logCount+' eventi';
+  }
+  async function addLogs(key){
+    const logs=LOG_TEMPLATES[key]||[];
+    for(const l of logs){addLog(l.lvl,l.msg);await new Promise(r=>setTimeout(r,280+Math.random()*180));}
+  }
+  function spawnPacket(action){
+    const user=zones.find(z=>z.id==='user');
+    const target=zones.find(z=>z.id===(role==='in'?'intranet':'extranet'));
+    const internet=zones.find(z=>z.id==='internet');
+    const vpn=zones.find(z=>z.id==='vpn');
+    const fw=zones.find(z=>z.id==='firewall');
+    const db=zones.find(z=>z.id==='db');
+    const color=role==='in'?'#38bdf8':'#a78bfa';
+    let path;
+    if(role==='in'){path=[user,internet,fw,target,db];}
+    else{path=[user,internet,vpn,fw,target,db];}
+    const chunks=action==='code'?6:action==='docs'?5:3;
+    for(let i=0;i<chunks;i++){packets.push({path:[...path],seg:0,t:0,c:color,delay:i*180,born:performance.now()});}
+  }
+  function spawnAttackPackets(){
+    const fw=zones.find(z=>z.id==='firewall');
+    for(let i=0;i<12;i++){
+      const fromX=rand(0,w*.3),fromY=rand(h*.15,h*.85);
+      attackPackets.push({fromX,fromY,toX:fw.x,toY:fw.y,t:0,born:performance.now()+i*80,stopped:false,stopT:0.6+Math.random()*0.2});
+    }
+  }
+  function setRole(r){
+    role=r;authenticated=false;
+    qs('#btnRoleIn').classList.toggle('active-in',r==='in');
+    qs('#btnRoleEx').classList.toggle('active-ex',r==='ex');
+    qs('#simRole').textContent=r==='in'?'DIPENDENTE · INTRANET':'FORNITORE · EXTRANET';
+    qsa('.act-btn').forEach(b=>{b.style.display=b.dataset.role===r?'inline-flex':'none';});
+    qs('#actLabel').textContent=r==='in'?'Azioni dipendente':'Azioni fornitore';
+    qs('#actLabel').parentElement.classList.toggle('purple',r==='ex');
+    calcGeometry();
+    qs('#simStatus').className='stb-status ok';
+    qs('#simStatus').textContent='🟢 IN ATTESA LOGIN';
+    packets=[];
+    addLog('info','----- NUOVA SESSIONE: '+r.toUpperCase()+' -----');
+    showLogin();
+  }
+  function showLogin(){
+    const ov=qs('#loginOverlay'),box=qs('#loginBox'),title=qs('#loginTitle'),desc=qs('#loginDesc'),vpn=qs('#vpnBlock'),user=qs('#loginUser'),btn=qs('#btnLogin');
+    ov.classList.add('show');
+    if(role==='in'){
+      box.classList.remove('purple');
+      title.innerHTML='🔐 Accesso Intranet';
+      desc.textContent='Inserisci le credenziali aziendali. Verrà richiesto codice MFA.';
+      user.value='m.rossi';vpn.style.display='none';
+      btn.className='btn btn-in btn-full sm';btn.textContent='Autenticazione SSO ▸';
+    }else{
+      box.classList.add('purple');
+      title.innerHTML='🌐 Accesso Extranet';
+      desc.textContent='Connessione come partner CloudCorp SRL. WireGuard VPN + credenziali temporanee.';
+      user.value='cloudcorp_api';vpn.style.display='flex';
+      btn.className='btn btn-ex btn-full sm';btn.textContent='Connetti VPN ▸';
+    }
+  }
+  async function doLogin(){
+    const btn=qs('#btnLogin');btn.disabled=true;btn.textContent='Autenticazione in corso...';
+    if(role==='in'){
+      const digits=qsa('#mfaCode span');
+      for(let i=0;i<6;i++){digits[i].textContent=Math.floor(Math.random()*10);await new Promise(r=>setTimeout(r,80));}
+    }else{qs('#vpnMsg').textContent='Tunnel WireGuard ChaCha20 stabilito...';}
+    await addLogs('login');
+    loginCount++;qs('#lsLogin').textContent=loginCount;
+    qs('#simStatus').className='stb-status ok';qs('#simStatus').textContent='🟢 SESSIONE ATTIVA';
+    authenticated=true;qs('#loginOverlay').classList.remove('show');
+    btn.disabled=false;
+  }
+  async function doAction(act){
+    if(!authenticated){showLogin();return;}
+    spawnPacket(act);
+    qs('#simStatus').className='stb-status';qs('#simStatus').textContent='⏳ TRAFFICO IN CORSO';
+    await addLogs(act);
+    setTimeout(()=>{qs('#simStatus').className='stb-status ok';qs('#simStatus').textContent='🟢 SESSIONE ATTIVA';},600);
+  }
+  async function simulateAttack(){
+    attackMode=true;qs('#simStatus').className='stb-status err';qs('#simStatus').textContent='🔴 ATTACCO RILEVATO';
+    spawnAttackPackets();
+    await addLogs(role==='in'?'hackIn':'hack');
+    blockCount++;qs('#lsBlock').textContent=blockCount;
+    setTimeout(()=>{
+      attackMode=false;qs('#simStatus').className='stb-status ok';qs('#simStatus').textContent='🟢 ATTACCO BLOCCATO';
+      setTimeout(()=>{qs('#simStatus').textContent='🟢 SESSIONE ATTIVA';},1500);
+    },1800);
+  }
+  function reset(){
+    authenticated=false;packets=[];attackPackets=[];
+    qs('#logList').innerHTML='';logCount=0;qs('#logCount').textContent='0 eventi';
+    qs('#simStatus').className='stb-status';qs('#simStatus').textContent='🟡 RESET';
+    showLogin();
+  }
+  let last=performance.now();
+  (function loop(now){
+    const dt=clamp((now-last)/1000,0,.05);last=now;
+    if(!document.hidden){
+      packets=packets.filter(p=>{
+        if(now-p.born<p.delay)return true;
+        const a=p.path[p.seg],b=p.path[p.seg+1];if(!b)return false;
+        const d=Math.max(1,dist(a.x,a.y,b.x,b.y));
+        p.t+=dt*180/d;
+        if(p.t>=1){p.seg++;p.t=0;return p.seg<p.path.length-1;}
+        return true;
+      });
+      attackPackets=attackPackets.filter(p=>{
+        if(now-p.born<0)return true;
+        p.t+=dt*0.8;
+        if(p.t>=p.stopT&&!p.stopped){p.stopped=true;}
+        return p.t<1.3;
+      });
+      draw();
+    }
+    requestAnimationFrame(loop);
+  })(last);
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    ctx.lineWidth=1.5;ctx.setLineDash([5,6]);
+    const fw=zones.find(z=>z.id==='firewall');
+    zones.forEach(z=>{
+      if(z.id==='user'||z.id==='db')return;
+      if(z.id==='intranet'&&role==='ex')return;
+      if(z.id==='extranet'&&role==='in')return;
+      if(z.id==='vpn'&&role==='in')return;
+      if(z.id==='internet'||z.id==='vpn'){
+        const user=zones.find(x=>x.id==='user');
+        ctx.strokeStyle='rgba(142,165,201,.22)';
+        ctx.beginPath();ctx.moveTo(user.x,user.y);ctx.lineTo(z.x,z.y);ctx.stroke();
+      }
+      if(z===fw){
+        ['extranet','intranet'].forEach(k=>{
+          const z2=zones.find(x=>x.id===k);
+          if(role==='in'&&k==='extranet')return;
+          if(role==='ex'&&k==='intranet')return;
+          ctx.strokeStyle='rgba(142,165,201,.22)';
+          ctx.beginPath();ctx.moveTo(fw.x,fw.y);ctx.lineTo(z2.x,z2.y);ctx.stroke();
+        });
+        const internet=zones.find(x=>x.id==='internet');
+        ctx.strokeStyle='rgba(142,165,201,.22)';
+        ctx.beginPath();ctx.moveTo(internet.x,internet.y);ctx.lineTo(fw.x,fw.y);ctx.stroke();
+        if(role==='ex'){
+          const vpn=zones.find(x=>x.id==='vpn');
+          ctx.beginPath();ctx.moveTo(vpn.x,vpn.y);ctx.lineTo(fw.x,fw.y);ctx.stroke();
+        }
+      }
+      if(z.id==='extranet'||z.id==='intranet'){
+        if(role==='in'&&z.id==='extranet')return;
+        if(role==='ex'&&z.id==='intranet')return;
+        const db=zones.find(x=>x.id==='db');
+        ctx.strokeStyle='rgba(142,165,201,.22)';
+        ctx.beginPath();ctx.moveTo(z.x,z.y);ctx.lineTo(db.x,db.y);ctx.stroke();
+      }
+    });
+    ctx.setLineDash([]);
+    zones.forEach(z=>{
+      if(z.id==='vpn'&&role==='in')return;
+      if(z.id==='intranet'&&role==='ex')return;
+      if(z.id==='extranet'&&role==='in')return;
+      ctx.fillStyle=z.color+'15';ctx.strokeStyle=z.color;ctx.lineWidth=2;
+      ctx.shadowColor=z.color;ctx.shadowBlur=14;
+      ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,TAU);ctx.fill();ctx.stroke();
+      ctx.shadowBlur=0;
+      const pulse=(Math.sin(performance.now()/800+z.x)*0.5+0.5);
+      ctx.strokeStyle=z.color+'33';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(z.x,z.y,z.r+pulse*12,0,TAU);ctx.stroke();
+      ctx.fillStyle=z.color;
+      ctx.font='700 '+(z.r*0.22)+'px "IBM Plex Mono"';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      const lines=z.label.split(' ');
+      if(lines.length>1&&z.label.length>10){
+        const mid=Math.ceil(lines.length/2);
+        const l1=lines.slice(0,mid).join(' ');
+        const l2=lines.slice(mid).join(' ');
+        ctx.fillText(l1,z.x,z.y-5);
+        ctx.fillText(l2,z.x,z.y+8);
+      }else ctx.fillText(z.label,z.x,z.y);
+    });
+    packets.forEach(p=>{
+      if(performance.now()-p.born<p.delay)return;
+      const a=p.path[p.seg],b=p.path[p.seg+1];if(!b)return;
+      const x=lerp(a.x,b.x,p.t),y=lerp(a.y,b.y,p.t);
+      ctx.fillStyle=p.c;ctx.shadowColor=p.c;ctx.shadowBlur=14;
+      ctx.beginPath();ctx.arc(x,y,4.5,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      const tx=lerp(a.x,b.x,Math.max(0,p.t-0.15)),ty=lerp(a.y,b.y,Math.max(0,p.t-0.15));
+      ctx.strokeStyle=p.c+'66';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(x,y);ctx.stroke();
+    });
+    attackPackets.forEach(p=>{
+      const t=Math.min(p.t,p.stopT);
+      const x=lerp(p.fromX,p.toX,t),y=lerp(p.fromY,p.toY,t);
+      ctx.fillStyle=p.stopped?'#6b7280':'#ef4444';
+      ctx.shadowColor=p.stopped?'transparent':'#ef4444';
+      ctx.shadowBlur=p.stopped?0:10;
+      ctx.beginPath();ctx.arc(x,y,p.stopped?2:3.5,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      if(p.stopped){
+        ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(x-5,y-5);ctx.lineTo(x+5,y+5);ctx.moveTo(x+5,y-5);ctx.lineTo(x-5,y+5);ctx.stroke();
+      }
+    });
+  }
+  qs('#btnRoleIn').onclick=()=>setRole('in');
+  qs('#btnRoleEx').onclick=()=>setRole('ex');
+  qs('#btnLogin').onclick=doLogin;
+  qs('#btnReset').onclick=reset;
+  qs('#btnHack').onclick=simulateAttack;
+  qsa('.act-btn').forEach(b=>b.onclick=()=>doAction(b.dataset.act));
+  window.addEventListener('resize',()=>{({ctx,w,h}=fitCanvas(cv));calcGeometry();});
+  setRole('in');
+  addLog('ok','Sistema avviato · laboratorio didattico · v3.0');
+  addLog('info','Seleziona un ruolo a sinistra per iniziare.');
+})();
+/* ============ QUIZ ============ */
+(function(){
+  const QUIZ=[
+    {q:"1. Qual è la differenza principale tra Intranet ed Extranet?",
+     opts:["L'intranet usa Internet, l'extranet no","L'intranet è per dipendenti, l'extranet per partner esterni","L'extranet è più sicura dell'intranet","L'intranet è più costosa"],
+     a:1,why:"L'intranet è riservata ai dipendenti dell'azienda, mentre l'extranet è un'estensione controllata che permette l'accesso a partner, fornitori e clienti autorizzati."},
+    {q:"2. Un dipendente in sede, connesso al WiFi aziendale, usa Internet per accedere all'intranet?",
+     opts:["Sì, sempre, perché il browser usa HTTP","No, il traffico resta tutto dentro la LAN aziendale","Solo se usa un browser diverso da Chrome","Sì, ma solo per l'autenticazione"],
+     a:1,why:"Quando sei in sede, il DNS interno risolve l'hostname dell'intranet a un IP privato (es. 10.0.0.10). Il pacchetto va diretto al server passando solo per switch e cavi aziendali. Internet non viene mai coinvolta."},
+    {q:"3. Cosa si trova tipicamente nella DMZ?",
+     opts:["Database aziendali e Active Directory","PC dei dipendenti e stampanti","Server esposti a Internet (web, mail, portal extranet)","Backup aziendali e archivi"],
+     a:2,why:"La DMZ ospita i server che DEVONO essere raggiungibili dall'esterno: web server pubblici, portali extranet, mail server, gateway VPN. Database e AD restano protetti nella LAN interna."},
+    {q:"4. Come si relazionano LAN e Intranet?",
+     opts:["Sono la stessa cosa","L'intranet è l'infrastruttura fisica, la LAN il servizio","La LAN è l'infrastruttura fisica, l'intranet il servizio software","Non hanno alcuna relazione"],
+     a:2,why:"La LAN (cavi, switch, router) è l'infrastruttura fisica. L'intranet è un servizio web che gira sopra la LAN, come le strade sono l'infrastruttura su cui viaggiano i servizi di trasporto."},
+    {q:"5. Qual è il principio fondamentale di Zero Trust?",
+     opts:["Fidati di chi è dentro la LAN","Never trust, always verify","Blocca tutto il traffico esterno","Usa solo connessioni cablate"],
+     a:1,why:"Zero Trust (NIST SP 800-207) stabilisce che ogni richiesta deve essere verificata come se venisse da Internet, indipendentemente dalla provenienza. Il perimetro non è più il firewall ma l'identità."},
+    {q:"6. Quale VPN sta sostituendo IPsec e OpenVPN nel 2026?",
+     opts:["L2TP","PPTP","WireGuard","Telnet"],
+     a:2,why:"WireGuard (2020) è molto più veloce, ha solo 4.000 righe di codice (vs 400.000 di OpenVPN), handshake in <100ms ed è nativo nel kernel Linux. Sta diventando lo standard de facto."},
+    {q:"7. Nel breach di Target del 2013, gli attaccanti entrarono attraverso:",
+     opts:["Un dipendente corrotto","Le credenziali di un fornitore HVAC con accesso all'extranet","Un attacco DDoS","Un bug del browser"],
+     a:1,why:"Gli attaccanti rubarono le credenziali di Fournier, fornitore di climatizzazione che aveva accesso all'extranet Target per la fatturazione. Da lì si mossero lateralmente fino ai POS dei negozi."},
+    {q:"8. Quale principio di sicurezza avrebbe evitato il breach di Target?",
+     opts:["Password più lunghe","Least privilege: il fornitore doveva avere accesso solo alla fatturazione, non ai POS","Firewall più costosi","Antivirus sui server"],
+     a:1,why:"Il principio del least privilege (minimo privilegio) impone che ogni identità abbia solo i permessi necessari. Il fornitore HVAC non avrebbe mai dovuto avere una rotta di rete verso i sistemi di pagamento."}
+  ];
+  const L=['A','B','C','D'];
+  let idx=0,score=0,answered=false;
+  const box=qs('#quizBox'),res=qs('#quizResult');
+  function render(){
+    answered=false;
+    const q=QUIZ[idx];
+    qs('#qCount').textContent=(idx+1)+' / '+QUIZ.length;
+    qs('#qProg').style.width=(idx/QUIZ.length*100)+'%';
+    qs('#qText').textContent=q.q;
+    const optBox=qs('#qOptions');optBox.innerHTML='';
+    q.opts.forEach((o,i)=>{
+      const b=document.createElement('button');
+      b.className='opt';b.innerHTML=`<span class="ol">${L[i]}</span><span>${o}</span>`;
+      b.onclick=()=>answer(i,b);
+      optBox.appendChild(b);
+    });
+    qs('#qFeedback').className='q-feedback';
+    qs('#qNext').style.display='none';
+  }
+  function answer(i,btn){
+    if(answered)return;answered=true;
+    const q=QUIZ[idx],fb=qs('#qFeedback');
+    const opts=qsa('.opt');opts.forEach(o=>o.disabled=true);
+    if(i===q.a){
+      score++;btn.classList.add('ok');
+      fb.className='q-feedback show good';
+      fb.innerHTML='<b>✓ Corretto</b>'+q.why;
+    }else{
+      btn.classList.add('bad');opts[q.a].classList.add('ok');
+      opts.forEach((o,j)=>{if(j!==i&&j!==q.a)o.classList.add('dim');});
+      fb.className='q-feedback show evil';
+      fb.innerHTML='<b>✗ Non esattamente</b>'+q.why;
+    }
+    qs('#qProg').style.width=((idx+1)/QUIZ.length*100)+'%';
+    const nx=qs('#qNext');nx.style.display='inline-flex';
+    nx.textContent=idx===QUIZ.length-1?'Vedi il risultato ▸':'Prossima domanda ▸';
+  }
+  qs('#qNext').onclick=()=>{idx++;if(idx>=QUIZ.length)showResult();else render();};
+  function showResult(){
+    box.style.display='none';res.classList.add('show');
+    qs('#scoreNum').textContent=score+'/'+QUIZ.length;
+    const C=339.3;
+    requestAnimationFrame(()=>{qs('#ringFg').style.strokeDashoffset=C*(1-score/QUIZ.length);});
+    const v=[
+      ['Ripassa la teoria','Rileggi il tutorial e riprova.'],
+      ['Apprendista SOC','Buon inizio, ma alcuni concetti vanno consolidati.'],
+      ['Junior SysAdmin','Conosci le basi: approfondisci DMZ e Zero Trust.'],
+      ['Security Analyst','Ottima preparazione: ti mancano pochi dettagli.'],
+      ['Network Engineer','Molto bene: hai una visione solida dell\'architettura.'],
+      ['Senior Security Architect','Eccellente: conosci i casi reali e i principi moderni.'],
+      ['CISO candidate','Quasi perfetto: ti manca solo un dettaglio.'],
+      ['Master of Enterprise Networks 🏆','Punteggio pieno! Potresti gestire la sicurezza di una multinazionale.']
+    ][Math.min(score,7)];
+    qs('#verdict').textContent=v[0];
+    qs('#verdictMsg').textContent=v[1];
+  }
+  qs('#btnRestart').onclick=()=>{
+    idx=0;score=0;box.style.display='block';res.classList.remove('show');
+    qs('#ringFg').style.strokeDashoffset=339.3;render();
+  };
+  render();
+})();
+</script>
+</body>
+</html>
