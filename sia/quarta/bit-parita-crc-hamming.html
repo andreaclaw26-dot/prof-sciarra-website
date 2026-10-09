@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIT DI PARITÀ ⟷ CODICI DI RIDONDANZA — Lezione Interattiva</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='3' y='10' width='5' height='12' rx='1' fill='%234da3ff'/><rect x='10' y='10' width='5' height='12' rx='1' fill='%234da3ff'/><rect x='17' y='10' width='5' height='12' rx='1' fill='%23ff5d7a'/><rect x='24' y='10' width='5' height='12' rx='1' fill='%2334f5b1'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05080f; --bg2:#080d19; --panel:#0c1424; --panel2:#101c38;
+  --line:#1b2a47; --line-soft:#14203a;
+  --ink:#e9f1f7; --muted:#8ea1bd; --faint:#5c6f8f;
+  --ok:#34f5b1; --ok-dim:rgba(52,245,177,.12);
+  --err:#ff5d7a; --err-dim:rgba(255,93,122,.12);
+  --cy:#4da3ff; --cy-dim:rgba(77,163,255,.12);
+  --am:#ffb648; --am-dim:rgba(255,182,72,.12);
+  --vi:#a78bfa; --vi-dim:rgba(167,139,250,.12);
+  --fd:'Unbounded',sans-serif; --fb:'Space Grotesk',sans-serif; --fm:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;overflow-x:hidden;
+  background-image:radial-gradient(900px 500px at 85% -5%,rgba(77,163,255,.06),transparent 60%),
+    radial-gradient(800px 500px at 5% 30%,rgba(167,139,250,.05),transparent 60%);}
+::selection{background:var(--cy);color:#001018}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+section{scroll-margin-top:84px;position:relative}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.grid-bg::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 30%,transparent 75%);}
+.noise{position:fixed;inset:0;z-index:200;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.kicker{font-family:var(--fm);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.7rem}
+.kicker::before{content:"";width:9px;height:9px;background:var(--cy);box-shadow:0 0 12px var(--cy)}
+.kicker.g::before{background:var(--ok);box-shadow:0 0 12px var(--ok)}
+.kicker.r::before{background:var(--err);box-shadow:0 0 12px var(--err)}
+.kicker.a::before{background:var(--am);box-shadow:0 0 12px var(--am)}
+.kicker.v::before{background:var(--vi);box-shadow:0 0 12px var(--vi)}
+h2.sec-title{font-family:var(--fd);font-weight:700;font-size:clamp(1.7rem,3.6vw,2.9rem);line-height:1.12;margin:.8rem 0 .6rem;letter-spacing:-.01em}
+.sec-head{margin-bottom:2.6rem;max-width:780px}
+.sec-head p{color:var(--muted);font-size:1.05rem}
+.sec-head p b{color:var(--ink);font-weight:600}
+.sec-head p code{font-family:var(--fm);font-size:.88em;background:var(--cy-dim);color:var(--cy);padding:1px 7px;border-radius:4px}
+.sec{padding:110px 0}
+.sec-alt{background:var(--bg2)}
+.num-ghost{font-family:var(--fd);font-weight:900;color:transparent;-webkit-text-stroke:1px var(--line);font-size:clamp(3rem,7vw,5rem);position:absolute;right:24px;top:-14px;user-select:none;pointer-events:none}
+header{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;transition:background .35s,border-color .35s;border-bottom:1px solid transparent}
+header.scrolled{background:rgba(5,8,15,.85);backdrop-filter:blur(12px);border-color:var(--line-soft)}
+.logo{font-family:var(--fd);font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.6rem}
+.logo .lg-bits{display:flex;gap:2px}
+.logo .lg-bits span{width:6px;height:12px;border-radius:2px;animation:eq 1.8s ease-in-out infinite}
+.logo .lg-bits span:nth-child(2){animation-delay:.3s}
+.logo .lg-bits span:nth-child(3){animation-delay:.6s}
+.logo .lg-bits span:nth-child(4){animation-delay:.9s}
+@keyframes eq{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.45)}}
+.logo b{color:var(--cy)}
+nav.main-nav{display:flex;gap:1.3rem;font-family:var(--fm);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase}
+nav.main-nav a{color:var(--muted);transition:color .25s;position:relative;padding:4px 0}
+nav.main-nav a:hover{color:var(--cy)}
+nav.main-nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--cy);transition:width .3s}
+nav.main-nav a:hover::after{width:100%}
+.live-chip{font-family:var(--fm);font-size:.68rem;letter-spacing:.18em;border:1px solid var(--line);padding:6px 12px;border-radius:99px;display:flex;align-items:center;gap:8px;color:var(--muted)}
+.live-chip i{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+@media(max-width:1120px){nav.main-nav{display:none}}
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%}
+.hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.5) 0%,rgba(5,8,15,.12) 40%,rgba(5,8,15,.94) 100%);pointer-events:none}
+.hero-inner{position:relative;z-index:2;padding:130px 0 40px;width:100%}
+.hero-grid{display:grid;grid-template-columns:1.35fr .85fr;gap:3rem;align-items:end}
+.hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(2.2rem,6vw,4.9rem);line-height:1.03;letter-spacing:-.015em}
+.hero h1 .l2{display:block;color:transparent;-webkit-text-stroke:1.5px var(--err);font-weight:700;font-size:.7em;margin-top:.35em}
+.hero .lead{margin-top:1.6rem;max-width:580px;color:var(--muted);font-size:1.08rem}
+.hero .lead b{color:var(--cy);font-weight:600}
+.hero .lead em{color:var(--err);font-style:normal;font-weight:600}
+.hero .lead code{font-family:var(--fm);font-size:.88em;background:var(--ok-dim);color:var(--ok);padding:1px 7px;border-radius:4px}
+.hero-cta{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.hstat{background:rgba(10,16,30,.75);backdrop-filter:blur(6px);padding:1.05rem 1.2rem}
+.hstat .hl{font-family:var(--fm);font-size:.6rem;letter-spacing:.22em;color:var(--faint);text-transform:uppercase}
+.hstat .hv{font-family:var(--fd);font-weight:600;font-size:1.45rem;margin-top:.3rem}
+.hv.g{color:var(--ok)} .hv.r{color:var(--err)} .hv.c{color:var(--cy)} .hv.a{color:var(--am)}
+.scroll-cue{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;width:1px;height:52px;background:var(--line);overflow:hidden}
+.scroll-cue::after{content:"";position:absolute;left:0;top:-20px;width:1px;height:20px;background:var(--cy);animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{to{top:60px}}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.hero-stats{max-width:420px}}
+.btn{font-family:var(--fm);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;padding:.85rem 1.4rem;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);transition:all .25s;display:inline-flex;align-items:center;gap:.6rem}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn-cy{border-color:rgba(77,163,255,.5);color:var(--cy);background:var(--cy-dim)}
+.btn-cy:hover{background:rgba(77,163,255,.22);box-shadow:0 6px 24px -6px rgba(77,163,255,.5)}
+.btn-ok{border-color:rgba(52,245,177,.5);color:var(--ok);background:var(--ok-dim)}
+.btn-ok:hover{background:rgba(52,245,177,.22);box-shadow:0 6px 24px -6px rgba(52,245,177,.5)}
+.btn-err{border-color:rgba(255,93,122,.5);color:var(--err);background:var(--err-dim)}
+.btn-err:hover{background:rgba(255,93,122,.2);box-shadow:0 6px 24px -6px rgba(255,93,122,.5)}
+.btn-vi{border-color:rgba(167,139,250,.5);color:var(--vi);background:var(--vi-dim)}
+.btn-vi:hover{background:rgba(167,139,250,.2);box-shadow:0 6px 24px -6px rgba(167,139,250,.5)}
+.btn-ghost:hover{border-color:var(--muted);background:rgba(142,161,189,.08)}
+.btn.sm{padding:.6rem .95rem;font-size:.64rem}
+.btn:disabled{opacity:.35;pointer-events:none}
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2);overflow:hidden;position:relative;z-index:2}
+.marquee-track{display:flex;gap:0;width:max-content;animation:mq 40s linear infinite}
+.marquee-track span{font-family:var(--fm);font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--faint);padding:14px 0;white-space:nowrap}
+.marquee-track b{color:var(--cy);font-weight:500;padding:0 1.4rem}
+@keyframes mq{to{transform:translateX(-50%)}}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}.rv.d4{transition-delay:.4s}
+/* PANELS + LABS */
+.panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.panel-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--line-soft);background:rgba(5,8,15,.5);flex-wrap:wrap}
+.panel-bar .pb-title{font-family:var(--fm);font-size:.68rem;letter-spacing:.2em;color:var(--muted);display:flex;align-items:center;gap:.6rem;text-transform:uppercase}
+.led{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:pulse 2s infinite}
+.led.cy{background:var(--cy);box-shadow:0 0 10px var(--cy)}
+.led.vi{background:var(--vi);box-shadow:0 0 10px var(--vi)}
+.led.am{background:var(--am);box-shadow:0 0 10px var(--am)}
+.lab-body{padding:1.6rem 1.6rem 1.8rem}
+.lab-note{padding:.9rem 1.4rem;border-top:1px dashed var(--line-soft);font-size:.88rem;color:var(--muted)}
+.lab-note b{color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font-family:var(--fm);font-size:.64rem;letter-spacing:.14em;padding:.5rem .9rem;background:transparent;color:var(--muted);border:none;transition:all .25s;text-transform:uppercase}
+.seg button.on{background:var(--cy);color:#001018;font-weight:600}
+.seg button.on.err-on{background:var(--err);color:#24060e}
+.lab-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:1rem 0}
+.lab-row .lbl{font-family:var(--fm);font-size:.64rem;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;margin-right:.4rem}
+.word{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bit{width:36px;height:42px;display:grid;place-items:center;font-family:var(--fm);font-weight:600;font-size:1.05rem;border:1px solid var(--line);border-radius:8px;background:#0a1120;color:var(--faint);transition:all .2s;user-select:none;position:relative}
+.bit.clickable{cursor:pointer}
+.bit.clickable:hover{border-color:var(--cy);transform:translateY(-2px)}
+.bit.on{color:var(--ink);background:rgba(77,163,255,.1);border-color:rgba(77,163,255,.45)}
+.bit.parity{border-color:rgba(52,245,177,.55);color:var(--ok);background:var(--ok-dim);cursor:default}
+.bit.err{border-color:var(--err);color:var(--err);background:var(--err-dim);box-shadow:0 0 14px -2px rgba(255,93,122,.6);animation:errPulse 1s ease-in-out infinite}
+@keyframes errPulse{0%,100%{box-shadow:0 0 14px -2px rgba(255,93,122,.6)}50%{box-shadow:0 0 22px 0 rgba(255,93,122,.9)}}
+.bit.fix{border-color:var(--ok);color:var(--ok);background:var(--ok-dim);box-shadow:0 0 14px -2px rgba(52,245,177,.6)}
+.bit.hl{border-color:var(--am);color:var(--am);background:var(--am-dim)}
+.bit.small{width:26px;height:30px;font-size:.85rem;border-radius:6px}
+.bit .idx{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:.55rem;color:var(--faint);letter-spacing:0;font-weight:500}
+.idxrow{position:relative;margin-top:16px}
+.gap{width:10px}
+.formula{font-family:var(--fm);font-size:.82rem;color:var(--muted);background:rgba(5,8,15,.6);border:1px solid var(--line-soft);border-radius:8px;padding:.7rem .9rem;margin-top:.9rem;line-height:1.7;overflow-x:auto}
+.formula b{color:var(--cy);font-weight:600}
+.formula .op{color:var(--am)}
+.verdict{margin-top:1.1rem;padding:.9rem 1.1rem;border-radius:10px;font-family:var(--fm);font-size:.8rem;letter-spacing:.08em;border:1px solid var(--line);color:var(--muted);transition:all .3s;line-height:1.6}
+.verdict.good{border-color:rgba(52,245,177,.5);background:var(--ok-dim);color:var(--ok)}
+.verdict.bad{border-color:rgba(255,93,122,.5);background:var(--err-dim);color:var(--err)}
+.verdict.warn{border-color:rgba(255,182,72,.5);background:var(--am-dim);color:var(--am)}
+.counters{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap}
+.counter{border:1px solid var(--line);border-radius:10px;padding:.7rem 1rem;background:rgba(5,8,15,.5);min-width:110px}
+.counter .cl{font-family:var(--fm);font-size:.58rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.counter .cv{font-family:var(--fd);font-weight:600;font-size:1.3rem;margin-top:.2rem}
+.counter.cg .cv{color:var(--ok)} .counter.cr .cv{color:var(--err)} .counter.cc .cv{color:var(--cy)} .counter.ca .cv{color:var(--am)}
+.duo-lab{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.duo-lab .lab-half{border:1px solid var(--line-soft);border-radius:12px;padding:1.3rem;background:rgba(5,8,15,.4)}
+.lab-half h4{font-family:var(--fm);font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.lab-half h4 i{width:8px;height:8px;border-radius:50%}
+.lab-half h4 i.c1{background:var(--cy)} .lab-half h4 i.c2{background:var(--am)}
+@media(max-width:820px){.duo-lab{grid-template-columns:1fr}}
+.split{display:grid;grid-template-columns:.85fr 1.15fr;gap:4rem;align-items:start}
+.split > *{min-width:0}
+.ber-formula{overflow-wrap:anywhere}
+.cause-grid > *{min-width:0}
+.sticky-col{position:sticky;top:110px}
+.big-index{font-family:var(--fd);font-weight:900;font-size:clamp(4.5rem,9vw,7.5rem);line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--err);transition:all .4s;margin:.8rem 0 .4rem}
+#probTitle{font-family:var(--fd);font-weight:700;font-size:clamp(1.3rem,2.4vw,1.9rem);min-height:2.4em}
+.prob-nav{margin-top:1.8rem;display:grid;gap:.4rem;list-style:none}
+.prob-nav button{width:100%;text-align:left;font-family:var(--fm);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);background:none;border:1px solid transparent;border-radius:8px;padding:.7rem .9rem;transition:all .25s;display:flex;gap:.8rem}
+.prob-nav button span{color:var(--line);transition:color .25s}
+.prob-nav button.active{color:var(--err);border-color:var(--line);background:var(--err-dim)}
+.prob-nav button.active span{color:var(--err)}
+.prob-nav button:hover{color:var(--ink)}
+.prob-block{min-height:52vh;display:flex;flex-direction:column;justify-content:center;gap:1.2rem;border-left:1px solid var(--line-soft);padding-left:2.4rem;margin-left:.5rem;position:relative}
+.prob-block::before{content:"";position:absolute;left:-5px;top:50%;width:9px;height:9px;background:var(--bg);border:1px solid var(--faint);border-radius:50%;transition:all .3s}
+.prob-block.hot::before{background:var(--err);border-color:var(--err);box-shadow:0 0 12px var(--err)}
+.prob-block h3{font-family:var(--fd);font-size:1.3rem;font-weight:600;display:flex;align-items:center;gap:.8rem}
+.prob-block h3 .tag{font-family:var(--fm);font-size:.6rem;letter-spacing:.2em;color:var(--faint);border:1px solid var(--line);padding:4px 10px;border-radius:99px}
+.prob-block p{color:var(--muted);font-size:.96rem}
+.cause-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.6rem}
+.cause{border:1px solid var(--line-soft);border-radius:10px;padding:.9rem 1rem;background:rgba(12,20,36,.5);transition:all .3s}
+.cause:hover{border-color:var(--line);transform:translateX(5px)}
+.cause h5{font-size:.92rem;font-weight:600;display:flex;gap:.5rem;align-items:center}
+.cause p{font-size:.82rem;margin-top:.25rem}
+.ber-formula{font-family:var(--fm);font-size:1.05rem;background:rgba(5,8,15,.6);border:1px solid var(--line);border-radius:10px;padding:1.2rem;text-align:center;color:var(--ink)}
+.ber-formula .fr{border-top:1px solid var(--muted);display:inline-block;padding-top:.2rem;margin-top:.2rem}
+.ber-formula .frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .4rem}
+.ber-formula small{display:block;margin-top:.8rem;color:var(--faint);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+@media(max-width:960px){.split{grid-template-columns:1fr}.sticky-col{position:static}.prob-block{min-height:0;padding:2.5rem 0 2.5rem 1.6rem}.cause-grid{grid-template-columns:1fr}}
+.ber-sim{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:1.6rem;margin-top:1rem}
+.ber-sim .bs-top{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.ber-sim input[type=range]{flex:1;min-width:200px;accent-color:var(--err);height:4px}
+.ber-sim .bs-val{font-family:var(--fd);font-weight:700;font-size:1.4rem;color:var(--err);min-width:90px}
+.ber-grid{display:grid;grid-template-columns:repeat(32,1fr);gap:4px}
+.ber-grid .bc{aspect-ratio:1;border-radius:3px;background:rgba(77,163,255,.15);border:1px solid rgba(77,163,255,.3);display:grid;place-items:center;font-family:var(--fm);font-size:.55rem;color:var(--faint);transition:all .3s}
+.ber-grid .bc.one{background:rgba(77,163,255,.3);color:var(--ink)}
+.ber-grid .bc.flip{background:var(--err-dim);border-color:var(--err);color:var(--err);box-shadow:0 0 8px rgba(255,93,122,.5);animation:flipIn .5s}
+@keyframes flipIn{from{transform:scale(0)}to{transform:scale(1)}}
+@media(max-width:700px){.ber-grid{grid-template-columns:repeat(16,1fr)}}
+@media(max-width:480px){.ber-sim input[type=range]{min-width:0}.ber-grid{grid-template-columns:repeat(8,1fr)}}
+.grid2d{display:grid;grid-template-columns:repeat(5,44px);gap:6px;align-items:center}
+.grid2d .cell{width:44px;height:44px}
+.grid2d .rp{border-color:rgba(52,245,177,.5);color:var(--ok);background:var(--ok-dim);cursor:default}
+.grid2d .cell.bad-row{border-color:var(--err);color:var(--err);background:var(--err-dim)}
+@media(max-width:560px){.grid2d{grid-template-columns:repeat(5,38px)}.grid2d .cell{width:38px;height:38px}}
+.crc-board{font-family:var(--fm);overflow-x:auto;padding:.4rem 0}
+.crc-line{display:flex;align-items:center;gap:0;margin-bottom:2px}
+.crc-line .gutter{width:26px;flex:0 0 26px;color:var(--am);text-align:center;font-size:.9rem}
+.crc-line .cb{width:27px;height:30px;display:grid;place-items:center;font-size:.9rem;color:var(--faint);border-radius:4px;flex:0 0 27px}
+.crc-line.dividend .cb{color:var(--ink);border-bottom:2px solid var(--muted)}
+.crc-line.dividend .cb.zero-pad{color:var(--am);opacity:.8}
+.crc-line.op .cb{color:var(--am);background:rgba(255,182,72,.06)}
+.crc-line.res .cb{color:var(--cy)}
+.crc-line.res .cb.changed{color:var(--ok);background:var(--ok-dim)}
+.crc-line.final .cb{color:var(--ok);font-weight:600}
+.crc-line .note{margin-left:.8rem;font-size:.66rem;color:var(--faint);letter-spacing:.1em;white-space:nowrap}
+.bit-idx-row{display:flex;margin-bottom:6px;margin-left:26px}
+.bit-idx-row span{width:27px;flex:0 0 27px;text-align:center;font-size:.55rem;color:var(--faint);font-family:var(--fm)}
+.cover{display:grid;gap:6px;margin-top:.4rem}
+.cover-row{display:flex;align-items:center;gap:8px}
+.cover-row .cr-l{font-family:var(--fm);font-size:.7rem;color:var(--vi);width:30px;flex:0 0 30px}
+.cover-row .cr-cells{display:flex;gap:5px}
+.cover-row .cc{width:30px;height:26px;display:grid;place-items:center;font-family:var(--fm);font-size:.72rem;border:1px dashed var(--line);border-radius:6px;color:var(--faint);transition:all .3s}
+.cover-row .cc.in{border-style:solid;border-color:rgba(167,139,250,.5);color:var(--vi);background:var(--vi-dim)}
+.cover-row.lit .cc.in{border-color:var(--vi);box-shadow:0 0 10px -2px rgba(167,139,250,.7);background:rgba(167,139,250,.25)}
+.synd{display:grid;gap:.5rem;margin-top:1rem}
+.synd .seq{font-family:var(--fm);font-size:.85rem;color:var(--muted);background:rgba(5,8,15,.5);padding:.6rem .8rem;border-radius:8px;border:1px solid var(--line-soft)}
+.synd .seq b{color:var(--vi)}
+.synd .seq .val{color:var(--ink);font-weight:600}
+.synd .seq.hot{border-color:var(--err);color:var(--err)}
+.bars-block{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:2rem 2.2rem}
+.legend{display:flex;gap:1.4rem;font-family:var(--fm);font-size:.64rem;letter-spacing:.16em;color:var(--muted);margin:1rem 0 1.4rem;text-transform:uppercase;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:.5rem;vertical-align:-1px}
+.bar-row{display:grid;grid-template-columns:200px 1fr;gap:1.2rem;align-items:center;padding:.65rem 0;border-top:1px dashed var(--line-soft)}
+.bar-row .bl{font-size:.9rem;color:var(--muted)}
+.bar-row .bl small{display:block;font-family:var(--fm);font-size:.62rem;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;margin-top:.15rem}
+.bar-track{display:grid;gap:5px}
+.bar-line{display:grid;grid-template-columns:1fr 44px;gap:.7rem;align-items:center}
+.bar-bg{height:8px;background:rgba(5,8,15,.7);border-radius:99px;overflow:hidden;border:1px solid var(--line-soft)}
+.bar-fill{height:100%;width:0;border-radius:99px;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.bar-fill.f1{background:linear-gradient(90deg,#1a5a9e,var(--cy))}
+.bar-fill.f2{background:linear-gradient(90deg,#0e8f68,var(--ok))}
+.bar-fill.f3{background:linear-gradient(90deg,#8f2a44,var(--err))}
+.bar-val{font-family:var(--fm);font-size:.7rem;color:var(--faint);text-align:right}
+.caps{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.6rem}
+.cap-chip{font-family:var(--fm);font-size:.62rem;letter-spacing:.12em;padding:5px 11px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.cap-chip b{color:var(--cy);font-weight:500}
+@media(max-width:760px){.bar-row{grid-template-columns:1fr;gap:.4rem}}
+.app-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem}
+.app-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;transition:transform .35s,border-color .35s,box-shadow .35s}
+.app-card:hover{transform:translateY(-7px);border-color:rgba(77,163,255,.4);box-shadow:0 26px 50px -20px rgba(0,0,0,.85)}
+.app-img{height:170px;overflow:hidden;position:relative}
+.app-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(12,20,36,.95))}
+.app-img img{width:100%;height:100%;object-fit:cover;filter:saturate(.75) contrast(1.08);animation:kenburns 14s ease-in-out infinite alternate}
+.app-card:nth-child(2) .app-img img{animation-delay:-4s}
+.app-card:nth-child(3) .app-img img{animation-delay:-8s}
+.app-card:nth-child(4) .app-img img{animation-delay:-2s}
+.app-card:nth-child(5) .app-img img{animation-delay:-6s}
+.app-card:nth-child(6) .app-img img{animation-delay:-10s}
+@keyframes kenburns{from{transform:scale(1.05)}to{transform:scale(1.18) translate(-2%,2%)}}
+.app-body{padding:1.3rem 1.4rem 1.5rem}
+.app-body h3{font-family:var(--fd);font-weight:600;font-size:1.05rem;margin-bottom:.5rem}
+.app-body p{font-size:.86rem;color:var(--muted);line-height:1.55}
+.app-body .chip{display:inline-block;font-family:var(--fm);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cy);border:1px solid rgba(77,163,255,.35);background:var(--cy-dim);padding:4px 10px;border-radius:99px;margin-top:.9rem}
+@media(max-width:960px){.app-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.app-grid{grid-template-columns:1fr}}
+.quiz-shell{max-width:760px;margin:0 auto;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 40px 80px -40px rgba(0,0,0,.9)}
+.quiz-top{padding:1.4rem 1.8rem;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.quiz-top .qt-l{font-family:var(--fm);font-size:.66rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:.7rem}
+#qCount{font-family:var(--fd);font-weight:600;font-size:.9rem;color:var(--cy)}
+.q-progress{height:3px;background:var(--line-soft)}
+.q-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--vi));transition:width .6s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 10px var(--cy)}
+.quiz-body{padding:2.2rem 2rem}
+#qText{font-family:var(--fd);font-weight:600;font-size:clamp(1.05rem,2.2vw,1.3rem);line-height:1.4;margin-bottom:1.6rem}
+.opt{width:100%;display:flex;gap:1rem;align-items:center;text-align:left;background:rgba(5,8,15,.5);border:1px solid var(--line);border-radius:11px;padding:1rem 1.1rem;margin-bottom:.7rem;color:var(--ink);font-size:.96rem;font-family:var(--fb);transition:all .22s}
+.opt:hover{border-color:var(--cy);background:var(--cy-dim);transform:translateX(6px)}
+.opt .ol{flex:0 0 30px;height:30px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;font-family:var(--fm);font-size:.74rem;color:var(--muted);transition:all .22s}
+.opt:hover .ol{border-color:var(--cy);color:var(--cy)}
+.opt.ok{border-color:var(--ok);background:var(--ok-dim)}
+.opt.ok .ol{background:var(--ok);color:#04120c;border-color:var(--ok);font-weight:600}
+.opt.bad{border-color:var(--err);background:var(--err-dim);animation:shake .4s}
+.opt.bad .ol{background:var(--err);color:#2a0510;border-color:var(--err)}
+.opt.dim{opacity:.4;pointer-events:none}
+.opt:disabled{cursor:default}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.q-feedback{display:none;margin-top:1.2rem;padding:1.1rem 1.3rem;border-radius:11px;font-size:.92rem;line-height:1.55;border:1px solid}
+.q-feedback.show{display:block;animation:fbIn .45s cubic-bezier(.2,.8,.2,1)}
+.q-feedback.good{border-color:rgba(52,245,177,.4);background:var(--ok-dim);color:#c9fdee}
+.q-feedback.evil{border-color:rgba(255,93,122,.4);background:var(--err-dim);color:#ffd4dd}
+.q-feedback b{display:block;font-family:var(--fm);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.4rem}
+@keyframes fbIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.quiz-foot{padding:0 2rem 2rem;display:flex;justify-content:flex-end}
+.quiz-result{display:none;text-align:center;padding:3rem 2rem}
+.quiz-result.show{display:block;animation:fbIn .5s}
+.score-ring{position:relative;width:150px;height:150px;margin:0 auto 1.4rem}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .ring-bg{fill:none;stroke:var(--line);stroke-width:8}
+.score-ring .ring-fg{fill:none;stroke:var(--cy);stroke-width:8;stroke-linecap:round;stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 8px rgba(77,163,255,.6))}
+.score-ring .score-num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:1.9rem}
+#verdict{font-family:var(--fd);font-weight:700;font-size:1.4rem;margin-bottom:.6rem}
+#verdictMsg{color:var(--muted);max-width:440px;margin:0 auto 1.8rem}
+footer{border-top:1px solid var(--line);padding:2.6rem 0;background:var(--bg2)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.foot .f-nav{display:flex;flex-wrap:wrap;gap:1.4rem;font-family:var(--fm);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.foot .f-nav a:hover{color:var(--cy)}
+.foot small{font-family:var(--fm);font-size:.66rem;letter-spacing:.12em;color:var(--faint)}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .marquee-track{animation:none;transform:none}
+  .rv{opacity:1;transform:none}
+  .app-img img{animation:none;transform:none}
+}
+</style>
+</head>
+<body>
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;right:16px;bottom:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+<div class="noise"></div>
+<header id="hdr">
+  <a class="logo" href="#top"><span class="lg-bits"><span style="background:var(--cy)"></span><span style="background:var(--ok)"></span><span style="background:var(--err)"></span><span style="background:var(--vi)"></span></span>ERR<b>//</b>CORR</a>
+  <nav class="main-nav">
+    <a href="#problema">Il problema</a>
+    <a href="#parita">Parità</a>
+    <a href="#parita2d">Parità 2D</a>
+    <a href="#crc">Checksum &amp; CRC</a>
+    <a href="#hamming">Hamming</a>
+    <a href="#confronto">Confronto</a>
+    <a href="#applicazioni">Realtà</a>
+    <a href="#quiz">Quiz</a>
+  </nav>
+  <div class="live-chip"><i></i>LEZIONE LIVE · 4ª INFORMATICA</div>
+</header>
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-veil"></div>
+  <div class="hero-inner wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="kicker r" style="margin-bottom:1.4rem">Trasmissione dati · Rilevazione e correzione degli errori</p>
+        <h1><span id="titleA" data-text="BIT DI PARITÀ">BIT DI PARITÀ</span>
+          <span class="l2" id="titleB" data-text="E CODICI DI RIDONDANZA">E CODICI DI RIDONDANZA</span></h1>
+        <p class="lead">Ogni volta che trasmetti un bit, il canale può <em>corromperlo</em>: rumore termico, interferenze, raggi cosmici. La soluzione è la <b>ridondanza</b>: aggiungere bit extra che permettono di <code>rilevare</code> e persino <code>correggere</code> gli errori — senza ritrasmettere.</p>
+        <div class="hero-cta">
+          <a href="#parita" class="btn btn-cy">▸ Inizia dal bit di parità</a>
+          <a href="#hamming" class="btn btn-ghost">Salta al codice di Hamming</a>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hl">Frame inviati</div><div class="hv c" id="heroSent">0</div></div>
+        <div class="hstat"><div class="hl">Errori rilevati</div><div class="hv r" id="heroErr">0</div></div>
+        <div class="hstat"><div class="hl">BER stimato</div><div class="hv a" id="heroBer">0%</div></div>
+        <div class="hstat"><div class="hl">Ricezione pulita</div><div class="hv g" id="heroOk">100%</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue"></div>
+</section>
+<div class="marquee"><div class="marquee-track" id="mqTrack">
+  <span>Bit di parità <b>✦</b> VRC · LRC <b>✦</b> Checksum <b>✦</b> CRC <b>✦</b> Codice di Hamming <b>✦</b> SECDED <b>✦</b> XOR <b>✦</b> Sindrome <b>✦</b> BER <b>✦</b> Ridondanza <b>✦</b> Distanza di Hamming <b>✦</b>&nbsp;</span>
+</div></div>
+<!-- ============ 01 IL PROBLEMA (sticky) ============ -->
+<section class="sec" id="problema">
+  <div class="wrap split">
+    <aside class="sticky-col rv">
+      <p class="kicker r">01 · Il problema</p>
+      <div class="big-index" id="probIndex">01</div>
+      <h3 id="probTitle">Il canale è ostile</h3>
+      <ul class="prob-nav" id="probNav">
+        <li><button data-i="0" class="active"><span>01</span> Rumore e interferenze</button></li>
+        <li><button data-i="1"><span>02</span> Il tasso d'errore (BER)</button></li>
+        <li><button data-i="2"><span>03</span> La soluzione: ridondanza</button></li>
+      </ul>
+    </aside>
+    <div>
+      <article class="prob-block rv" data-i="0">
+        <h3>Rumore e interferenze <span class="tag">FISICA DEL SEGNALE</span></h3>
+        <p>Un bit in viaggio è un segnale fisico (tensione, onda radio, impulso luminoso). Qualsiasi disturbo può cambiare un <b>1</b> in uno <b>0</b> o viceversa. Le cause principali:</p>
+        <div class="cause-grid">
+          <div class="cause"><h5>🔥 Rumore termico</h5><p>Agitazione degli elettroni nei conduttori. Presente sempre, cresce con la temperatura.</p></div>
+          <div class="cause"><h5>⚡ Interferenze EMI</h5><p>Motori, alimentatori, altri cavi: campi elettromagnetici esterni disturbano il segnale.</p></div>
+          <div class="cause"><h5>🔀 Crosstalk</h5><p>Un cavo "sente" il segnale del cavo vicino (il classico telefono che origina).</p></div>
+          <div class="cause"><h5>☄️ Raggi cosmici</h5><p>Particelle ad alta energia che ribaltano bit in RAM e memorie. Succede davvero, anche nel tuo PC.</p></div>
+        </div>
+      </article>
+      <article class="prob-block rv" data-i="1">
+        <h3>Il tasso d'errore <span class="tag">BER</span></h3>
+        <p>Il <b>BER (Bit Error Rate)</b> misura quanti bit arrivano sbagliati rispetto a quelli trasmessi. Prova tu stesso: alza la probabilità di errore e osserva quanti bit si corrompono.</p>
+        <div class="ber-formula">
+          BER = <span class="frac"><span>bit errati</span><span class="fr">bit trasmessi</span></span>
+          <small>Esempio: 3 errori su 10⁶ bit → BER = 3×10⁻⁶</small>
+        </div>
+        <div class="ber-sim">
+          <div class="bs-top">
+            <span style="font-family:var(--fm);font-size:.66rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase">Probabilità d'errore per bit</span>
+            <input type="range" id="berSlider" min="0" max="20" step="1" value="4">
+            <span class="bs-val" id="berVal">4%</span>
+            <button class="btn btn-err sm" id="berRegen">🎲 Ritrasmetti</button>
+          </div>
+          <div class="ber-grid" id="berGrid"></div>
+          <div class="counters">
+            <div class="counter cc"><div class="cl">Bit trasmessi</div><div class="cv" id="berSent">128</div></div>
+            <div class="counter cr"><div class="cl">Bit errati</div><div class="cv" id="berErrs">0</div></div>
+            <div class="counter ca"><div class="cl">BER misurato</div><div class="cv" id="berMis">0%</div></div>
+          </div>
+        </div>
+      </article>
+      <article class="prob-block rv" data-i="2">
+        <h3>La soluzione: ridondanza <span class="tag">L'IDEA CHIAVE</span></h3>
+        <p>Se il canale sbaglia, possiamo <b>aggiungere bit extra</b> calcolati a partire dai dati. Il ricevente li ricontrolla e scopre se qualcosa è andato storto — e in alcuni casi <b>ricostruisce il dato originale</b> senza chiedere una ritrasmissione.</p>
+        <div class="cause-grid">
+          <div class="cause"><h5>🔍 Rilevazione</h5><p>Scoprire che c'è un errore. Esempio: bit di parità, checksum, CRC.</p></div>
+          <div class="cause"><h5>🔧 Correzione</h5><p>Scoprire anche <b>dove</b> si trova l'errore e correggerlo. Esempio: codice di Hamming.</p></div>
+        </div>
+        <p style="margin-top:.8rem">Il prezzo della protezione è l'<b>overhead</b>: bit extra = banda extra. Tutta la teoria dei codici cerca il miglior compromesso tra bit aggiunti e capacità di proteggere i dati. Il limite teorico fu fissato da <b>Claude Shannon</b> nel 1948.</p>
+      </article>
+    </div>
+  </div>
+</section>
+<!-- ============ 02 BIT DI PARITÀ ============ -->
+<section class="sec sec-alt" id="parita">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">02 · Laboratorio</p>
+      <h2 class="sec-title">Il bit di parità (VRC)</h2>
+      <p>Il codice più semplice: <b>un solo bit extra</b>. Con la parità <b>pari</b>, il numero totale di 1 (dati + parità) deve essere pari. La parità si calcola con lo <code>XOR</code> di tutti i bit di dati. Rileva 1 errore… ma non sempre.</p>
+    </div>
+    <div class="panel rv d1">
+      <div class="panel-bar">
+        <div class="pb-title"><span class="led cy"></span>LAB 02 · TRASMETTITORE → CANALE → RICEVITORE</div>
+        <div class="seg">
+          <button id="modeEven" class="on">Parità pari</button>
+          <button id="modeOdd">Parità dispari</button>
+        </div>
+      </div>
+      <div class="lab-body">
+        <div class="duo-lab">
+          <div class="lab-half">
+            <h4><i class="c1"></i>Trasmittente — clicca i bit per modificarli</h4>
+            <div class="word idxrow" id="ptxWord"></div>
+            <div class="formula" id="ptxFormula"></div>
+          </div>
+          <div class="lab-half">
+            <h4><i class="c2"></i>Ricevitore — ciò che arriva dal canale</h4>
+            <div class="word idxrow" id="prxWord"></div>
+            <div class="verdict" id="pVerdict">In attesa di trasmissione…</div>
+          </div>
+        </div>
+        <div class="lab-row">
+          <span class="lbl">Canale rumoroso:</span>
+          <button class="btn btn-err sm" id="pNoise1">⚡ 1 bit di rumore</button>
+          <button class="btn btn-err sm" id="pNoise2">⚡⚡ 2 bit di rumore</button>
+          <button class="btn btn-ok sm" id="pSend">📤 Ritrasmetti pulito</button>
+          <button class="btn btn-ghost sm" id="pReset">↺ Reset</button>
+        </div>
+        <div class="counters">
+          <div class="counter cg"><div class="cl">Errori rilevati</div><div class="cv" id="pDet">0</div></div>
+          <div class="counter cr"><div class="cl">Errori NON rilevati</div><div class="cv" id="pMiss">0</div></div>
+          <div class="counter cc"><div class="cl">Trasmissioni ok</div><div class="cv" id="pOkc">0</div></div>
+        </div>
+      </div>
+      <div class="lab-note"><b>Osserva:</b> con <b>1 bit</b> ribaltato la parità cambia sempre → errore <b>rilevato</b>. Con <b>2 bit</b> ribaltati la parità torna quella di prima → l'errore passa <b>inosservato</b>. La parità rileva solo un numero <b>dispari</b> di errori e non può <b>correggere</b>: sa che c'è un errore, ma non dove.</div>
+    </div>
+  </div>
+</section>
+<!-- ============ 03 PARITÀ 2D ============ -->
+<section class="sec" id="parita2d">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker g">03 · Laboratorio</p>
+      <h2 class="sec-title">Parità bidimensionale (VRC + LRC)</h2>
+      <p>Disponiamo i bit in una matrice e calcoliamo la parità <b>per ogni riga</b> (VRC) e <b>per ogni colonna</b> (LRC). Un errore singolo rompe la parità di <b>una riga e una colonna</b>: l'incrocio individua il bit sbagliato → possiamo <b>correggerlo</b>.</p>
+    </div>
+    <div class="panel rv d1">
+      <div class="panel-bar">
+        <div class="pb-title"><span class="led"></span>LAB 03 · MATRICE 4×4 + PARITÀ DI RIGA E COLONNA</div>
+        <span style="font-family:var(--fm);font-size:.62rem;letter-spacing:.16em;color:var(--faint)">PARITÀ PARI</span>
+      </div>
+      <div class="lab-body">
+        <div class="grid2d idxrow" id="grid2d"></div>
+        <div class="lab-row">
+          <button class="btn btn-err sm" id="gNoise">⚡ Inietta 1 errore</button>
+          <button class="btn btn-cy sm" id="gCheck">🔍 Localizza</button>
+          <button class="btn btn-ok sm" id="gFix" disabled>🔧 Correggi</button>
+          <button class="btn btn-ghost sm" id="gReset">↺ Reset</button>
+          <span style="font-family:var(--fm);font-size:.62rem;color:var(--faint);letter-spacing:.1em">suggerimento: puoi anche cliccare una cella per "sporcarla"</span>
+        </div>
+        <div class="verdict" id="gVerdict">Matrice integra. Inietta un errore per vedere la localizzazione.</div>
+      </div>
+      <div class="lab-note"><b>Perché funziona:</b> un singolo bit sbagliato appartiene a <b>una sola riga e una sola colonna</b>, quindi entrambe le loro parità falliscono e l'incrocio lo identifica con certezza. Se due errori capitano sulla <b>stessa riga</b>, la parità di riga torna giusta: il sistema li rileva dalle colonne ma non può più correggerli.</div>
+    </div>
+  </div>
+</section>
+<!-- ============ 04 CHECKSUM + CRC ============ -->
+<section class="sec sec-alt" id="crc">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker a">04 · Laboratorio</p>
+      <h2 class="sec-title">Checksum e CRC</h2>
+      <p>Su blocchi più grandi servono codici più robusti. Il <b>checksum</b> somma i byte (mod 256): semplice ma debole. Il <b>CRC</b> tratta i bit come un polinomio e lo <b>divide</b> (con XOR) per un generatore: il resto è la firma del messaggio, ed è eccellente contro gli errori a raffica.</p>
+    </div>
+    <div class="duo-lab rv d1" style="margin-bottom:1.6rem">
+      <div class="panel" style="margin:0">
+        <div class="panel-bar"><div class="pb-title"><span class="led am"></span>LAB 04A · CHECKSUM A 8 BIT</div></div>
+        <div class="lab-body">
+          <p style="font-size:.88rem;color:var(--muted);margin-bottom:1rem">Somma dei due byte, troncata a 8 bit (mod 256). Clicca i bit per modificarli.</p>
+          <div class="lab-row" style="margin-top:0"><span class="lbl">Byte 1</span><div class="word" id="csB1"></div></div>
+          <div class="lab-row"><span class="lbl">Byte 2</span><div class="word" id="csB2"></div></div>
+          <div class="formula" id="csFormula"></div>
+          <div class="lab-row">
+            <button class="btn btn-err sm" id="csNoise">⚡ Corrompi 1 bit</button>
+            <button class="btn btn-ok sm" id="csReset">↺ Reset</button>
+          </div>
+          <div class="verdict" id="csVerdict">Messaggio integro.</div>
+        </div>
+      </div>
+      <div class="panel" style="margin:0">
+        <div class="panel-bar"><div class="pb-title"><span class="led am"></span>DEBOLEZZE DEL CHECKSUM</div></div>
+        <div class="lab-body" style="display:flex;flex-direction:column;gap:.8rem;justify-content:center">
+          <div class="cause"><h5>🔁 Scambi di byte</h5><p>Se due byte si scambiano di posizione, la somma non cambia → errore invisibile.</p></div>
+          <div class="cause"><h5>⚖️ Compensazioni</h5><p>Un bit che sale in un byte e uno che scende nell'altro si annullano a vicenda.</p></div>
+          <div class="cause"><h5>✅ Dove si usa comunque</h5><p>Header IP e segmenti TCP/UDP: economico da calcolare, basta come primo filtro.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel rv d2">
+      <div class="panel-bar">
+        <div class="pb-title"><span class="led am"></span>LAB 04B · CRC-4 — DIVISIONE POLINOMIALE PASSO-PASSO</div>
+        <span style="font-family:var(--fm);font-size:.62rem;letter-spacing:.14em;color:var(--faint)">GENERATORE G = 10011 (x⁴ + x + 1)</span>
+      </div>
+      <div class="lab-body">
+        <div class="lab-row" style="margin-top:0"><span class="lbl">Messaggio (8 bit)</span><div class="word" id="crcMsg"></div>
+          <button class="btn btn-ghost sm" id="crcRand">🎲 Casuale</button>
+        </div>
+        <div class="crc-board" id="crcBoard"></div>
+        <div class="lab-row">
+          <button class="btn btn-cy sm" id="crcStep">▶ Passo</button>
+          <button class="btn btn-cy sm" id="crcAuto">▶▶ Auto</button>
+          <button class="btn btn-ghost sm" id="crcClear">↺ Reset divisione</button>
+        </div>
+        <div class="verdict" id="crcDivVerdict">Premi "Passo" per eseguire la divisione: se il bit corrente della finestra vale 1 → XOR con G, poi shift.</div>
+        <div id="crcTxZone" style="display:none;margin-top:1.4rem;border-top:1px dashed var(--line-soft);padding-top:1.4rem">
+          <div class="lab-row" style="margin-top:0"><span class="lbl">Codeword (msg + CRC)</span><div class="word idxrow" id="crcTx"></div></div>
+          <div class="lab-row">
+            <button class="btn btn-err sm" id="crcNoise">⚡ Corrompi 1 bit in transito</button>
+            <button class="btn btn-cy sm" id="crcVerify">🔍 Verifica lato ricevente</button>
+            <button class="btn btn-ok sm" id="crcResend">📤 Ritrasmetti pulito</button>
+          </div>
+          <div class="verdict" id="crcRxVerdict" style="display:none"></div>
+        </div>
+      </div>
+      <div class="lab-note"><b>L'algoritmo:</b> si aggiunge al messaggio un numero di zeri pari al grado di G (qui 4). Si divide con XOR come sui numeri naturali: dove il primo bit della finestra è 1 si fa XOR con G. Il <b>resto a 4 bit</b> è il CRC. Il ricevente ridivide l'intero codeword: resto 0 → tutto ok, resto ≠ 0 → errore. Il CRC cattura tutti gli errori singoli, tutti i doppi e tutti gli errori a raffica di lunghezza ≤ grado di G.</div>
+    </div>
+  </div>
+</section>
+<!-- ============ 05 HAMMING ============ -->
+<section class="sec grid-bg" id="hamming">
+  <span class="num-ghost">7,4</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker v">05 · Laboratorio</p>
+      <h2 class="sec-title" id="hamTitle" data-text="IL CODICE DI HAMMING (7,4)">IL CODICE DI HAMMING (7,4)</h2>
+      <p>Richard Hamming (1950) ebbe l'idea decisiva: se la parità <b>rileva</b> un errore, possiamo organizzare più bit di parità in modo che la loro combinazione — la <b>sindrome</b> — indichi <b>la posizione esatta</b> dell'errore. 4 bit di dati + 3 di parità = codeword di 7 bit che <b>corregge</b> un errore singolo.</p>
+    </div>
+    <div class="panel rv d1">
+      <div class="panel-bar">
+        <div class="pb-title"><span class="led vi"></span>LAB 05 · CODIFICA → CANALE → SINDROME → CORREZIONE</div>
+        <label style="font-family:var(--fm);font-size:.62rem;letter-spacing:.14em;color:var(--faint);display:flex;align-items:center;gap:.5rem;cursor:pointer;text-transform:uppercase">
+          <input type="checkbox" id="secdedToggle" style="accent-color:var(--vi)"> Parità globale (SECDED)
+        </label>
+      </div>
+      <div class="lab-body">
+        <div class="duo-lab">
+          <div class="lab-half">
+            <h4><i class="c1"></i>Dati (4 bit) — clicca per modificarli</h4>
+            <div class="word" id="hData"></div>
+            <div class="formula" id="hEncode"></div>
+            <div class="cover" id="hCover"></div>
+          </div>
+          <div class="lab-half">
+            <h4><i class="c2"></i>Codeword ricevuta (dopo il canale)</h4>
+            <div class="word idxrow" id="hRx"></div>
+            <div class="synd" id="hSynd"></div>
+          </div>
+        </div>
+        <div class="lab-row">
+          <span class="lbl">Canale:</span>
+          <button class="btn btn-err sm" id="hNoise1">⚡ 1 errore</button>
+          <button class="btn btn-err sm" id="hNoise2">⚡⚡ 2 errori</button>
+          <button class="btn btn-vi sm" id="hFix" disabled>🔧 Correggi con la sindrome</button>
+          <button class="btn btn-ok sm" id="hResend">📤 Ritrasmetti</button>
+          <button class="btn btn-ghost sm" id="hReset">↺ Reset</button>
+        </div>
+        <div class="verdict" id="hVerdict">Modifica i dati, poi inietta errori nel canale per vedere sindrome e correzione.</div>
+      </div>
+      <div class="lab-note" id="hNote"><b>Come leggere la sindrome:</b> ogni parità controlla posizioni con un pattern binario (P₁ le posizioni col bit 0 acceso: 1,3,5,7 · P₂ col bit 1: 2,3,6,7 · P₄ col bit 2: 4,5,6,7). La sindrome <b>s₄s₂s₁</b> letta come numero binario è <b>la posizione dell'errore</b>. Con la parità globale (SECDED, il codice delle RAM ECC) un doppio errore viene <b>rilevato</b> ma dichiarato non correggibile.</div>
+    </div>
+  </div>
+</section>
+<!-- ============ 06 CONFRONTO ============ -->
+<section class="sec sec-alt" id="confronto">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">06 · Confronto</p>
+      <h2 class="sec-title">Quale codice, quando?</h2>
+      <p>Ogni codice ha un diverso equilibrio tra <b>overhead</b>, capacità di <b>rilevazione</b> e capacità di <b>correzione</b>. Valori indicativi su piccoli blocchi didattici.</p>
+    </div>
+    <div class="bars-block rv d1" id="barsBlock">
+      <div class="legend">
+        <span><i style="background:var(--cy)"></i>Overhead (% bit extra)</span>
+        <span><i style="background:var(--ok)"></i>Capacità di rilevazione</span>
+        <span><i style="background:var(--err)"></i>Capacità di correzione</span>
+      </div>
+      <div id="barsWrap"></div>
+      <div class="caps">
+        <span class="cap-chip"><b>Parità</b> · rileva errori dispari, nessuna correzione</span>
+        <span class="cap-chip"><b>Parità 2D</b> · corregge 1 errore singolo</span>
+        <span class="cap-chip"><b>CRC</b> · rilevazione potentissima, zero correzione</span>
+        <span class="cap-chip"><b>Hamming</b> · corregge 1 errore</span>
+        <span class="cap-chip"><b>SECDED</b> · corregge 1, rileva 2 (RAM ECC)</span>
+        <span class="cap-chip"><b>Reed-Solomon</b> · corregge raffiche (CD, QR)</span>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ 07 APPLICAZIONI ============ -->
+<section class="sec" id="applicazioni">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker g">07 · Nel mondo reale</p>
+      <h2 class="sec-title">Dove vivono questi codici</h2>
+      <p>Li usi ogni giorno senza saperlo: dalla RAM del tuo PC alle sonde spaziali.</p>
+    </div>
+    <div class="app-grid">
+      <article class="app-card rv d1">
+        <div class="app-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Memoria RAM ECC"><defs><radialGradient id="ap1" cx="50%" cy="30%" r="82%"><stop offset="0%" stop-color="#164f74"/><stop offset="100%" stop-color="#070f1c"/></radialGradient></defs><rect width="320" height="200" fill="url(#ap1)"/><rect x="70" y="55" width="180" height="26" rx="5" fill="#0c1424" stroke="#4da3ff" stroke-width="2"/><rect x="70" y="90" width="180" height="26" rx="5" fill="#0c1424" stroke="#4da3ff" stroke-width="2"/><rect x="70" y="125" width="180" height="26" rx="5" fill="#0c1424" stroke="#4da3ff" stroke-width="2"/><g fill="#34f5b1"><rect x="82" y="62" width="10" height="12" rx="2"/><rect x="98" y="62" width="10" height="12" rx="2"/><rect x="114" y="62" width="10" height="12" rx="2"/><rect x="82" y="97" width="10" height="12" rx="2"/><rect x="98" y="97" width="10" height="12" rx="2"/><rect x="82" y="132" width="10" height="12" rx="2"/></g><rect x="130" y="62" width="10" height="12" rx="2" fill="#ff5d7a"/><text x="160" y="185" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#8ea1bd">SECDED · HAMMING</text></svg></div>
+        <div class="app-body"><h3>RAM ECC dei server</h3><p>Le memorie dei server usano codici <b>SECDED</b> (Hamming + parità globale): correggono al volo i bit flip causati dai raggi cosmici, evitando crash silenziosi.</p><span class="chip">SECDED · Hamming</span></div>
+      </article>
+      <article class="app-card rv d2">
+        <div class="app-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Compact disc"><defs><radialGradient id="ap2" cx="50%" cy="30%" r="82%"><stop offset="0%" stop-color="#5a4210"/><stop offset="100%" stop-color="#0b0d16"/></radialGradient><radialGradient id="cd2" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#6ee7ff"/><stop offset="100%" stop-color="#a78bfa"/></radialGradient></defs><rect width="320" height="200" fill="url(#ap2)"/><circle cx="160" cy="95" r="70" fill="url(#cd2)" opacity=".85"/><circle cx="160" cy="95" r="24" fill="#0b0d16"/><circle cx="160" cy="95" r="8" fill="#0b0d16" stroke="#8ea1bd"/><line x1="160" y1="95" x2="210" y2="45" stroke="#ffb648" stroke-width="3"/><circle cx="213" cy="42" r="4" fill="#ffb648"/><text x="160" y="185" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#8ea1bd">REED-SOLOMON · CIRC</text></svg></div>
+        <div class="app-body"><h3>CD, DVD e Blu-ray</h3><p>Graffi e polvere causano errori a raffica. I dischi ottici usano codici <b>Reed-Solomon</b> intrecciati (CIRC) che ricostruiscono fino a migliaia di bit danneggiati.</p><span class="chip">Reed-Solomon (CIRC)</span></div>
+      </article>
+      <article class="app-card rv d3">
+        <div class="app-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR code"><defs><radialGradient id="ap3" cx="50%" cy="30%" r="82%"><stop offset="0%" stop-color="#2a1f4d"/><stop offset="100%" stop-color="#0a0b16"/></radialGradient></defs><rect width="320" height="200" fill="url(#ap3)"/><g transform="translate(90,25)"><rect x="0" y="0" width="60" height="60" fill="none" stroke="#e9f1f7" stroke-width="8"/><rect x="18" y="18" width="24" height="24" fill="#e9f1f7"/><rect x="80" y="0" width="60" height="60" fill="none" stroke="#e9f1f7" stroke-width="8"/><rect x="98" y="18" width="24" height="24" fill="#e9f1f7"/><rect x="0" y="80" width="60" height="60" fill="none" stroke="#e9f1f7" stroke-width="8"/><rect x="18" y="98" width="24" height="24" fill="#e9f1f7"/><g fill="#34f5b1"><rect x="80" y="80" width="12" height="12"/><rect x="104" y="80" width="12" height="12"/><rect x="128" y="92" width="12" height="12"/><rect x="80" y="104" width="12" height="12"/><rect x="104" y="116" width="12" height="12"/><rect x="128" y="128" width="12" height="12"/></g><g fill="#4da3ff" opacity=".7"><rect x="140" y="0" width="12" height="12"/><rect x="80" y="128" width="12" height="12"/><rect x="128" y="104" width="12" height="12"/></g></g><text x="160" y="185" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#8ea1bd">REED-SOLOMON 30%</text></svg></div>
+        <div class="app-body"><h3>QR Code</h3><p>Ogni QR code contiene fino al <b>30% di bit di Reed-Solomon</b>: per questo funziona anche se è sporco, strappato o coperto da un adesivo.</p><span class="chip">Reed-Solomon</span></div>
+      </article>
+      <article class="app-card rv d1">
+        <div class="app-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sonda spaziale"><defs><radialGradient id="ap4" cx="50%" cy="30%" r="82%"><stop offset="0%" stop-color="#123a5e"/><stop offset="100%" stop-color="#070f1c"/></radialGradient></defs><rect width="320" height="200" fill="url(#ap4)"/><g fill="#e9f1f7"><circle cx="245" cy="55" r="5"/><rect x="242" y="58" width="6" height="14" fill="#4da3ff"/><rect x="230" y="60" width="12" height="4" fill="#4da3ff"/><rect x="248" y="60" width="12" height="4" fill="#4da3ff"/></g><path d="M70 150 q40 -70 150 -90" fill="none" stroke="#34f5b1" stroke-opacity=".5" stroke-width="2" stroke-dasharray="5 6"/><g fill="none" stroke="#34f5b1" stroke-opacity=".6"><circle cx="70" cy="150" r="30"/><circle cx="70" cy="150" r="46"/><circle cx="70" cy="150" r="62"/></g><circle cx="70" cy="150" r="10" fill="#34f5b1"/><text x="160" y="185" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#8ea1bd">CONVOLUZIONALI · LDPC</text></svg></div>
+        <div class="app-body"><h3>Sonde spaziali</h3><p>I segnali dalle sonde arrivano debolissimi dopo milioni di km. La NASA usa codici <b>convoluzionali + Reed-Solomon</b> (e oggi codici LDPC) per recuperare ogni bit.</p><span class="chip">Convoluzionali · LDPC</span></div>
+      </article>
+      <article class="app-card rv d2">
+        <div class="app-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cavo Ethernet"><defs><radialGradient id="ap5" cx="50%" cy="30%" r="82%"><stop offset="0%" stop-color="#164f74"/><stop offset="100%" stop-color="#070f1c"/></radialGradient></defs><rect width="320" height="200" fill="url(#ap5)"/><path d="M60 120 h60" stroke="#8ea1bd" stroke-width="16"/><rect x="120" y="98" width="70" height="44" rx="6" fill="#0c1424" stroke="#4da3ff" stroke-width="2"/><g fill="#34f5b1"><rect x="132" y="108" width="6" height="10"/><rect x="142" y="108" width="6" height="10"/><rect x="152" y="108" width="6" height="10"/><rect x="162" y="108" width="6" height="10"/><rect x="172" y="108" width="6" height="10"/><rect x="132" y="122" width="6" height="10"/><rect x="142" y="122" width="6" height="10"/><rect x="152" y="122" width="6" height="10"/></g><rect x="190" y="104" width="20" height="32" rx="3" fill="#0c1424" stroke="#ffb648" stroke-width="2"/><text x="160" y="185" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#8ea1bd">CRC-32 · FCS</text></svg></div>
+        <div class="app-body"><h3>Ethernet e Wi-Fi</h3><p>Ogni trama Ethernet porta un <b>CRC-32</b> nel Frame Check Sequence; il Wi-Fi aggiunge codici correttori per affrontare le interferenze radio.</p><span class="chip">CRC-32 · FEC</span></div>
+      </article>
+      <article class="app-card rv d3">
+        <div class="app-img"><svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Disco e SSD"><defs><radialGradient id="ap6" cx="50%" cy="30%" r="82%"><stop offset="0%" stop-color="#2a1f4d"/><stop offset="100%" stop-color="#0a0b16"/></radialGradient></defs><rect width="320" height="200" fill="url(#ap6)"/><g><rect x="150" y="45" width="120" height="24" rx="4" fill="#0c1424" stroke="#a78bfa" stroke-width="2"/><rect x="150" y="80" width="120" height="24" rx="4" fill="#0c1424" stroke="#a78bfa" stroke-width="2"/><rect x="150" y="115" width="120" height="24" rx="4" fill="#0c1424" stroke="#a78bfa" stroke-width="2"/><g fill="#34f5b1"><rect x="160" y="51" width="8" height="12"/><rect x="172" y="51" width="8" height="12"/><rect x="184" y="51" width="8" height="12"/><rect x="160" y="86" width="8" height="12"/><rect x="172" y="86" width="8" height="12"/><rect x="160" y="121" width="8" height="12"/></g></g><circle cx="80" cy="95" r="46" fill="none" stroke="#4da3ff" stroke-width="2"/><circle cx="80" cy="95" r="12" fill="#4da3ff"/><text x="160" y="185" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#8ea1bd">BCH · LDPC</text></svg></div>
+        <div class="app-body"><h3>Dischi e SSD</h3><p>Ogni settore memorizzato include codici correttori (<b>BCH / LDPC</b> negli SSD moderni) che riparano i bit degradati dall'usura delle celle.</p><span class="chip">BCH · LDPC</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+<!-- ============ 08 QUIZ ============ -->
+<section class="sec sec-alt grid-bg" id="quiz">
+  <div class="wrap">
+    <div class="sec-head rv" style="text-align:center;margin-left:auto;margin-right:auto">
+      <p class="kicker" style="justify-content:center">08 · Verifica</p>
+      <h2 class="sec-title">Verifica le tue conoscenze</h2>
+      <p>8 domande su parità, CRC e Hamming.</p>
+    </div>
+    <div class="quiz-shell rv d1">
+      <div id="quizBox">
+        <div class="quiz-top"><div class="qt-l"><span class="led cy"></span> QUESTIONARIO</div><div id="qCount">1 / 8</div></div>
+        <div class="q-progress"><i id="qProg"></i></div>
+        <div class="quiz-body">
+          <div id="qText"></div>
+          <div id="qOptions"></div>
+          <div class="q-feedback" id="qFeedback"></div>
+        </div>
+        <div class="quiz-foot"><button class="btn btn-cy sm" id="qNext" style="display:none">Prossima domanda ▸</button></div>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <div class="score-ring">
+          <svg width="150" height="150"><circle class="ring-bg" cx="75" cy="75" r="54"/><circle class="ring-fg" id="ringFg" cx="75" cy="75" r="54"/></svg>
+          <div class="score-num" id="scoreNum">0/8</div>
+        </div>
+        <div id="verdict"></div>
+        <p id="verdictMsg"></p>
+        <button class="btn btn-cy sm" id="btnRestart">↺ Riprova</button>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="wrap foot">
+    <a class="logo" href="#top" style="font-size:.85rem"><span class="lg-bits"><span style="background:var(--cy)"></span><span style="background:var(--ok)"></span><span style="background:var(--err)"></span><span style="background:var(--vi)"></span></span>ERR<b>//</b>CORR</a>
+    <div class="f-nav">
+      <a href="#parita">Parità</a><a href="#parita2d">Parità 2D</a><a href="#crc">CRC</a><a href="#hamming">Hamming</a><a href="#quiz">Quiz</a>
+    </div>
+    <small>LEZIONE · BIT DI PARITÀ E CODICI DI RIDONDANZA · 4ª INFORMATICA</small>
+  </div>
+</footer>
+<script>
+/* ================= UTILS ================= */
+const RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TAU=Math.PI*2;
+const qs=s=>document.querySelector(s),qsa=s=>[...document.querySelectorAll(s)];
+const rand=(a,b)=>a+Math.random()*(b-a);
+const irand=n=>Math.floor(Math.random()*n);
+const pick=a=>a[irand(a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const dist=(x1,y1,x2,y2)=>Math.hypot(x2-x1,y2-y1);
+const xorAll=arr=>arr.reduce((x,y)=>x^y,0);
+function makeBit(v,cls=''){const s=document.createElement('div');s.className='bit '+cls;s.textContent=v;return s;}
+const hdr=qs('#hdr');
+addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>24),{passive:true});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.15});
+qsa('.rv').forEach(el=>io.observe(el));
+function scramble(el,dur=1000){
+  const final=el.dataset.text||el.textContent;
+  if(RM){el.textContent=final;return;}
+  const chars='01010101<>/#*+=';
+  const start=performance.now();
+  (function frame(t){
+    const p=clamp((t-start)/dur,0,1),reveal=Math.floor(p*final.length);
+    let out='';
+    for(let i=0;i<final.length;i++){out+=i<reveal?final[i]:(final[i]===' '?' ':chars[irand(chars.length)]);}
+    el.textContent=out;
+    if(p<1)requestAnimationFrame(frame);else el.textContent=final;
+  })(start);
+}
+addEventListener('load',()=>{
+  scramble(qs('#titleA'),900);setTimeout(()=>scramble(qs('#titleB'),900),300);
+  const ioT=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){scramble(e.target,900);ioT.unobserve(e.target);}}),{threshold:.5});
+  ioT.observe(qs('#hamTitle'));
+});
+qs('#mqTrack').innerHTML+=qs('#mqTrack').innerHTML;
+/* ================= HERO CANVAS ================= */
+(function(){
+  const cv=qs('#heroCanvas');
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const w=innerWidth,h=Math.max(innerHeight,600);
+  cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  const bandL=w*.44,bandR=w*.62,rxX=w*.86;
+  let frames=[],sent=0,errs=0,last=performance.now(),spawnT=0;
+  function newFrame(){
+    const bits=Array.from({length:8},()=>irand(2));
+    const p=xorAll(bits);
+    return {x:-90,bits:[...bits,p],hit:false,checked:false,err:null};
+  }
+  function step(dt,now){
+    spawnT+=dt;
+    if(spawnT>1.05){spawnT=0;frames.push(newFrame());}
+    frames=frames.filter(f=>{
+      f.x+=62*dt;
+      if(!f.hit&&f.x+40>bandL&&f.x<bandR){
+        f.hit=true;
+        if(Math.random()<.34){const i=irand(9);f.bits[i]^=1;f.err=i;}
+      }
+      if(!f.checked&&f.x>rxX){
+        f.checked=true;sent++;
+        const ok=xorAll(f.bits)===0;
+        if(!ok)errs++;
+        qs('#heroSent').textContent=sent;
+        qs('#heroErr').textContent=errs;
+        qs('#heroBer').textContent=(sent?(errs/sent*100):0).toFixed(1)+'%';
+        qs('#heroOk').textContent=(sent?((sent-errs)/sent*100):100).toFixed(0)+'%';
+        f.flash=now;f.flashOk=ok;
+      }
+      return f.x<w+80;
+    });
+  }
+  function draw(now){
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle='rgba(93,111,143,.4)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,h*.52);ctx.lineTo(w,h*.52);ctx.stroke();
+    const gr=ctx.createLinearGradient(bandL,0,bandR,0);
+    gr.addColorStop(0,'rgba(255,93,122,0)');gr.addColorStop(.5,'rgba(255,93,122,.12)');gr.addColorStop(1,'rgba(255,93,122,0)');
+    ctx.fillStyle=gr;ctx.fillRect(bandL,h*.36,bandR-bandL,h*.32);
+    ctx.font='600 10px "IBM Plex Mono"';ctx.textAlign='center';
+    ctx.fillStyle='rgba(255,93,122,.7)';
+    ctx.fillText('⚡ CANALE RUMOROSO',(bandL+bandR)/2,h*.34);
+    ctx.fillStyle='rgba(93,111,143,.9)';
+    ctx.fillText('TX',40,h*.46);
+    ctx.fillText('RX',rxX,h*.46);
+    frames.forEach(f=>{
+      const cw=12,ch=15,gap=2;
+      const totW=9*(cw+gap);
+      const x0=f.x-totW/2,y0=h*.52-ch/2;
+      f.bits.forEach((b,i)=>{
+        const x=x0+i*(cw+gap);
+        const isPar=i===8;
+        if(f.err===i&&!f.checked){ctx.fillStyle='rgba(255,93,122,.9)';}
+        else if(b){ctx.fillStyle=isPar?'rgba(52,245,177,.85)':'rgba(77,163,255,.75)';}
+        else{ctx.fillStyle='rgba(20,32,58,.9)';}
+        ctx.strokeStyle=isPar?'rgba(52,245,177,.6)':'rgba(27,42,71,.9)';
+        ctx.lineWidth=1;
+        ctx.beginPath();ctx.roundRect(x,y0,cw,ch,2);ctx.fill();ctx.stroke();
+      });
+      if(f.flash&&now-f.flash<500){
+        const a=1-(now-f.flash)/500;
+        ctx.strokeStyle=f.flashOk?`rgba(52,245,177,${a})`:`rgba(255,93,122,${a})`;
+        ctx.lineWidth=2;
+        ctx.beginPath();ctx.arc(rxX,h*.52,18+(1-a)*22,0,TAU);ctx.stroke();
+      }
+    });
+    ctx.strokeStyle='rgba(77,163,255,.5)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(rxX,h*.4);ctx.lineTo(rxX,h*.64);ctx.stroke();
+  }
+  if(RM){draw(performance.now());}
+  else{
+    (function loop(now){
+      const dt=clamp((now-last)/1000,0,.05);last=now;
+      if(!document.hidden){step(dt,now);draw(now);}
+      requestAnimationFrame(loop);
+    })(last);
+  }
+})();
+/* ================= STICKY PROBLEMA ================= */
+(function(){
+  const blocks=qsa('.prob-block'),navBtns=qsa('#probNav button');
+  const data=[['01','Il canale è ostile'],['02','Il tasso d\'errore'],['03','La soluzione: ridondanza']];
+  const spy=new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(e.isIntersecting){
+        const i=+e.target.dataset.i;
+        qs('#probIndex').textContent=data[i][0];
+        qs('#probTitle').textContent=data[i][1];
+        navBtns.forEach(b=>b.classList.toggle('active',+b.dataset.i===i));
+        blocks.forEach(b=>b.classList.toggle('hot',+b.dataset.i===i));
+      }
+    });
+  },{rootMargin:'-42% 0px -42% 0px'});
+  blocks.forEach(b=>spy.observe(b));
+  navBtns.forEach(b=>b.onclick=()=>blocks[+b.dataset.i].scrollIntoView({behavior:RM?'auto':'smooth',block:'center'}));
+})();
+/* BER sim */
+(function(){
+  const grid=qs('#berGrid');
+  const N=128;
+  let base=[];
+  function regenBase(){base=Array.from({length:N},()=>irand(2));}
+  regenBase();
+  function render(){
+    const p=+qs('#berSlider').value;
+    qs('#berVal').textContent=p+'%';
+    grid.innerHTML='';
+    let errs=0;
+    base.forEach((b,i)=>{
+      const flip=Math.random()*100<p;
+      if(flip)errs++;
+      const v=flip?1-b:b;
+      const c=document.createElement('div');
+      c.className='bc'+(v?' one':'')+(flip?' flip':'');
+      c.textContent=v;
+      c.style.transitionDelay=(i*4)+'ms';
+      grid.appendChild(c);
+    });
+    qs('#berErrs').textContent=errs;
+    qs('#berMis').textContent=(errs/N*100).toFixed(1)+'%';
+  }
+  qs('#berSlider').addEventListener('input',render);
+  qs('#berRegen').onclick=()=>{regenBase();render();};
+  render();
+})();
+/* ================= LAB PARITÀ ================= */
+(function(){
+  const txW=qs('#ptxWord'),rxW=qs('#prxWord');
+  let tx=[1,0,1,1,0,1,0,0],mode='even',rx=null;
+  let det=0,miss=0,okc=0;
+  function parity(bits){const x=xorAll(bits);return mode==='even'?x:1-x;}
+  function buildCells(container,bits,withParity,cmp){
+    container.innerHTML='';
+    bits.forEach((b,i)=>{
+      const c=makeBit(b,'clickable');
+      c.onclick=()=>{tx[i]^=1;rx=null;render();};
+      container.appendChild(c);
+    });
+    if(withParity){
+      const g=document.createElement('div');g.className='gap';container.appendChild(g);
+      const p=makeBit(parity(bits),'parity');
+      container.appendChild(p);
+    }
+  }
+  function renderTx(){
+    txW.innerHTML='';
+    tx.forEach((b,i)=>{
+      const c=makeBit(b,'clickable');
+      c.onclick=()=>{tx[i]^=1;rx=null;render();};
+      txW.appendChild(c);
+    });
+    const g=document.createElement('div');g.className='gap';txW.appendChild(g);
+    txW.appendChild(makeBit(parity(tx),'parity'));
+    const exp=tx.join('⊕');
+    const x=xorAll(tx);
+    const p=parity(tx);
+    qs('#ptxFormula').innerHTML=`p = ${exp} = <b>${x}</b> → parità ${mode==='even'?'pari':'dispari'}: p = <b>${p}</b>  <span class="op">(XOR${mode==='even'?'':' + NOT'})</span>`;
+  }
+  function renderRx(){
+    rxW.innerHTML='';
+    if(!rx){
+      tx.concat([parity(tx)]).forEach(b=>rxW.appendChild(makeBit(b)));
+      const v=qs('#pVerdict');
+      v.className='verdict';v.textContent='In attesa di trasmissione… clicca i bit del trasmittente, poi genera rumore.';
+      return;
+    }
+    const ref=tx.concat([parity(tx)]);
+    let diff=0;
+    rx.forEach((b,i)=>{
+      const c=makeBit(b);
+      if(b!==ref[i]){c.classList.add('err');diff++;}
+      rxW.appendChild(c);
+    });
+    const rxParity=parity(rx.slice(0,8));
+    const v=qs('#pVerdict');
+    if(rxParity!==rx[8]){
+      v.className='verdict bad';
+      v.innerHTML='✗ ERRORE RILEVATO — la parità ricevuta non è rispettata ('+diff+' bit corrotto/i).';
+    }else{
+      if(diff>0){
+        v.className='verdict warn';
+        v.innerHTML='⚠ ERRORE NON RILEVATO! '+diff+' bit ribaltati: la parità combacia ma i dati sono corrotti.';
+      }else{
+        v.className='verdict good';
+        v.textContent='✓ PARITÀ OK — nessun errore rilevato.';
+      }
+    }
+  }
+  function render(){renderTx();renderRx();}
+  function noise(n){
+    rx=[...tx,parity(tx)];
+    const idxs=[];while(idxs.length<n){const i=irand(9);if(!idxs.includes(i))idxs.push(i);}
+    idxs.forEach(i=>rx[i]^=1);
+    const ref=tx.concat([parity(tx)]);
+    const diff=idxs.length;
+    const ok=parity(rx.slice(0,8))===rx[8];
+    if(!ok){det++;}
+    else if(diff>0){miss++;}
+    else{okc++;}
+    qs('#pDet').textContent=det;qs('#pMiss').textContent=miss;qs('#pOkc').textContent=okc;
+    render();
+  }
+  qs('#pNoise1').onclick=()=>noise(1);
+  qs('#pNoise2').onclick=()=>noise(2);
+  qs('#pSend').onclick=()=>{rx=null;okc++;qs('#pOkc').textContent=okc;render();};
+  qs('#pReset').onclick=()=>{tx=[1,0,1,1,0,1,0,0];rx=null;render();};
+  qs('#modeEven').onclick=()=>{mode='even';qs('#modeEven').classList.add('on');qs('#modeOdd').classList.remove('on');rx=null;render();};
+  qs('#modeOdd').onclick=()=>{mode='odd';qs('#modeOdd').classList.add('on');qs('#modeEven').classList.remove('on');rx=null;render();};
+  render();
+})();
+/* ================= LAB PARITÀ 2D ================= */
+(function(){
+  const el=qs('#grid2d');
+  const R=4,C=4;
+  let base,grid;
+  function init(){
+    base=Array.from({length:R*C},()=>irand(2));
+    grid=[...base];
+    render();
+  }
+  function rowParity(g,r){let s=0;for(let c=0;c<C;c++)s^=g[r*C+c];return s;}
+  function colParity(g,c){let s=0;for(let r=0;r<R;r++)s^=g[r*C+c];return s;}
+  function render(badR=[],badC=[],fixCell=-1){
+    el.innerHTML='';
+    for(let r=0;r<R;r++){
+      for(let c=0;c<C;c++){
+        const i=r*C+c;
+        const cell=makeBit(grid[i],'cell clickable');
+        cell.onclick=()=>{grid[i]^=1;render();setVerdict('Cella modificata: premi "Localizza".','');};
+        if(i===fixCell)cell.classList.add('err');
+        el.appendChild(cell);
+      }
+      el.appendChild(makeBit(rowParity(grid,r),'cell rp'+(badR.includes(r)?' bad-row':'')));
+    }
+    for(let c=0;c<C;c++){
+      el.appendChild(makeBit(colParity(grid,c),'cell rp'+(badC.includes(c)?' bad-row':'')));
+    }
+    el.appendChild(makeBit('','cell').style?document.createElement('div'):document.createElement('div'));
+  }
+  function setVerdict(msg,cls){const v=qs('#gVerdict');v.className='verdict '+cls;v.innerHTML=msg;}
+  function check(){
+    const badR=[],badC=[];
+    for(let r=0;r<R;r++)if(rowParity(grid,r)!==rowParity(base,r))badR.push(r);
+    for(let c=0;c<C;c++)if(colParity(grid,c)!==colParity(base,c))badC.push(c);
+    if(badR.length===0&&badC.length===0){
+      render();setVerdict('✓ Nessuna parità fallita: il blocco è integro (o gli errori si sono compensati su righe/colonne diverse in numero pari).','good');
+      qs('#gFix').disabled=true;return null;
+    }
+    if(badR.length===1&&badC.length===1){
+      const r=badR[0],c=badC[0];
+      render(badR,badC,r*C+c);
+      setVerdict('🎯 Errore localizzato: riga '+(r+1)+', colonna '+(c+1)+'. La sindrome (LRC+VRC) punta a un unico bit: si può correggere.','bad');
+      qs('#gFix').disabled=false;
+      return r*C+c;
+    }
+    render(badR,badC);
+    setVerdict('⚠ Più parità fallite ('+badR.length+' righe, '+badC.length+' colonne): errori multipli rilevati ma non correggibili con certezza.','warn');
+    qs('#gFix').disabled=true;
+    return null;
+  }
+  qs('#gNoise').onclick=()=>{grid=[...base];const i=irand(R*C);grid[i]^=1;render();setVerdict('Errore iniettato da qualche parte nel blocco. Premi "Localizza".','');qs('#gFix').disabled=true;};
+  qs('#gCheck').onclick=check;
+  qs('#gFix').onclick=()=>{
+    const t=check();
+    if(t===null)return;
+    grid[t]^=1;base=[...grid];
+    render();
+    setVerdict('✓ Bit corretto e blocco ripristinato: tutte le parità tornano valide.','good');
+    qs('#gFix').disabled=true;
+  };
+  qs('#gReset').onclick=()=>{init();setVerdict('Matrice integra. Inietta un errore per vedere la localizzazione.','');qs('#gFix').disabled=true;};
+  init();
+})();
+/* ================= LAB CHECKSUM ================= */
+(function(){
+  let b1=0b01101001,b2=0b00110101,orig1,orig2;
+  function val(x){return x;}
+  function renderByte(el,b){
+    el.innerHTML='';
+    for(let i=7;i>=0;i--){
+      const bit=(b>>i)&1;
+      const c=makeBit(bit,'clickable');
+      const idx=7-i;
+      c.onclick=()=>{
+        if(el.id==='csB1')b1^=(1<<(7-idx));else b2^=(1<<(7-idx));
+        renderAll();
+      };
+      el.appendChild(c);
+    }
+  }
+  function renderAll(){
+    renderByte(qs('#csB1'),b1);renderByte(qs('#csB2'),b2);
+    const sum=(b1+b2)%256;
+    qs('#csFormula').innerHTML=`${b1} + ${b2} = ${b1+b2} → mod 256 → checksum = <b>${sum}</b> = ${sum.toString(2).padStart(8,'0')}`;
+    const v=qs('#csVerdict');
+    const recomputed=(b1+b2)%256;
+    const origSum=(orig1+orig2)%256;
+    const changed=(b1!==orig1)||(b2!==orig2);
+    if(!changed){v.className='verdict good';v.textContent='✓ Messaggio integro: checksum coerente.';}
+    else if(recomputed===origSum){v.className='verdict warn';v.textContent='⚠ Dati modificati ma checksum invariato: errore NON rilevato (compensazione).';}
+    else{v.className='verdict bad';v.textContent='✗ Checksum diverso: errore rilevato ('+origSum+' → '+recomputed+').';}
+  }
+  qs('#csNoise').onclick=()=>{
+    const which=Math.random()<.5;
+    if(which)b1^=(1<<irand(8));else b2^=(1<<irand(8));
+    renderAll();
+  };
+  qs('#csReset').onclick=()=>{b1=orig1=0b01101001;b2=orig2=0b00110101;renderAll();};
+  orig1=b1;orig2=b2;
+  renderAll();
+})();
+/* ================= LAB CRC ================= */
+(function(){
+  const G=[1,0,0,1,1];
+  let msg=[1,0,1,1,0,1,0,0];
+  let steps=[],stepIdx=0,autoT=null,done=false,codeword=null,rxWord=null;
+  const board=qs('#crcBoard');
+  function dividend(){return [...msg,0,0,0,0];}
+  function computeSteps(){
+    steps=[];const div=dividend();
+    let win=div.slice(0,5),pos=0;
+    for(let i=5;i<=12;i++){
+      if(win[0]===1){
+        const res=win.map((b,k)=>b^G[k]);
+        steps.push({pos,G:[...G],res});
+        win=res;
+      }
+      if(i<12){win=win.slice(1);win.push(div[i]);pos++;}
+    }
+    if(win[0]===1){
+      const res=win.map((b,k)=>b^G[k]);
+      steps.push({pos,G:[...G],res,final:true});
+      win=res;
+    }
+    return win.slice(1);
+  }
+  let remainder=null;
+  function renderBoard(){
+    board.innerHTML='';
+    const idxRow=document.createElement('div');idxRow.className='bit-idx-row';
+    for(let i=0;i<12;i++){const s=document.createElement('span');s.textContent=i;idxRow.appendChild(s);}
+    board.appendChild(idxRow);
+    const l0=document.createElement('div');l0.className='crc-line dividend';
+    l0.appendChild(gut());
+    dividend().forEach((b,i)=>{const s=document.createElement('div');s.className='cb'+(i>=8?' zero-pad':'');s.textContent=b;l0.appendChild(s);});
+    const n0=document.createElement('div');n0.className='note';n0.textContent='dividendo = msg + 0000';l0.appendChild(n0);
+    board.appendChild(l0);
+    for(let s=0;s<stepIdx;s++){
+      const st=steps[s];
+      const lOp=document.createElement('div');lOp.className='crc-line op';
+      lOp.appendChild(gut('⊕'));
+      for(let k=0;k<12;k++){
+        const cell=document.createElement('div');cell.className='cb';
+        cell.textContent=(k>=st.pos&&k<st.pos+5)?st.G[k-st.pos]:'·';
+        lOp.appendChild(cell);
+      }
+      const nOp=document.createElement('div');nOp.className='note';nOp.textContent='XOR con G (finestra inizia a '+st.pos+')';
+      lOp.appendChild(nOp);board.appendChild(lOp);
+      const lRes=document.createElement('div');lRes.className='crc-line res'+(st.final?' final':'');
+      lRes.appendChild(gut('='));
+      for(let k=0;k<12;k++){
+        const cell=document.createElement('div');cell.className='cb';
+        if(k>=st.pos&&k<st.pos+5){cell.textContent=st.res[k-stPosSafe(st,k)];if(st.res[k-stPosSafe(st,k)]!==undefined&&k>=st.pos+1)cell.classList.add('changed');}
+        else cell.textContent='·';
+        lRes.appendChild(cell);
+      }
+      const nRes=document.createElement('div');nRes.className='note';nRes.textContent=st.final?'resto finale (4 bit)':'poi shift: esce lo 0, entra il bit successivo';
+      lRes.appendChild(nRes);board.appendChild(lRes);
+    }
+  }
+  function stPosSafe(st,k){return k-st.pos;}
+  function gut(t=''){const g=document.createElement('div');g.className='gutter';g.textContent=t||'';return g;}
+  function stepOnce(){
+    if(done)return;
+    if(stepIdx<steps.length){
+      stepIdx++;renderBoard();
+      if(stepIdx===steps.length){
+        done=true;
+        remainder=steps[steps.length-1].res.slice(1);
+        qs('#crcDivVerdict').className='verdict good';
+        qs('#crcDivVerdict').innerHTML='✓ Divisione completata. Resto = <b>'+remainder.join('')+'</b> → questo è il CRC. Codeword = messaggio + CRC.';
+        showTx();
+      }else{
+        qs('#crcDivVerdict').className='verdict';
+        qs('#crcDivVerdict').textContent='Passo '+stepIdx+'/'+steps.length+' eseguito.';
+      }
+    }
+  }
+  function showTx(){
+    codeword=[...msg,...remainder];
+    rxWord=[...codeword];
+    qs('#crcTxZone').style.display='block';
+    renderTx();
+    qs('#crcRxVerdict').style.display='none';
+  }
+  function renderTx(){
+    const el=qs('#crcTx');el.innerHTML='';
+    rxWord.forEach((b,i)=>{
+      const c=makeBit(b,i>=8?'parity':'');
+      if(codeword&&b!==codeword[i])c.classList.add('err');
+      el.appendChild(c);
+    });
+  }
+  function crcOf(bits){
+    let win=bits.slice(0,5),pos=0;
+    for(let i=5;i<=bits.length;i++){
+      if(win[0]===1){win=win.map((b,k)=>b^G[k]);}
+      if(i<bits.length){win=win.slice(1);win.push(bits[i]);}
+    }
+    if(win[0]===1){win=win.map((b,k)=>b^G[k]);}
+    return win.slice(1);
+  }
+  qs('#crcStep').onclick=stepOnce;
+  qs('#crcAuto').onclick=()=>{
+    if(autoT){clearInterval(autoT);autoT=null;return;}
+    autoT=setInterval(()=>{
+      if(done||stepIdx>=steps.length){clearInterval(autoT);autoT=null;return;}
+      stepOnce();
+    },550);
+  };
+  qs('#crcClear').onclick=()=>{stepIdx=0;done=false;computeSteps();renderBoard();qs('#crcTxZone').style.display='none';qs('#crcDivVerdict').className='verdict';qs('#crcDivVerdict').textContent='Premi "Passo" per eseguire la divisione.';if(autoT){clearInterval(autoT);autoT=null;}};
+  qs('#crcRand').onclick=()=>{msg=Array.from({length:8},()=>irand(2));qs('#crcClear').onclick();renderMsg();};
+  qs('#crcNoise').onclick=()=>{if(!codeword)return;rxWord=[...codeword];rxWord[irand(12)]^=1;renderTx();const v=qs('#crcRxVerdict');v.style.display='block';v.className='verdict';v.textContent='Bit corrotto in transito (evidenziato). Premi "Verifica lato ricevente".';};
+  qs('#crcResend').onclick=()=>{if(!codeword)return;rxWord=[...codeword];renderTx();const v=qs('#crcRxVerdict');v.style.display='block';v.className='verdict good';v.textContent='✓ Codeword ritrasmesso pulito.';};
+  qs('#crcVerify').onclick=()=>{
+    if(!rxWord)return;
+    const rem=crcOf(rxWord);
+    const v=qs('#crcRxVerdict');v.style.display='block';
+    if(rem.every(b=>b===0)){v.className='verdict good';v.innerHTML='✓ Resto = 0000 → il codeword è integro.';}
+    else{v.className='verdict bad';v.innerHTML='✗ Resto = '+rem.join('')+' ≠ 0000 → ERRORE RILEVATO: il messaggio va richiesto di nuovo (ARQ).';}
+  };
+  function renderMsg(){
+    const el=qs('#crcMsg');el.innerHTML='';
+    msg.forEach((b,i)=>{
+      const c=makeBit(b,'clickable');
+      c.onclick=()=>{msg[i]^=1;qs('#crcClear').onclick();renderMsg();};
+      el.appendChild(c);
+    });
+  }
+  computeSteps();
+  renderMsg();renderBoard();
+})();
+/* ================= LAB HAMMING ================= */
+(function(){
+  const COV={p1:[1,3,5,7],p2:[2,3,6,7],p4:[4,5,6,7]};
+  let d=[1,0,1,1],tx=null,rx=null,secded=false,lastErrCount=0;
+  function encode(){
+    const cw=new Array(secded?8:7).fill(0);
+    const off=secded?1:0;
+    cw[off+2]=d[0];cw[off+4]=d[1];cw[off+5]=d[2];cw[off+6]=d[3];
+    cw[off+0]=cw[off+2]^cw[off+4]^cw[off+6];
+    cw[off+1]=cw[off+2]^cw[off+5]^cw[off+6];
+    cw[off+3]=cw[off+4]^cw[off+5]^cw[off+6];
+    if(secded){cw[0]=xorAll(cw.slice(1));}
+    return cw;
+  }
+  function renderData(){
+    const el=qs('#hData');el.innerHTML='';
+    d.forEach((b,i)=>{
+      const c=makeBit(b,'clickable');
+      c.onclick=()=>{d[i]^=1;tx=encode();rx=[...tx];lastErrCount=0;renderAll();};
+      el.appendChild(c);
+    });
+    const off=secded?1:0;
+    qs('#hEncode').innerHTML=
+      `d = ${d.join('')} → P₁=${tx[off+0]} P₂=${tx[off+1]} P₄=${tx[off+3]}`+
+      (secded?` · P₀=${tx[0]}`:'')+
+      `<br>codeword = <b>${tx.join('')}</b>`;
+    const cov=qs('#hCover');cov.innerHTML='';
+    [['P₁','p1'],['P₂','p2'],['P₄','p4']].forEach(([lab,key])=>{
+      const row=document.createElement('div');row.className='cover-row';
+      const l=document.createElement('div');l.className='cr-l';l.textContent=lab;row.appendChild(l);
+      const cells=document.createElement('div');cells.className='cr-cells';
+      for(let p=1;p<=7;p++){
+        const cc=document.createElement('div');
+        cc.className='cc'+(COV[key].includes(p)?' in':'');
+        cc.textContent=p;
+        cells.appendChild(cc);
+      }
+      row.appendChild(cells);cov.appendChild(row);
+    });
+  }
+  function syndrome(word){
+    const off=secded?1:0;
+    const s1=word[off+0]^word[off+2]^word[off+4]^word[off+6];
+    const s2=word[off+1]^word[off+2]^word[off+5]^word[off+6];
+    const s4=word[off+3]^word[off+4]^word[off+5]^word[off+6];
+    return {s1,s2,s4,S:s4*4+s2*2+s1};
+  }
+  function renderRx(){
+    const el=qs('#hRx');el.innerHTML='';
+    if(!rx){el.innerHTML='<span style="font-family:var(--fm);font-size:.78rem;color:var(--faint)">—</span>';qs('#hSynd').innerHTML='';return;}
+    const {S}=syndrome(rx);
+    const off=secded?1:0;
+    rx.forEach((b,i)=>{
+      const c=makeBit(b);
+      const pos=secded?i:i+1;
+      if(tx&&b!==tx[i])c.classList.add('err');
+      if(S!==0&&pos===S)c.classList.add('hl');
+      if(secded&&i===0)c.classList.add('parity');
+      el.appendChild(c);
+    });
+    const sy=qs('#hSynd');sy.innerHTML='';
+    const {s1,s2,s4}=syndrome(rx);
+    const rows=[
+      ['s₁ = r₁⊕r₃⊕r₅⊕r₇',s1,rx[off+0],rx[off+2],rx[off+4],rx[off+6]],
+      ['s₂ = r₂⊕r₃⊕r₆⊕r₇',s2,rx[off+1],rx[off+2],rx[off+5],rx[off+6]],
+      ['s₄ = r₄⊕r₅⊕r₆⊕r₇',s4,rx[off+3],rx[off+4],rx[off+5],rx[off+6]]
+    ];
+    rows.forEach(([lab,val,a,b,c,dd])=>{
+      const r=document.createElement('div');
+      r.className='seq'+(val?' hot':'');
+      r.innerHTML=`${lab} = ${a}⊕${b}⊕${c}⊕${dd} = <b>${val}</b>`;
+      sy.appendChild(r);
+    });
+    const total=document.createElement('div');
+    total.className='seq';
+    total.innerHTML=`S = s₄s₂s₁ = <b>${s4}${s2}${s1}</b> → posizione <b>${s4*4+s2*2+s1}</b>`+(S===0?' · nessuna':'');
+    sy.appendChild(total);
+    if(secded){
+      const ov=xorAll(rx);
+      const t2=document.createElement('div');t2.className='seq'+(ov?' hot':'');
+      t2.innerHTML=`parità globale: XOR di tutti gli 8 bit = <b>${ov}</b> (${ov?'numero dispari di errori':'numero pari di errori'})`;
+      sy.appendChild(t2);
+    }
+  }
+  function updateVerdict(){
+    const v=qs('#hVerdict');
+    if(!rx){v.className='verdict';v.textContent='Modifica i dati, poi inietta errori nel canale.';qs('#hFix').disabled=true;return;}
+    const {S}=syndrome(rx);
+    if(secded){
+      const ov=xorAll(rx);
+      if(ov===0&&S===0){v.className='verdict good';v.textContent='✓ SECDED: nessuna anomalia. Codeword integro.';qs('#hFix').disabled=true;return;}
+      if(ov===1&&S!==0){v.className='verdict bad';v.innerHTML='✗ Errore singolo in posizione <b>'+S+'</b>: correggibile. Premi "Correggi".';qs('#hFix').disabled=false;return;}
+      if(ov===1&&S===0){v.className='verdict bad';v.textContent='✗ Errore nel bit di parità globale P₀: correggibile.';qs('#hFix').disabled=false;return;}
+      v.className='verdict warn';v.innerHTML='⚠ Parità globale ok ma sindrome ≠ 0 → <b>DOPPIO ERRORE</b>: rilevato ma NON correggibile (serve ritrasmissione).';
+      qs('#hFix').disabled=true;return;
+    }
+    if(S===0){v.className='verdict good';v.textContent='✓ Sindrome 000: nessun errore rilevato.';qs('#hFix').disabled=true;return;}
+    v.className='verdict bad';
+    v.innerHTML='✗ Sindrome <b>'+S.toString(2).padStart(3,'0')+'</b> → errore in posizione <b>'+S+'</b>. Premi "Correggi" per ribaltare il bit.';
+    qs('#hFix').disabled=false;
+  }
+  function renderAll(){renderData();renderRx();updateVerdict();}
+  function noise(n){
+    if(!tx)return;
+    rx=[...tx];
+    const len=rx.length;
+    const idxs=[];while(idxs.length<n){const i=secded?irand(len):irand(7);if(!idxs.includes(i))idxs.push(i);}
+    idxs.forEach(i=>rx[i]^=1);
+    lastErrCount=n;
+    renderRx();updateVerdict();
+  }
+  qs('#hNoise1').onclick=()=>noise(1);
+  qs('#hNoise2').onclick=()=>noise(2);
+  qs('#hResend').onclick=()=>{rx=[...tx];renderRx();updateVerdict();};
+  qs('#hReset').onclick=()=>{d=[1,0,1,1];tx=encode();rx=[...tx];renderAll();};
+  qs('#hFix').onclick=()=>{
+    const {S}=syndrome(rx);
+    if(secded){
+      const ov=xorAll(rx);
+      if(ov===1){rx[S===0?0:S]^=1;}
+      renderRx();updateVerdict();return;
+    }
+    if(S===0)return;
+    rx[S-1]^=1;
+    const check=syndrome(rx);
+    if(check.S===0){
+      renderRx();
+      const v=qs('#hVerdict');v.className='verdict good';
+      v.textContent='✓ Bit in posizione '+S+' ribaltato: sindrome azzerata, codeword corretto senza ritrasmissione!';
+      qs('#hFix').disabled=true;
+    }else{
+      renderRx();
+      const v=qs('#hVerdict');v.className='verdict warn';
+      v.innerHTML='⚠ La correzione ha prodotto una nuova sindrome: gli errori erano probabilmente <b>due</b> e Hamming(7,4) li ha scambiati per uno. Attiva <b>SECDED</b> per rilevarli.';
+      qs('#hFix').disabled=true;
+    }
+  };
+  qs('#secdedToggle').onchange=e=>{secded=e.target.checked;tx=encode();rx=[...tx];renderAll();};
+  tx=encode();rx=[...tx];
+  renderAll();
+})();
+/* ================= CONFRONTO BARS ================= */
+(function(){
+  const data=[
+    ['Bit di parità','1 bit su 8',12,3,0],
+    ['Parità 2D (VRC+LRC)','9 bit su 16',56,6,4],
+    ['Checksum 8 bit','8 bit su 16',50,5,0],
+    ['CRC-4','4 bit su 12',33,8,0],
+    ['CRC-16 (frame brevi)','16 bit su 16',100,10,0],
+    ['Hamming (7,4)','3 bit su 7',43,4,8],
+    ['SECDED (8,4)','4 bit su 8',50,7,8]
+  ];
+  const wrap=qs('#barsWrap');
+  data.forEach(([name,note,ov,det,cor])=>{
+    wrap.insertAdjacentHTML('beforeend',`
+      <div class="bar-row"><div class="bl">${name}<small>${note}</small></div>
+      <div class="bar-track">
+        <div class="bar-line"><div class="bar-bg"><div class="bar-fill f1" data-v="${ov}"></div></div><div class="bar-val">${ov}%</div></div>
+        <div class="bar-line"><div class="bar-bg"><div class="bar-fill f2" data-v="${det*10}"></div></div><div class="bar-val">${det}/10</div></div>
+        <div class="bar-line"><div class="bar-bg"><div class="bar-fill f3" data-v="${cor*10}"></div></div><div class="bar-val">${cor}/10</div></div>
+      </div></div>`);
+  });
+  const ioB=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){qsa('.bar-fill').forEach(f=>f.style.width=(+f.dataset.v)+'%');ioB.disconnect();}
+  }),{threshold:.3});
+  ioB.observe(qs('#barsBlock'));
+})();
+/* ================= QUIZ ================= */
+(function(){
+  const QUIZ=[
+    {q:"1. Cosa rileva un bit di parità pari?",
+     opts:["Solo gli errori sul bit di parità","Qualsiasi numero dispari di bit ribaltati (quindi anche uno singolo)","Qualsiasi numero di errori, sempre due alla volta","Gli errori solo sui bit pari"],
+     a:1,why:"La parità controlla se il numero di 1 è pari o dispari: ribaltare un numero dispari di bit cambia sempre la parità, quindi viene rilevato. Due errori si compensano e passano inosservati."},
+    {q:"2. Con parità pari, quale bit di parità accompagna la parola 10110100?",
+     opts:["0, perché gli 1 sono già in numero pari (4)","1, perché bisogna rendere pari il totale","Dipende dal protocollo","Non si può calcolare senza il CRC"],
+     a:0,why:"La parola contiene quattro 1, già pari: con parità pari il bit aggiunto è 0, per mantenere pari il totale."},
+    {q:"3. Qual è il limite fondamentale del solo bit di parità?",
+     opts:["Raddoppia la dimensione del messaggio","Non può correggere l'errore: sa che c'è, ma non dove si trova","Funziona solo sulle fibre ottiche","Rileva sempre anche gli errori doppi"],
+     a:1,why:"La parità è un codice a distanza 2: rileva l'errore singolo ma non contiene abbastanza informazione per localizzarlo, quindi serve la ritrasmissione (ARQ)."},
+    {q:"4. Nel codice di Hamming (7,4), quanti bit di ridondanza si aggiungono?",
+     opts:["1","2","3","4"],
+     a:2,why:"Hamming (7,4): 4 bit di dati + 3 bit di parità (P1, P2, P4) = 7 bit totali. Tre parità bastano perché la sindrome a 3 bit può indicare 7 posizioni + lo stato 'nessun errore'."},
+    {q:"5. Se la sindrome vale s₄s₂s₁ = 101, dove si trova l'errore?",
+     opts:["Posizione 3","Posizione 5","Posizione 6","Non si può sapere"],
+     a:1,why:"La sindrome si legge come numero binario: 101₂ = 5. L'errore è nella posizione 5 del codeword, e Hamming lo corregge ribaltandola."},
+    {q:"6. Su quale operazione matematica si basa il CRC?",
+     opts:["Somma di tutti i byte","Divisione polinomiale con XOR dei bit","Moltiplicazione dei bit per una chiave segreta","Compressione del messaggio"],
+     a:1,why:"Il CRC interpreta i bit come coefficienti di un polinomio e lo divide per il polinomio generatore G usando XOR: il resto è la firma del messaggio."},
+    {q:"7. Cosa significa SECDED, usato nelle RAM ECC?",
+     opts:["Single Error Correction, Double Error Detection","Secure Encoded Data, Extended Driver","Standard Error Check, Dual Encoding","Sistema che corregge solo gli errori doppi"],
+     a:0,why:"SECDED = corregge un errore singolo e rileva (senza correggere) gli errori doppi: si ottiene aggiungendo un bit di parità globale al codice di Hamming."},
+    {q:"8. Quale di questi codici è in grado di CORREGGERE un errore?",
+     opts:["Bit di parità","Checksum","CRC","Codice di Hamming"],
+     a:3,why:"Parità, checksum e CRC sono codici di sola rilevazione. Hamming, grazie alla struttura della sindrome, localizza e corregge l'errore singolo senza ritrasmissione."}
+  ];
+  const L=['A','B','C','D'];
+  let idx=0,score=0,answered=false;
+  const box=qs('#quizBox'),res=qs('#quizResult');
+  function render(){
+    answered=false;
+    const q=QUIZ[idx];
+    qs('#qCount').textContent=(idx+1)+' / '+QUIZ.length;
+    qs('#qProg').style.width=(idx/QUIZ.length*100)+'%';
+    qs('#qText').textContent=q.q;
+    const optBox=qs('#qOptions');optBox.innerHTML='';
+    q.opts.forEach((o,i)=>{
+      const b=document.createElement('button');
+      b.className='opt';b.innerHTML=`<span class="ol">${L[i]}</span><span>${o}</span>`;
+      b.onclick=()=>answer(i,b);
+      optBox.appendChild(b);
+    });
+    qs('#qFeedback').className='q-feedback';
+    qs('#qNext').style.display='none';
+  }
+  function answer(i,btn){
+    if(answered)return;answered=true;
+    const q=QUIZ[idx],fb=qs('#qFeedback');
+    const opts=qsa('.opt');opts.forEach(o=>o.disabled=true);
+    if(i===q.a){
+      score++;btn.classList.add('ok');
+      fb.className='q-feedback show good';
+      fb.innerHTML='<b>✓ Corretto</b>'+q.why;
+    }else{
+      btn.classList.add('bad');opts[q.a].classList.add('ok');
+      opts.forEach((o,j)=>{if(j!==i&&j!==q.a)o.classList.add('dim');});
+      fb.className='q-feedback show evil';
+      fb.innerHTML='<b>✗ Non esattamente</b>'+q.why;
+    }
+    qs('#qProg').style.width=((idx+1)/QUIZ.length*100)+'%';
+    const nx=qs('#qNext');nx.style.display='inline-flex';
+    nx.textContent=idx===QUIZ.length-1?'Vedi il risultato ▸':'Prossima domanda ▸';
+  }
+  qs('#qNext').onclick=()=>{idx++;if(idx>=QUIZ.length)showResult();else render();};
+  function showResult(){
+    box.style.display='none';res.classList.add('show');
+    qs('#scoreNum').textContent=score+'/'+QUIZ.length;
+    const C=339.3;
+    requestAnimationFrame(()=>{qs('#ringFg').style.strokeDashoffset=C*(1-score/QUIZ.length);});
+    const v=[
+      ['Ripassa la teoria','Rileggi i laboratori e riprova.'],
+      ['Apprendista','Buon inizio, ma parità e sindrome vanno consolidate.'],
+      ['Tecnico in crescita','Conosci le basi: approfondisci CRC e Hamming.'],
+      ['Junior Engineer','Ottima preparazione, manca poco.'],
+      ['Network Engineer','Molto bene: padroneggi rilevazione e correzione.'],
+      ['Senior Engineer','Eccellente, un solo dettaglio ti separa dalla perfezione.'],
+      ['Error Control Specialist','Quasi perfetto: i codici non hanno più segreti.'],
+      ['Master dei codici 🏆','Punteggio pieno! Hamming sarebbe fiero di te.']
+    ][score];
+    qs('#verdict').textContent=v[0];
+    qs('#verdictMsg').textContent=v[1];
+  }
+  qs('#btnRestart').onclick=()=>{
+    idx=0;score=0;box.style.display='block';res.classList.remove('show');
+    qs('#ringFg').style.strokeDashoffset=339.3;render();
+  };
+  render();
+})();
+</script>
+</body>
+</html>
