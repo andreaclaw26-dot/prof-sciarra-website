@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLUETOOTH — Lezione Interattiva</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 3 L22 9 L18 13 L22 17 L16 23 L16 3 M16 13 L10 7 M16 13 L10 19' stroke='%230082FC' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05080f; --bg2:#080d19; --panel:#0c1424; --panel2:#101c38;
+  --line:#1b2a47; --line-soft:#14203a;
+  --ink:#e9f1f7; --muted:#8ea1bd; --faint:#5c6f8f;
+  --bt:#0082FC; --bt-dim:rgba(0,130,252,.12);
+  --bt2:#3b9eff; --bt2-dim:rgba(59,158,255,.12);
+  --ok:#10b981; --ok-dim:rgba(16,185,129,.12);
+  --err:#ff5d7a; --err-dim:rgba(255,93,122,.12);
+  --am:#f59e0b; --am-dim:rgba(245,158,11,.1);
+  --vi:#a78bfa; --vi-dim:rgba(167,139,250,.12);
+  --fd:'Unbounded',sans-serif; --fb:'Space Grotesk',sans-serif; --fm:'IBM Plex Mono',monospace; --fc:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;overflow-x:hidden;
+  background-image:radial-gradient(900px 500px at 85% -5%,rgba(0,130,252,.08),transparent 60%),
+    radial-gradient(800px 500px at 5% 30%,rgba(59,158,255,.05),transparent 60%);}
+::selection{background:var(--bt);color:#001a24}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+section{scroll-margin-top:84px;position:relative}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.grid-bg::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,#000 30%,transparent 75%);}
+.noise{position:fixed;inset:0;z-index:200;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+.kicker{font-family:var(--fm);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.7rem}
+.kicker::before{content:"";width:9px;height:9px;background:var(--bt);box-shadow:0 0 12px var(--bt)}
+.kicker.b2::before{background:var(--bt2);box-shadow:0 0 12px var(--bt2)}
+.kicker.a::before{background:var(--am);box-shadow:0 0 12px var(--am)}
+.kicker.g::before{background:var(--ok);box-shadow:0 0 12px var(--ok)}
+.kicker.r::before{background:var(--err);box-shadow:0 0 12px var(--err)}
+.kicker.v::before{background:var(--vi);box-shadow:0 0 12px var(--vi)}
+h2.sec-title{font-family:var(--fd);font-weight:700;font-size:clamp(1.7rem,3.6vw,2.9rem);line-height:1.12;margin:.8rem 0 .6rem;letter-spacing:-.01em}
+.sec-head{margin-bottom:2.6rem;max-width:800px}
+.sec-head p{color:var(--muted);font-size:1.05rem}
+.sec-head p b{color:var(--ink);font-weight:600}
+.sec-head p code{font-family:var(--fc);font-size:.86em;background:var(--bt-dim);color:var(--bt);padding:1px 7px;border-radius:4px}
+.sec-head p em{color:var(--bt2);font-style:normal;font-weight:600}
+.sec{padding:110px 0}
+.sec-alt{background:var(--bg2)}
+.num-ghost{font-family:var(--fd);font-weight:900;color:transparent;-webkit-text-stroke:1px var(--line);font-size:clamp(3rem,7vw,5rem);position:absolute;right:24px;top:-14px;user-select:none;pointer-events:none}
+
+header{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px 14px 152px;display:flex;align-items:center;justify-content:space-between;transition:background .35s,border-color .35s;border-bottom:1px solid transparent;gap:.8rem}
+header.scrolled{background:rgba(5,8,15,.85);backdrop-filter:blur(12px);border-color:var(--line-soft)}
+.logo{font-family:var(--fd);font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.6rem;white-space:nowrap;flex-shrink:0}
+.logo .rune{font-size:1.1rem;color:var(--bt);text-shadow:0 0 10px var(--bt)}
+.logo b{color:var(--bt)}
+nav.main-nav{display:flex;gap:1.1rem;font-family:var(--fm);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase}
+nav.main-nav a{color:var(--muted);transition:color .25s;position:relative;padding:4px 0;white-space:nowrap}
+nav.main-nav a:hover{color:var(--bt)}
+nav.main-nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--bt);transition:width .3s}
+nav.main-nav a:hover::after{width:100%}
+.live-chip{font-family:var(--fm);font-size:.68rem;letter-spacing:.18em;border:1px solid var(--line);padding:6px 12px;border-radius:99px;display:flex;align-items:center;gap:8px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.live-chip i{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+@media(max-width:1460px){.live-chip{display:none}}
+@media(max-width:1240px){nav.main-nav{display:none}}
+
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%}
+.hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.4) 0%,rgba(5,8,15,.12) 40%,rgba(5,8,15,.94) 100%);pointer-events:none}
+.hero-inner{position:relative;z-index:2;padding:130px 0 40px;width:100%}
+.hero-grid{display:grid;grid-template-columns:1.35fr .85fr;gap:3rem;align-items:end}
+.hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(2.2rem,6vw,4.9rem);line-height:1.03;letter-spacing:-.015em}
+.hero h1 .l2{display:block;color:transparent;-webkit-text-stroke:1.5px var(--bt);font-weight:700;font-size:.68em;margin-top:.35em}
+.hero .lead{margin-top:1.6rem;max-width:580px;color:var(--muted);font-size:1.08rem}
+.hero .lead b{color:var(--bt);font-weight:600}
+.hero .lead em{color:var(--bt2);font-style:normal;font-weight:600}
+.hero .lead code{font-family:var(--fc);font-size:.88em;background:var(--bt-dim);color:var(--bt);padding:1px 7px;border-radius:4px}
+.hero-cta{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.hstat{background:rgba(10,16,30,.75);backdrop-filter:blur(6px);padding:1.05rem 1.2rem}
+.hstat .hl{font-family:var(--fm);font-size:.6rem;letter-spacing:.22em;color:var(--faint);text-transform:uppercase}
+.hstat .hv{font-family:var(--fd);font-weight:600;font-size:1.45rem;margin-top:.3rem}
+.hv.b{color:var(--bt)} .hv.b2{color:var(--bt2)} .hv.a{color:var(--am)} .hv.g{color:var(--ok)}
+.scroll-cue{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;width:1px;height:52px;background:var(--line);overflow:hidden}
+.scroll-cue::after{content:"";position:absolute;left:0;top:-20px;width:1px;height:20px;background:var(--bt);animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{to{top:60px}}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.hero-stats{max-width:420px}}
+
+.btn{font-family:var(--fm);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;padding:.85rem 1.4rem;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);transition:all .25s;display:inline-flex;align-items:center;gap:.6rem}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn-bt{border-color:rgba(0,130,252,.5);color:var(--bt);background:var(--bt-dim)}
+.btn-bt:hover{background:rgba(0,130,252,.22);box-shadow:0 6px 24px -6px rgba(0,130,252,.5)}
+.btn-bt2{border-color:rgba(59,158,255,.5);color:var(--bt2);background:var(--bt2-dim)}
+.btn-bt2:hover{background:rgba(59,158,255,.2)}
+.btn-ok{border-color:rgba(16,185,129,.5);color:var(--ok);background:var(--ok-dim)}
+.btn-ghost:hover{border-color:var(--muted);background:rgba(142,161,189,.08)}
+.btn.sm{padding:.6rem .95rem;font-size:.64rem}
+.btn:disabled{opacity:.35;pointer-events:none}
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2);overflow:hidden;position:relative;z-index:2}
+.marquee-track{display:flex;gap:0;width:max-content;animation:mq 50s linear infinite}
+.marquee-track span{font-family:var(--fm);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--faint);padding:14px 0;white-space:nowrap}
+.marquee-track b{color:var(--bt);font-weight:500;padding:0 1.4rem}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}.rv.d4{transition-delay:.4s}
+
+.panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.panel-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--line-soft);background:rgba(5,8,15,.5);flex-wrap:wrap}
+.panel-bar .pb-title{font-family:var(--fm);font-size:.68rem;letter-spacing:.2em;color:var(--muted);display:flex;align-items:center;gap:.6rem;text-transform:uppercase}
+.led{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:pulse 2s infinite}
+.led.bt{background:var(--bt);box-shadow:0 0 10px var(--bt)}
+.led.b2{background:var(--bt2);box-shadow:0 0 10px var(--bt2)}
+.led.am{background:var(--am);box-shadow:0 0 10px var(--am)}
+.lab-body{padding:1.6rem 1.6rem 1.8rem}
+.lab-note{padding:.9rem 1.4rem;border-top:1px dashed var(--line-soft);font-size:.88rem;color:var(--muted)}
+.lab-note b{color:var(--ink)}
+.lab-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:1rem 0}
+.lab-row .lbl{font-family:var(--fm);font-size:.64rem;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;margin-right:.4rem}
+.canvas-holder{position:relative;border:1px solid var(--line-soft);border-radius:12px;background:rgba(5,8,15,.6);overflow:hidden}
+.canvas-holder canvas{display:block;width:100%}
+.verdict{margin-top:1.1rem;padding:.9rem 1.1rem;border-radius:10px;font-family:var(--fc);font-size:.84rem;letter-spacing:.03em;border:1px solid var(--line);color:var(--muted);transition:all .3s;line-height:1.6}
+.verdict.good{border-color:rgba(16,185,129,.5);background:var(--ok-dim);color:var(--ok)}
+.verdict.bad{border-color:rgba(255,93,122,.5);background:var(--err-dim);color:var(--err)}
+.verdict.warn{border-color:rgba(245,158,11,.5);background:var(--am-dim);color:var(--am)}
+.verdict.info{border-color:rgba(0,130,252,.5);background:var(--bt-dim);color:var(--bt)}
+
+/* cos'è grid */
+.feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2rem;margin-top:2rem}
+.feature-card{border:1px solid var(--line);border-radius:14px;padding:1.5rem;background:var(--panel);position:relative;overflow:hidden;transition:transform .3s,border-color .3s}
+.feature-card:hover{transform:translateY(-6px);border-color:rgba(0,130,252,.4)}
+.feature-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--bt)}
+.feature-card .f-ico{font-size:2rem;margin-bottom:.8rem}
+.feature-card h3{font-family:var(--fd);font-weight:600;font-size:1rem;margin-bottom:.4rem;color:var(--bt)}
+.feature-card p{font-size:.85rem;color:var(--muted);line-height:1.55}
+@media(max-width:900px){.feature-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.feature-grid{grid-template-columns:1fr}}
+
+/* timeline */
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-top:2rem;position:relative}
+.timeline::before{content:"";position:absolute;top:32px;left:3%;right:3%;height:2px;background:linear-gradient(90deg,var(--bt),var(--bt2),var(--vi),var(--am),var(--ok));border-radius:2px;opacity:.4}
+.tl-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;position:relative;transition:transform .3s,border-color .3s,box-shadow .3s;padding-top:45px}
+.tl-card:hover{transform:translateY(-6px);border-color:rgba(0,130,252,.5);box-shadow:0 20px 40px -15px rgba(0,130,252,.4)}
+.tl-year{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:3;font-family:var(--fd);font-weight:700;font-size:.72rem;background:var(--bt);color:#001a24;padding:.45rem .9rem;border-radius:99px;box-shadow:0 4px 12px -2px rgba(0,130,252,.6)}
+.tl-card.c2 .tl-year{background:var(--bt2)}
+.tl-card.c3 .tl-year{background:var(--vi);color:#100824}
+.tl-card.c4 .tl-year{background:var(--am);color:#241300}
+.tl-card.c5 .tl-year{background:var(--ok);color:#021a10}
+.tl-body{padding:1.2rem 1.1rem}
+.tl-body h3{font-family:var(--fd);font-weight:700;font-size:.95rem;margin-bottom:.4rem}
+.tl-body p{font-size:.78rem;color:var(--muted);line-height:1.55}
+.tl-body .tl-tag{font-family:var(--fm);font-size:.56rem;letter-spacing:.12em;color:var(--faint);text-transform:uppercase;margin-top:.5rem;display:block}
+@media(max-width:1000px){.timeline{grid-template-columns:1fr 1fr}.timeline::before{display:none}}
+@media(max-width:560px){.timeline{grid-template-columns:1fr}}
+
+/* piconet */
+.piconet-wrap{display:grid;grid-template-columns:280px 1fr;gap:1.4rem;align-items:stretch}
+.piconet-ctrl{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:1.4rem}
+.piconet-ctrl h4{font-family:var(--fm);font-size:.64rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;margin-bottom:.8rem}
+.piconet-ctrl .pc-stats{display:grid;gap:.6rem;margin-bottom:1.2rem}
+.piconet-ctrl .pc-stat{display:flex;justify-content:space-between;align-items:center;padding:.5rem .8rem;background:rgba(5,8,15,.5);border-radius:7px;border:1px solid var(--line-soft);font-size:.82rem}
+.piconet-ctrl .pc-stat .pc-v{font-family:var(--fc);font-weight:600;color:var(--bt)}
+.piconet-ctrl .pc-btns{display:grid;gap:.5rem}
+.legend-mini{display:grid;gap:.5rem;margin-top:1.2rem;padding-top:1.2rem;border-top:1px dashed var(--line-soft)}
+.legend-mini span{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--muted)}
+.legend-mini i{width:12px;height:12px;border-radius:50%;flex:0 0 12px}
+@media(max-width:900px){.piconet-wrap{grid-template-columns:1fr}}
+
+/* classi */
+.class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:1.6rem}
+.class-card{border:1px solid var(--line);border-radius:14px;padding:1.5rem;background:var(--panel);text-align:center;transition:transform .3s,border-color .3s}
+.class-card:hover{transform:translateY(-5px);border-color:rgba(0,130,252,.4)}
+.class-card .cc-range{font-size:3.5rem;font-family:var(--fd);font-weight:900;color:var(--bt);line-height:1;margin-bottom:.3rem;position:relative;display:inline-block}
+.class-card .cc-range::after{content:"m";font-size:1rem;color:var(--muted);position:absolute;bottom:.3rem;right:-22px}
+.class-card h3{font-family:var(--fd);font-weight:700;font-size:1.15rem;margin-bottom:.6rem;color:var(--bt)}
+.class-card .cc-pwr{font-family:var(--fm);font-size:.72rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem}
+.class-card p{font-size:.84rem;color:var(--muted);line-height:1.55}
+.class-card.c2{border-color:rgba(59,158,255,.3)}.class-card.c2 .cc-range,.class-card.c2 h3{color:var(--bt2)}
+.class-card.c3{border-color:rgba(167,139,250,.3)}.class-card.c3 .cc-range,.class-card.c3 h3{color:var(--vi)}
+@media(max-width:800px){.class-grid{grid-template-columns:1fr}}
+
+/* confronto classic vs ble */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.cmp-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;transition:transform .3s}
+.cmp-card:hover{transform:translateY(-4px)}
+.cmp-card .ch{padding:1.4rem 1.6rem;border-bottom:1px solid var(--line-soft);position:relative;overflow:hidden}
+.cmp-card.classic .ch{background:linear-gradient(135deg,rgba(0,130,252,.08),rgba(0,130,252,.02));}
+.cmp-card.ble .ch{background:linear-gradient(135deg,rgba(59,158,255,.08),rgba(16,185,129,.04));}
+.cmp-card .ch h3{font-family:var(--fd);font-weight:700;font-size:1.2rem;margin-bottom:.3rem}
+.cmp-card.classic .ch h3{color:var(--bt)}
+.cmp-card.ble .ch h3{color:var(--ok)}
+.cmp-card .ch .csub{font-family:var(--fm);font-size:.62rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.cmp-card .cb{padding:1.4rem 1.6rem}
+.cmp-card .cb ul{list-style:none;display:grid;gap:.6rem}
+.cmp-card .cb li{font-size:.86rem;color:#c5d4ea;padding:.55rem .8rem;background:rgba(5,8,15,.4);border-radius:7px;display:flex;gap:.6rem;align-items:flex-start;line-height:1.5}
+.cmp-card.classic .cb li::before{content:"▸";color:var(--bt);flex:0 0 10px}
+.cmp-card.ble .cb li::before{content:"▸";color:var(--ok);flex:0 0 10px}
+@media(max-width:760px){.compare-grid{grid-template-columns:1fr}}
+
+/* spectrum visualizer */
+.spectrum-info{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.2rem}
+.sp-card{border:1px solid var(--line-soft);border-radius:10px;padding:.9rem;background:rgba(5,8,15,.5);text-align:center}
+.sp-card .sp-v{font-family:var(--fd);font-weight:700;font-size:1.5rem;color:var(--bt);margin-bottom:.2rem}
+.sp-card .sp-l{font-family:var(--fm);font-size:.58rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+@media(max-width:700px){.spectrum-info{grid-template-columns:1fr 1fr}}
+
+/* pairing sim */
+.pair-steps{display:grid;grid-template-columns:repeat(6,1fr);gap:.5rem;margin-bottom:1.4rem}
+.ps{border:1px solid var(--line-soft);border-radius:10px;padding:.8rem .5rem;text-align:center;background:rgba(5,8,15,.4);transition:all .3s;position:relative}
+.ps.active{border-color:var(--bt);background:var(--bt-dim);box-shadow:0 0 18px -4px rgba(0,130,252,.5)}
+.ps.done{border-color:var(--ok);background:var(--ok-dim)}
+.ps .ps-n{font-family:var(--fd);font-weight:700;font-size:1.1rem;color:var(--bt);margin-bottom:.2rem}
+.ps.done .ps-n{color:var(--ok)}
+.ps .ps-t{font-family:var(--fm);font-size:.54rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;line-height:1.3}
+.pair-canvas-wrap{height:260px;border:1px solid var(--line-soft);border-radius:12px;background:rgba(5,8,15,.6);overflow:hidden;position:relative}
+.pair-log{margin-top:1rem;max-height:140px;overflow-y:auto;padding:.6rem .8rem;background:#04070d;border:1px solid var(--line-soft);border-radius:8px;font-family:var(--fc);font-size:.74rem;line-height:1.6}
+.pair-log::-webkit-scrollbar{width:5px}.pair-log::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.pair-log .log{animation:logIn .3s ease-out}
+.pair-log .log .ts{color:var(--faint);margin-right:.5rem}
+.pair-log .log.bt{color:var(--bt)}.pair-log .log.ok{color:var(--ok)}.pair-log .log.warn{color:var(--am)}
+@keyframes logIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+@media(max-width:800px){.pair-steps{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:500px){.pair-steps{grid-template-columns:repeat(2,1fr)}}
+
+/* app grid */
+.app-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:2rem}
+.app-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;transition:transform .3s,border-color .3s,box-shadow .3s}
+.app-card:hover{transform:translateY(-6px);border-color:rgba(0,130,252,.4);box-shadow:0 24px 50px -20px rgba(0,0,0,.8)}
+.app-img{height:170px;overflow:hidden;position:relative}
+.app-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(12,20,36,.95))}
+.app-img svg{width:100%;height:100%;display:block}
+.app-card:nth-child(2) .app-img svg{animation-delay:-4s}
+.app-body{padding:1.3rem 1.4rem 1.5rem}
+.app-body h3{font-family:var(--fd);font-weight:700;font-size:1.05rem;margin-bottom:.5rem}
+.app-body p{font-size:.86rem;color:var(--muted);line-height:1.55}
+.app-body .chip{display:inline-block;font-family:var(--fm);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--bt);border:1px solid rgba(0,130,252,.35);background:var(--bt-dim);padding:4px 10px;border-radius:99px;margin-top:.9rem}
+@media(max-width:900px){.app-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.app-grid{grid-template-columns:1fr}}
+
+/* security */
+.sec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:1.6rem}
+.sec-card{border:1px solid var(--line);border-radius:14px;padding:1.5rem;background:var(--panel);transition:transform .3s,border-color .3s}
+.sec-card:hover{transform:translateY(-5px);border-color:rgba(255,93,122,.4)}
+.sec-card.attack{border-left:3px solid var(--err)}
+.sec-card.defense{border-left:3px solid var(--ok)}
+.sec-card h4{font-family:var(--fd);font-weight:700;font-size:1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sec-card.attack h4{color:var(--err)}
+.sec-card.defense h4{color:var(--ok)}
+.sec-card p{font-size:.85rem;color:var(--muted);line-height:1.55}
+.sec-card .sec-tag{font-family:var(--fm);font-size:.56rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-top:.8rem;display:block}
+@media(max-width:800px){.sec-grid{grid-template-columns:1fr}}
+
+/* QUIZ */
+.quiz-shell{max-width:760px;margin:0 auto;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 40px 80px -40px rgba(0,0,0,.9)}
+.quiz-top{padding:1.4rem 1.8rem;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.quiz-top .qt-l{font-family:var(--fm);font-size:.66rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:.7rem}
+#qCount{font-family:var(--fd);font-weight:600;font-size:.9rem;color:var(--bt)}
+.q-progress{height:3px;background:var(--line-soft)}
+.q-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--bt),var(--bt2));transition:width .6s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 10px var(--bt)}
+.quiz-body{padding:2.2rem 2rem}
+#qText{font-family:var(--fd);font-weight:600;font-size:clamp(1.05rem,2.2vw,1.3rem);line-height:1.4;margin-bottom:1.6rem}
+#qText code{font-family:var(--fc);font-size:.85em;background:rgba(5,8,15,.6);color:var(--bt);padding:2px 8px;border-radius:5px}
+.opt{width:100%;display:flex;gap:1rem;align-items:flex-start;text-align:left;background:rgba(5,8,15,.5);border:1px solid var(--line);border-radius:11px;padding:1rem 1.1rem;margin-bottom:.7rem;color:var(--ink);font-size:.95rem;font-family:var(--fb);transition:all .22s}
+.opt code{font-family:var(--fc);font-size:.88em;color:var(--bt2)}
+.opt:hover{border-color:var(--bt);background:var(--bt-dim);transform:translateX(6px)}
+.opt .ol{flex:0 0 30px;height:30px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;font-family:var(--fm);font-size:.74rem;color:var(--muted);transition:all .22s}
+.opt:hover .ol{border-color:var(--bt);color:var(--bt)}
+.opt.ok{border-color:var(--ok);background:var(--ok-dim)}
+.opt.ok .ol{background:var(--ok);color:#021a10;border-color:var(--ok);font-weight:600}
+.opt.bad{border-color:var(--err);background:var(--err-dim);animation:shake .4s}
+.opt.bad .ol{background:var(--err);color:#2a0510;border-color:var(--err)}
+.opt.dim{opacity:.4;pointer-events:none}
+.opt:disabled{cursor:default}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.q-feedback{display:none;margin-top:1.2rem;padding:1.1rem 1.3rem;border-radius:11px;font-size:.92rem;line-height:1.55;border:1px solid}
+.q-feedback.show{display:block;animation:fbIn .45s cubic-bezier(.2,.8,.2,1)}
+.q-feedback.good{border-color:rgba(16,185,129,.4);background:var(--ok-dim);color:#c9fdee}
+.q-feedback.evil{border-color:rgba(255,93,122,.4);background:var(--err-dim);color:#ffd4dd}
+.q-feedback b{display:block;font-family:var(--fm);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.4rem}
+@keyframes fbIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.quiz-foot{padding:0 2rem 2rem;display:flex;justify-content:flex-end}
+.quiz-result{display:none;text-align:center;padding:3rem 2rem}
+.quiz-result.show{display:block;animation:fbIn .5s}
+.score-ring{position:relative;width:150px;height:150px;margin:0 auto 1.4rem}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .ring-bg{fill:none;stroke:var(--line);stroke-width:8}
+.score-ring .ring-fg{fill:none;stroke:var(--bt);stroke-width:8;stroke-linecap:round;stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 8px rgba(0,130,252,.6))}
+.score-ring .score-num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:1.9rem}
+#verdict{font-family:var(--fd);font-weight:700;font-size:1.4rem;margin-bottom:.6rem}
+#verdictMsg{color:var(--muted);max-width:440px;margin:0 auto 1.8rem}
+
+footer{border-top:1px solid var(--line);padding:2.6rem 0;background:var(--bg2)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.foot .f-nav{display:flex;gap:1.4rem;font-family:var(--fm);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);flex-wrap:wrap}
+.foot .f-nav a:hover{color:var(--bt)}
+.foot small{font-family:var(--fm);font-size:.66rem;letter-spacing:.12em;color:var(--faint)}
+.home-btn{position:fixed;top:14px;left:24px;z-index:120;font-family:var(--fm);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;padding:.5rem .95rem;border-radius:99px;border:1px solid var(--line);background:rgba(5,8,15,.8);backdrop-filter:blur(10px);color:var(--muted);display:inline-flex;align-items:center;gap:.45rem;transition:all .25s}
+.home-btn:hover{color:var(--bt);border-color:var(--bt);transform:translateY(-1px)}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .marquee-track{animation:none;transform:none}
+  .rv{opacity:1;transform:none}
+}
+@media(max-width:640px){.home-btn{top:auto;bottom:14px;left:14px}header{padding-left:24px}.hero-inner{padding-top:110px}}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<a class="home-btn" href="../../index.html" aria-label="Torna alla home">← Home</a>
+
+<header id="hdr">
+  <a class="logo" href="#top"><span class="rune">ᛒ</span>BLUETOOTH<b>//</b>5.4</a>
+  <nav class="main-nav">
+    <a href="#cosae">Cos'è</a>
+    <a href="#storia">Storia</a>
+    <a href="#arch">Architettura</a>
+    <a href="#spettro">Spettro</a>
+    <a href="#classi">Classi</a>
+    <a href="#classic-ble">Classic vs BLE</a>
+    <a href="#pairing">Pairing</a>
+    <a href="#app">Applicazioni</a>
+    <a href="#sicurezza">Sicurezza</a>
+    <a href="#quiz">Quiz</a>
+  </nav>
+  <div class="live-chip"><i></i>LEZIONE · SHORT-RANGE WIRELESS</div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-veil"></div>
+  <div class="hero-inner wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="kicker" style="margin-bottom:1.4rem">Reti personali · Wireless a corto raggio</p>
+        <h1><span id="titleA" data-text="BLUETOOTH">BLUETOOTH</span>
+          <span class="l2" id="titleB" data-text="UNIRE I DISPOSITIVI SENZA FILI">UNIRE I DISPOSITIVI SENZA FILI</span></h1>
+        <p class="lead">Una tecnologia <b>radio a corto raggio</b> che permette a telefoni, cuffie, orologi, auto e sensori di comunicare senza cavi. Opera nella banda libera dei <em>2.4 GHz</em>, consuma pochissimo e collega miliardi di dispositivi ogni giorno.</p>
+        <div class="hero-cta">
+          <a href="#arch" class="btn btn-bt">▸ Esplora la piconet</a>
+          <a href="#pairing" class="btn btn-ghost">Simula un pairing</a>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hl">Frequenza</div><div class="hv b">2.4 GHz</div></div>
+        <div class="hstat"><div class="hl">Banda ISM</div><div class="hv b2">libera</div></div>
+        <div class="hstat"><div class="hl">Dispositivi nel mondo</div><div class="hv a">6+ MLD</div></div>
+        <div class="hstat"><div class="hl">Versione attuale</div><div class="hv g">5.4</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue"></div>
+</section>
+
+<div class="marquee"><div class="marquee-track" id="mqTrack">
+  <span>Piconet <b>✦</b> Scatternet <b>✦</b> FHSS <b>✦</b> Master <b>✦</b> Slave <b>✦</b> 2.4 GHz <b>✦</b> BLE <b>✦</b> LE Audio <b>✦</b> Auracast <b>✦</b> GAP <b>✦</b> GATT <b>✦</b> SSP <b>✦</b> Beacon <b>✦</b> Mesh <b>✦</b>&nbsp;</span>
+</div></div>
+
+<!-- ============ 01 COS'È ============ -->
+<section class="sec" id="cosae">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">01 · I fondamenti</p>
+      <h2 class="sec-title">Cos'è il Bluetooth</h2>
+      <p>Uno standard wireless <b>a corto raggio</b> per collegare dispositivi in una <code>PAN</code> (Personal Area Network). Usa onde radio nella banda ISM dei 2.4 GHz, condivisa con Wi-Fi e forni a microonde, e la gestisce con una tecnica intelligente: il <b>frequency hopping</b>.</p>
+    </div>
+
+    <div class="panel rv d1" style="margin-bottom:2rem">
+      <div class="panel-bar">
+        <div class="pb-title"><span class="led am"></span>ORIGINE DEL NOME · RE HARALD BLUETOOTH</div>
+      </div>
+      <div class="lab-body">
+        <p style="color:#c5d4ea;font-size:.96rem;line-height:1.7">
+          Nel 1996 Intel, Nokia ed Ericsson cercavano un nome in codice per il progetto. Jim Kardach propose <b>"Bluetooth"</b> in omaggio a <b>Harald Blåtand</b> (Harald Bluetooth), re danese del X secolo famoso per aver <b>unito le tribù scandinave</b> divise. Il nome doveva essere provvisorio, ma rimase. Il logo stesso è la sovrapposizione delle <b>rune nordiche</b> che compongono le iniziali del re: ᚼ (H) e ᛒ (B).
+        </p>
+      </div>
+    </div>
+
+    <div class="sec-head" style="margin-top:2.5rem">
+      <h3 style="font-family:var(--fd);font-size:1.3rem;margin-bottom:.5rem">Le caratteristiche chiave</h3>
+      <p>Cosa rende Bluetooth unico tra le tecnologie wireless.</p>
+    </div>
+
+    <div class="feature-grid rv d2">
+      <article class="feature-card">
+        <div class="f-ico">📡</div>
+        <h3>Banda 2.4 GHz</h3>
+        <p>Frequenza libera, non serve licenza. Uguale in tutto il mondo: gli stessi dispositivi funzionano ovunque.</p>
+      </article>
+      <article class="feature-card">
+        <div class="f-ico">🔀</div>
+        <h3>Frequency Hopping</h3>
+        <p>Cambia canale 1600 volte al secondo. Riduce interferenze e rende il segnale resistente ai disturbi.</p>
+      </article>
+      <article class="feature-card">
+        <div class="f-ico">🔋</div>
+        <h3>Basso consumo</h3>
+        <p>Con BLE, un sensore può funzionare per anni su una batteria a bottone CR2032.</p>
+      </article>
+      <article class="feature-card">
+        <div class="f-ico">💰</div>
+        <h3>Economico</h3>
+        <p>Chip Bluetooth costano pochi centesimi. Integrati in praticamente ogni dispositivo mobile moderno.</p>
+      </article>
+      <article class="feature-card">
+        <div class="f-ico">🎯</div>
+        <h3>Ad hoc</h3>
+        <p>Non serve infrastruttura. Due dispositivi si collegano direttamente, senza router o access point.</p>
+      </article>
+      <article class="feature-card">
+        <div class="f-ico">🔐</div>
+        <h3>Sicuro</h3>
+        <p>Crittografia AES-128, autenticazione reciproca, pairing protetto (SSP con numeric comparison).</p>
+      </article>
+      <article class="feature-card">
+        <div class="f-ico">🌐</div>
+        <h3>Standard globale</h3>
+        <p>Specifiche aperte del Bluetooth SIG. Oltre 40.000 aziende membri garantiscono interoperabilità.</p>
+      </article>
+      <article class="feature-card">
+        <div class="f-ico">⚡</div>
+        <h3>Velocità moderna</h3>
+        <p>Bluetooth 5.x: fino a 2 Mbit/s su BLE, 3 Mbit/s su EDR. Suffice per audio, sensori, dati.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 STORIA ============ -->
+<section class="sec sec-alt" id="storia">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker b2">02 · Evoluzione</p>
+      <h2 class="sec-title">La storia del Bluetooth</h2>
+      <p>Dal primo auricolare del 1999 agli auricolari stereo e ai beacon di oggi. Ogni generazione ha risolto un problema diverso.</p>
+    </div>
+
+    <div class="timeline rv d1">
+      <article class="tl-card">
+        <div class="tl-year">1999</div>
+        <div class="tl-body">
+          <h3>🎯 Bluetooth 1.0</h3>
+          <p>Prima versione commerciale. 721 kbit/s, problemi di interoperabilità. Primo auricolare al COMDEX.</p>
+          <span class="tl-tag">1 MBIT/S · AURICOLARI</span>
+        </div>
+      </article>
+      <article class="tl-card c2">
+        <div class="tl-year">2004</div>
+        <div class="tl-body">
+          <h3>⚡ 2.0 + EDR</h3>
+          <p>Enhanced Data Rate: <b>3 Mbit/s</b>. Bluetooth diventa pratico per audio stereo e trasferimento file.</p>
+          <span class="tl-tag">AUDIO STEREO · FILE</span>
+        </div>
+      </article>
+      <article class="tl-card c3">
+        <div class="tl-year">2010</div>
+        <div class="tl-body">
+          <h3>🔋 4.0 · Smart</h3>
+          <p>Nasce <b>Bluetooth Low Energy (BLE)</b>: consumi ridotti di 100×. Rivoluzione per IoT e fitness tracker.</p>
+          <span class="tl-tag">BLE · IOT · FITNESS</span>
+        </div>
+      </article>
+      <article class="tl-card c4">
+        <div class="tl-year">2016</div>
+        <div class="tl-body">
+          <h3>🚀 5.0</h3>
+          <p>Raggio ×4, velocità ×2, capacità ×8. Mesh networking. Supporto a <b>beacon</b> e localizzazione indoor.</p>
+          <span class="tl-tag">MESH · BEACON</span>
+        </div>
+      </article>
+      <article class="tl-card c5">
+        <div class="tl-year">2020</div>
+        <div class="tl-body">
+          <h3>🎧 5.2 · LE Audio</h3>
+          <p>Nuovo codec LC3, <b>Auracast</b> (broadcast audio), qualità superiore con meno energia. Standard attuale.</p>
+          <span class="tl-tag">LE AUDIO · AURACAST</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="rv d2" style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem">
+      <div class="panel" style="margin:0">
+        <div class="panel-bar"><div class="pb-title"><span class="led bt"></span>CHI GESTISCE LO STANDARD</div></div>
+        <div class="lab-body">
+          <p style="font-size:.9rem;color:#c5d4ea;line-height:1.7"><b>Bluetooth SIG</b> (Special Interest Group), con sede a Kirkland (USA). Fondata nel 1998 da Ericsson, IBM, Intel, Nokia e Toshiba. Oggi conta oltre <b>40.000 aziende membri</b>. Ogni prodotto certificato porta il logo <span style="color:var(--bt)">ᛒ</span>.</p>
+        </div>
+      </div>
+      <div class="panel" style="margin:0">
+        <div class="panel-bar"><div class="pb-title"><span class="led b2"></span>DISPOSITIVI CERTIFICATI</div></div>
+        <div class="lab-body">
+          <p style="font-size:.9rem;color:#c5d4ea;line-height:1.7">Ogni anno vengono spediti oltre <b>5 miliardi</b> di chip Bluetooth. Nel 2026 si stimano <b>6+ miliardi di dispositivi attivi</b>: smartphone, auricolari, smartwatch, altoparlanti, auto, luci smart, tag e molto altro.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 ARCHITETTURA ============ -->
+<section class="sec grid-bg" id="arch">
+  <span class="num-ghost">7</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">03 · Architettura</p>
+      <h2 class="sec-title">Piconet e Scatternet</h2>
+      <p>Bluetooth non usa un modello client-server tradizionale. Organizza i dispositivi in piccole reti chiamate <b>piconet</b>: un master coordina fino a 7 slave attivi. Più piconet possono sovrapporsi in una <b>scatternet</b>.</p>
+    </div>
+
+    <div class="panel rv d1">
+      <div class="panel-bar">
+        <div class="pb-title"><span class="led bt"></span>LAB · PICONET ANIMATA</div>
+        <span style="font-family:var(--fm);font-size:.62rem;letter-spacing:.16em;color:var(--faint)">INTERATTIVA</span>
+      </div>
+      <div class="lab-body">
+        <div class="piconet-wrap">
+          <div class="piconet-ctrl">
+            <h4>Controlli</h4>
+            <div class="pc-btns">
+              <button class="btn btn-bt sm" id="pnAdd">➕ Aggiungi slave</button>
+              <button class="btn btn-bt sm" id="pnTraffic">📤 Simula traffico</button>
+              <button class="btn btn-ghost sm" id="pnReset">↺ Reset</button>
+            </div>
+            <div class="pc-stats" style="margin-top:1.2rem">
+              <div class="pc-stat"><span>Master</span><span class="pc-v">1</span></div>
+              <div class="pc-stat"><span>Slave attivi</span><span class="pc-v" id="pnCount">3</span></div>
+              <div class="pc-stat"><span>Max. per piconet</span><span class="pc-v">7</span></div>
+              <div class="pc-stat"><span>Topologia</span><span class="pc-v">Stella</span></div>
+            </div>
+            <div class="legend-mini">
+              <span><i style="background:var(--bt)"></i>Master (coordinatore)</span>
+              <span><i style="background:var(--bt2)"></i>Slave attivo</span>
+              <span><i style="background:var(--faint)"></i>Slave in parked mode</span>
+            </div>
+          </div>
+          <div class="canvas-holder" style="min-height:420px">
+            <canvas id="piconetCanvas" height="420"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="lab-note"><b>Come funziona:</b> il master divide il tempo in slot da <b>625 µs</b>. In ogni slot sceglie a quale slave parlare. Solo chi è "in turno" può trasmettere: questo evita le collisioni senza bisogno di CSMA/CA. Una piconet ha sempre <b>un solo master</b> e al massimo <b>7 slave attivi</b> contemporaneamente (gli altri possono stare in parked mode, fino a 255).</div>
+    </div>
+
+    <div class="rv d2" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem">
+      <div class="panel" style="margin:0">
+        <div class="panel-bar"><div class="pb-title"><span class="led bt"></span>PICONET</div></div>
+        <div class="lab-body">
+          <p style="font-size:.9rem;color:#c5d4ea;line-height:1.7">Una piccola rete ad hoc con <b>1 master</b> e <b>fino a 7 slave</b>. Tutti i dispositivi condividono lo stesso clock e la stessa sequenza di hopping. È l'unità base di Bluetooth.</p>
+        </div>
+      </div>
+      <div class="panel" style="margin:0">
+        <div class="panel-bar"><div class="pb-title"><span class="led b2"></span>SCATTERNET</div></div>
+        <div class="lab-body">
+          <p style="font-size:.9rem;color:#c5d4ea;line-height:1.7">Quando più piconet si sovrappongono geograficamente e <b>un dispositivo è master in una e slave in un'altra</b>, si forma una scatternet. Permette di estendere la copertura oltre i limiti di una singola piconet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 SPETTRO ============ -->
+<section class="sec sec-alt" id="spettro">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker a">04 · Banda radio</p>
+      <h2 class="sec-title">Frequency Hopping Spread Spectrum</h2>
+      <p>La banda 2.4 GHz è affollata: Wi-Fi, forni a microonde, telecomandi. Bluetooth la attraversa saltando velocemente da un canale all'altro: <b>1600 salti al secondo</b> su 79 canali (Classic) o 40 (BLE).</p>
+    </div>
+
+    <div class="panel rv d1">
+      <div class="panel-bar">
+        <div class="pb-title"><span class="led am"></span>LAB · SPETTRO 2.4 GHZ IN TEMPO REALE</div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn btn-bt sm active" id="spClassic" style="font-weight:600">Classic (79 ch)</button>
+          <button class="btn btn-ghost sm" id="spBle">BLE (40 ch)</button>
+        </div>
+      </div>
+      <div class="lab-body">
+        <div class="spectrum-info">
+          <div class="sp-card"><div class="sp-v">2.402</div><div class="sp-l">Frequenza min (GHz)</div></div>
+          <div class="sp-card"><div class="sp-v">2.480</div><div class="sp-l">Frequenza max (GHz)</div></div>
+          <div class="sp-card"><div class="sp-v" id="spChCount">79</div><div class="sp-l">Canali</div></div>
+          <div class="sp-card"><div class="sp-v">1600</div><div class="sp-l">Salti / secondo</div></div>
+        </div>
+        <div class="canvas-holder"><canvas id="specCanvas" height="240"></canvas></div>
+        <div class="verdict info" style="margin-top:1rem"><b>FHSS (Frequency Hopping):</b> l'ordine dei canali è pseudocasuale, noto solo ai dispositivi della stessa piconet. Un disturbatore dovrebbe disturbare tutta la banda contemporaneamente per interrompere la comunicazione — praticamente impossibile.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 CLASSI ============ -->
+<section class="sec" id="classi">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker g">05 · Potenza</p>
+      <h2 class="sec-title">Le tre classi di potenza</h2>
+      <p>Non tutti i dispositivi Bluetooth hanno lo stesso raggio d'azione. Lo standard definisce <b>tre classi</b> con potenze e distanze molto diverse.</p>
+    </div>
+
+    <div class="class-grid rv d1">
+      <article class="class-card">
+        <div class="cc-range">100</div>
+        <h3>Classe 1</h3>
+        <div class="cc-pwr">100 MW · 20 DBM</div>
+        <p>Massima portata. Usata in applicazioni industriali, adattatori USB "long range" e punti di accesso. Richiede alimentazione esterna.</p>
+      </article>
+      <article class="class-card c2">
+        <div class="cc-range">10</div>
+        <h3>Classe 2</h3>
+        <div class="cc-pwr">2.5 MW · 4 DBM</div>
+        <p>La più diffusa. <b>Smartphone, auricolari, altoparlanti, tastiere</b>. Consumo basso, raggio sufficiente per una stanza.</p>
+      </article>
+      <article class="class-card c3">
+        <div class="cc-range">1</div>
+        <h3>Classe 3</h3>
+        <div class="cc-pwr">1 MW · 0 DBM</div>
+        <p>Raggio molto corto. Usata quando serve <b>bassissimo consumo</b> e la sicurezza di non uscire dalla zona voluta (tag NFC-BT ibridi).</p>
+      </article>
+    </div>
+
+    <div class="rv d2" style="margin-top:2rem;border:1px solid var(--line);border-radius:14px;padding:1.6rem;background:var(--panel)">
+      <h3 style="font-family:var(--fd);font-size:1.1rem;margin-bottom:.8rem">⚠️ Il raggio reale dipende da molti fattori</h3>
+      <p style="font-size:.92rem;color:#c5d4ea;line-height:1.65">I valori dichiarati sono in <b>spazio libero</b>. Nella realtà, muri, metalli, corpi umani e altri segnali riducono drasticamente il raggio. Bluetooth 5.0 con <b>LE Long Range</b> (PHY a 125 kbit/s con codifica) può superare il chilometro in condizioni ideali.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 CLASSIC vs BLE ============ -->
+<section class="sec sec-alt" id="classic-ble">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker v">06 · Due facce della stessa medaglia</p>
+      <h2 class="sec-title">Bluetooth Classic vs BLE</h2>
+      <p>Dal 2010 esistono <b>due varianti</b> di Bluetooth con scopi completamente diversi. Condividono solo il nome e la banda dei 2.4 GHz. Capire la differenza è fondamentale.</p>
+    </div>
+
+    <div class="compare-grid rv d1">
+      <div class="cmp-card classic">
+        <div class="ch">
+          <h3>🎧 Bluetooth Classic</h3>
+          <span class="csub">BR / EDR · DATI CONTINUI</span>
+        </div>
+        <div class="cb">
+          <ul>
+            <li><b>Connessioni persistenti</b>: la sessione resta attiva per tutta la durata dell'uso</li>
+            <li><b>Alta velocità</b>: fino a 3 Mbit/s con EDR (Enhanced Data Rate)</li>
+            <li><b>Consumi alti</b>: da decine a centinaia di mW, serve batteria capiente</li>
+            <li><b>Audio stereo</b>: profili A2DP per musica, HFP per chiamate</li>
+            <li><b>Trasferimento file</b>: OPP, FTP, PAN per tethering</li>
+            <li><b>Uso tipico</b>: cuffie, speaker, autoradio, trasferimento file</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cmp-card ble">
+        <div class="ch">
+          <h3>🔋 Bluetooth Low Energy</h3>
+          <span class="csub">BLE / SMART · DATI A BURST</span>
+        </div>
+        <div class="cb">
+          <ul>
+            <li><b>Connessioni a burst</b>: si attivano solo quando servono dati, poi dormono</li>
+            <li><b>Consumi bassissimi</b>: anni di autonomia su batteria a bottone</li>
+            <li><b>Setup rapidissimo</b>: pairing in pochi ms vs secondi del Classic</li>
+            <li><b>Modello GATT</b>: servizi e caratteristiche accessibili via API</li>
+            <li><b>Broadcast</b>: advertising packets senza connessione (iBeacon, Eddystone)</li>
+            <li><b>Uso tipico</b>: fitness tracker, beacon, sensori IoT, smartwatch, tag</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="rv d2" style="margin-top:2rem;border:1px solid var(--line);border-radius:14px;padding:1.6rem;background:var(--panel)">
+      <h3 style="font-family:var(--fd);font-size:1.1rem;margin-bottom:.8rem">🎵 LE Audio (Bluetooth 5.2+): il meglio di entrambi i mondi</h3>
+      <p style="font-size:.92rem;color:#c5d4ea;line-height:1.65;margin-bottom:1rem">Dal 2020 <b>LE Audio</b> porta l'audio di qualità anche su BLE, usando il nuovo codec <b>LC3</b>: qualità pari a SBC con metà bitrate, quindi meno consumo. La killer feature è <b>Auracast</b>: un dispositivo trasmette audio in broadcast a <em>centinaia</em> di ascoltatori, senza pairing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 PAIRING ============ -->
+<section class="sec grid-bg" id="pairing">
+  <span class="num-ghost">🔗</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">07 · Accoppiamento</p>
+      <h2 class="sec-title">Il processo di Pairing</h2>
+      <p>Prima che due dispositivi si parlino, devono <b>riconoscersi e scambiarsi le chiavi</b> di cifratura. È il pairing. Nelle versioni moderne (SSP — Secure Simple Pairing) è molto più semplice del vecchio PIN "0000".</p>
+    </div>
+
+    <div class="panel rv d1">
+      <div class="panel-bar">
+        <div class="pb-title"><span class="led bt"></span>LAB · SIMULATORE DI PAIRING</div>
+        <span style="font-family:var(--fm);font-size:.62rem;letter-spacing:.16em;color:var(--faint)">SECURE SIMPLE PAIRING</span>
+      </div>
+      <div class="lab-body">
+        <div class="pair-steps" id="pairSteps">
+          <div class="ps active" data-step="1"><div class="ps-n">1</div><div class="ps-t">Inquiry</div></div>
+          <div class="ps" data-step="2"><div class="ps-n">2</div><div class="ps-t">Page</div></div>
+          <div class="ps" data-step="3"><div class="ps-n">3</div><div class="ps-t">IO Cap</div></div>
+          <div class="ps" data-step="4"><div class="ps-n">4</div><div class="ps-t">Assoc.</div></div>
+          <div class="ps" data-step="5"><div class="ps-n">5</div><div class="ps-t">LTK</div></div>
+          <div class="ps" data-step="6"><div class="ps-n">6</div><div class="ps-t">Encrypt</div></div>
+        </div>
+        <div class="pair-canvas-wrap">
+          <canvas id="pairCanvas" height="260"></canvas>
+        </div>
+        <div class="lab-row">
+          <button class="btn btn-bt sm" id="pairNext">▶ Passo successivo</button>
+          <button class="btn btn-ok sm" id="pairAuto">▶▶ Esegui tutto</button>
+          <button class="btn btn-ghost sm" id="pairReset">↺ Reset</button>
+        </div>
+        <div class="pair-log" id="pairLog"></div>
+      </div>
+      <div class="lab-note"><b>Le 6 fasi di SSP:</b> <b>Inquiry</b> (scoperta), <b>Page</b> (chiamata), <b>IO Capability</b> (cosa sa visualizzare il dispositivo), <b>Association</b> (confronto numerico/passkey), <b>LTK</b> (generazione Long Term Key) e infine <b>Encryption</b> attivata sul link.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 APPLICAZIONI ============ -->
+<section class="sec" id="app">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker b2">08 · Nel mondo reale</p>
+      <h2 class="sec-title">Dove vive il Bluetooth</h2>
+      <p>Dagli auricolari che indossi ogni giorno ai sensori medici, fino ai fari di localizzazione negli aeroporti.</p>
+    </div>
+
+    <div class="app-grid rv d1">
+      <article class="app-card">
+        <div class="app-img">
+          <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Auricolari audio">
+            <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#061726"/><stop offset="1" stop-color="#0a3a66"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#g1)"/>
+            <g stroke="rgba(59,158,255,.12)" fill="none"><circle cx="200" cy="120" r="40"/><circle cx="200" cy="120" r="70"/><circle cx="200" cy="120" r="100"/></g>
+            <path d="M120 130 a80 80 0 0 1 160 0" fill="none" stroke="#3b9eff" stroke-width="8" stroke-linecap="round"/>
+            <rect x="106" y="124" width="30" height="52" rx="14" fill="#0082FC"/>
+            <rect x="264" y="124" width="30" height="52" rx="14" fill="#0082FC"/>
+            <g fill="#3b9eff" opacity=".9"><circle cx="200" cy="60" r="3"/><path d="M200 60 m-14 0 a14 14 0 0 1 14 -14" stroke="#3b9eff" stroke-width="2" fill="none"/><path d="M200 60 m14 0 a14 14 0 0 0 -14 -14" stroke="#3b9eff" stroke-width="2" fill="none"/></g>
+          </svg>
+        </div>
+        <div class="app-body"><h3>🎧 Audio personale</h3><p>Auricolari, cuffie e speaker. Con <b>LE Audio</b> e codec LC3, qualità superiore e batteria che dura il doppio. Auracast per condividere l'audio con amici.</p><span class="chip">A2DP · HFP · LE Audio</span></div>
+      </article>
+      <article class="app-card">
+        <div class="app-img">
+          <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Smartwatch wearable">
+            <defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#08162a"/><stop offset="1" stop-color="#10305c"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#g2)"/>
+            <g stroke="rgba(59,158,255,.12)" fill="none"><circle cx="330" cy="60" r="70"/><circle cx="330" cy="60" r="110"/></g>
+            <rect x="168" y="30" width="64" height="46" rx="10" fill="#0c1424" stroke="#3b9eff" stroke-width="2"/>
+            <rect x="168" y="164" width="64" height="46" rx="10" fill="#0c1424" stroke="#3b9eff" stroke-width="2"/>
+            <rect x="156" y="66" width="88" height="108" rx="20" fill="#0c1424" stroke="#0082FC" stroke-width="3"/>
+            <path d="M182 118 h10 l6 -16 l10 32 l7 -22 h15" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="app-body"><h3>⌚ Wearable</h3><p>Smartwatch, fitness tracker, anelli intelligenti. <b>BLE</b> permette anni di autonomia su batteria minuscola. Notifiche, sensori cardiaci, GPS condiviso.</p><span class="chip">BLE · GATT · Heart Rate</span></div>
+      </article>
+      <article class="app-card">
+        <div class="app-img">
+          <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Smart home IoT">
+            <defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#07182b"/><stop offset="1" stop-color="#0d2f52"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#g3)"/>
+            <g stroke="rgba(59,158,255,.12)" fill="none"><circle cx="80" cy="190" r="70"/><circle cx="80" cy="190" r="110"/></g>
+            <path d="M160 120 L200 84 L240 120" fill="none" stroke="#3b9eff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="172" y="120" width="56" height="56" rx="6" fill="#0c1424" stroke="#0082FC" stroke-width="3"/>
+            <path d="M200 46 a34 34 0 0 1 34 34" fill="none" stroke="#3b9eff" stroke-width="4" stroke-linecap="round"/>
+            <path d="M200 62 a18 18 0 0 1 18 18" fill="none" stroke="#0082FC" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="200" cy="86" r="4" fill="#0082FC"/>
+          </svg>
+        </div>
+        <div class="app-body"><h3>🏠 Smart Home</h3><p>Lampadine, termostati, serrature. <b>Bluetooth Mesh</b> permette a centinaia di dispositivi di parlarsi in una rete auto-gestita, senza hub centrali.</p><span class="chip">Mesh · Lighting · Smart Lock</span></div>
+      </article>
+      <article class="app-card">
+        <div class="app-img">
+          <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Automotive car">
+            <defs><linearGradient id="g4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1424"/><stop offset="1" stop-color="#123a63"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#g4)"/>
+            <g stroke="rgba(59,158,255,.12)" fill="none"><circle cx="340" cy="200" r="70"/><circle cx="340" cy="200" r="110"/></g>
+            <path d="M118 150 l18 -34 a14 14 0 0 1 12 -7 h104 a14 14 0 0 1 12 7 l18 34 a16 16 0 0 1 8 14 v18 a8 8 0 0 1 -8 8 h-12" fill="none" stroke="#3b9eff" stroke-width="6" stroke-linejoin="round"/>
+            <path d="M118 150 h164" stroke="#3b9eff" stroke-width="6"/>
+            <path d="M150 116 h100" stroke="#0082FC" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="150" cy="190" r="18" fill="#0c1424" stroke="#0082FC" stroke-width="4"/>
+            <circle cx="250" cy="190" r="18" fill="#0c1424" stroke="#0082FC" stroke-width="4"/>
+          </svg>
+        </div>
+        <div class="app-body"><h3>🚗 Automotive</h3><p>Chiavi digitali, infotainment, CarPlay/Android Auto wireless. <b>BLE</b> rileva l'avvicinarsi del proprietario e sblocca l'auto. Phone-as-a-key è lo standard emergente.</p><span class="chip">Car Key · CCC · Hands-free</span></div>
+      </article>
+      <article class="app-card">
+        <div class="app-img">
+          <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dispositivo medicale">
+            <defs><linearGradient id="g5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a0f1a"/><stop offset="1" stop-color="#3a1030"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#g5)"/>
+            <g stroke="rgba(255,93,122,.14)" fill="none"><circle cx="80" cy="60" r="70"/><circle cx="80" cy="60" r="110"/></g>
+            <path d="M200 168 c-42 -30 -70 -54 -70 -86 a36 36 0 0 1 70 -14 a36 36 0 0 1 70 14 c0 32 -28 56 -70 86 z" fill="#0c1424" stroke="#ff5d7a" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M150 116 h18 l8 -22 l14 44 l10 -30 h16 l8 16 h16" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="app-body"><h3>🩺 Medicale</h3><p>Glucometri, misuratori di pressione, ECG portatili. Protocolli certificati (Continua Health) permettono interoperabilità tra produttori diversi.</p><span class="chip">Health · Glucose · BP</span></div>
+      </article>
+      <article class="app-card">
+        <div class="app-img">
+          <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Beacon localizzazione">
+            <defs><linearGradient id="g6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#061a24"/><stop offset="1" stop-color="#0b3550"/></linearGradient></defs>
+            <rect width="400" height="240" fill="url(#g6)"/>
+            <g stroke="rgba(34,211,238,.12)" fill="none"><path d="M0 200 h400 M100 0 v240 M300 0 v240 M0 100 h400" stroke="rgba(59,158,255,.1)"/></g>
+            <path d="M200 66 a34 34 0 0 1 34 34 c0 26 -34 62 -34 62 s-34 -36 -34 -62 a34 34 0 0 1 34 -34 z" fill="#0c1424" stroke="#22d3ee" stroke-width="4" stroke-linejoin="round"/>
+            <circle cx="200" cy="100" r="12" fill="#0082FC"/>
+            <g stroke="#3b9eff" stroke-width="3" fill="none" opacity=".8"><path d="M252 62 a58 58 0 0 1 0 76"/><path d="M264 48 a80 80 0 0 1 0 104"/></g>
+          </svg>
+        </div>
+        <div class="app-body"><h3>📍 Localizzazione</h3><p>iBeacon, Eddystone, AirTag, SmartTag. <b>BLE advertising</b> + misura RSSI permettono di stimare la distanza e tracciare oggetti, persone, merci.</p><span class="chip">iBeacon · Find My · RSSI</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 SICUREZZA ============ -->
+<section class="sec sec-alt" id="sicurezza">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker r">09 · Sicurezza</p>
+      <h2 class="sec-title">Attacchi e difese</h2>
+      <p>Il raggio corto e il pairing protetto rendono Bluetooth relativamente sicuro, ma non immune. Conoscere gli attacchi aiuta a difendersi.</p>
+    </div>
+
+    <div class="sec-grid rv d1">
+      <article class="sec-card attack">
+        <h4>🎣 Bluejacking</h4>
+        <p>Invio di <b>messaggi o biglietti da visita indesiderati</b> a sconosciuti nel raggio. Fastidioso ma non pericoloso: non ruba dati. Si previene disabilitando la "visibilità".</p>
+        <span class="sec-tag">BASSO RISCHIO</span>
+      </article>
+      <article class="sec-card attack">
+        <h4>🕵️ Bluesnarfing</h4>
+        <p>Accesso non autorizzato a rubrica, SMS e file sfruttando vulnerabilità del protocollo OBEX. Ormai <b>patchato</b> nei dispositivi moderni, ma richiede firmware aggiornati.</p>
+        <span class="sec-tag">STORICO</span>
+      </article>
+      <article class="sec-card attack">
+        <h4>👂 Bluebugging</h4>
+        <p>L'attaccante si fa passare per auricolare e <b>usa il telefono della vittima per fare chiamate</b> o origliare conversazioni. Richiede pairing fraudolento.</p>
+        <span class="sec-tag">MEDIO RISCHIO</span>
+      </article>
+      <article class="sec-card defense">
+        <h4>🔐 SSP (Secure Simple Pairing)</h4>
+        <p>Dalla versione 2.1. Sostituisce il PIN "0000" con <b>numeric comparison</b>: i due dispositivi mostrano un numero a 6 cifre e l'utente conferma se combaciano. Rende il MITM difficile.</p>
+        <span class="sec-tag">DIFESA MODERNA</span>
+      </article>
+      <article class="sec-card defense">
+        <h4>🔒 AES-128 + LE Secure Connections</h4>
+        <p>Bluetooth 4.2+ usa <b>ECDH</b> (Elliptic Curve) per lo scambio delle chiavi. Il link viene cifrato con AES-128. Anche intercettando il pairing, l'attaccante non ricava la chiave.</p>
+        <span class="sec-tag">CRITTOGRAFIA FORTE</span>
+      </article>
+      <article class="sec-card defense">
+        <h4>👁️ Non-visible mode</h4>
+        <p>Il dispositivo è connesso ma <b>non risponde agli inquiry</b> di sconosciuti. La difesa più semplice ed efficace contro bluejacking e scansioni casuali.</p>
+        <span class="sec-tag">BUONA PRATICA</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 QUIZ ============ -->
+<section class="sec grid-bg" id="quiz">
+  <div class="wrap">
+    <div class="sec-head rv" style="text-align:center;margin-left:auto;margin-right:auto">
+      <p class="kicker" style="justify-content:center">10 · Verifica</p>
+      <h2 class="sec-title">Verifica le tue conoscenze</h2>
+      <p>8 domande su Bluetooth.</p>
+    </div>
+    <div class="quiz-shell rv d1">
+      <div id="quizBox">
+        <div class="quiz-top"><div class="qt-l"><span class="led bt"></span> QUESTIONARIO</div><div id="qCount">1 / 8</div></div>
+        <div class="q-progress"><i id="qProg"></i></div>
+        <div class="quiz-body">
+          <div id="qText"></div>
+          <div id="qOptions"></div>
+          <div class="q-feedback" id="qFeedback"></div>
+        </div>
+        <div class="quiz-foot"><button class="btn btn-bt sm" id="qNext" style="display:none">Prossima domanda ▸</button></div>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <div class="score-ring">
+          <svg width="150" height="150"><circle class="ring-bg" cx="75" cy="75" r="54"/><circle class="ring-fg" id="ringFg" cx="75" cy="75" r="54"/></svg>
+          <div class="score-num" id="scoreNum">0/8</div>
+        </div>
+        <div id="verdict"></div>
+        <p id="verdictMsg"></p>
+        <button class="btn btn-bt sm" id="btnRestart">↺ Riprova</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="logo" href="#top" style="font-size:.85rem"><span class="rune">ᛒ</span>BLUETOOTH<b>//</b>5.4</a>
+    <div class="f-nav">
+      <a href="#arch">Architettura</a><a href="#classic-ble">Classic vs BLE</a><a href="#pairing">Pairing</a><a href="#sicurezza">Sicurezza</a><a href="#quiz">Quiz</a>
+    </div>
+    <small>LEZIONE · SHORT-RANGE WIRELESS · BLUETOOTH</small>
+  </div>
+</footer>
+
+<script>
+/* ================= UTILS ================= */
+const RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const qs=s=>document.querySelector(s),qsa=s=>[...document.querySelectorAll(s)];
+const rand=(a,b)=>a+Math.random()*(b-a);
+const irand=n=>Math.floor(Math.random()*n);
+const pick=a=>a[irand(a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};
+    this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);
+    this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);
+    this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);
+    this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);return this;
+  };
+}
+
+const hdr=qs('#hdr');
+addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>24),{passive:true});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.15});
+qsa('.rv').forEach(el=>io.observe(el));
+function scramble(el,dur=1000){
+  const final=el.dataset.text||el.textContent;
+  if(RM){el.textContent=final;return;}
+  const chars='010101ᛒ#<>|=';
+  const start=performance.now();
+  (function frame(t){
+    const p=clamp((t-start)/dur,0,1),reveal=Math.floor(p*final.length);
+    let out='';
+    for(let i=0;i<final.length;i++){out+=i<reveal?final[i]:(final[i]===' '?' ':chars[irand(chars.length)]);}
+    el.textContent=out;
+    if(p<1)requestAnimationFrame(frame);else el.textContent=final;
+  })(start);
+}
+addEventListener('load',()=>{
+  scramble(qs('#titleA'),900);setTimeout(()=>scramble(qs('#titleB'),900),300);
+});
+qs('#mqTrack').innerHTML+=qs('#mqTrack').innerHTML;
+
+function fitCanvas(cv,h){
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const w=cv.parentElement.getBoundingClientRect().width;
+  cv.width=w*dpr;cv.height=h*dpr;
+  cv.style.height=h+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,w,h};
+}
+
+/* ================= HERO CANVAS ================= */
+(function(){
+  const cv=qs('#heroCanvas');
+  let {ctx,w,h}=fitCanvas(cv,Math.max(innerHeight,600));
+  const master={x:w*.5,y:h*.5};
+  const devices=Array.from({length:8},(_,i)=>{
+    const a=(i/8)*Math.PI*2 + Math.random()*.3;
+    const r=180+Math.random()*80;
+    return {
+      x:master.x+Math.cos(a)*r,
+      y:master.y+Math.sin(a)*r,
+      baseA:a, baseR:r, phase:Math.random()*Math.PI*2,
+      icon:pick(['📱','🎧','⌚','🔊','⌨️','🖱️','💡','📍'])
+    };
+  });
+  let packets=[];
+  let last=performance.now(), spawnT=0;
+  function step(dt,now){
+    spawnT+=dt;
+    if(spawnT>.35){
+      spawnT=0;
+      const d=pick(devices);
+      const dir=Math.random()<.5;
+      packets.push({
+        from:dir?master:d, to:dir?d:master,
+        t:0, color:dir?'#0082FC':'#3b9eff'
+      });
+    }
+    packets=packets.filter(p=>{p.t+=dt*.8;return p.t<1;});
+    devices.forEach(d=>{
+      const r=d.baseR+Math.sin(now*.001+d.phase)*15;
+      const a=d.baseA+Math.sin(now*.0005+d.phase)*.1;
+      d.x=master.x+Math.cos(a)*r;
+      d.y=master.y+Math.sin(a)*r;
+    });
+  }
+  function draw(now){
+    ctx.clearRect(0,0,w,h);
+    [140,220,300].forEach((r,i)=>{
+      ctx.strokeStyle=`rgba(0,130,252,${.15-i*.04})`;
+      ctx.lineWidth=1;ctx.setLineDash([4,6]);
+      ctx.beginPath();ctx.arc(master.x,master.y,r,0,Math.PI*2);ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    devices.forEach(d=>{
+      ctx.strokeStyle='rgba(0,130,252,.18)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(master.x,master.y);ctx.lineTo(d.x,d.y);ctx.stroke();
+    });
+    packets.forEach(p=>{
+      const x=p.from.x+(p.to.x-p.from.x)*p.t;
+      const y=p.from.y+(p.to.y-p.from.y)*p.t;
+      ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=12;
+      ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+    });
+    ctx.fillStyle='#0082FC';ctx.shadowColor='#0082FC';ctx.shadowBlur=20;
+    ctx.beginPath();ctx.arc(master.x,master.y,20,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.font='700 22px "Unbounded"';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='#fff';ctx.fillText('ᛒ',master.x,master.y);
+    devices.forEach(d=>{
+      ctx.fillStyle='#0c1424';ctx.strokeStyle='#3b9eff';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(d.x,d.y,22,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.font='20px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(d.icon,d.x,d.y);
+    });
+  }
+  if(RM){draw(0);}
+  else{(function loop(now){const dt=clamp((now-last)/1000,0,.05);last=now;if(!document.hidden){step(dt,now);draw(now);}requestAnimationFrame(loop);})(last);}
+  window.addEventListener('resize',()=>{({ctx,w,h}=fitCanvas(cv,Math.max(innerHeight,600)));});
+})();
+
+/* ================= PICONET ================= */
+(function(){
+  const cv=qs('#piconetCanvas');
+  let {ctx,w,h}=fitCanvas(cv,420);
+  const master={x:w/2,y:h/2,r:28};
+  const ICONS=['📱','🎧','⌚','🔊','⌨️','🖱️','💡'];
+  let slaves=[
+    {x:w/2+140,y:h/2,icon:'🎧',active:true},
+    {x:w/2,y:h/2+140,icon:'⌚',active:true},
+    {x:w/2-140,y:h/2,icon:'📱',active:true}
+  ];
+  let packets=[];
+  let last=performance.now(),spawnT=0;
+  function spawnPacket(){
+    if(slaves.filter(s=>s.active).length===0)return;
+    const s=pick(slaves.filter(x=>x.active));
+    const dir=Math.random()<.5;
+    packets.push({
+      from:dir?master:s,to:dir?s:master,
+      t:0,color:dir?'#0082FC':'#3b9eff',life:0
+    });
+  }
+  function draw(now){
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle='rgba(0,130,252,.15)';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+    ctx.beginPath();ctx.arc(master.x,master.y,180,0,Math.PI*2);ctx.stroke();
+    ctx.setLineDash([]);
+    slaves.forEach(s=>{
+      ctx.strokeStyle=s.active?'rgba(59,158,255,.4)':'rgba(92,111,143,.2)';
+      ctx.lineWidth=1.5;
+      if(!s.active)ctx.setLineDash([3,5]);else ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(master.x,master.y);ctx.lineTo(s.x,s.y);ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    packets=packets.filter(p=>{p.t+=.015;return p.t<1;});
+    packets.forEach(p=>{
+      const x=p.from.x+(p.to.x-p.from.x)*p.t;
+      const y=p.from.y+(p.to.y-p.from.y)*p.t;
+      ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+    });
+    ctx.fillStyle='#0082FC';ctx.shadowColor='#0082FC';ctx.shadowBlur=18;
+    ctx.beginPath();ctx.arc(master.x,master.y,master.r,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.font='700 26px "Unbounded"';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='#fff';ctx.fillText('ᛒ',master.x,master.y);
+    ctx.font='600 10px "JetBrains Mono"';ctx.fillStyle='rgba(0,130,252,.8)';
+    ctx.fillText('MASTER',master.x,master.y+master.r+14);
+    slaves.forEach((s,i)=>{
+      ctx.fillStyle='#0c1424';
+      ctx.strokeStyle=s.active?'#3b9eff':'#5c6f8f';
+      ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(s.x,s.y,22,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.font='20px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(s.icon,s.x,s.y);
+      ctx.font='600 9px "JetBrains Mono"';
+      ctx.fillStyle=s.active?'#3b9eff':'#5c6f8f';
+      ctx.fillText('S'+(i+1),s.x,s.y+32);
+    });
+  }
+  if(RM){draw(0);}
+  else{(function loop(now){const dt=clamp((now-last)/1000,0,.05);last=now;spawnT+=dt;if(spawnT>.6&&packets.length<3){spawnT=0;spawnPacket();}if(!document.hidden)draw(now);requestAnimationFrame(loop);})(last);}
+  window.addEventListener('resize',()=>{
+    ({ctx,w,h}=fitCanvas(cv,420));
+    master.x=w/2;master.y=h/2;
+    slaves.forEach((s,i)=>{
+      const a=(i/slaves.length)*Math.PI*2;
+      s.x=master.x+Math.cos(a)*140;s.y=master.y+Math.sin(a)*140;
+    });
+  });
+  qs('#pnAdd').onclick=()=>{
+    if(slaves.length>=7){alert('Massimo 7 slave attivi per piconet');return;}
+    const a=(slaves.length/7)*Math.PI*2;
+    slaves.push({
+      x:master.x+Math.cos(a)*140,
+      y:master.y+Math.sin(a)*140,
+      icon:ICONS[slaves.length%ICONS.length],active:true
+    });
+    qs('#pnCount').textContent=slaves.length;
+  };
+  qs('#pnTraffic').onclick=()=>{
+    for(let i=0;i<5;i++)setTimeout(spawnPacket,i*150);
+  };
+  qs('#pnReset').onclick=()=>{
+    slaves=[
+      {x:w/2+140,y:h/2,icon:'🎧',active:true},
+      {x:w/2,y:h/2+140,icon:'⌚',active:true},
+      {x:w/2-140,y:h/2,icon:'📱',active:true}
+    ];
+    packets=[];
+    qs('#pnCount').textContent=slaves.length;
+  };
+})();
+
+/* ================= SPECTRUM ================= */
+(function(){
+  const cv=qs('#specCanvas');
+  let {ctx,w,h}=fitCanvas(cv,240);
+  let mode='classic';
+  let channels=[];
+  let activeCh=0;
+  let wifi=[{f:.3,on:true},{f:.6,on:true}];
+  let last=performance.now(),hopT=0;
+  function initChannels(){
+    const n=mode==='classic'?79:40;
+    channels=Array.from({length:n},(_,i)=>({
+      used:Math.random()<.15,
+      amp:Math.random()*.3+.1,
+      phase:Math.random()*Math.PI*2
+    }));
+    qs('#spChCount').textContent=n;
+  }
+  function draw(now){
+    ctx.clearRect(0,0,w,h);
+    const n=channels.length;
+    const cw=(w-60)/n;
+    const mid=h-40;
+    ctx.strokeStyle='rgba(142,161,189,.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(30,mid);ctx.lineTo(w-30,mid);ctx.stroke();
+    ctx.fillStyle='rgba(142,161,189,.6)';ctx.font='600 10px "JetBrains Mono"';ctx.textAlign='left';
+    ctx.fillText('2.402 GHz',32,mid+14);
+    ctx.textAlign='right';ctx.fillText('2.480 GHz',w-32,mid+14);
+    wifi.forEach(wi=>{
+      if(!wi.on)return;
+      const x=30+wi.f*(w-60);
+      const gr=ctx.createLinearGradient(x-20,0,x+20,0);
+      gr.addColorStop(0,'rgba(255,93,122,0)');
+      gr.addColorStop(.5,'rgba(255,93,122,.25)');
+      gr.addColorStop(1,'rgba(255,93,122,0)');
+      ctx.fillStyle=gr;
+      ctx.fillRect(x-30,20,60,mid-20);
+      ctx.font='500 9px "JetBrains Mono"';ctx.textAlign='center';
+      ctx.fillStyle='rgba(255,93,122,.8)';
+      ctx.fillText('Wi-Fi',x,18);
+    });
+    channels.forEach((c,i)=>{
+      const x=30+i*cw;
+      const isHop=i===activeCh;
+      const amp=c.amp*(30+Math.sin(now*.002+c.phase)*8);
+      ctx.fillStyle=isHop?'#0082FC':(c.used?'rgba(0,130,252,.5)':'rgba(92,111,143,.25)');
+      if(isHop){ctx.shadowColor='#0082FC';ctx.shadowBlur=10;}
+      ctx.fillRect(x,mid-amp,cw-1,amp);
+      ctx.shadowBlur=0;
+      ctx.strokeStyle=isHop?'#3b9eff':'transparent';
+      ctx.lineWidth=1;
+      ctx.strokeRect(x,mid-amp,cw-1,amp);
+    });
+    const ax=30+activeCh*cw+cw/2;
+    ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.5;ctx.setLineDash([2,3]);
+    ctx.beginPath();ctx.moveTo(ax,10);ctx.lineTo(ax,mid);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#f59e0b';ctx.font='700 10px "JetBrains Mono"';ctx.textAlign='center';
+    ctx.fillText('CH '+activeCh,ax,10);
+  }
+  if(RM){draw(0);}
+  else{(function loop(now){
+    const dt=clamp((now-last)/1000,0,.05);last=now;
+    hopT+=dt;
+    if(hopT>.000625){hopT=0;activeCh=irand(channels.length);}
+    if(!document.hidden)draw(now);
+    requestAnimationFrame(loop);
+  })(last);}
+  window.addEventListener('resize',()=>{({ctx,w,h}=fitCanvas(cv,240));});
+  qs('#spClassic').onclick=()=>{mode='classic';qs('#spClassic').classList.add('active');qs('#spClassic').style.fontWeight='600';qs('#spBle').classList.remove('active');qs('#spBle').style.fontWeight='400';initChannels();};
+  qs('#spBle').onclick=()=>{mode='ble';qs('#spBle').classList.add('active');qs('#spBle').style.fontWeight='600';qs('#spClassic').classList.remove('active');qs('#spClassic').style.fontWeight='400';initChannels();};
+  initChannels();
+})();
+
+/* ================= PAIRING SIM ================= */
+(function(){
+  const cv=qs('#pairCanvas');
+  let {ctx,w,h}=fitCanvas(cv,260);
+  let step=0,autoInt=null;
+  const STEPS=[
+    {name:'Inquiry',a:'📱 A invia inquiry',b:'🎧 B risponde con il suo BD_ADDR',log:'[INQUIRY] A cerca dispositivi vicini... B risponde',color:'#0082FC'},
+    {name:'Page',a:'📱 A chiama B',b:'🎧 B accetta la connessione',log:'[PAGE] A contatta B direttamente sul suo indirizzo',color:'#3b9eff'},
+    {name:'IO Capability',a:'📱 A: "ho display e tastiera"',b:'🎧 B: "solo Yes/No button"',log:'[IO CAP] Scambio capacità I/O → scelta metodo di associazione',color:'#a78bfa'},
+    {name:'Association',a:'📱 Mostra: 482917',b:'🎧 Mostra: 482917 · OK ✓',log:'[ASSOC] Numeric comparison: entrambi mostrano 482917, utente conferma',color:'#f59e0b'},
+    {name:'LTK Generation',a:'🔑 A genera LTK',b:'🔑 B genera LTK',log:'[LTK] Long Term Key derivata via ECDH + scambio sicuro',color:'#10b981'},
+    {name:'Encryption ON',a:'🔒 Link cifrato AES-128',b:'🔒 Link cifrato AES-128',log:'[CRYPT] Comunicazione cifrata attiva · AES-128',color:'#10b981'}
+  ];
+  const logEl=qs('#pairLog');
+  function log(msg,color){
+    const d=document.createElement('div');
+    d.className='log '+color;
+    const t=new Date().toTimeString().substring(0,8);
+    d.innerHTML=`<span class="ts">${t}</span>${msg}`;
+    logEl.appendChild(d);
+    logEl.scrollTop=logEl.scrollHeight;
+    while(logEl.children.length>20)logEl.firstChild.remove();
+  }
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    const ax=w*.25,ay=h*.5,bx=w*.75,by=h*.5;
+    ctx.fillStyle='#0c1424';ctx.strokeStyle='#0082FC';ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(ax-35,ay-45,70,90,8);ctx.fill();ctx.stroke();
+    ctx.font='32px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('📱',ax,ay);
+    ctx.font='600 10px "JetBrains Mono"';ctx.fillStyle='#0082FC';
+    ctx.fillText('PHONE A',ax,ay+58);
+    ctx.fillStyle='#0c1424';ctx.strokeStyle='#3b9eff';ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(bx-35,by-45,70,90,8);ctx.fill();ctx.stroke();
+    ctx.font='32px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('🎧',bx,by);
+    ctx.font='600 10px "JetBrains Mono"';ctx.fillStyle='#3b9eff';
+    ctx.fillText('HEADSET B',bx,by+58);
+    if(step>0){
+      const s=STEPS[step-1];
+      ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.setLineDash(step===6?[]:[5,4]);
+      ctx.beginPath();ctx.moveTo(ax+45,ay-10);ctx.lineTo(bx-45,ay-10);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(bx-45,ay-10);ctx.lineTo(bx-55,ay-15);ctx.lineTo(bx-55,ay-5);ctx.closePath();ctx.fillStyle=s.color;ctx.fill();
+      ctx.beginPath();ctx.moveTo(bx-45,by+10);ctx.lineTo(ax+45,by+10);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(ax+45,by+10);ctx.lineTo(ax+55,by+5);ctx.lineTo(ax+55,by+15);ctx.closePath();ctx.fillStyle=s.color;ctx.fill();
+      ctx.setLineDash([]);
+      ctx.font='500 10px "JetBrains Mono"';ctx.textAlign='center';ctx.fillStyle=s.color;
+      ctx.fillText(s.a,ax+(bx-ax)/2,ay-20);
+      ctx.fillText(s.b,ax+(bx-ax)/2,by+25);
+    }
+    if(step===6){
+      ctx.strokeStyle='rgba(16,185,129,.4)';ctx.lineWidth=6;
+      ctx.beginPath();ctx.moveTo(ax+45,ay);ctx.lineTo(bx-45,ay);ctx.stroke();
+      ctx.fillStyle='rgba(16,185,129,.9)';ctx.font='700 14px sans-serif';
+      ctx.fillText('🔒',ax+(bx-ax)/2,ay+4);
+    }
+  }
+  function updateUI(){
+    qsa('.ps').forEach((el,i)=>{
+      el.classList.remove('active','done');
+      if(i+1<step)el.classList.add('done');
+      else if(i+1===step)el.classList.add('active');
+    });
+    draw();
+  }
+  function nextStep(){
+    if(step>=STEPS.length)return;
+    const s=STEPS[step];
+    log(s.log,step===STEPS.length-1?'ok':'bt');
+    step++;
+    updateUI();
+  }
+  qs('#pairNext').onclick=nextStep;
+  qs('#pairAuto').onclick=()=>{
+    if(autoInt){clearInterval(autoInt);autoInt=null;qs('#pairAuto').textContent='▶▶ Esegui tutto';return;}
+    qs('#pairAuto').textContent='⏸ Pausa';
+    autoInt=setInterval(()=>{
+      if(step>=STEPS.length){clearInterval(autoInt);autoInt=null;qs('#pairAuto').textContent='▶▶ Esegui tutto';return;}
+      nextStep();
+    },RM?100:1200);
+  };
+  qs('#pairReset').onclick=()=>{
+    if(autoInt){clearInterval(autoInt);autoInt=null;qs('#pairAuto').textContent='▶▶ Esegui tutto';}
+    step=0;updateUI();logEl.innerHTML='';log('🔌 Pronto per il pairing','warn');
+  };
+  log('🔌 Pronto per il pairing','warn');
+  updateUI();
+})();
+
+/* ================= QUIZ ================= */
+(function(){
+  const QUIZ=[
+    {q:"1. In quale banda di frequenza opera il Bluetooth?",
+     opts:["900 MHz","2.4 GHz ISM","5 GHz","60 GHz"],
+     a:1,why:"Bluetooth opera nella banda ISM (Industrial, Scientific, Medical) dei 2.4 GHz, libera e disponibile in tutto il mondo. È la stessa banda del Wi-Fi 2.4 GHz."},
+    {q:"2. Quanti slave attivi può gestire una piconet?",
+     opts:["3","7","255","illimitati"],
+     a:1,why:"Una piconet ha 1 master e fino a 7 slave attivi contemporaneamente. Possono esistere fino a 255 slave in 'parked mode', ma non partecipano alla comunicazione."},
+    {q:"3. Quante volte al secondo Bluetooth Classic cambia canale?",
+     opts:["160","790","1600","16000"],
+     a:2,why:"Il frequency hopping di Bluetooth Classic cambia canale 1600 volte al secondo (uno slot ogni 625 µs), riducendo drasticamente le interferenze."},
+    {q:"4. Quale variante di Bluetooth è pensata per il basso consumo?",
+     opts:["Classic","EDR","BLE (Low Energy)","HS"],
+     a:2,why:"Bluetooth Low Energy (BLE) è stato introdotto nella versione 4.0 (2010) per IoT e wearable, con consumi ridotti di ~100× rispetto al Classic."},
+    {q:"5. Cosa permette Auracast (Bluetooth 5.2+)?",
+     opts:["Trasferimento file più veloce","Audio broadcast a molti ascoltatori senza pairing","Connessioni su lunghe distanze","Mesh tra centinaia di nodi"],
+     a:1,why:"Auracast è una feature di LE Audio che permette a un dispositivo di trasmettere audio in broadcast a centinaia di ascoltatori, senza bisogno di pairing individuale."},
+    {q:"6. Quale attacco consiste nell'invio di messaggi indesiderati?",
+     opts:["Bluesnarfing","Bluebugging","Bluejacking","Bluesmacking"],
+     a:2,why:"Il bluejacking invia biglietti da visita o messaggi a dispositivi sconosciuti nel raggio. È fastidioso ma non ruba dati; si previene disabilitando la visibilità."},
+    {q:"7. A quale classe di potenza corrisponde un raggio di circa 10 metri?",
+     opts:["Classe 1","Classe 2","Classe 3","Classe 4"],
+     a:1,why:"La Classe 2 (2.5 mW, +4 dBm) è la più diffusa su smartphone, auricolari e altoparlanti, con raggio tipico di 10 metri in ambiente domestico."},
+    {q:"8. Come si chiama la rete formata da più piconet interconnesse?",
+     opts:["Pan-net","Mesh","Scatternet","Subnet"],
+     a:2,why:"Una scatternet è formata da più piconet che si sovrappongono geograficamente, dove almeno un dispositivo funge da ponte (master in una, slave in un'altra)."}
+  ];
+  const L=['A','B','C','D'];
+  let idx=0,score=0,answered=false;
+  const box=qs('#quizBox'),res=qs('#quizResult');
+  function render(){
+    answered=false;
+    const q=QUIZ[idx];
+    qs('#qCount').textContent=(idx+1)+' / '+QUIZ.length;
+    qs('#qProg').style.width=(idx/QUIZ.length*100)+'%';
+    qs('#qText').innerHTML=q.q;
+    const ob=qs('#qOptions');ob.innerHTML='';
+    q.opts.forEach((o,i)=>{
+      const b=document.createElement('button');
+      b.className='opt';b.innerHTML=`<span class="ol">${L[i]}</span><span>${o}</span>`;
+      b.onclick=()=>answer(i,b);
+      ob.appendChild(b);
+    });
+    qs('#qFeedback').className='q-feedback';
+    qs('#qNext').style.display='none';
+  }
+  function answer(i,btn){
+    if(answered)return;answered=true;
+    const q=QUIZ[idx],fb=qs('#qFeedback');
+    const opts=qsa('.opt');opts.forEach(o=>o.disabled=true);
+    if(i===q.a){
+      score++;btn.classList.add('ok');
+      fb.className='q-feedback show good';
+      fb.innerHTML='<b>✓ Corretto</b>'+q.why;
+    }else{
+      btn.classList.add('bad');opts[q.a].classList.add('ok');
+      opts.forEach((o,j)=>{if(j!==i&&j!==q.a)o.classList.add('dim');});
+      fb.className='q-feedback show evil';
+      fb.innerHTML='<b>✗ Non esattamente</b>'+q.why;
+    }
+    qs('#qProg').style.width=((idx+1)/QUIZ.length*100)+'%';
+    const nx=qs('#qNext');nx.style.display='inline-flex';
+    nx.textContent=idx===QUIZ.length-1?'Vedi il risultato ▸':'Prossima domanda ▸';
+  }
+  qs('#qNext').onclick=()=>{idx++;if(idx>=QUIZ.length)showResult();else render();};
+  function showResult(){
+    box.style.display='none';res.classList.add('show');
+    qs('#scoreNum').textContent=score+'/'+QUIZ.length;
+    const C=339.3;
+    requestAnimationFrame(()=>{qs('#ringFg').style.strokeDashoffset=C*(1-score/QUIZ.length);});
+    const v=[
+      ['Ripassa i fondamentali','Rileggi la lezione e riprova.'],
+      ['Apprendista wireless','Buon inizio, ma piconet e FHSS vanno rivisti.'],
+      ['Studente in crescita','Conosci le basi: approfondisci Classic vs BLE.'],
+      ['Junior technician','Ottima preparazione, manca poco.'],
+      ['Wireless specialist','Molto bene: padroneggi Bluetooth.'],
+      ['Senior in pectore','Eccellente, un solo errore.'],
+      ['Bluetooth expert','Quasi perfetto: BLE e pairing non hanno segreti.'],
+      ['Bluetooth master','Solo un passo dal punteggio pieno!'],
+      ['RF Engineer 🏆','Punteggio pieno! Harald Bluetooth sarebbe fiero di te.']
+    ][clamp(score,0,QUIZ.length)];
+    qs('#verdict').textContent=v[0];
+    qs('#verdictMsg').textContent=v[1];
+  }
+  qs('#btnRestart').onclick=()=>{
+    idx=0;score=0;box.style.display='block';res.classList.remove('show');
+    qs('#ringFg').style.strokeDashoffset=339.3;render();
+  };
+  render();
+})();
+</script>
+</body>
+</html>
