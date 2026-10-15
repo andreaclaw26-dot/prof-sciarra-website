@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Constructors Lab — Il costruttore spiegato giocando</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='7' y='6' width='6' height='20' rx='2' fill='%23f89820'/><path d='M17 11h5l4 5-4 5h-5z' fill='none' stroke='%2335c7b5' stroke-width='2'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e14; --bg2:#0d131c; --panel:#0f1622; --panel2:#141f30;
+  --line:#24344b; --line-soft:#1a2638;
+  --ink:#edf3fb; --muted:#93a4bd; --faint:#5f718c;
+  --cof:#e8a13a; --cof-dim:rgba(232,161,58,.13);
+  --teal:#35c7b5; --teal-dim:rgba(53,199,181,.13);
+  --ok:#4ade80; --ok-dim:rgba(74,222,128,.13);
+  --err:#ff6b81; --err-dim:rgba(255,107,129,.13);
+  --vi:#b39dff; --vi-dim:rgba(179,157,255,.13);
+  --blue:#5aa9ff; --blue-dim:rgba(90,169,255,.13);
+  --fd:'Unbounded',sans-serif; --fb:'Space Grotesk',sans-serif; --fc:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;overflow-x:hidden;
+  background-image:radial-gradient(900px 520px at 88% -6%,rgba(232,161,58,.07),transparent 62%),
+    radial-gradient(820px 520px at 4% 32%,rgba(53,199,181,.06),transparent 62%);}
+::selection{background:var(--cof);color:#1c1000}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+code{font-family:var(--fc)}
+section{scroll-margin-top:84px;position:relative}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.grid-bg::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+  background-size:58px 58px;
+  mask-image:radial-gradient(ellipse 82% 70% at 50% 42%,#000 30%,transparent 76%);
+  -webkit-mask-image:radial-gradient(ellipse 82% 70% at 50% 42%,#000 30%,transparent 76%);}
+.kicker{font-family:var(--fc);font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.7rem}
+.kicker::before{content:"";width:9px;height:9px;background:var(--cof);box-shadow:0 0 12px var(--cof);border-radius:2px}
+.kicker.t::before{background:var(--teal);box-shadow:0 0 12px var(--teal)}
+.kicker.v::before{background:var(--vi);box-shadow:0 0 12px var(--vi)}
+.kicker.g::before{background:var(--ok);box-shadow:0 0 12px var(--ok)}
+.kicker.b::before{background:var(--blue);box-shadow:0 0 12px var(--blue)}
+h2.sec-title{font-family:var(--fd);font-weight:700;font-size:clamp(1.7rem,3.6vw,2.8rem);line-height:1.12;margin:.8rem 0 .6rem;letter-spacing:-.01em}
+.sec-head{margin-bottom:2.4rem;max-width:820px}
+.sec-head p{color:var(--muted);font-size:1.05rem}
+.sec-head p b{color:var(--ink);font-weight:600}
+.sec-head p code{font-size:.85em;background:var(--cof-dim);color:var(--cof);padding:1px 7px;border-radius:4px}
+.sec-head p em{color:var(--teal);font-style:normal;font-weight:600}
+.sec{padding:104px 0}
+.sec-alt{background:var(--bg2)}
+.num-ghost{font-family:var(--fd);font-weight:900;color:transparent;-webkit-text-stroke:1px var(--line);font-size:clamp(3rem,7vw,5rem);position:absolute;right:24px;top:-14px;user-select:none;pointer-events:none}
+header{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px 14px 132px;display:flex;align-items:center;justify-content:space-between;gap:.8rem;transition:background .35s,border-color .35s;border-bottom:1px solid transparent}
+header.scrolled{background:rgba(10,14,20,.86);backdrop-filter:blur(12px);border-color:var(--line-soft)}
+.logo{font-family:var(--fd);font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.6rem;white-space:nowrap;flex-shrink:0}
+.logo .sq{width:15px;height:15px;border-radius:4px;background:linear-gradient(135deg,var(--cof),var(--teal));box-shadow:0 0 12px rgba(232,161,58,.5)}
+.logo b{color:var(--cof)}
+nav.main-nav{display:flex;gap:1.1rem;font-family:var(--fc);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase}
+nav.main-nav a{color:var(--muted);transition:color .25s;position:relative;padding:4px 0;white-space:nowrap}
+nav.main-nav a:hover{color:var(--cof)}
+nav.main-nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--cof);transition:width .3s}
+nav.main-nav a:hover::after{width:100%}
+.live-chip{font-family:var(--fc);font-size:.66rem;letter-spacing:.16em;border:1px solid var(--line);padding:6px 12px;border-radius:99px;display:flex;align-items:center;gap:8px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.live-chip i{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.home-btn{position:fixed;top:14px;left:24px;z-index:120;font-family:var(--fc);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;padding:.5rem .95rem;border-radius:99px;border:1px solid var(--line);background:rgba(10,14,20,.82);backdrop-filter:blur(10px);color:var(--muted);display:inline-flex;align-items:center;gap:.45rem;transition:all .25s}
+.home-btn:hover{color:var(--cof);border-color:var(--cof);transform:translateY(-1px)}
+@media(max-width:1120px){nav.main-nav{display:none}}
+@media(max-width:560px){.live-chip{display:none}}
+@media(max-width:640px){.home-btn{top:auto;bottom:14px;left:14px}header{padding-left:24px}}
+
+.hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;padding-top:80px}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:2.6rem;align-items:center}
+.hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(2.1rem,5.6vw,4.4rem);line-height:1.04;letter-spacing:-.015em}
+.hero h1 .l2{display:block;color:transparent;-webkit-text-stroke:1.4px var(--teal);font-weight:700;font-size:.62em;margin-top:.4em}
+.hero .lead{margin-top:1.4rem;max-width:560px;color:var(--muted);font-size:1.06rem}
+.hero .lead b{color:var(--cof);font-weight:600}
+.hero .lead em{color:var(--teal);font-style:normal;font-weight:600}
+.hero .lead code{font-size:.86em;background:var(--cof-dim);color:var(--cof);padding:1px 7px;border-radius:4px}
+.hero-cta{display:flex;gap:.9rem;margin-top:1.9rem;flex-wrap:wrap}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}}
+.btn{font-family:var(--fc);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.82rem 1.35rem;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--ink);transition:all .22s;display:inline-flex;align-items:center;gap:.55rem}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn-cof{border-color:rgba(232,161,58,.5);color:var(--cof);background:var(--cof-dim)}
+.btn-cof:hover{background:rgba(232,161,58,.22);box-shadow:0 8px 26px -8px rgba(232,161,58,.6)}
+.btn-teal{border-color:rgba(53,199,181,.5);color:var(--teal);background:var(--teal-dim)}
+.btn-teal:hover{background:rgba(53,199,181,.2)}
+.btn-ok{border-color:rgba(74,222,128,.5);color:var(--ok);background:var(--ok-dim)}
+.btn-ghost:hover{border-color:var(--muted);background:rgba(147,164,189,.08)}
+.btn.sm{padding:.55rem .9rem;font-size:.62rem}
+.btn:disabled{opacity:.35;pointer-events:none}
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2);overflow:hidden;position:relative;z-index:2}
+.marquee-track{display:flex;width:max-content;animation:mq 46s linear infinite}
+.marquee-track span{font-family:var(--fc);font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;color:var(--faint);padding:13px 0;white-space:nowrap}
+.marquee-track b{color:var(--cof);font-weight:500;padding:0 1.3rem}
+@keyframes mq{to{transform:translateX(-50%)}}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}.rv.d4{transition-delay:.4s}
+.panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 30px 60px -34px rgba(0,0,0,.8)}
+.panel-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--line-soft);background:rgba(10,14,20,.5);flex-wrap:wrap}
+.panel-bar .pb-title{font-family:var(--fc);font-size:.66rem;letter-spacing:.18em;color:var(--muted);display:flex;align-items:center;gap:.6rem;text-transform:uppercase}
+.led{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 10px var(--teal);animation:pulse 2s infinite}
+.led.cof{background:var(--cof);box-shadow:0 0 10px var(--cof)}
+.led.vi{background:var(--vi);box-shadow:0 0 10px var(--vi)}
+.lab-body{padding:1.5rem 1.5rem 1.7rem}
+.lab-note{padding:.85rem 1.3rem;border-top:1px dashed var(--line-soft);font-size:.87rem;color:var(--muted)}
+.lab-note b{color:var(--ink)}
+.lab-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:1rem 0}
+.lab-row .lbl{font-family:var(--fc);font-size:.62rem;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;margin-right:.3rem}
+.cards2{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem}
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.3rem}
+@media(max-width:900px){.cards3{grid-template-columns:1fr}}
+@media(max-width:760px){.cards2{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--panel),var(--bg2));padding:1.5rem;position:relative;overflow:hidden;transition:transform .3s,border-color .3s}
+.card:hover{transform:translateY(-4px);border-color:var(--line)}
+.card .ci{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-size:1.25rem;margin-bottom:.9rem}
+.ci.cof{background:var(--cof-dim);color:var(--cof)}
+.ci.teal{background:var(--teal-dim);color:var(--teal)}
+.ci.vi{background:var(--vi-dim);color:var(--vi)}
+.ci.ok{background:var(--ok-dim);color:var(--ok)}
+.ci.blue{background:var(--blue-dim);color:var(--blue)}
+.card h3{font-family:var(--fd);font-weight:600;font-size:1.02rem;margin-bottom:.5rem}
+.card p{color:var(--muted);font-size:.92rem}
+.card p b{color:var(--ink);font-weight:600}
+.card p code{font-size:.85em;background:var(--cof-dim);color:var(--cof);padding:1px 6px;border-radius:4px}
+/* code block */
+.code{font-family:var(--fc);font-size:.86rem;line-height:1.7;background:#070a10;border:1px solid var(--line-soft);border-radius:12px;padding:1rem 1.15rem;overflow:auto;counter-reset:ln}
+.code .ln{display:block;white-space:pre;position:relative;padding-left:2.4rem}
+.code .ln::before{counter-increment:ln;content:counter(ln);position:absolute;left:0;width:1.7rem;text-align:right;color:var(--faint);opacity:.6;font-size:.78rem}
+.kw{color:#ff9d5c}.ty{color:var(--teal)}.fn{color:var(--blue)}.st{color:#9ad9a0}.num{color:#e8a13a}.cm{color:#5f718c;font-style:italic}.vr{color:#e6eefc}.op{color:#9fb0c9}
+/* problema/soluzione toggle */
+.toggle-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem}
+@media(max-width:760px){.toggle-wrap{grid-template-columns:1fr}}
+.bad-panel{border:1px solid rgba(255,107,129,.35);border-radius:14px;background:linear-gradient(180deg,rgba(255,107,129,.06),transparent);padding:1.2rem}
+.good-panel{border:1px solid rgba(74,222,128,.35);border-radius:14px;background:linear-gradient(180deg,rgba(74,222,128,.06),transparent);padding:1.2rem}
+.bad-panel h4{color:var(--err);font-family:var(--fd);font-size:.95rem;margin-bottom:.6rem}
+.good-panel h4{color:var(--ok);font-family:var(--fd);font-size:.95rem;margin-bottom:.6rem}
+/* builder */
+.builder{display:grid;grid-template-columns:.9fr 1.1fr;gap:1.4rem;align-items:start}
+@media(max-width:900px){.builder{grid-template-columns:1fr}}
+.field-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem}
+.sel,.inp{font-family:var(--fc);font-size:.82rem;background:#070a10;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:.5rem .65rem;outline:none;transition:.15s;width:100%}
+.sel:focus,.inp:focus{border-color:var(--cof);box-shadow:0 0 0 3px rgba(232,161,58,.18)}
+.sel{max-width:120px}
+.mini-x{background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;width:30px;height:30px;flex:none;transition:.15s}
+.mini-x:hover{border-color:var(--err);color:var(--err)}
+.inp-lbl{font-family:var(--fc);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);display:block;margin:.9rem 0 .35rem}
+/* simulator / heap */
+.sim{display:grid;grid-template-columns:1fr .95fr;gap:1.4rem;align-items:start}
+@media(max-width:900px){.sim{grid-template-columns:1fr}}
+.ctabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.ctab{font-family:var(--fc);font-size:.72rem;padding:.5rem .8rem;border-radius:8px;border:1px solid var(--line);background:var(--bg2);color:var(--muted);transition:.18s}
+.ctab:hover{border-color:var(--teal);color:var(--ink)}
+.ctab.on{border-color:var(--teal);background:var(--teal-dim);color:var(--teal);box-shadow:0 0 0 3px rgba(53,199,181,.14)}
+.argbox{display:flex;gap:.6rem;flex-wrap:wrap;margin:.6rem 0}
+.argbox label{font-family:var(--fc);font-size:.74rem;color:var(--muted);display:flex;flex-direction:column;gap:.3rem}
+.argbox input{width:130px}
+.heap{position:relative;min-height:210px;border:1px dashed var(--line);border-radius:14px;background:
+  repeating-linear-gradient(0deg,var(--line-soft) 0 1px,transparent 1px 30px),
+  repeating-linear-gradient(90deg,var(--line-soft) 0 1px,transparent 1px 30px),#080c13;padding:1rem}
+.obj{border:1px solid var(--teal);border-radius:12px;background:rgba(53,199,181,.05);padding:.9rem 1rem;box-shadow:0 12px 30px -14px rgba(53,199,181,.5);animation:pop .45s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes pop{from{opacity:0;transform:scale(.9) translateY(8px)}}
+.obj .oh{font-family:var(--fc);font-size:.7rem;letter-spacing:.08em;color:var(--teal);display:flex;justify-content:space-between;gap:1rem;border-bottom:1px solid var(--line-soft);padding-bottom:.5rem;margin-bottom:.6rem}
+.obj .fld{display:flex;justify-content:space-between;font-family:var(--fc);font-size:.82rem;padding:.28rem 0}
+.obj .fld .fk{color:var(--muted)} .obj .fld .fv{color:var(--cof);font-weight:600}
+.obj .fld.flash .fv{animation:vflash 1s ease}
+@keyframes vflash{0%{color:#fff;text-shadow:0 0 12px var(--teal)}100%{}}
+.empty-hint{position:absolute;inset:0;display:grid;place-items:center;color:var(--faint);font-family:var(--fc);font-size:.76rem;text-align:center}
+.verdict{margin-top:1rem;padding:.85rem 1.05rem;border-radius:10px;font-family:var(--fc);font-size:.82rem;border:1px solid var(--line);color:var(--muted);line-height:1.55}
+.verdict.good{border-color:rgba(74,222,128,.5);background:var(--ok-dim);color:var(--ok)}
+.verdict.bad{border-color:rgba(255,107,129,.5);background:var(--err-dim);color:var(--err)}
+.verdict.info{border-color:rgba(90,169,255,.5);background:var(--blue-dim);color:var(--blue)}
+/* exec */
+.exec-line{display:block;font-family:var(--fc);font-size:.86rem;line-height:1.9;padding:.15rem .5rem;border-radius:6px;transition:.2s;white-space:pre}
+.exec-line.cur{background:rgba(232,161,58,.16);box-shadow:inset 3px 0 0 var(--cof)}
+/* overload */
+.ov-tabs{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.2rem}
+/* game */
+.game-list{display:flex;flex-direction:column;gap:.7rem}
+.gitem{display:flex;gap:1rem;align-items:center;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:.85rem 1rem;flex-wrap:wrap}
+.gitem .sig{font-family:var(--fc);font-size:.86rem;flex:1;min-width:210px}
+.gitem .gc{display:flex;gap:.5rem}
+.gpick{font-family:var(--fc);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;padding:.45rem .7rem;border-radius:8px;border:1px solid var(--line);background:var(--bg2);color:var(--muted);transition:.15s}
+.gpick:hover{border-color:var(--teal);color:var(--ink)}
+.gitem.right{border-color:rgba(74,222,128,.6);background:linear-gradient(90deg,var(--ok-dim),transparent)}
+.gitem.wrong{border-color:rgba(255,107,129,.6);background:linear-gradient(90deg,var(--err-dim),transparent)}
+.gitem .why{flex-basis:100%;font-family:var(--fc);font-size:.76rem;color:var(--muted);display:none}
+.gitem.done .why{display:block}
+.gitem.done .gc{display:none}
+/* quiz */
+.quiz-shell{max-width:780px;margin:0 auto;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--panel),var(--bg2));overflow:hidden;box-shadow:0 40px 80px -44px rgba(0,0,0,.9)}
+.quiz-top{padding:1.3rem 1.7rem;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.qt-l{font-family:var(--fc);font-size:.64rem;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:.7rem}
+#qCount{font-family:var(--fd);font-weight:600;font-size:.9rem;color:var(--cof)}
+.q-progress{height:3px;background:var(--line-soft)}
+.q-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cof),var(--teal));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.quiz-body{padding:2rem 1.9rem}
+#qText{font-family:var(--fd);font-weight:600;font-size:clamp(1.02rem,2.1vw,1.25rem);line-height:1.45;margin-bottom:1.5rem}
+.q-opts{display:flex;flex-direction:column;gap:.6rem}
+.qopt{display:flex;gap:.9rem;align-items:flex-start;text-align:left;background:rgba(10,14,20,.55);border:1px solid var(--line);border-radius:11px;padding:.9rem 1rem;color:var(--ink);font-size:.94rem;font-family:var(--fb);transition:.2s}
+.qopt .ol{flex:0 0 28px;height:28px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;font-family:var(--fc);font-size:.72rem;color:var(--muted)}
+.qopt:hover:not(.done){border-color:var(--cof);background:var(--cof-dim);transform:translateX(5px)}
+.qopt.ok{border-color:var(--ok);background:var(--ok-dim)}
+.qopt.ok .ol{background:var(--ok);color:#04130a;border-color:var(--ok)}
+.qopt.bad{border-color:var(--err);background:var(--err-dim)}
+.qopt.bad .ol{background:var(--err);color:#2a0710;border-color:var(--err)}
+.qopt.done{cursor:default}
+.qfb{margin-top:1rem;padding:1rem 1.2rem;border-radius:11px;font-size:.9rem;line-height:1.55;border:1px solid;display:none}
+.qfb.show{display:block}
+.qfb.good{border-color:rgba(74,222,128,.4);background:var(--ok-dim);color:#d6ffe6}
+.qfb.evil{border-color:rgba(255,107,129,.4);background:var(--err-dim);color:#ffd9df}
+.qfb b{display:block;font-family:var(--fc);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:.35rem}
+.quiz-foot{padding:0 1.9rem 1.9rem;display:flex;justify-content:flex-end}
+.quiz-result{display:none;text-align:center;padding:2.6rem 1.9rem}
+.quiz-result.show{display:block}
+.score-ring{position:relative;width:150px;height:150px;margin:0 auto 1.2rem}
+.score-ring svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--line);stroke-width:8}
+.ring-fg{fill:none;stroke:var(--cof);stroke-width:8;stroke-linecap:round;stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset 1.3s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 8px rgba(232,161,58,.6))}
+.score-num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:1.8rem}
+#verdict{font-family:var(--fd);font-weight:700;font-size:1.35rem;margin-bottom:.5rem}
+#verdictMsg{color:var(--muted);max-width:440px;margin:0 auto 1.6rem}
+footer{border-top:1px solid var(--line);background:var(--bg2);padding:2.8rem 0 2rem}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:2rem}
+@media(max-width:760px){.foot-grid{grid-template-columns:1fr}}
+.foot-grid h4{font-family:var(--fc);font-size:.64rem;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;margin-bottom:.9rem}
+.foot-grid ul{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+.foot-grid a,.foot-grid p{color:var(--muted);font-size:.88rem}
+.foot-grid a:hover{color:var(--cof)}
+.foot-logo{font-family:var(--fd);font-weight:700;font-size:1.05rem}.foot-logo b{color:var(--cof)}
+.foot-note{margin-top:2.2rem;padding-top:1.3rem;border-top:1px solid var(--line-soft);display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:var(--fc);font-size:.64rem;letter-spacing:.1em;color:var(--faint);text-transform:uppercase}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.01ms!important;transition-duration:.01ms!important}.marquee-track{animation:none}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<a class="home-btn" href="../../index.html" aria-label="Torna alla home">← Home</a>
+<header id="hdr">
+  <a class="logo" href="#top"><span class="sq"></span>Constructors<b>Lab</b></a>
+  <nav class="main-nav">
+    <a href="#cos">Cos'è</a>
+    <a href="#serve">A cosa serve</a>
+    <a href="#crea">Come si crea</a>
+    <a href="#usa">Come si usa</a>
+    <a href="#default">Default &amp; Overload</a>
+    <a href="#gioco">Riconosci</a>
+    <a href="#quiz">Quiz</a>
+  </nav>
+  <span class="live-chip"><i></i>JAVA · 4ª SIA</span>
+</header>
+
+<section class="hero grid-bg" id="top">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <p class="kicker" style="margin-bottom:1.3rem">Programmazione a oggetti · Java · 4ª SIA</p>
+        <h1>Il <span style="color:var(--cof)">COSTRUTTORE</span> in Java
+          <span class="l2">Cos'è, a cosa serve, come si crea, come si usa</span>
+        </h1>
+        <p class="lead">Quando scrivi <code>new Persona("Ada", 36)</code> succede qualcosa di speciale: Java prende il progetto della classe e <b>fabbrica un oggetto nuovo</b>. A svolgere quel lavoro è il <b>costruttore</b>. In questa pagina lo scopriamo pezzo per pezzo, con un laboratorio interattivo.</p>
+        <div class="hero-cta">
+          <a class="btn btn-cof" href="#crea">Costruisci una classe ↓</a>
+          <a class="btn btn-ghost" href="#usa">Prova il simulatore <code>new</code></a>
+        </div>
+      </div>
+      <div class="rv d2">
+        <div class="panel">
+          <div class="panel-bar"><span class="pb-title"><span class="led cof"></span>Persona.java</span><span class="pb-title">project</span></div>
+          <div class="lab-body">
+            <div class="code" aria-hidden="true"><span class="ln"><span class="kw">public class</span> <span class="ty">Persona</span> {</span><span class="ln">  <span class="kw">String</span> nome;</span><span class="ln">  <span class="kw">int</span> eta;</span><span class="ln"></span><span class="ln">  <span class="cm">// il costruttore</span></span><span class="ln">  <span class="kw">public</span> <span class="fn">Persona</span>(<span class="kw">String</span> nome, <span class="kw">int</span> eta){</span><span class="ln">    <span class="kw">this</span>.nome = nome;</span><span class="ln">    <span class="kw">this</span>.eta  = eta;</span><span class="ln">  }</span><span class="ln">}</span></div>
+            <div class="lab-note" style="margin-top:1rem;border:none;padding:0;color:var(--muted)">Il costruttore porta <b>il nome della classe</b> e <b>non ha tipo di ritorno</b>. Tutto parte da qui.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="marquee-track" id="mq">
+  <span><b>·</b> new <b>·</b> this <b>·</b> nome = classe <b>·</b> niente tipo di ritorno <b>·</b> inizializzare <b>·</b> overloading <b>·</b> costruttore di default <b>·</b> oggetti <b>·</b> heap <b>·</b> costruttore copia <b>·</b></span>
+</div></div>
+
+<section class="sec grid-bg" id="cos">
+  <span class="num-ghost">01</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">Definizione</p>
+      <h2 class="sec-title">Cos'è un costruttore</h2>
+      <p>Un <b>costruttore</b> è un blocco di codice speciale che viene eseguito <em>automaticamente</em> nel momento in cui crei un oggetto con <code>new</code>. Il suo compito è <b>dare vita</b> all'oggetto: preparare i campi, impostare i valori iniziali e lasciare l'oggetto in uno stato valido e pronto all'uso.</p>
+    </div>
+    <div class="cards3">
+      <div class="card rv">
+        <div class="ci cof">🏗️</div>
+        <h3>È un metodo speciale</h3>
+        <p>Somiglia a un metodo ma ha <b>due regole ferree</b>: si chiama <b>esattamente come la classe</b> e <b>non dichiara alcun tipo di ritorno</b> (nemmeno <code>void</code>).</p>
+      </div>
+      <div class="card rv d1">
+        <div class="ci teal">✨</div>
+        <h3>Viene chiamato con new</h3>
+        <p>Non lo invochi mai direttamente come un metodo. È Java che lo esegue quando scrivi <code>new NomeClasse(...)</code>. Tu scegli <em>quale</em> costruttore solo attraverso gli argomenti.</p>
+      </div>
+      <div class="card rv d2">
+        <div class="ci vi">📦</div>
+        <h3>Non è un oggetto</h3>
+        <p>Il costruttore <b>costruisce</b> l'oggetto ma non è l'oggetto. Ogni <code>new</code> crea un oggetto <b>nuovo e diverso</b>: due chiamate producono due oggetti distinti in memoria.</p>
+      </div>
+    </div>
+    <div class="panel rv d2" style="margin-top:1.6rem">
+      <div class="panel-bar"><span class="pb-title"><span class="led cof"></span>L'analogia del cantiere</span></div>
+      <div class="lab-body">
+        <p style="color:var(--muted);font-size:1rem">La <b style="color:var(--ink)">classe</b> è il <em style="color:var(--teal);font-style:normal">progetto</em> di una casa: nessuno ci abita ancora. Il <b style="color:var(--ink)">costruttore</b> è l'<em style="color:var(--teal);font-style:normal">impresa edile</em>: prende il progetto e costruisce una casa. L'<b style="color:var(--ink)">oggetto</b> è la casa finita, in cui puoi finalmente abitare (usare i suoi metodi e i suoi campi). Con lo stesso progetto puoi costruire <b>quante case vuoi</b>, ognuna con il suo indirizzo (riferimento) e le sue stanze personalizzate (i valori dei campi).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-alt" id="serve">
+  <span class="num-ghost">02</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker t">Perché esiste</p>
+      <h2 class="sec-title">A cosa serve</h2>
+      <p>Senza costruttore, un oggetto appena creato sarebbe un guscio vuoto: i campi conterrebbero valori di default sbagliati (numeri a <code>0</code>, stringhe a <code>null</code>). Il costruttore serve a garantire che <b>nessun oggetto nasca in uno stato invalido</b>.</p>
+    </div>
+    <div class="toggle-wrap">
+      <div class="bad-panel rv">
+        <h4>❌ Senza costruttore</h4>
+        <div class="code" style="margin-bottom:.8rem"><span class="ln">Persona p = <span class="kw">new</span> Persona();</span><span class="ln">System.out.println(p.nome); <span class="cm">// null!</span></span><span class="ln">System.out.println(p.eta);  <span class="cm">// 0</span></span></div>
+        <p style="color:var(--muted);font-size:.9rem">L'oggetto esiste ma è <b style="color:var(--err)">incompleto</b>: ogni volta devi ricordarti di riempire i campi a mano, e puoi dimenticartene.</p>
+      </div>
+      <div class="good-panel rv d1">
+        <h4>✅ Con il costruttore</h4>
+        <div class="code" style="margin-bottom:.8rem"><span class="ln">Persona p = <span class="kw">new</span> Persona(<span class="st">"Ada"</span>, 36);</span><span class="ln"><span class="cm">// nome = "Ada", eta = 36 già pronti</span></span></div>
+        <p style="color:var(--muted);font-size:.9rem">L'oggetto nasce <b style="color:var(--ok)">completo e valido</b>. Il costruttore obbliga a fornire i dati indispensabili: è una garanzia scritta nel codice.</p>
+      </div>
+    </div>
+    <div class="cards3" style="margin-top:1.4rem">
+      <div class="card rv"><div class="ci cof">1</div><h3>Inizializzare</h3><p>Assegna ai campi i <b>valori iniziali</b> passati come parametri: è la ragione principale per cui esiste.</p></div>
+      <div class="card rv d1"><div class="ci teal">2</div><h3>Imporre regole</h3><p>Può <b>verificare</b> i dati (es. età non negativa) e rifiutare valori assurdi, proteggendo l'oggetto da stati impossibili.</p></div>
+      <div class="card rv d2"><div class="ci vi">3</div><h3>Risparmiare codice</h3><p>Centralizza l'inizializzazione in un unico punto: chi crea l'oggetto non deve sapere <b>come</b> è fatto dentro, solo <em style="color:var(--teal);font-style:normal">cosa serve</em>.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec grid-bg" id="crea">
+  <span class="num-ghost">03</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker v">Sintassi e regole</p>
+      <h2 class="sec-title">Come si crea un costruttore</h2>
+      <p>Un costruttore si scrive dentro la classe. Rispetta <b>quattro regole</b>: porta il nome della classe, non ha tipo di ritorno, è di solito <code>public</code> e può ricevere parametri. Cambia i valori qui sotto e guarda il codice Java aggiornarsi in tempo reale.</p>
+    </div>
+    <div class="panel rv d1">
+      <div class="panel-bar"><span class="pb-title"><span class="led vi"></span>Code Builder · costruisci la tua classe</span><span class="pb-title">live</span></div>
+      <div class="lab-body">
+        <div class="builder">
+          <div>
+            <label class="inp-lbl">Nome della classe</label>
+            <input class="inp" id="cbClass" value="Persona" spellcheck="false">
+            <label class="inp-lbl">Campi (attributi)</label>
+            <div id="cbFields"></div>
+            <button class="btn btn-ghost sm" id="cbAdd" type="button" style="margin-top:.5rem">+ aggiungi campo</button>
+            <label class="inp-lbl">Opzioni</label>
+            <label style="display:flex;gap:.5rem;align-items:center;font-family:var(--fc);font-size:.76rem;color:var(--muted)">
+              <input type="checkbox" id="cbGetters"> genera anche i getter
+            </label>
+          </div>
+          <div>
+            <div class="code" id="cbOut"></div>
+          </div>
+        </div>
+      </div>
+      <div class="lab-note"><b>Nota bene:</b> il costruttore costruisce l'oggetto inizializzando i campi con i valori dei parametri. L'uso di <code>this.nome</code> serve a distinguere il <b>campo</b> dell'oggetto dal <b>parametro</b> omonimo del costruttore.</div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-alt" id="usa">
+  <span class="num-ghost">04</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker b">Il laboratorio</p>
+      <h2 class="sec-title">Come si usa: il simulatore <code style="font-size:.8em">new</code></h2>
+      <p>Il costruttore non si chiama mai a mano: lo invoca l'operatore <code>new</code>. Scegli <b>quale costruttore</b> usare, riempi gli argomenti, premi <code>new</code> e osserva l'oggetto nascere nello <b>heap</b>, con i campi valorizzati uno alla volta.</p>
+    </div>
+    <div class="panel rv d1">
+      <div class="panel-bar"><span class="pb-title"><span class="led"></span>Persona — simulatore di creazione oggetti</span><span class="pb-title">heap live</span></div>
+      <div class="lab-body">
+        <div class="sim">
+          <div>
+            <p class="inp-lbl" style="margin-top:0">1 · Scegli il costruttore</p>
+            <div class="ctabs" id="cTabs"></div>
+            <p class="inp-lbl">2 · Riempi gli argomenti</p>
+            <div class="argbox" id="argArea"></div>
+            <div class="lab-row" style="margin:.4rem 0 1rem">
+              <button class="btn btn-cof" id="doNew" type="button">▶ new Persona(…)</button>
+              <button class="btn btn-ghost sm" id="simReset" type="button">↺ Svuota heap</button>
+            </div>
+            <p class="inp-lbl">Il costruttore scelto</p>
+            <div class="code" id="ctorCode"></div>
+            <div class="verdict" id="simVerdict">Scegli un costruttore e premi <b>new</b>.</div>
+          </div>
+          <div>
+            <p class="inp-lbl" style="margin-top:0">La memoria (heap)</p>
+            <div class="heap" id="heap"><div class="empty-hint">heap vuoto<br>nessun oggetto creato</div></div>
+            <p class="inp-lbl">Riferimento nell'esecuzione (stack)</p>
+            <div class="code" id="refCode"><span class="ln"><span class="cm">// qui comparirà la riga di codice eseguita</span></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="lab-note"><b>Da ricordare:</b> <code>new</code> fa tre cose — alloca memoria per il nuovo oggetto, <b>esegue il costruttore</b> scelto in base agli argomenti, e restituisce il <b>riferimento</b> all'oggetto (che salviamo in una variabile, es. <code>Persona p</code>).</div>
+    </div>
+  </div>
+</section>
+
+<section class="sec grid-bg" id="default">
+  <span class="num-ghost">05</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker">Due dettagli importanti</p>
+      <h2 class="sec-title">Costruttore di default e overloading</h2>
+      <p>Java ha una sorpresa: se non scrivi nessun costruttore, te ne <b>regala uno</b>. E puoi scriverne <b>più di uno</b> nella stessa classe: si chiama <b>overloading</b> e Java sceglie quello giusto in base agli argomenti.</p>
+    </div>
+    <div class="cards2">
+      <div class="panel rv">
+        <div class="panel-bar"><span class="pb-title"><span class="led cof"></span>Il costruttore di default</span></div>
+        <div class="lab-body">
+          <div class="ov-tabs" id="defTabs">
+            <button class="ctab on" data-def="none" type="button">Non scrivo costruttori</button>
+            <button class="ctab" data-def="some" type="button">Scrivo un costruttore</button>
+          </div>
+          <div class="code" id="defCode"></div>
+          <p id="defText" style="color:var(--muted);font-size:.92rem;margin-top:.9rem"></p>
+        </div>
+      </div>
+      <div class="panel rv d1">
+        <div class="panel-bar"><span class="pb-title"><span class="led"></span>Overloading · più costruttori</span></div>
+        <div class="lab-body">
+          <div class="ov-tabs" id="ovTabs"></div>
+          <div class="code" id="ovCode"></div>
+          <p id="ovText" style="color:var(--muted);font-size:.92rem;margin-top:.9rem"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-alt" id="gioco">
+  <span class="num-ghost">06</span>
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="kicker g">Allenamento</p>
+      <h2 class="sec-title">Riconosci il costruttore</h2>
+      <p>Attenzione ai <b>trabocchetti</b>: guarda bene il nome e il tipo di ritorno. Per ogni dichiarazione decidi se è un <b>costruttore</b> o un <b>metodo</b>.</p>
+    </div>
+    <div class="panel rv d1">
+      <div class="panel-bar"><span class="pb-title"><span class="led cof"></span>Costruttore o metodo?</span><span class="pb-title" id="gameScore">Punteggio: 0 / 6</span></div>
+      <div class="lab-body">
+        <div class="game-list" id="gameList"></div>
+        <div class="lab-row">
+          <button class="btn btn-ghost sm" id="gameReset" type="button">↺ Ricomincia</button>
+        </div>
+      </div>
+      <div class="lab-note"><b>Chiave:</b> è un costruttore se il nome è <b>identico alla classe</b> e <b>non c'è tipo di ritorno</b>. Se compare <code>void</code>, <code>int</code>, <code>String</code>… prima del nome, è un <b>metodo</b> — anche se il nome è uguale alla classe (quello è un metodo, non un costruttore!).</div>
+    </div>
+  </div>
+</section>
+
+<section class="sec grid-bg" id="quiz">
+  <span class="num-ghost">07</span>
+  <div class="wrap">
+    <div class="sec-head rv" style="text-align:center;margin-left:auto;margin-right:auto">
+      <p class="kicker t" style="justify-content:center">Verifica</p>
+      <h2 class="sec-title">Metti alla prova i costruttori</h2>
+      <p>Otto domande su cos'è, a cosa serve, come si crea e come si usa un costruttore in Java.</p>
+    </div>
+    <div class="quiz-shell rv d1">
+      <div id="quizBox">
+        <div class="quiz-top"><div class="qt-l"><span class="led cof"></span>QUESTIONARIO</div><div id="qCount">1 / 8</div></div>
+        <div class="q-progress"><i id="qProg"></i></div>
+        <div class="quiz-body">
+          <div id="qText"></div>
+          <div class="q-opts" id="qOptions"></div>
+          <div class="qfb" id="qFeedback"></div>
+        </div>
+        <div class="quiz-foot"><button class="btn btn-cof sm" id="qNext" style="display:none" type="button">Prossima domanda ▸</button></div>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <div class="score-ring">
+          <svg width="150" height="150"><circle class="ring-bg" cx="75" cy="75" r="54"/><circle class="ring-fg" id="ringFg" cx="75" cy="75" r="54"/></svg>
+          <div class="score-num" id="scoreNum">0/8</div>
+        </div>
+        <div id="verdict"></div>
+        <p id="verdictMsg"></p>
+        <button class="btn btn-cof sm" id="btnRestart" type="button">↺ Riprova</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-logo">Constructors<b>Lab</b></div>
+        <p style="margin-top:.8rem;max-width:360px">Lezione interattiva per la classe 4ª SIA — Sistemi Informativi Aziendali / Informatica. Il costruttore in Java: definizione, utilizzo, sintassi, costruttore di default, overloading e uso con <code>new</code>.</p>
+      </div>
+      <div>
+        <h4>Indice</h4>
+        <ul>
+          <li><a href="#cos">1 · Cos'è un costruttore</a></li>
+          <li><a href="#serve">2 · A cosa serve</a></li>
+          <li><a href="#crea">3 · Come si crea</a></li>
+          <li><a href="#usa">4 · Come si usa</a></li>
+          <li><a href="#default">5 · Default &amp; Overload</a></li>
+          <li><a href="#gioco">6 · Riconosci il costruttore</a></li>
+          <li><a href="#quiz">7 · Verifica</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Collegamenti</h4>
+        <ul>
+          <li><a href="../../index.html">← Torna alla home del sito</a></li>
+          <li><a href="classi-java.html">Lezione: Classi e oggetti in Java</a></li>
+          <li><a href="costruttori-java.html">Lezione: Costruttori Java (extra)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-note">
+      <span>LEZIONE · JAVA · COSTRUTTORI · 4ª SIA</span>
+      <span>Prof. Sciarra — Informatica</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+function $(s){return document.querySelector(s);}
+function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+
+/* ---------- header + reveal + marquee ---------- */
+var hdr=$("#hdr");
+function onScroll(){ if(window.scrollY>24) hdr.classList.add("scrolled"); else hdr.classList.remove("scrolled"); }
+window.addEventListener("scroll",onScroll,{passive:true}); onScroll();
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{threshold:.14,rootMargin:"0px 0px -40px 0px"});
+$$(".rv").forEach(function(el){io.observe(el);});
+(function(){var mq=$("#mq"); if(mq) mq.innerHTML=mq.innerHTML+mq.innerHTML;})();
+
+/* ---------- syntax highlighter ---------- */
+var KW=/(^(new|this|return|public|private|protected|static|final|void|class|if|else|for|while|import|package|extends|implements)$)/;
+var TY=/(^(String|int|double|boolean|char|long|float|Object)$)/;
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function hlLine(line){
+  var out="",i=0,n=line.length;
+  while(i<n){
+    var c=line[i];
+    if(c==="/"&&line[i+1]==="/"){ out+='<span class="cm">'+esc(line.slice(i))+"</span>"; break; }
+    if(c==='"'){ var j=i+1; while(j<n&&!(line[j]==='"'&&line[j-1]!=="\\"))j++; j=Math.min(j+1,n); out+='<span class="st">'+esc(line.slice(i,j))+"</span>"; i=j; continue; }
+    if(/[A-Za-z_$]/.test(c)){ var k=i; while(k<n&&/[A-Za-z0-9_$]/.test(line[k]))k++; var w=line.slice(i,k);
+      if(KW.test(w))out+='<span class="kw">'+esc(w)+"</span>";
+      else if(TY.test(w))out+='<span class="ty">'+esc(w)+"</span>";
+      else out+=esc(w);
+      i=k; continue; }
+    if(/[0-9]/.test(c)){ var m=i; while(m<n&&/[0-9.]/.test(line[m]))m++; out+='<span class="num">'+esc(line.slice(i,m))+"</span>"; i=m; continue; }
+    out+=esc(c); i++;
+  }
+  return out;
+}
+function codeBlock(code){ return code.split("\n").map(function(l){return '<span class="ln">'+hlLine(l)+"</span>";}).join(""); }
+
+/* ================= CODE BUILDER ================= */
+var TYPES=["String","int","double","boolean"];
+var cbFields=[
+  {type:"String",name:"nome"},
+  {type:"int",name:"eta"}
+];
+function cbRenderFields(){
+  var box=$("#cbFields"); box.innerHTML="";
+  cbFields.forEach(function(f,idx){
+    var row=document.createElement("div"); row.className="field-row";
+    var sel=document.createElement("select"); sel.className="sel";
+    TYPES.forEach(function(t){var o=document.createElement("option");o.value=t;o.textContent=t;if(t===f.type)o.selected=true;sel.appendChild(o);});
+    sel.addEventListener("change",function(){cbFields[idx].type=sel.value;cbUpdate();});
+    var inp=document.createElement("input"); inp.className="inp"; inp.value=f.name; inp.spellcheck=false; inp.placeholder="nomeCampo";
+    inp.addEventListener("input",function(){cbFields[idx].name=inp.value.trim()||"campo";cbUpdate();});
+    var rm=document.createElement("button"); rm.className="mini-x"; rm.type="button"; rm.textContent="×"; rm.title="rimuovi campo";
+    rm.addEventListener("click",function(){ if(cbFields.length<=1)return; cbFields.splice(idx,1); cbRenderFields(); cbUpdate(); });
+    row.appendChild(sel); row.appendChild(inp); row.appendChild(rm);
+    box.appendChild(row);
+  });
+}
+function cap(s){ return s? s.charAt(0).toUpperCase()+s.slice(1) : s; }
+function cbUpdate(){
+  var cls=$("#cbClass").value.trim()||"Persona";
+  if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(cls)) cls="Persona";
+  var fields=cbFields.filter(function(f){return f.name;});
+  var params=fields.map(function(f){return f.type+" "+f.name;}).join(", ");
+  var L=[];
+  L.push("public class "+cls+" {");
+  fields.forEach(function(f){ L.push("    private "+f.type+" "+f.name+";"); });
+  L.push("");
+  L.push("    // costruttore");
+  L.push("    public "+cls+"("+params+") {");
+  fields.forEach(function(f){ L.push("        this."+f.name+" = "+f.name+";"); });
+  L.push("    }");
+  if($("#cbGetters").checked&&fields.length){
+    fields.forEach(function(f){
+      L.push("");
+      L.push("    public "+f.type+" get"+cap(f.name)+"() {");
+      L.push("        return this."+f.name+";");
+      L.push("    }");
+    });
+  }
+  L.push("}");
+  $("#cbOut").innerHTML=codeBlock(L.join("\n"));
+}
+$("#cbClass").addEventListener("input",cbUpdate);
+$("#cbGetters").addEventListener("change",cbUpdate);
+$("#cbAdd").addEventListener("click",function(){
+  if(cbFields.length>=5)return;
+  cbFields.push({type:"String",name:"campo"+(cbFields.length+1)});
+  cbRenderFields(); cbUpdate();
+});
+cbRenderFields(); cbUpdate();
+
+/* ================= SIMULATORE new ================= */
+var CFIELDS=[{name:"nome",type:"String"},{name:"eta",type:"int"}];
+var CTORS=[
+  { label:"Persona( )", params:[], body:[{field:"nome",src:'"sconosciuto"'},{field:"eta",src:"0"}],
+    desc:"Costruttore <b>senza parametri</b>: assegna valori di default." },
+  { label:"Persona( nome )", params:[{type:"String",name:"nome",def:"Ada"}], body:[{field:"nome",src:"nome"}],
+    desc:"Un solo parametro: imposta <b>solo il nome</b>, l'età resta 0." },
+  { label:"Persona( nome, eta )", params:[{type:"String",name:"nome",def:"Ada"},{type:"int",name:"eta",def:"36"}],
+    body:[{field:"nome",src:"nome"},{field:"eta",src:"eta"}],
+    desc:"Due parametri: imposta <b>nome ed età</b>." }
+];
+var curCtor=2;
+var animToken=0;
+function hex4(){ return Math.floor(Math.random()*0xffff).toString(16).padStart(4,"0"); }
+function ctorCodeLines(c){
+  var params=c.params.map(function(p){return p.type+" "+p.name;}).join(", ");
+  var L=["public Persona("+params+") {"];
+  c.body.forEach(function(b){
+    var rhs = b.src.indexOf('"')===0 ? b.src : b.src;
+    L.push("    this."+b.field+" = "+rhs+";");
+  });
+  L.push("}");
+  return L;
+}
+function renderCtorTabs(){
+  var box=$("#cTabs"); box.innerHTML="";
+  CTORS.forEach(function(c,i){
+    var b=document.createElement("button"); b.type="button"; b.className="ctab"+(i===curCtor?" on":"");
+    b.textContent=c.label;
+    b.addEventListener("click",function(){ curCtor=i; renderCtorTabs(); renderArgs(); renderCtorCode(); setVerdict("Scegli un costruttore e premi <b>new</b>.",""); });
+    box.appendChild(b);
+  });
+}
+function renderArgs(){
+  var c=CTORS[curCtor], box=$("#argArea"); box.innerHTML="";
+  if(!c.params.length){ box.innerHTML='<span style="font-family:var(--fc);font-size:.8rem;color:var(--faint)">Questo costruttore non richiede argomenti.</span>'; return; }
+  c.params.forEach(function(p,i){
+    var lab=document.createElement("label");
+    lab.innerHTML=p.name+' <span style="opacity:.55;font-size:.68rem">'+p.type+"</span>";
+    var inp=document.createElement("input"); inp.className="inp"; inp.value=p.def; inp.dataset.pi=i;
+    lab.appendChild(inp); box.appendChild(lab);
+  });
+}
+function renderCtorCode(){
+  var lines=ctorCodeLines(CTORS[curCtor]);
+  $("#ctorCode").innerHTML=lines.map(function(l,i){ return '<span class="exec-line" data-i="'+i+'">'+hlLine(l)+"</span>"; }).join("\n");
+}
+function setVerdict(html,cls){ var v=$("#simVerdict"); v.className="verdict"+(cls?" "+cls:""); v.innerHTML=html; }
+function readArgs(){
+  var c=CTORS[curCtor], args=[], inputs=$$("#argArea input");
+  for(var i=0;i<c.params.length;i++){
+    var p=c.params[i], raw=inputs[i]?inputs[i].value:"";
+    if(p.type==="int"||p.type==="double"){
+      var num=Number(String(raw).replace(",","."));
+      if(raw.trim()===""||isNaN(num)) return {err:'L\u2019argomento <b>'+p.name+'</b> deve essere un numero ('+p.type+")."};
+      args.push(p.type==="int"?Math.trunc(num):num);
+    } else {
+      if(raw.trim()===""){ return {err:'L\u2019argomento <b>'+p.name+'</b> non può essere vuoto ('+p.type+")."}; }
+      args.push(raw);
+    }
+  }
+  return {args:args};
+}
+function fmtArg(a){ return typeof a==="string" ? '"'+a+'"' : a; }
+function evalSrc(src,args){
+  var c=CTORS[curCtor];
+  if(src.indexOf('"')===0) return src.slice(1,-1);
+  if(/^[0-9.]/.test(src)) return src.indexOf(".")>=0?parseFloat(src):parseInt(src,10);
+  var idx=c.params.map(function(p){return p.name;}).indexOf(src);
+  return idx>=0?args[idx]:"?";
+}
+function renderObject(ref,vals){
+  var html=CFIELDS.map(function(f){
+    var has=vals&&(f.name in vals);
+    var v=has?vals[f.name]:(f.type==="String"?"null":"0");
+    var shown=(typeof v==="string")?'"'+v+'"':v;
+    return '<div class="fld" data-f="'+f.name+'"><span class="fk">'+f.name+' <span style="opacity:.6">'+f.type+'</span></span><span class="fv">'+shown+"</span></div>";
+  }).join("");
+  $("#heap").innerHTML='<div class="obj"><div class="oh"><span>Persona</span><span>'+ref+"</span></div>"+html+"</div>";
+}
+function clearHeap(){
+  animToken++;
+  $("#heap").innerHTML='<div class="empty-hint">heap vuoto<br>nessun oggetto creato</div>';
+  $("#refCode").innerHTML='<span class="ln"><span class="cm">// qui comparirà la riga di codice eseguita</span></span>';
+  $$("#ctorCode .exec-line").forEach(function(el){el.classList.remove("cur");});
+  setVerdict("Scegli un costruttore e premi <b>new</b>.","");
+}
+function doNew(){
+  var c=CTORS[curCtor];
+  var rd=readArgs();
+  if(rd.err){ setVerdict("⚠ Errore di compilazione: "+rd.err,"bad"); return; }
+  var args=rd.args;
+  animToken++; var my=animToken;
+  var ref="Persona@"+hex4();
+  renderObject(ref,null);
+  var call="Persona p = new Persona("+args.map(fmtArg).join(", ")+");";
+  $("#refCode").innerHTML='<span class="ln">'+hlLine(call)+"</span>";
+  setVerdict("<b>new</b> ha allocato l'oggetto <code style='color:var(--cof)'>"+ref+"</code> e ora esegue il costruttore, una riga alla volta…","info");
+  var i=0;
+  function step(){
+    if(my!==animToken)return;
+    if(i>=c.body.length){
+      $$("#ctorCode .exec-line").forEach(function(el){el.classList.remove("cur");});
+      setVerdict("✔ Oggetto creato! Il riferimento <code>"+ref+"</code> è salvato in <code>p</code> e i campi sono valorizzati.","good");
+      return;
+    }
+    var b=c.body[i];
+    $$("#ctorCode .exec-line").forEach(function(el){el.classList.remove("cur");});
+    var ln=$('#ctorCode .exec-line[data-i="'+(i+1)+'"]'); if(ln)ln.classList.add("cur");
+    var val=evalSrc(b.src,args);
+    var fld=$('#heap .fld[data-f="'+b.field+'"]');
+    if(fld){ var fv=fld.querySelector(".fv"); fv.textContent=(typeof val==="string")?'"'+val+'"':val;
+      fld.classList.add("flash"); (function(f){setTimeout(function(){f.classList.remove("flash");},750);})(fld); }
+    i++;
+    setTimeout(step,850);
+  }
+  setTimeout(step,350);
+}
+$("#doNew").addEventListener("click",doNew);
+$("#simReset").addEventListener("click",clearHeap);
+renderCtorTabs(); renderArgs(); renderCtorCode(); clearHeap();
+
+/* ================= DEFAULT + OVERLOAD ================= */
+var DEF={
+  none:{ lines:["public class Persona {","    String nome;","    int eta;","}","","// nessun costruttore scritto da te…","// …ma Java ne crea uno di default:","// public Persona() { }"],
+    text:"Non hai scritto nessun costruttore: Java aggiunge in automatico un <b>costruttore di default</b>, <code>public Persona()</code>, completamente vuoto. I campi restano ai valori di default (String → <code>null</code>, int → <code>0</code>)."},
+  some:{ lines:["public class Persona {","    String nome;","    int eta;","","    public Persona(String nome, int eta) {","        this.nome = nome;","        this.eta = eta;","    }","}"],
+    text:"Appena scrivi <b>almeno un</b> costruttore, il costruttore di default <b>non viene più creato</b>. Ora, per costruire un oggetto, devi obbligatoriamente fornire gli argomenti richiesti."}
+};
+function renderDef(which){
+  $$("#defTabs .ctab").forEach(function(b){ b.classList.toggle("on", b.dataset.def===which); });
+  var d=DEF[which];
+  $("#defCode").innerHTML=codeBlock(d.lines.join("\n"));
+  $("#defText").innerHTML=d.text;
+}
+$$("#defTabs .ctab").forEach(function(b){ b.addEventListener("click",function(){ renderDef(b.dataset.def); }); });
+renderDef("none");
+
+var OV=[
+  { label:"Persona( )", lines:["public Persona() {","    this.nome = \"sconosciuto\";","    this.eta = 0;","}"], text:"Zero parametri: utile per un oggetto \"vuoto\" pronto all'uso." },
+  { label:"Persona( String nome )", lines:["public Persona(String nome) {","    this.nome = nome;","    this.eta = 0;","}"], text:"Un parametro: imposta il nome, l'età resta al default." },
+  { label:"Persona( String nome, int eta )", lines:["public Persona(String nome, int eta) {","    this.nome = nome;","    this.eta = eta;","}"], text:"Due parametri: imposta tutto. Java sceglie questo costruttore quando passi una String e un int." }
+];
+var curOv=2;
+function renderOv(){
+  var box=$("#ovTabs"); box.innerHTML="";
+  OV.forEach(function(o,i){
+    var b=document.createElement("button"); b.type="button"; b.className="ctab"+(i===curOv?" on":""); b.textContent=o.label;
+    b.addEventListener("click",function(){ curOv=i; renderOv(); });
+    box.appendChild(b);
+  });
+  $("#ovCode").innerHTML=codeBlock(OV[curOv].lines.join("\n"));
+  $("#ovText").innerHTML=OV[curOv].text;
+}
+renderOv();
+
+/* ================= GIOCO ================= */
+var GAME=[
+  {sig:"public Persona(String nome)", type:"ctor", why:"Nome identico alla classe e nessun tipo di ritorno → è un costruttore."},
+  {sig:"public void Persona()", type:"method", why:"C'è <code>void</code>: è un METODO, anche se il nome sembra quello della classe."},
+  {sig:"public Persona()", type:"ctor", why:"Nome = classe, nessun ritorno → costruttore (senza parametri)."},
+  {sig:"public void saluta()", type:"method", why:"Nome diverso dalla classe e tipo di ritorno void → metodo."},
+  {sig:"public int getEta()", type:"method", why:"Ha un tipo di ritorno (int) e nome diverso → metodo."},
+  {sig:"private Studente(int matricola)", type:"ctor", why:"Nome = classe Studente e nessun tipo di ritorno → costruttore (legittimo anche se private)."}
+];
+var gScore=0,gDone=0;
+function renderGame(){
+  var box=$("#gameList"); box.innerHTML=""; gScore=0; gDone=0; updateGScore();
+  GAME.forEach(function(item,idx){
+    var row=document.createElement("div"); row.className="gitem";
+    var sig=document.createElement("div"); sig.className="sig"; sig.innerHTML=hlLine(item.sig);
+    var gc=document.createElement("div"); gc.className="gc";
+    ["ctor","method"].forEach(function(kind){
+      var b=document.createElement("button"); b.type="button"; b.className="gpick";
+      b.textContent = kind==="ctor" ? "Costruttore" : "Metodo";
+      b.addEventListener("click",function(){ answerGame(row,item,kind); });
+      gc.appendChild(b);
+    });
+    var why=document.createElement("div"); why.className="why"; why.innerHTML=item.why;
+    row.appendChild(sig); row.appendChild(gc); row.appendChild(why);
+    box.appendChild(row);
+  });
+}
+function updateGScore(){ $("#gameScore").textContent="Punteggio: "+gScore+" / "+GAME.length+(gDone===GAME.length?"  ✔ completato":""); }
+function answerGame(row,item,kind){
+  if(row.classList.contains("done"))return;
+  row.classList.add("done");
+  var ok = kind===item.type;
+  row.classList.add(ok?"right":"wrong");
+  if(ok)gScore++;
+  gDone++; updateGScore();
+  var why=row.querySelector(".why");
+  why.innerHTML=(ok?"✔ ":"✗ ")+item.why;
+  why.style.color = ok? "var(--ok)" : "var(--err)";
+}
+$("#gameReset").addEventListener("click",renderGame);
+renderGame();
+
+/* ================= QUIZ ================= */
+var QUIZ=[
+  {q:"Che cos'è, in sintesi, un costruttore?",opts:["Un metodo che ha lo stesso nome della classe e nessun tipo di ritorno","Un metodo che restituisce sempre void","Un semplice attributo della classe","Un tipo di dato primitivo"],a:0,why:"Il costruttore è un metodo speciale: si chiama come la classe e non dichiara alcun tipo di ritorno."},
+  {q:"Quale di queste NON è una regola del costruttore?",opts:["Deve avere il nome della classe","Non deve avere tipo di ritorno","Deve dichiarare void come tipo di ritorno","Può avere parametri"],a:2,why:"Il costruttore NON ha tipo di ritorno: scrivere void lo trasformerebbe in un metodo qualsiasi."},
+  {q:"Con quale parola chiave si invoca un costruttore?",opts:["new","create","init","construct"],a:0,why:"Si usa new: è l'unico modo per eseguire un costruttore e creare un oggetto."},
+  {q:"Cosa succede se in una classe non scrivi nessun costruttore?",opts:["Il programma non compila","Java aggiunge automaticamente un costruttore di default senza parametri","La classe diventa astratta","Java genera un metodo main"],a:1,why:"Java fornisce un costruttore di default public NomeClasse() {} solo se non ne scrivi nessuno."},
+  {q:"A cosa serve principalmente un costruttore?",opts:["A distruggere l'oggetto quando non serve più","A inizializzare i campi dell'oggetto con valori iniziali validi","A stampare l'oggetto a video","A far ereditare la classe"],a:1,why:"Serve soprattutto a inizializzare i campi, così l'oggetto nasce in uno stato valido."},
+  {q:"Cosa significa overloading dei costruttori?",opts:["Un costruttore che richiama sé stesso fino a esaurire la memoria","Più costruttori con parametri diversi nella stessa classe","Un costruttore senza parametri","Un costruttore dichiarato private"],a:1,why:"L'overloading è la presenza di più costruttori con firme (parametri) diverse: Java sceglie quello giusto in base agli argomenti."},
+  {q:"Nella riga Persona p = new Persona(\"Ada\", 36); cosa fa esattamente new?",opts:["Chiama un metodo di nome p","Alloca memoria per l'oggetto, esegue il costruttore e restituisce il riferimento","Serve solo a dichiarare la variabile p","Copia un oggetto già esistente"],a:1,why:"new fa tre cose: alloca l'oggetto, esegue il costruttore scelto e restituisce il riferimento che salviamo in p."},
+  {q:"A cosa serve la parola chiave this dentro il costruttore?",opts:["A creare un nuovo oggetto","A distinguere il campo dell'oggetto dal parametro con lo stesso nome","A dichiarare un metodo statico","È obbligatoria solo nel main"],a:1,why:"this.nome indica il campo dell'oggetto, distinguendolo dal parametro nome del costruttore."}
+];
+var qi=0,qScore=0,qAnswered=false;
+function qRender(){
+  qAnswered=false;
+  var q=QUIZ[qi];
+  $("#qCount").textContent=(qi+1)+" / "+QUIZ.length;
+  $("#qProg").style.width=(qi/QUIZ.length*100)+"%";
+  $("#qText").innerHTML=q.q;
+  var box=$("#qOptions"); box.innerHTML="";
+  var L="ABCD";
+  q.opts.forEach(function(o,i){
+    var b=document.createElement("button"); b.type="button"; b.className="qopt";
+    b.innerHTML='<span class="ol">'+L[i]+"</span><span>"+o+"</span>";
+    b.addEventListener("click",function(){ qAnswer(i,b); });
+    box.appendChild(b);
+  });
+  $("#qFeedback").className="qfb"; $("#qFeedback").innerHTML="";
+  $("#qNext").style.display="none";
+}
+function qAnswer(i,btn){
+  if(qAnswered)return; qAnswered=true;
+  var q=QUIZ[qi], fb=$("#qFeedback"), opts=$$("#qOptions .qopt");
+  opts.forEach(function(o){o.classList.add("done");});
+  opts[q.a].classList.add("ok");
+  if(i===q.a){ qScore++; fb.className="qfb show good"; fb.innerHTML="<b>✓ Corretto</b>"+q.why; }
+  else { btn.classList.add("bad"); fb.className="qfb show evil"; fb.innerHTML="<b>✗ Non esattamente</b>"+q.why; }
+  $("#qProg").style.width=((qi+1)/QUIZ.length*100)+"%";
+  var nx=$("#qNext"); nx.style.display="inline-flex";
+  nx.textContent=(qi===QUIZ.length-1)?"Vedi il risultato ▸":"Prossima domanda ▸";
+}
+function qFinish(){
+  $("#quizBox").style.display="none";
+  $("#quizResult").classList.add("show");
+  $("#scoreNum").textContent=qScore+"/"+QUIZ.length;
+  var C=339.3;
+  requestAnimationFrame(function(){ $("#ringFg").style.strokeDashoffset=C*(1-qScore/QUIZ.length); });
+  var v=[
+    ["Ripassa le basi","Rileggi la sezione «Cos'è un costruttore» e riprova."],
+    ["Apprendista Java","Buon inizio: rivedi come si crea e come si usa."],
+    ["Studente in crescita","Le basi ci sono: attenzione a default e overloading."],
+    ["Junior developer","Quasi bene, manca poco."],
+    ["Programmatore","Molto bene: i costruttori non hanno più segreti."],
+    ["Senior in erba","Ottimo, un solo errore."],
+    ["Java expert","Quasi perfetto!"],
+    ["Esperto di costruttori","Un ultimo passo verso il punteggio pieno."],
+    ["new Campione() 🏆","Punteggio pieno: hai costruito ogni risposta correttamente!"]
+  ][Math.max(0,Math.min(QUIZ.length,qScore))];
+  $("#verdict").textContent=v[0];
+  $("#verdictMsg").textContent=v[1];
+}
+$("#qNext").addEventListener("click",function(){ qi++; if(qi>=QUIZ.length) qFinish(); else qRender(); });
+$("#btnRestart").addEventListener("click",function(){
+  qi=0; qScore=0; $("#quizBox").style.display="block"; $("#quizResult").classList.remove("show");
+  $("#ringFg").style.strokeDashoffset=339.3; qRender();
+});
+qRender();
+
+})();
+</script>
+</body>
+</html>
