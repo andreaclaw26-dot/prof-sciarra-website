@@ -18,6 +18,7 @@
     --sia: #7cffb2;
     --ai: #b388ff;
     --uni: #ffc857;
+    --prob: #ffa14e;
     --shadow: 0 10px 40px rgba(0,0,0,0.3);
   }
 
@@ -144,6 +145,7 @@
   .track-badge.sia { background: rgba(124, 255, 178, 0.15); color: var(--sia); border: 1px solid rgba(124,255,178,0.4); }
   .track-badge.ai { background: rgba(179, 136, 255, 0.15); color: var(--ai); border: 1px solid rgba(179,136,255,0.4); }
   .track-badge.uni { background: rgba(255, 200, 87, 0.15); color: var(--uni); border: 1px solid rgba(255,200,87,0.4); }
+  .track-badge.pro { background: rgba(255, 161, 78, 0.15); color: var(--prob); border: 1px solid rgba(255,161,78,0.4); }
 
   .track-title {
     font-size: 1.5rem;
@@ -187,6 +189,7 @@
   .class-card.sia::before { background: var(--sia); }
   .class-card.ai::before { background: var(--ai); }
   .class-card.uni::before { background: var(--uni); }
+  .class-card.pro::before { background: var(--prob); }
 
   .class-card:hover {
     transform: translateY(-4px);
@@ -215,6 +218,7 @@
   .year-circle.sia { background: var(--sia); }
   .year-circle.ai { background: var(--ai); }
   .year-circle.uni { background: var(--uni); }
+  .year-circle.pro { background: var(--prob); }
 
   .class-name h3 {
     margin: 0;
@@ -594,6 +598,34 @@
           <li>
             <a href="ai/come-funziona-un-llm.html">
               <span class="icon">🧠</span> Come funziona un LLM · Lezione interattiva
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== PROBABILITÀ (trasversale) ============== -->
+  <section class="track" id="probabilita">
+    <div class="track-header">
+      <span class="track-badge pro">PRO</span>
+      <h2 class="track-title">Probabilità</h2>
+      <span class="track-desc">Trasversale · matematica applicata</span>
+    </div>
+
+    <div class="classes">
+      <div class="class-card pro">
+        <div class="class-year">
+          <div class="year-circle pro">P</div>
+          <div class="class-name">
+            <h3>Calcolo delle probabilità</h3>
+            <small>Statistica e probabilità per tutti gli indirizzi</small>
+          </div>
+        </div>
+        <ul class="class-subjects">
+          <li>
+            <a href="probabilita/probabilita-condizionata.html">
+              <span class="icon">🎲</span> Probabilità condizionata · P(A|B) e teorema di Bayes
             </a>
           </li>
         </ul>

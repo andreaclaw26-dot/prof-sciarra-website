@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Probabilità condizionata · P(A|B) e teorema di Bayes — Lezione interattiva</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+<style>
+  :root {
+    --bg: #0b1020;
+    --bg-2: #0f1530;
+    --panel: #141b3a;
+    --panel-2: #1a2247;
+    --text: #e6ecff;
+    --muted: #9aa6c7;
+    --accent: #ffa14e;
+    --accent-2: #ffd166;
+    --good: #7cffb2;
+    --warn: #ffc857;
+    --bad: #ff6b9d;
+    --teal: #6ee7ff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: radial-gradient(1200px 800px at 80% -10%, #2a2340 0%, var(--bg) 60%) var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 161, 78, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 161, 78, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  ::selection { background: var(--accent); color: #201205; }
+
+  /* ===== Top bar / breadcrumb ===== */
+  .topbar {
+    position: relative;
+    z-index: 1;
+    padding: 20px 24px 0;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  .breadcrumb { font-size: 0.9rem; color: var(--muted); }
+  .breadcrumb a { color: var(--accent); text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  /* ===== Header ===== */
+  header {
+    position: relative;
+    z-index: 1;
+    padding: 26px 24px 16px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  header .tag {
+    display: inline-block;
+    background: rgba(255,161,78,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(255,161,78,0.4);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  header h1 {
+    font-size: clamp(1.8rem, 4.2vw, 2.7rem);
+    margin: 14px 0 8px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  header p { color: var(--muted); margin: 0; font-size: 1.05rem; }
+
+  /* ===== Nav in-page ===== */
+  nav.toc {
+    position: relative;
+    z-index: 1;
+    max-width: 980px;
+    margin: 10px auto 0;
+    padding: 0 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  nav.toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 6px 13px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    transition: all .2s;
+  }
+  nav.toc a:hover { color: var(--text); border-color: var(--accent); }
+
+  /* ===== Main ===== */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 26px 24px 60px;
+  }
+  section.block { margin: 46px 0; scroll-margin-top: 20px; }
+
+  /* ===== Card ===== */
+  .card {
+    background: linear-gradient(180deg, rgba(20,27,58,0.7), rgba(15,21,48,0.7));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 26px 28px;
+    margin-bottom: 22px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 4px;
+    background: var(--accent);
+  }
+  .card h2 { margin: 0 0 8px; font-size: 1.45rem; }
+  .card h3 { margin: 0 0 8px; font-size: 1.1rem; color: var(--accent); }
+  .card .lead { color: var(--muted); margin: 0 0 16px; }
+  .kick {
+    display: inline-block;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* ===== Formula ===== */
+  .formula-box {
+    background: #060914;
+    border: 1px solid rgba(255,161,78,0.3);
+    border-radius: 12px;
+    padding: 18px 22px;
+    text-align: center;
+    margin: 16px 0;
+    font-size: 1.25rem;
+    letter-spacing: 0.02em;
+  }
+  .formula-box .name { display:block; font-size: 0.72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .formula-box b { color: var(--accent); }
+  .formula-box .g { color: var(--teal); }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 4px; }
+  .frac .num { padding: 0 8px 2px; }
+  .frac .den { padding: 3px 8px 0; border-top: 2px solid currentColor; }
+  .frac.green .num, .frac.green .den { color: var(--good); }
+  .frac.orange .num, .frac.orange .den { color: var(--accent); }
+
+  /* ===== Callout ===== */
+  .tip {
+    background: rgba(255,161,78,0.08);
+    border: 1px solid rgba(255,161,78,0.3);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 0.94rem;
+  }
+  .tip b { color: var(--accent); }
+  .tip.warn { background: rgba(255,200,87,0.08); border-color: rgba(255,200,87,0.3); }
+  .tip.warn b { color: var(--warn); }
+
+  /* ===== Dice grid ===== */
+  .dice-wrap { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .dice-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+    max-width: 420px;
+    width: 100%;
+  }
+  .dcell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--panel-2);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    transition: all .2s;
+  }
+  .dcell .sum { font-size: 1.05rem; font-weight: 800; color: var(--text); }
+  .dcell.inA { background: rgba(255,161,78,0.55); border-color: var(--accent); color: #201205; }
+  .dcell.inA .sum { color: #201205; }
+  .dcell.dim { opacity: 0.16; }
+  .dcell.edge { outline: 2px solid var(--teal); outline-offset: 1px; }
+  .dice-controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .dice-controls button { padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.15); background: var(--panel-2); color: var(--text); cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all .2s; }
+  .dice-controls button.on { background: var(--accent); color: #201205; border-color: var(--accent); }
+  .dice-controls button.on.blue { background: var(--teal); color: #062a35; border-color: var(--teal); }
+
+  /* ===== Readout ===== */
+  .readout { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .ro {
+    flex: 1; min-width: 150px;
+    background: var(--panel-2);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .ro .rl { font-size: 0.72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .ro .rv { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
+  .ro .rs { font-size: 0.78rem; color: var(--muted); }
+  .ro.hl .rv { color: var(--good); }
+
+  /* ===== Two-way table ===== */
+  table.tab { width: 100%; border-collapse: collapse; font-size: 0.95rem; margin: 12px 0; }
+  table.tab th, table.tab td {
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 12px;
+    text-align: center;
+  }
+  table.tab thead th { background: var(--panel-2); color: var(--muted); font-weight: 600; }
+  table.tab tbody th { background: var(--panel-2); color: var(--muted); text-align: left; font-weight: 600; }
+  table.tab td.tot { background: rgba(255,255,255,0.04); font-weight: 700; }
+  table.tab td.hl, table.tab th.hl { background: rgba(255,161,78,0.18); color: var(--accent); }
+  table.tab td.cond { background: rgba(255,161,78,0.28); }
+  table.tab td.cell { background: rgba(255,161,78,0.6); color: #201205; font-weight: 800; }
+  .tab-qs { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+  .tab-qs button {
+    padding: 8px 14px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.15); background: var(--panel-2); color: var(--text);
+    cursor: pointer; font-size: 0.85rem; transition: all .2s;
+  }
+  .tab-qs button:hover { border-color: var(--accent); }
+  .tab-out {
+    min-height: 2.4em;
+    margin-top: 8px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .tab-out b { color: var(--accent); }
+
+  /* ===== Bayes calculator ===== */
+  .slider-row { display: flex; align-items: center; gap: 14px; margin: 14px 0; }
+  .slider-row label { flex: 0 0 210px; font-size: 0.9rem; color: var(--muted); }
+  .slider-row label b { color: var(--text); }
+  .slider-row input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; }
+  .slider-row output { flex: 0 0 56px; text-align: right; font-family: "SF Mono", Menlo, Consolas, monospace; font-weight: 700; color: var(--accent); }
+  .bayes-result {
+    background: rgba(124,255,178,0.06);
+    border: 1px solid rgba(124,255,178,0.3);
+    border-radius: 12px;
+    padding: 16px 18px;
+    text-align: center;
+    margin-top: 8px;
+  }
+  .bayes-result .big { font-size: 2rem; font-weight: 800; color: var(--good); }
+  .bayes-result .lbl { color: var(--muted); font-size: 0.9rem; }
+  .bar-stack { display: flex; height: 34px; border-radius: 8px; overflow: hidden; margin: 16px 0 8px; }
+  .bar-stack div { height: 100%; transition: width .3s; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.8rem; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .bayes-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+  @media (max-width: 640px) { .bayes-breakdown { grid-template-columns: 1fr 1fr; } }
+  .bb {
+    background: var(--panel-2); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 10px 12px; text-align: center; font-size: 0.82rem;
+  }
+  .bb .n { font-size: 1.1rem; font-weight: 800; }
+  .bb .t { color: var(--muted); }
+
+  /* ===== Quiz ===== */
+  .quiz-card { background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 28px; border-top: 4px solid var(--accent); }
+  .quiz-top { display: flex; justify-content: space-between; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.76rem; color: var(--muted); margin-bottom: 16px; }
+  .quiz-top #quizScore { color: var(--accent); }
+  .quiz-card h3 { font-size: 1.3rem; margin: 0 0 18px; line-height: 1.4; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 9px; }
+  .qopt {
+    text-align: left; font-family: inherit; font-size: 0.97rem; color: var(--text);
+    background: var(--panel-2); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px; padding: 13px 16px; cursor: pointer; transition: all .2s;
+  }
+  .qopt:hover:not(:disabled) { border-color: var(--accent); transform: translateX(4px); }
+  .qopt:disabled { cursor: default; opacity: .8; }
+  .qopt.ok { border-color: var(--good); background: rgba(124,255,178,0.12); }
+  .qopt.ko { border-color: var(--bad); background: rgba(255,107,157,0.1); }
+  .quiz-why { margin-top: 16px; font-size: 0.9rem; color: var(--muted); border-top: 1px dashed rgba(255,255,255,0.12); padding-top: 13px; }
+  .quiz-why b { color: var(--good); }
+  .quiz-foot { margin-top: 18px; text-align: right; }
+  .btn {
+    font-family: inherit; font-weight: 700; font-size: 0.9rem; color: #201205;
+    background: var(--accent); border: 1px solid var(--accent); border-radius: 10px;
+    padding: 10px 20px; cursor: pointer; transition: all .2s;
+  }
+  .btn:hover { background: var(--accent-2); border-color: var(--accent-2); transform: translateY(-1px); }
+  .quiz-end { text-align: center; padding: 18px 0; }
+  .quiz-end .score { font-size: 3.4rem; font-weight: 800; color: var(--accent); }
+  .quiz-end p { color: var(--muted); margin: 8px 0 20px; }
+
+  /* ===== Footer ===== */
+  footer {
+    position: relative; z-index: 1; text-align: center; color: var(--muted);
+    padding: 30px 16px 50px; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ===== Animations ===== */
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  .card, header, nav.toc { animation: fadeInUp 0.55s ease-out backwards; }
+  .card:nth-child(1) { animation-delay: .05s; }
+  .card:nth-child(2) { animation-delay: .12s; }
+  .card:nth-child(3) { animation-delay: .19s; }
+</style>
+</head>
+<body>
+<a href="../index.html" aria-label="Torna alla home" style="position:fixed;right:16px;bottom:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+
+<div class="topbar">
+  <div class="breadcrumb">
+    <a href="../index.html">Home</a> ·
+    <a href="../index.html#probabilita">Probabilità</a> ·
+    <strong>Probabilità condizionata</strong>
+  </div>
+</div>
+
+<header>
+  <span class="tag">PROBABILITÀ · COMPETENZA TRASVERSALE</span>
+  <h1>Probabilità condizionata</h1>
+  <p>Come cambia la probabilità di un evento quando <strong>sappiamo qualcosa in più</strong>. Dai dadi e dalle carte fino al teorema di Bayes e ai test medici.</p>
+</header>
+
+<nav class="toc">
+  <a href="#definizione">1 · Definizione</a>
+  <a href="#tabella">2 · Tabella a doppia entrata</a>
+  <a href="#indipendenza">3 · Indipendenza</a>
+  <a href="#bayes">4 · Teorema di Bayes</a>
+  <a href="#quiz">5 · Quiz</a>
+</nav>
+
+<main>
+
+  <!-- ================= 1 · DEFINIZIONE ================= -->
+  <section class="block" id="definizione">
+    <div class="card">
+      <span class="kick">// 01 · la formula</span>
+      <h2>Che cos'è la probabilità condizionata?</h2>
+      <p class="lead">La probabilità che accada un evento <b>A</b>, <em>sapendo che è già accaduto</em> un altro evento <b>B</b>, si scrive <b>P(A&nbsp;|&nbsp;B)</b> e si legge «probabilità di A <strong>dato</strong> B».</p>
+
+      <div class="formula-box">
+        <span class="name">Probabilità condizionata</span>
+        P(A | B) =
+        <span class="frac orange"><span class="num">P(A ∩ B)</span><span class="den">P(B)</span></span>
+        <span style="opacity:.6">con P(B) &gt; 0</span>
+      </div>
+
+      <p>L'idea chiave è <strong>restringere lo spazio campionario</strong>: sapendo che B è accaduto, i casi possibili non sono più tutti, ma solo quelli in cui B si verifica. Tra questi, contiamo quelli in cui si verifica anche A.</p>
+
+      <div class="tip">
+        💡 <b>In parole povere:</b> «di tutti i casi in cui succede B, in quanti succede anche A?». Stai guardando il mondo <em>dentro</em> B, non il mondo intero.
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="kick">// esperimento · due dadi</span>
+      <h3>Prova a vederlo: il dado che "restringe" il mondo</h3>
+      <p class="lead">Lanciamo <b>due dadi</b>. Ci sono 6×6 = 36 esiti possibili. Poniamo:
+        <br>· <b>A</b> = «la somma è 8» &nbsp;&nbsp;· <b>B</b> = «il primo dado è pari».
+      </p>
+
+      <div class="dice-wrap">
+        <div class="dice-grid" id="diceGrid"></div>
+        <div class="dice-controls">
+          <button id="tglA" class="on">🟠 Evidenzia A (somma = 8)</button>
+          <button id="tglB" class="on blue">🔵 Restringi a B (1° dado pari)</button>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+
+      <div class="tip">
+        <b>Leggi i numeri:</b> senza sapere nulla, P(A) = 5/36 ≈ 13,9%. Ma se <b>sai già</b> che il primo dado è pari (B), lo spazio si restringe da 36 a 18 casi — e tra questi A si verifica in 3. Quindi P(A|B) = 3/18 = 1/6 ≈ 16,7%: <b>l'informazione ha cambiato la probabilità</b>.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2 · TABELLA ================= -->
+  <section class="block" id="tabella">
+    <div class="card">
+      <span class="kick">// 02 · strumento pratico</span>
+      <h2>La tabella a doppia entrata</h2>
+      <p class="lead">Il modo più semplice per calcolare P(A|B) è organizzare i dati in una tabella. Esempio: in una classe di <b>100 studenti</b> osserviamo <b>genere</b> e <b>pratica del calcio</b>.</p>
+
+      <table class="tab" id="tbl2">
+        <thead>
+          <tr><th></th><th>Gioca a calcio</th><th>Non gioca</th><th>Totale</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Maschi</th>
+            <td data-r="M" data-c="G">30</td>
+            <td data-r="M" data-c="NG">10</td>
+            <td class="tot" data-r="M" data-c="T">40</td>
+          </tr>
+          <tr>
+            <th>Femmine</th>
+            <td data-r="F" data-c="G">20</td>
+            <td data-r="F" data-c="NG">40</td>
+            <td class="tot" data-r="F" data-c="T">60</td>
+          </tr>
+          <tr>
+            <th>Totale</th>
+            <td class="tot" data-r="T" data-c="G">50</td>
+            <td class="tot" data-r="T" data-c="NG">50</td>
+            <td class="tot" data-r="T" data-c="T">100</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>Clicca per vedere come si legge una probabilità condizionata:</p>
+      <div class="tab-qs">
+        <button data-q="1">P(gioca | maschio)</button>
+        <button data-q="2">P(maschio | gioca)</button>
+        <button data-q="3">P(non gioca | femmina)</button>
+      </div>
+      <div class="tab-out" id="tabOut">👆 Scegli una domanda per evidenziare riga e colonna giuste.</div>
+    </div>
+  </section>
+
+  <!-- ================= 3 · INDIPENDENZA ================= -->
+  <section class="block" id="indipendenza">
+    <div class="card">
+      <span class="kick">// 03 · quando l'informazione non conta</span>
+      <h2>Eventi indipendenti</h2>
+      <p class="lead">Se sapere che B è accaduto <strong>non cambia</strong> la probabilità di A, allora A e B sono <b>indipendenti</b>.</p>
+
+      <div class="formula-box">
+        <span class="name">Indipendenza</span>
+        A e B indipendenti&nbsp;&nbsp;⇔&nbsp;&nbsp;P(A | B) = P(A)&nbsp;&nbsp;⇔&nbsp;&nbsp;P(A ∩ B) = P(A) · P(B)
+      </div>
+
+      <div class="grid2">
+        <div class="tip">
+          🎲 <b>Esempio indipendente:</b> lancio un dado e una moneta. La probabilità che esca «6» sul dado non dipende dall'esito della moneta: P(6 | testa) = P(6) = 1/6.
+        </div>
+        <div class="tip warn">
+          🔗 <b>Esempio dipendente:</b> estraggo due carte <em>senza</em> rimettere la prima. La probabilità che la seconda sia rossa <em>dipende</em> dalla prima: se la prima è rossa, P(seconda rossa) = 25/51, non più 26/52.
+        </div>
+      </div>
+
+      <div class="tip warn">
+        ⚠️ <b>Attenzione all'errore classico:</b> confondere P(A|B) con P(B|A). «Probabilità di avere la malattia dato il test positivo» ≠ «probabilità di test positivo dato che hai la malattia». Non sono la stessa cosa — e il teorema di Bayes (qui sotto) serve proprio a non sbagliarle.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4 · BAYES ================= -->
+  <section class="block" id="bayes">
+    <div class="card">
+      <span class="kick">// 04 · il ribaltamento</span>
+      <h2>Il teorema di Bayes</h2>
+      <p class="lead">Spesso conosciamo P(B|A) ma ci serve la probabilità <em>inversa</em> P(A|B). Il teorema di Bayes la ricava:</p>
+
+      <div class="formula-box">
+        <span class="name">Teorema di Bayes</span>
+        P(A | B) =
+        <span class="frac green"><span class="num">P(B | A) · P(A)</span><span class="den">P(B)</span></span>
+        <span style="opacity:.6">&nbsp;&nbsp;con P(B) = P(B|A)·P(A) + P(B|Aᶜ)·P(Aᶜ)</span>
+      </div>
+
+      <p>Il caso più celebre (e più utile) è il <strong>test medico</strong>. Anche un test "ottimo" può dare risultati sorprendenti quando la malattia è rara. Gioca con i cursori:</p>
+
+      <div class="slider-row">
+        <label>🦠 <b>Prevalenza</b> — quanto è rara la malattia</label>
+        <input type="range" id="prev" min="0.1" max="20" step="0.1" value="1">
+        <output id="prevOut">1%</output>
+      </div>
+      <div class="slider-row">
+        <label>🎯 <b>Sensibilità</b> — P(test⁺ | malato)</label>
+        <input type="range" id="sens" min="70" max="99.9" step="0.1" value="99">
+        <output id="sensOut">99%</output>
+      </div>
+      <div class="slider-row">
+        <label>📢 <b>Falsi positivi</b> — P(test⁺ | sano)</label>
+        <input type="range" id="fpr" min="0.5" max="20" step="0.1" value="2">
+        <output id="fprOut">2%</output>
+      </div>
+
+      <div class="bayes-result">
+        <div class="lbl">Se il test è positivo, la probabilità di essere davvero malato è…</div>
+        <div class="big" id="bayesBig">33%</div>
+      </div>
+
+      <div class="bar-stack" id="barStack"></div>
+      <div class="legend">
+        <span><i style="background:#7cffb2"></i>Veri positivi (malati, test⁺)</span>
+        <span><i style="background:#ff6b9d"></i>Falsi positivi (sani, test⁺)</span>
+        <span><i style="background:#6ee7ff"></i>Veri negativi (sani, test⁻)</span>
+        <span><i style="background:#ffc857"></i>Falsi negativi (malati, test⁻)</span>
+      </div>
+      <div class="bayes-breakdown" id="bayesBreakdown"></div>
+
+      <div class="tip">
+        🔑 <b>La lezione che conta:</b> se la malattia è rara (1%), anche con sensibilità 99% e "solo" 2% di falsi positivi, un test positivo indica una probabilità reale di malattia di appena ≈ 33%. Per questo i test medici si ripetono, e per questo bisogna sempre guardare la <b>prevalenza</b> di partenza — non solo l'accuratezza del test.
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5 · QUIZ ================= -->
+  <section class="block" id="quiz">
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-top"><span id="quizProg">Domanda 1 di 6</span><span id="quizScore">Punti: 0</span></div>
+      <h3 id="quizQ"></h3>
+      <div class="quiz-opts" id="quizOpts"></div>
+      <div class="quiz-why" id="quizWhy" hidden></div>
+      <div class="quiz-foot"><button class="btn" id="quizNext" hidden>Avanti →</button></div>
+    </div>
+    <div class="quiz-end" id="quizEnd" hidden>
+      <div class="score" id="endScore">0/6</div>
+      <p id="endMsg"></p>
+      <button class="btn" id="quizRestart">↻ Ricomincia il quiz</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Probabilità · Competenza trasversale · Prof. Andrea Sciarra</p>
+  <p><a href="../index.html">← Torna alla home</a></p>
+</footer>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+
+/* ===== 1 · DADI ===== */
+function initDice(){
+  const grid=$('#diceGrid'), readout=$('#readout');
+  const N=6, cells=[];
+  grid.innerHTML='';
+  for(let i=1;i<=N;i++){            // i = primo dado (righe)
+    for(let j=1;j<=N;j++){          // j = secondo dado (colonne)
+      const c=document.createElement('div');
+      c.className='dcell';
+      c.dataset.i=i; c.dataset.j=j;
+      c.innerHTML=`<span class="pair">${i},${j}</span><span class="sum">${i+j}</span>`;
+      grid.appendChild(c); cells.push(c);
+    }
+  }
+  const inA=c=>+c.dataset.i + +c.dataset.j === 8;   // somma 8
+  const inB=c=>+c.dataset.i % 2 === 0;               // primo dado pari
+  let showA=true, showB=true;
+
+  function render(){
+    let a=0, b=0, ab=0;
+    cells.forEach(c=>{
+      const A=inA(c), B=inB(c);
+      if(A)a++; if(B)b++; if(A&&B)ab++;
+      c.classList.toggle('inA', showA && A);
+      c.classList.toggle('dim', showB && !B);
+      c.classList.toggle('edge', showB && B && showA && A);
+    });
+    const total = showB ? b : N*N;
+    const pct = (x,total)=>((x/total)*100).toFixed(1);
+    const pA  = a/(N*N), pB = b/(N*N), pAB = ab/(N*N);
+    const pAgB = ab/b;
+    readout.innerHTML=`
+      <div class="ro"><div class="rl">P(A) · somma 8</div><div class="rv">${pct(a,N*N)}%</div><div class="rs">${a} casi su ${N*N}</div></div>
+      <div class="ro"><div class="rl">P(B) · 1° pari</div><div class="rv">${pct(b,N*N)}%</div><div class="rs">${b} casi su ${N*N}</div></div>
+      <div class="ro hl"><div class="rl">P(A | B)</div><div class="rv">${pct(ab,b)}%</div><div class="rs">${ab} casi dentro i ${b} di B</div></div>`;
+  }
+  $('#tglA').onclick=e=>{ showA=!showA; e.currentTarget.classList.toggle('on',showA); render(); };
+  $('#tglB').onclick=e=>{ showB=!showB; e.currentTarget.classList.toggle('on',showB); render(); };
+  render();
+}
+
+/* ===== 2 · TABELLA ===== */
+function initTable(){
+  const tab=$('#tbl2'), out=$('#tabOut');
+  function reset(){
+    tab.querySelectorAll('td,th').forEach(el=>el.classList.remove('hl','cond','cell'));
+  }
+  function show(q){
+    reset();
+    const cond = q===1||q===3 ? 'r':'c';        // condiziono su riga (1,3) o colonna (2)
+    const val  = q===1 ? 'M' : q===2 ? 'G' : 'F';
+    // evidenzia le celle della condizione e il loro totale
+    if(cond==='r'){
+      tab.querySelectorAll(`td[data-r="${val}"],th`).forEach(el=>{ if(el.dataset && el.dataset.r===val) el.classList.add('cond'); });
+      // header riga
+    }
+    const cells=tab.querySelectorAll(`td[data-${cond}="${val}"]`);
+    cells.forEach(el=>el.classList.add('cond'));
+    let text;
+    if(q===1){ tab.querySelector('td[data-r="M"][data-c="G"]').classList.add('cell'); tab.querySelector('td[data-r="M"][data-c="T"]').classList.add('hl'); text='P(gioca | maschio) = 30 / 40 = <b>0,75</b> → il 75% dei maschi gioca a calcio.'; }
+    if(q===2){ tab.querySelector('td[data-r="M"][data-c="G"]').classList.add('cell'); tab.querySelector('td[data-r="T"][data-c="G"]').classList.add('hl'); text='P(maschio | gioca) = 30 / 50 = <b>0,60</b> → il 60% di chi gioca è maschio. (Nota: diverso da 0,75!)'; }
+    if(q===3){ tab.querySelector('td[data-r="F"][data-c="NG"]').classList.add('cell'); tab.querySelector('td[data-r="F"][data-c="T"]').classList.add('hl'); text='P(non gioca | femmina) = 40 / 60 ≈ <b>0,67</b> → circa il 67% delle femmine non gioca.'; }
+    out.innerHTML=text;
+  }
+  $$('.tab-qs button').forEach(b=>b.onclick=()=>show(+b.dataset.q));
+}
+
+/* ===== 4 · BAYES ===== */
+function initBayes(){
+  const prev=$('#prev'), sens=$('#sens'), fpr=$('#fpr');
+  function render(){
+    const p = parseFloat(prev.value)/100;      // P(malato)
+    const s = parseFloat(sens.value)/100;      // P(test+ | malato)
+    const f = parseFloat(fpr.value)/100;       // P(test+ | sano)
+    $('#prevOut').textContent=prev.value+'%';
+    $('#sensOut').textContent=sens.value+'%';
+    $('#fprOut').textContent=fpr.value+'%';
+
+    const pTestPos = s*p + f*(1-p);            // P(test+)
+    const pMal = (s*p) / pTestPos;             // P(malato | test+)
+    $('#bayesBig').textContent=(pMal*100).toFixed(1)+'%';
+
+    const N=100000;
+    const vp = N * p * s;                      // veri positivi
+    const fn = N * p * (1-s);                  // falsi negativi
+    const fp = N * (1-p) * f;                  // falsi positivi
+    const vn = N * (1-p) * (1-f);              // veri negativi
+
+    const mk=(n,c)=>{const d=document.createElement('div'); d.style.width=(n/N*100)+'%'; d.style.background=c; return d;};
+    $('#barStack').innerHTML='';
+    $('#barStack').append(mk(vp,'#7cffb2'), mk(fp,'#ff6b9d'), mk(vn,'#6ee7ff'), mk(fn,'#ffc857'));
+
+    const fmt=n=>n.toLocaleString('it-IT');
+    $('#bayesBreakdown').innerHTML=`
+      <div class="bb"><div class="n" style="color:#7cffb2">${fmt(Math.round(vp))}</div><div class="t">veri positivi</div></div>
+      <div class="bb"><div class="n" style="color:#ff6b9d">${fmt(Math.round(fp))}</div><div class="t">falsi positivi</div></div>
+      <div class="bb"><div class="n" style="color:#6ee7ff">${fmt(Math.round(vn))}</div><div class="t">veri negativi</div></div>
+      <div class="bb"><div class="n" style="color:#ffc857">${fmt(Math.round(fn))}</div><div class="t">falsi negativi</div></div>`;
+  }
+  [prev,sens,fpr].forEach(el=>el.addEventListener('input',render));
+  render();
+}
+
+/* ===== 5 · QUIZ ===== */
+function initQuiz(){
+  const quiz=[
+   {q:"La probabilità condizionata P(A|B) si calcola come…",
+    o:["P(A ∩ B) / P(B)","P(A) · P(B)","P(A ∪ B) / P(B)","P(B) / P(A ∩ B)"], a:0,
+    w:"Si divide la probabilità dell'intersezione per quella dell'evento condizionante: <b>P(A∩B) / P(B)</b>."},
+   {q:"Lanci due monete. Sapendo che è uscita <b>almeno una testa</b>, qual è la probabilità che siano uscite due teste?",
+    o:["1/2","1/4","1/3","2/3"], a:2,
+    w:"Con almeno una testa i casi sono TT, TC, CT (3). Solo TT ha due teste: <b>P = 1/3</b>."},
+   {q:"Due eventi A e B sono <b>indipendenti</b> quando…",
+    o:["P(A | B) = P(A)","P(A | B) = P(B)","non hanno elementi in comune","P(A ∩ B) = 1"], a:0,
+    w:"Sapere che B è accaduto non cambia la probabilità di A: <b>P(A|B) = P(A)</b>."},
+   {q:"Un test per una malattia rara (prevalenza 1%) ha sensibilità 99% e 2% di falsi positivi. Se risulta positivo, P(malato | positivo) è circa…",
+    o:["99%","98%","1%","33%"], a:3,
+    w:"P = 0,99·0,01 / (0,99·0,01 + 0,02·0,99) ≈ <b>33%</b>. La rarità della malattia pesa moltissimo!"},
+   {q:"Da un mazzo di 52 carte estrai due carte <b>senza</b> reinserire la prima. La prima è rossa: P(anche la seconda è rossa)?",
+    o:["26/52","25/51","26/51","1/4"], a:1,
+    w:"Restano 51 carte di cui 25 rosse: <b>P = 25/51</b>. Gli eventi sono dipendenti."},
+   {q:"100 studenti: 40 maschi (30 giocano a calcio) e 60 femmine (20 giocano a calcio). P(maschio | gioca a calcio) è…",
+    o:["30/40","30/100","30/50","50/100"], a:2,
+    w:"Tra i 50 che giocano a calcio, 30 sono maschi: <b>30/50 = 0,6</b>."}
+  ];
+  let qi=0, pts=0, answered=false;
+  function renderQ(){
+    answered=false;
+    $('#quizProg').textContent=`Domanda ${qi+1} di ${quiz.length}`;
+    $('#quizScore').textContent=`Punti: ${pts}`;
+    $('#quizQ').textContent=quiz[qi].q;
+    $('#quizWhy').hidden=true; $('#quizNext').hidden=true;
+    const box=$('#quizOpts'); box.innerHTML='';
+    quiz[qi].o.forEach((o,i)=>{
+      const b=document.createElement('button'); b.className='qopt'; b.textContent=o;
+      b.onclick=()=>{
+        if(answered) return; answered=true;
+        const ok=i===quiz[qi].a; if(ok) pts++;
+        [...box.children].forEach((c,j)=>{ c.disabled=true; if(j===quiz[qi].a) c.classList.add('ok'); else if(j===i) c.classList.add('ko'); });
+        $('#quizScore').textContent=`Punti: ${pts}`;
+        const why=$('#quizWhy'); why.hidden=false;
+        why.innerHTML=(ok?'✅ Esatto! ':'❌ Non proprio. ')+quiz[qi].w;
+        $('#quizNext').hidden=false;
+        $('#quizNext').textContent=qi===quiz.length-1?'Vedi il risultato →':'Avanti →';
+      };
+      box.appendChild(b);
+    });
+  }
+  $('#quizNext').onclick=()=>{
+    qi++;
+    if(qi>=quiz.length){
+      $('#quizCard').hidden=true; $('#quizEnd').hidden=false;
+      $('#endScore').textContent=`${pts}/${quiz.length}`;
+      $('#endMsg').textContent= pts===6 ? "Perfetto: hai capito il cuore della probabilità condizionata! 🏆"
+        : pts>=4 ? "Ottimo lavoro: ripassa solo i dettagli che ti hanno tradito. 👍"
+        : "Rileggi la lezione con calma e riprova: la seconda volta va meglio! 💪";
+    } else renderQ();
+  };
+  $('#quizRestart').onclick=()=>{ qi=0; pts=0; $('#quizCard').hidden=false; $('#quizEnd').hidden=true; renderQ(); };
+  renderQ();
+}
+
+/* avvio isolato */
+[initDice, initTable, initBayes, initQuiz].forEach(fn=>{ try{fn();}catch(err){ console.warn('[Probabilità] modulo "'+fn.name+'" in errore:', err); } });
+</script>
+</body>
+</html>
