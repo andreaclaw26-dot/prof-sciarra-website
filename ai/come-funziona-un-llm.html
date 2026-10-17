@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Come funziona un LLM · Lezione interattiva — Sistemi Informativi Aziendali</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<script>/* JS attivo: posso permettermi le animazioni di ingresso */
+document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1e; --panel:#101731; --panel2:#0d1226; --deep:#080c18;
+  --line:rgba(160,180,220,.14); --line2:rgba(160,180,220,.28);
+  --txt:#e9edf7; --mut:#94a2c2;
+  --amber:#ffb547; --teal:#3fd8c2; --coral:#ff6b6b; --blue:#5aa9ff; --violet:#a78bfa;
+  --disp:'Syne',sans-serif; --body:'Instrument Sans',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--txt);font-family:var(--body);font-size:16.5px;line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(120,150,220,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(120,150,220,.045) 1px,transparent 1px);
+  background-size:46px 46px}
+#bg{position:fixed;inset:0;z-index:0;opacity:.55;pointer-events:none}
+.wrap{max-width:1150px;margin:0 auto;padding:0 24px;position:relative;z-index:2}
+::selection{background:var(--amber);color:#1a1206}
+section{scroll-margin-top:92px}
+
+/* VISIBILITÀ A PROVA DI ERRORE:
+   gli elementi si nascondono SOLO se JS è attivo (html.js) */
+.js .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.js .reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .js .reveal{opacity:1;transform:none;transition:none}
+}
+
+/* ---------- nav ---------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(10,15,30,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:0 22px;height:60px}
+.brand{font-family:var(--mono);font-weight:700;font-size:.86rem;letter-spacing:.04em;white-space:nowrap;text-decoration:none;color:var(--txt)}
+.brand b{color:var(--amber)}
+.brand .blink{color:var(--teal);animation:blink 1.2s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.nav-links{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{color:var(--mut);text-decoration:none;font-size:.84rem;font-weight:500;padding:7px 11px;border-radius:8px;white-space:nowrap;transition:.2s}
+.nav-links a:hover{color:var(--txt);background:rgba(255,255,255,.06)}
+.nav-links a.on{color:var(--amber);background:rgba(255,181,71,.1)}
+
+/* ---------- hero ---------- */
+.hero{padding:130px 0 60px;display:grid;grid-template-columns:1.08fr .92fr;gap:48px;align-items:center}
+.kick{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);border:1px solid rgba(63,216,194,.35);padding:7px 14px;border-radius:100px;background:rgba(63,216,194,.06)}
+.kick .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulseDot 2s infinite}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(63,216,194,.5)}50%{box-shadow:0 0 0 7px rgba(63,216,194,0)}}
+h1{font-family:var(--disp);font-weight:800;font-size:clamp(2.6rem,5.6vw,4.4rem);line-height:1.04;margin:22px 0 18px;letter-spacing:-.01em}
+.tok-chip{display:inline-block;font-family:var(--mono);font-size:.72em;color:#1a1206;background:var(--amber);padding:.06em .32em;border-radius:.18em;transform:rotate(-2deg);box-shadow:0 8px 28px rgba(255,181,71,.3)}
+.hero-sub{color:var(--mut);font-size:1.08rem;max-width:52ch}
+.hero-tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+.htag{font-size:.8rem;border:1px solid var(--line2);border-radius:100px;padding:6px 13px;color:var(--txt);background:rgba(255,255,255,.03);transition:.2s;cursor:default}
+.htag:hover{transform:translateY(-2px);border-color:var(--teal)}
+
+/* terminal */
+.term{background:var(--deep);border:1px solid var(--line2);border-radius:13px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.term-bar{display:flex;align-items:center;gap:7px;padding:11px 15px;background:#0e1428;border-bottom:1px solid var(--line)}
+.term-bar i{width:11px;height:11px;border-radius:50%}
+.term-bar i:nth-child(1){background:var(--coral)}.term-bar i:nth-child(2){background:var(--amber)}.term-bar i:nth-child(3){background:var(--teal)}
+.term-title{margin-left:auto;font-family:var(--mono);font-size:.7rem;color:var(--mut);letter-spacing:.08em}
+.term-body{padding:22px;font-family:var(--mono);min-height:290px;display:flex;flex-direction:column}
+.term-line{font-size:.98rem;display:flex;flex-wrap:wrap;align-items:baseline}
+.term-prompt{color:var(--teal);margin-right:9px}
+.cursor{display:inline-block;width:9px;height:1.15em;background:var(--teal);margin-left:3px;vertical-align:text-bottom;animation:blink 1s steps(2) infinite}
+.term-cands{margin-top:20px;display:flex;flex-direction:column;gap:9px}
+.cand{display:grid;grid-template-columns:1fr 130px 46px;align-items:center;gap:10px;border:1px solid var(--line);border-radius:9px;padding:8px 12px;transition:.35s;background:rgba(255,255,255,.02)}
+.cand .cw{font-size:.85rem}
+.cand .track{height:6px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+.cand .track i{display:block;height:100%;width:0;background:var(--blue);border-radius:99px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.cand .cp{font-size:.72rem;color:var(--mut);text-align:right}
+.cand.win{border-color:var(--teal);background:rgba(63,216,194,.08);box-shadow:0 0 22px rgba(63,216,194,.15)}
+.cand.win .track i{background:var(--teal)}
+.term-note{margin-top:auto;padding-top:18px;font-size:.74rem;color:var(--mut);border-top:1px dashed var(--line);line-height:1.5}
+.term-note b{color:var(--amber);font-weight:500}
+
+/* ticker */
+.ticker{border-block:1px solid var(--line);background:rgba(13,18,38,.7);overflow:hidden;position:relative;z-index:2}
+.ticker-in{display:flex;width:max-content;animation:tick 30s linear infinite}
+.ticker span{font-family:var(--mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding:12px 0;white-space:nowrap}
+.ticker b{color:var(--amber);font-weight:500;padding:0 14px}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* ---------- sezioni ---------- */
+.section{padding:92px 0}
+.sec-head{max-width:780px;margin-bottom:40px}
+.sec-kick{font-family:var(--mono);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;display:inline-block;border-left:3px solid var(--acc,var(--amber));padding-left:12px;margin-bottom:14px;color:var(--acc,var(--amber))}
+.sec-head h2{font-family:var(--disp);font-weight:700;font-size:clamp(1.7rem,3.4vw,2.5rem);line-height:1.15;margin-bottom:12px}
+.sec-head h2 em{font-style:normal;color:var(--acc,var(--amber))}
+.sec-sub{color:var(--mut);font-size:1.03rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px}
+.btn{font-family:var(--body);font-weight:600;font-size:.9rem;color:var(--txt);background:var(--panel2);border:1px solid var(--line2);border-radius:10px;padding:11px 20px;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-2px);border-color:var(--teal);box-shadow:0 8px 22px rgba(0,0,0,.35)}
+.btn:active{transform:translateY(0)}
+.btn-teal{background:var(--teal);color:#06231e;border-color:var(--teal)}
+.btn-teal:hover{background:#5ee6d0;border-color:#5ee6d0}
+.btn-amber{background:var(--amber);color:#241703;border-color:var(--amber)}
+.btn-amber:hover{background:#ffc46b;border-color:#ffc46b}
+.btn-sm{padding:7px 13px;font-size:.8rem}
+
+/* 01 cos'è */
+.def-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;align-items:stretch}
+.def-big{font-size:1.28rem;line-height:1.65}
+.def-big strong{color:var(--teal)}
+.def-big .hl{background:linear-gradient(transparent 62%,rgba(255,181,71,.28) 62%)}
+.chipstack{display:flex;flex-direction:column;gap:12px}
+.def-chip{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:var(--panel2);transition:.25s}
+.def-chip:hover{transform:translateX(6px);border-color:var(--blue)}
+.def-chip b{font-family:var(--mono);font-size:.8rem;color:var(--blue);letter-spacing:.05em;display:block;margin-bottom:4px}
+.def-chip p{font-size:.9rem;color:var(--mut);line-height:1.5}
+.stats-strip{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:14px;margin-top:34px;background:var(--panel2);overflow:hidden}
+.stat{flex:1;min-width:200px;padding:26px 28px;border-right:1px solid var(--line);transition:background .3s}
+.stat:last-child{border-right:none}
+.stat:hover{background:rgba(255,255,255,.03)}
+.stat .n{font-family:var(--disp);font-weight:800;font-size:2.1rem;color:var(--amber)}
+.stat:nth-child(2) .n{color:var(--teal)}.stat:nth-child(3) .n{color:var(--coral)}.stat:nth-child(4) .n{color:var(--blue)}
+.stat .l{font-size:.82rem;color:var(--mut);margin-top:4px}
+
+/* 02 tokenizer */
+.tok-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:22px}
+textarea#tokInput{width:100%;background:var(--deep);border:1px solid var(--line2);border-radius:12px;color:var(--txt);font-family:var(--body);font-size:1.05rem;padding:18px;resize:vertical;min-height:110px;outline:none;transition:.25s}
+textarea#tokInput:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(255,181,71,.15)}
+.tok-out{min-height:120px;margin-top:16px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.tk{font-family:var(--mono);font-size:.9rem;padding:4px 7px;border-radius:6px;white-space:pre-wrap;animation:popIn .3s both;transition:transform .15s}
+.tk:hover{transform:translateY(-3px) scale(1.06)}
+@keyframes popIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.t0{background:rgba(255,181,71,.16);color:var(--amber);border:1px solid rgba(255,181,71,.35)}
+.t1{background:rgba(63,216,194,.13);color:var(--teal);border:1px solid rgba(63,216,194,.35)}
+.t2{background:rgba(255,107,107,.13);color:var(--coral);border:1px solid rgba(255,107,107,.35)}
+.t3{background:rgba(90,169,255,.13);color:var(--blue);border:1px solid rgba(90,169,255,.35)}
+.tok-count{display:flex;flex-direction:column;gap:0}
+.tc-row{display:flex;justify-content:space-between;align-items:baseline;padding:16px 4px;border-bottom:1px dashed var(--line)}
+.tc-row:last-child{border-bottom:none}
+.tc-row .lbl{font-size:.86rem;color:var(--mut)}
+.tc-row .val{font-family:var(--mono);font-weight:700;font-size:1.5rem;color:var(--amber)}
+.tc-row:nth-child(2) .val{color:var(--teal)}
+.tc-row:nth-child(3) .val{color:var(--coral)}
+.tok-hint{margin-top:22px;font-size:.9rem;color:var(--mut);border-left:3px solid var(--amber);padding-left:14px}
+.tok-hint b{color:var(--txt)}
+
+/* 03 spazio vettoriale */
+.vs-grid{display:grid;grid-template-columns:1.35fr .85fr;gap:22px}
+.vs-stage{background:var(--deep);border:1px solid var(--line2);border-radius:14px;padding:10px 10px 0;overflow:hidden}
+.vs-stage svg{width:100%;height:auto;display:block}
+.vs-legend{display:flex;gap:16px;flex-wrap:wrap;padding:12px 14px;border-top:1px dashed var(--line)}
+.vs-legend span{font-size:.76rem;font-family:var(--mono);color:var(--mut);display:flex;align-items:center;gap:6px}
+.vs-legend i{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.vs-pt{cursor:pointer}
+.vs-pt circle{transition:r .18s,stroke-width .18s}
+.vs-pt:hover circle{r:10}
+.vs-pt.sel circle{stroke:#fff;stroke-width:2.5}
+.vs-pt.dim{opacity:.25}
+.vs-pt.ana circle{stroke:var(--teal);stroke-width:3}
+.vs-pt text{font-family:var(--mono);font-size:13px;fill:var(--txt);pointer-events:none}
+.vs-pulse{animation:vsPulse 1s ease-out 2}
+@keyframes vsPulse{0%{r:8;opacity:1}100%{r:30;opacity:0}}
+.vs-side{display:flex;flex-direction:column;gap:16px}
+.vs-info{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;flex:1;font-size:.92rem;color:var(--mut)}
+.vs-info .vw{font-family:var(--disp);font-weight:700;font-size:1.5rem;color:var(--txt);display:block}
+.vs-info .vec{font-family:var(--mono);font-size:.78rem;color:var(--amber);margin:6px 0 16px;display:block;line-height:1.6}
+.nb-row{display:grid;grid-template-columns:88px 1fr 44px;gap:10px;align-items:center;font-size:.86rem;margin-bottom:9px;color:var(--txt)}
+.nb-row .track{height:10px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.nb-row .track i{display:block;height:100%;background:var(--teal);width:0;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.nb-row .pct{font-family:var(--mono);font-size:.72rem;color:var(--teal)}
+.ana-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.ana-box h4{font-family:var(--disp);font-size:1.02rem;margin-bottom:12px}
+.ana-btns{display:flex;flex-wrap:wrap;gap:8px}
+.ana-result{margin-top:14px;font-family:var(--mono);font-size:.86rem;min-height:1.6em;color:var(--mut);line-height:1.6}
+.ana-result b{color:var(--teal)}
+.vs-deep{margin-top:20px;font-size:.9rem;color:var(--mut);border-left:3px solid var(--blue);padding-left:14px}
+.vs-deep b{color:var(--txt)}
+
+/* 04 previsione */
+.prob-panel{border-top:4px solid var(--teal)}
+.prob-sent{font-family:var(--mono);font-size:1.05rem;background:var(--deep);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:22px;line-height:1.7}
+.sampled{display:inline-block;background:rgba(63,216,194,.15);color:var(--teal);border:1px solid rgba(63,216,194,.4);padding:2px 9px;border-radius:6px;margin:2px 3px;animation:popIn .35s}
+.sampled.ghost{background:transparent;border-color:var(--line);color:var(--mut);opacity:.6}
+.prob-rows{display:flex;flex-direction:column;gap:11px;margin-bottom:26px}
+.prow{display:grid;grid-template-columns:minmax(150px,240px) 1fr 62px;gap:14px;align-items:center}
+.prow .pw{font-size:.93rem;text-align:right;color:var(--txt)}
+.prow .track{height:22px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden;position:relative}
+.prow .track i{display:block;height:100%;background:linear-gradient(90deg,rgba(63,216,194,.35),var(--teal));transition:width .45s cubic-bezier(.2,.8,.2,1)}
+.prow .pp{font-family:var(--mono);font-size:.82rem;color:var(--teal)}
+.temp-zone{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;border-top:1px dashed var(--line);padding-top:22px}
+.temp-left{display:flex;flex-direction:column;gap:8px;flex:1;min-width:260px}
+.temp-left label{font-family:var(--mono);font-size:.8rem;color:var(--mut)}
+.temp-left label b{color:var(--amber);font-size:1rem}
+input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer}
+.temp-presets{display:flex;gap:8px;flex-wrap:wrap}
+
+/* 05 transformer: intuizioni */
+.int-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:48px}
+.int-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;transition:.28s}
+.int-card:hover{transform:translateY(-5px);border-color:var(--blue)}
+.int-ico{font-size:1.7rem}
+.int-card h3{font-family:var(--disp);font-size:1.05rem;line-height:1.3}
+.int-card p{font-size:.9rem;color:var(--mut)}
+.int-card p b{color:var(--txt)}
+.int-btns{display:flex;flex-wrap:wrap;gap:8px}
+.int-res{font-family:var(--mono);font-size:.78rem;color:var(--teal);border-top:1px dashed var(--line);padding-top:12px;min-height:3.4em;line-height:1.6}
+.int-res b{color:var(--amber);font-weight:500}
+.order-demo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-family:var(--mono);font-size:.92rem}
+.order-demo .ov{color:var(--coral)}
+.linkword{background:rgba(90,169,255,.12);border:1px solid rgba(90,169,255,.4);color:var(--blue);border-radius:6px;padding:1px 9px;cursor:pointer;font-family:var(--body);font-size:.95rem;transition:.2s}
+.linkword:hover{background:rgba(90,169,255,.25)}
+#catWord{transition:.3s;border-radius:6px;padding:0 4px}
+#catWord.hot{background:rgba(255,181,71,.25);box-shadow:0 0 0 2px var(--amber)}
+.pipe-bridge{font-family:var(--disp);font-weight:700;font-size:1.35rem;margin:0 0 6px}
+.pipe-bridge-sub{color:var(--mut);font-size:.96rem;margin-bottom:26px}
+.pipe-bridge-sub b{color:var(--amber)}
+
+/* 05 pipeline */
+.pipe{overflow-x:auto;padding-bottom:6px;position:relative}
+.pipe-track{display:flex;gap:10px;min-width:820px;position:relative;padding-top:6px}
+.pipe-line{position:absolute;top:44px;left:30px;right:30px;height:2px;background:var(--line2)}
+.pipe-line::after{content:"";position:absolute;top:-4px;left:0;width:10px;height:10px;border-radius:50%;background:var(--blue);box-shadow:0 0 14px var(--blue);animation:pulseMove 5s linear infinite}
+@keyframes pulseMove{to{left:100%}}
+.pstep{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;position:relative;z-index:1;transition:.25s;color:var(--txt);font-family:var(--body)}
+.pstep:hover{transform:translateY(-5px);border-color:var(--blue)}
+.pstep.act{border-color:var(--blue);background:rgba(90,169,255,.09);box-shadow:0 12px 30px rgba(90,169,255,.12)}
+.pstep .pn{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:.68rem;background:var(--ink);border:1px solid var(--line2);border-radius:100px;padding:2px 10px;color:var(--blue)}
+.pstep .pi{font-size:1.7rem;display:block;margin:12px 0 8px}
+.pstep .pt{font-weight:600;font-size:.88rem}
+.pipe-detail{margin-top:26px;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:12px;background:var(--panel2);padding:24px 28px;animation:fadeSlide .4s}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.pipe-detail h4{font-family:var(--disp);font-size:1.2rem;margin-bottom:8px;color:var(--blue)}
+.pipe-detail p{color:var(--mut);margin-bottom:14px}
+.pipe-detail code{display:block;font-family:var(--mono);font-size:.85rem;background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:12px 16px;color:var(--amber);overflow-x:auto;white-space:pre}
+.pipe-detail .deeper{margin-top:14px;font-size:.82rem;color:var(--mut);border:1px dashed var(--line2);border-radius:8px;padding:11px 15px;line-height:1.6}
+.pipe-detail .deeper b{color:var(--blue)}
+.loop-note{margin-top:18px;font-size:.9rem;color:var(--mut)}
+.loop-note b{color:var(--coral)}
+
+/* 06 attenzione */
+.att-panel{border-top:4px solid var(--coral)}
+.att-ex{display:flex;gap:10px;margin-bottom:26px;flex-wrap:wrap}
+.att-ex .btn.on{border-color:var(--coral);background:rgba(255,107,107,.12);color:var(--coral)}
+.att-sent{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:8px}
+.aw{background:transparent;border:1px solid var(--line);border-radius:9px;padding:9px 13px;cursor:pointer;color:var(--txt);font-family:var(--body);font-size:1.02rem;display:flex;flex-direction:column;gap:7px;align-items:stretch;transition:.25s;min-width:52px}
+.aw:hover{transform:translateY(-3px);border-color:var(--coral)}
+.aw.tgt{border-color:var(--coral);box-shadow:0 0 16px rgba(255,107,107,.25)}
+.aw-b{height:4px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;display:block}
+.aw-b i{display:block;height:100%;width:0;background:var(--coral);border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.att-note{margin-top:20px;font-family:var(--mono);font-size:.85rem;color:var(--mut);border-top:1px dashed var(--line);padding-top:16px;min-height:2.2em}
+.att-note b{color:var(--coral)}
+.att-tip{margin-top:22px;display:flex;gap:14px;align-items:flex-start;background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.25);border-radius:12px;padding:18px 20px;font-size:.94rem;color:var(--mut)}
+.att-tip .big{font-size:1.5rem;line-height:1}
+
+/* 07 training */
+.train-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;position:relative}
+.train-grid::before{content:"";position:absolute;top:56px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,var(--violet),var(--blue),var(--teal));opacity:.35}
+.tcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px 24px;position:relative;transition:.3s}
+.tcard:hover{transform:translateY(-7px);border-color:var(--violet);box-shadow:0 20px 44px rgba(0,0,0,.4)}
+.tcard .tn{font-family:var(--disp);font-weight:800;font-size:2.6rem;color:transparent;-webkit-text-stroke:1.5px var(--violet);position:relative;z-index:1;background:var(--panel);display:inline-block;padding-right:10px}
+.tcard:nth-child(2) .tn{-webkit-text-stroke-color:var(--blue)}
+.tcard:nth-child(3) .tn{-webkit-text-stroke-color:var(--teal)}
+.tcard h3{font-family:var(--disp);font-size:1.15rem;margin:6px 0 10px}
+.tcard p{font-size:.92rem;color:var(--mut);margin-bottom:16px}
+.mini{font-family:var(--mono);font-size:.76rem;background:var(--deep);border:1px solid var(--line);border-radius:8px;padding:12px 14px;color:var(--mut);line-height:1.7}
+.mini b{color:var(--amber);font-weight:500}
+.mini .ok{color:var(--teal)}.mini .no{color:var(--coral)}
+
+/* 08 confronto */
+.arch-banner{border:1px solid var(--line2);border-radius:14px;background:linear-gradient(120deg,rgba(90,169,255,.08),rgba(167,139,250,.05));padding:26px 30px;margin-bottom:20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.arch-banner .ab-ico{font-size:2.2rem}
+.arch-banner h3{font-family:var(--disp);font-size:1.25rem;margin-bottom:6px}
+.arch-banner p{color:var(--mut);font-size:.94rem;max-width:62ch}
+.arch-banner b{color:var(--blue)}
+.tline{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 30px}
+.tl-chip{font-family:var(--mono);font-size:.72rem;border:1px solid var(--line);border-radius:100px;padding:6px 13px;color:var(--mut);transition:.2s;cursor:default}
+.tl-chip:hover{border-color:var(--amber);color:var(--amber);transform:translateY(-2px)}
+.tl-chip b{color:var(--txt);font-weight:500}
+.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:26px}
+.fchip{font-size:.85rem;font-weight:600;border:1px solid var(--line2);background:transparent;color:var(--mut);border-radius:100px;padding:8px 18px;cursor:pointer;transition:.2s}
+.fchip:hover{color:var(--txt);border-color:var(--amber)}
+.fchip.on{background:var(--amber);border-color:var(--amber);color:#241703}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}
+.mcard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;transition:.28s;display:flex;flex-direction:column;gap:14px}
+.mcard:hover{transform:translateY(-6px);border-color:var(--line2);box-shadow:0 22px 50px rgba(0,0,0,.45)}
+.mcard.hide{display:none}
+.mc-top{display:flex;align-items:center;gap:13px}
+.mono-av{width:46px;height:46px;border-radius:11px;display:grid;place-items:center;font-family:var(--disp);font-weight:800;font-size:.95rem;color:#0a0f1e;flex-shrink:0}
+.mc-top h3{font-family:var(--disp);font-size:1.08rem;line-height:1.2}
+.mc-top .org{font-size:.78rem;color:var(--mut)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.bdg{font-family:var(--mono);font-size:.65rem;letter-spacing:.06em;border-radius:5px;padding:3px 8px;border:1px solid}
+.bdg.open{color:var(--teal);border-color:rgba(63,216,194,.4);background:rgba(63,216,194,.08)}
+.bdg.closed{color:var(--coral);border-color:rgba(255,107,107,.4);background:rgba(255,107,107,.08)}
+.bdg.multi{color:var(--violet);border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.08)}
+.mc-row{display:flex;justify-content:space-between;font-size:.85rem;border-bottom:1px dashed var(--line);padding-bottom:8px}
+.mc-row .k{color:var(--mut)}
+.mc-row .v{font-family:var(--mono);font-size:.8rem;color:var(--txt)}
+.ctx-bar{height:7px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.ctx-bar i{display:block;height:100%;width:0;background:var(--blue);border-radius:99px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.mc-note{font-size:.83rem;color:var(--mut);font-style:italic;margin-top:auto}
+.sia-note{margin-top:30px;border:1px solid rgba(255,181,71,.35);background:rgba(255,181,71,.06);border-radius:14px;padding:26px 30px}
+.sia-note h3{font-family:var(--disp);color:var(--amber);font-size:1.1rem;margin-bottom:12px}
+.sia-note ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px 26px}
+.sia-note li{font-size:.92rem;color:var(--mut);padding-left:22px;position:relative}
+.sia-note li::before{content:"▸";position:absolute;left:0;color:var(--amber)}
+.sia-note li b{color:var(--txt)}
+
+/* 09 limiti */
+.lim-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+.lim{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;transition:.28s}
+.lim:hover{transform:translateY(-5px);border-color:var(--coral)}
+.lim h3{font-family:var(--disp);font-size:1.1rem;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.lim p{font-size:.92rem;color:var(--mut)}
+.fake-quote{margin-top:16px;border-left:3px solid var(--coral);background:var(--deep);border-radius:0 10px 10px 0;padding:14px 18px;font-family:var(--mono);font-size:.85rem}
+.fake-quote .lbl{display:block;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--coral);margin-bottom:6px}
+.golden{margin-top:20px;text-align:center;font-size:.98rem}
+.golden b{color:var(--amber)}
+
+/* 10 quiz */
+.quiz-shell{max-width:720px;margin:0 auto}
+.quiz-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:34px;border-top:5px solid var(--teal)}
+.quiz-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.76rem;color:var(--mut);margin-bottom:20px;letter-spacing:.06em}
+.quiz-top #quizScore{color:var(--teal)}
+.quiz-card h3{font-family:var(--disp);font-size:1.35rem;margin-bottom:22px;line-height:1.35}
+.quiz-opts{display:flex;flex-direction:column;gap:10px}
+.qopt{text-align:left;font-family:var(--body);font-size:.98rem;color:var(--txt);background:var(--panel2);border:1px solid var(--line2);border-radius:11px;padding:14px 18px;cursor:pointer;transition:.2s}
+.qopt:hover:not(:disabled){border-color:var(--teal);transform:translateX(5px)}
+.qopt:disabled{cursor:default;opacity:.75}
+.qopt.ok{border-color:var(--teal);background:rgba(63,216,194,.12);opacity:1}
+.qopt.ko{border-color:var(--coral);background:rgba(255,107,107,.1);opacity:1}
+.quiz-why{margin-top:18px;font-size:.9rem;color:var(--mut);border-top:1px dashed var(--line);padding-top:15px}
+.quiz-why b{color:var(--teal)}
+.quiz-foot{margin-top:22px;text-align:right}
+.quiz-end{text-align:center;padding:20px 0}
+.quiz-end .score{font-family:var(--disp);font-weight:800;font-size:4rem;color:var(--teal)}
+.quiz-end p{color:var(--mut);margin:10px 0 24px;font-size:1.05rem}
+.qdots{display:flex;justify-content:center;gap:8px;margin-top:20px}
+.qdots i{width:9px;height:9px;border-radius:50%;background:var(--line2);transition:.3s}
+.qdots i.done{background:var(--teal)}
+.qdots i.now{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+
+footer{border-top:1px solid var(--line);margin-top:40px;padding:44px 0 60px;position:relative;z-index:2}
+.foot-in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--mut);font-size:.86rem}
+.foot-in .fb{font-family:var(--mono);font-size:.8rem}
+.foot-in .fb b{color:var(--amber)}
+
+/* responsive */
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr;padding-top:110px;gap:36px}
+  .def-grid,.tok-grid,.vs-grid{grid-template-columns:1fr}
+  .int-grid,.train-grid{grid-template-columns:1fr}
+  .train-grid::before{display:none}
+  .lim-grid{grid-template-columns:1fr}
+  .sia-note ul{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .prow{grid-template-columns:1fr;gap:6px}
+  .prow .pw{text-align:left}
+  .stat{min-width:46%}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+<noscript><style>.cursor{display:none}</style></noscript>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<nav>
+  <div class="nav-in">
+    <a class="brand" href="#top">LLM<b>.lab</b> <span class="blink">_</span></a>
+    <div class="nav-links">
+      <a href="#cos-e">Che cos'è</a>
+      <a href="#token">Token</a>
+      <a href="#spazio">Vettori</a>
+      <a href="#previsione">Previsione</a>
+      <a href="#architettura">Transformer</a>
+      <a href="#attenzione">Attenzione</a>
+      <a href="#addestramento">Training</a>
+      <a href="#confronto">Confronto</a>
+      <a href="#limiti">Limiti</a>
+      <a href="#quiz">Quiz</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero wrap" id="top">
+  <div>
+    <span class="kick"><span class="dot"></span> Sistemi Informativi Aziendali · Classe 4ª · Lezione interattiva</span>
+    <h1>Come funziona<br>un <span class="tok-chip">LLM</span>,<br>veramente</h1>
+    <p class="hero-sub">Dal testo ai <strong>token</strong>, dai <strong>vettori</strong> all'<strong>attenzione</strong>, fino alla probabilità della parola successiva: un viaggio dentro la macchina che alimenta ChatGPT, Gemini, Claude &amp; co. Niente magia: solo matematica, dati… e qualche esperimento da provare qui sotto.</p>
+    <div class="hero-tags">
+      <span class="htag">🧩 Spezzare in token</span>
+      <span class="htag">🧭 Esplorare i vettori</span>
+      <span class="htag">🎯 Prevedere la parola</span>
+      <span class="htag">⚔️ Confrontare i modelli</span>
+    </div>
+  </div>
+  <div class="term">
+    <div class="term-bar"><i></i><i></i><i></i><span class="term-title">modello-demo · dal vivo</span></div>
+    <div class="term-body">
+      <div class="term-line"><span class="term-prompt">&gt;</span><span id="typedText"></span><span class="cursor"></span></div>
+      <div class="term-cands" id="candBox"></div>
+      <div class="term-note" id="demoNote">L'LLM non "ricorda" la risposta: <b>stima la probabilità</b> di ogni possibile continuazione.</div>
+    </div>
+  </div>
+</header>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-in" id="tickerIn">
+    <span>token<b>✦</b>embedding<b>✦</b>spazio vettoriale<b>✦</b>attenzione<b>✦</b>transformer<b>✦</b>softmax<b>✦</b>temperatura<b>✦</b>fine-tuning<b>✦</b>RLHF<b>✦</b>contesto<b>✦</b>parametri<b>✦</b>allucinazioni<b>✦</b>API<b>✦</b>token<b>✦</b>embedding<b>✦</b>spazio vettoriale<b>✦</b>attenzione<b>✦</b>transformer<b>✦</b>softmax<b>✦</b>temperatura<b>✦</b>fine-tuning<b>✦</b>RLHF<b>✦</b>contesto<b>✦</b>parametri<b>✦</b>allucinazioni<b>✦</b>API<b>✦</b></span>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ============ 01 CHE COS'È ============ -->
+<section class="section" id="cos-e">
+  <div class="sec-head reveal">
+    <span class="sec-kick">// 01 · le basi</span>
+    <h2>Un gigantesco <em>autocompletamento</em> addestrato a forza di lettura</h2>
+  </div>
+  <div class="def-grid">
+    <div class="panel reveal def-big" style="border-left:4px solid var(--teal)">
+      Un <strong>LLM</strong> (<em>Large Language Model</em>, modello linguistico di grandi dimensioni) è una rete neurale addestrata su quantità enormi di testo con un unico, semplice compito: <span class="hl"><strong>prevedere il token successivo</strong></span>. Tutto qui. Ripetendo questo "gioco" miliardi di volte su libri, articoli, siti web e codice, il modello impara grammatica, fatti del mondo, stili di scrittura e ragionamenti. Token dopo token, ricostruisce frasi intere — come l'autocompletamento dello smartphone, ma <strong>enormemente più potente</strong>.
+    </div>
+    <div class="chipstack">
+      <div class="def-chip reveal"><b>RETE NEURALE</b><p>Un modello matematico con milioni/miliardi di "interruttori" numerici collegati tra loro, ispirato (molto alla lontana) al cervello.</p></div>
+      <div class="def-chip reveal"><b>PARAMETRI</b><p>I numeri che la rete regola durante l'addestramento. Più sono, più il modello può rappresentare conoscenza… ma non è l'unica cosa che conta.</p></div>
+      <div class="def-chip reveal"><b>GENERATIVO</b><p>Il modello non interroga un database: <i>genera</i> il testo un pezzo alla volta, parola dopo parola.</p></div>
+    </div>
+  </div>
+  <div class="stats-strip reveal">
+    <div class="stat"><div class="n" data-n="175" data-suf=" mld">175 mld</div><div class="l">parametri di GPT-3 (2020): un numero difficile anche solo da immaginare</div></div>
+    <div class="stat"><div class="n" data-n="13000" data-suf=" mld">13.000 mld</div><div class="l">token di testo usati per addestrare GPT-4 (stima)</div></div>
+    <div class="stat"><div class="n" data-n="2" data-suf=" mln">2 mln</div><div class="l">token di finestra di contesto di Gemini 1.5 Pro: migliaia di pagine alla volta</div></div>
+    <div class="stat"><div class="n" data-n="2017" data-suf="">2017</div><div class="l">anno di nascita del Transformer, l'idea alla base di (quasi) tutti gli LLM</div></div>
+  </div>
+</section>
+
+<!-- ============ 02 TOKEN ============ -->
+<section class="section" id="token">
+  <div class="sec-head reveal">
+    <span class="sec-kick" style="--acc:var(--amber)">// 02 · tokenizzazione</span>
+    <h2>Prima di capire, il modello <em>spezza</em></h2>
+    <p class="sec-sub">Il modello non legge parole: legge <b>token</b>, cioè pezzi di parole (in media circa ¾ di parola, in italiano anche meno). Prova tu: scrivi qualcosa e guarda come verrebbe "masticato".</p>
+  </div>
+  <div class="tok-grid">
+    <div class="panel reveal">
+      <textarea id="tokInput" spellcheck="false">L'intelligenza artificiale non è magia: è matematica, dati e tantissimi parametri.</textarea>
+      <div class="tok-out" id="tokOut"></div>
+    </div>
+    <div class="panel reveal tok-count">
+      <div class="tc-row"><span class="lbl">Caratteri</span><span class="val" id="cntChar">0</span></div>
+      <div class="tc-row"><span class="lbl">Parole</span><span class="val" id="cntWord">0</span></div>
+      <div class="tc-row"><span class="lbl">Token (simulazione)</span><span class="val" id="cntTok">0</span></div>
+      <div class="tc-row"><span class="lbl">💶 Costo API*</span><span class="val" id="cntCost" style="font-size:1.1rem">€ 0</span></div>
+    </div>
+  </div>
+  <p class="tok-hint reveal">*Con un'API reale pagheresti <b>per ogni token</b>, in ingresso e in uscita: ecco perché i token sono l'unità di misura dell'economia degli LLM. Prova a scrivere parole molto lunghe o piene di punteggiatura: i token aumentano!</p>
+</section>
+
+<!-- ============ 03 SPAZIO VETTORIALE ============ -->
+<section class="section" id="spazio">
+  <div class="sec-head reveal">
+    <span class="sec-kick" style="--acc:var(--blue)">// 03 · embedding</span>
+    <h2>Le parole diventano <em>punti</em>: lo spazio vettoriale</h2>
+    <p class="sec-sub">Dopo la tokenizzazione, ogni token diventa un <b>vettore</b>: una lista di numeri che ne rappresenta il significato. Le parole simili finiscono <b>vicine</b>. Qui sotto c'è una versione giocattolo in 2 dimensioni (quelle vere ne hanno migliaia): <b>clicca le parole</b>, esplora i vicini… e prova l'aritmetica vettoriale.</p>
+  </div>
+  <div class="vs-grid">
+    <div class="reveal">
+      <div class="vs-stage">
+        <svg id="vsSvg" viewBox="0 0 820 540" role="img" aria-label="Spazio vettoriale giocattolo">
+          <defs>
+            <marker id="arrTeal" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3fd8c2"/></marker>
+            <marker id="arrAmber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb547"/></marker>
+          </defs>
+          <g id="vsClusters"></g>
+          <g id="vsLinks"></g>
+          <g id="vsPts"></g>
+          <g id="vsFx"></g>
+        </svg>
+        <div class="vs-legend">
+          <span><i style="background:var(--amber)"></i>regno</span>
+          <span><i style="background:var(--teal)"></i>persone</span>
+          <span><i style="background:var(--coral)"></i>animali</span>
+          <span><i style="background:var(--blue)"></i>città</span>
+          <span><i style="background:var(--violet)"></i>cibo</span>
+        </div>
+      </div>
+      <p class="vs-deep">🔬 <b>Un livello più a fondo:</b> i vettori veri hanno migliaia di dimensioni (GPT-3: 12.288) e non si possono disegnare, ma la logica è identica: <b>"simile" = vicino</b>. Per questo il modello "sa" che re ≈ sovrano e pizza ≈ pasta senza che nessuno gliel'abbia scritto esplicitamente.</p>
+    </div>
+    <div class="vs-side reveal">
+      <div class="vs-info" id="vsInfo">👆 <b style="color:var(--txt)">Clicca una parola</b> nel grafico: vedrai il suo vettore (i numeri che la rappresentano) e le 3 parole più vicine, cioè le più simili secondo il modello.</div>
+      <div class="ana-box">
+        <h4>🧮 Aritmetica dei significati: la prova del nove</h4>
+        <div class="ana-btns">
+          <button class="btn btn-sm" id="ana1">▶ re − uomo + donna</button>
+          <button class="btn btn-sm" id="ana2">▶ ragazzo − uomo + donna</button>
+          <button class="btn btn-sm" id="anaClear">✕ pulisci</button>
+          <button class="btn btn-sm" id="coordBtn">🔢 mostra i numeri</button>
+        </div>
+        <div class="ana-result" id="anaResult">Il modello impara delle vere e proprie "direzioni" di significato: il passaggio uomo→donna è quasi identico al passaggio re→regina. Lancia l'analogia!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 PREVISIONE + TEMPERATURA ============ -->
+<section class="section" id="previsione">
+  <div class="sec-head reveal">
+    <span class="sec-kick" style="--acc:var(--teal)">// 04 · next token prediction</span>
+    <h2>Il modello non pensa: <em>scommette</em> sulla parola dopo</h2>
+    <p class="sec-sub">Per ogni posizione, l'LLM assegna un punteggio a <b>tutto il vocabolario</b> (~100.000 token) e lo trasforma in probabilità. La <b>temperatura</b> decide quanto essere prudente o coraggioso nella scelta.</p>
+  </div>
+  <div class="panel prob-panel reveal">
+    <div class="prob-sent">Marco ha preso l'ombrello perché… <span id="sampledZone"></span></div>
+    <div class="prob-rows" id="probRows"></div>
+    <div class="temp-zone">
+      <div class="temp-left">
+        <label>🌡️ Temperatura: <b id="tempVal">0.7</b> <span style="opacity:.7">— bassa = prevedibile · alta = creativa (e rischiosa)</span></label>
+        <input type="range" id="tempRange" min="0.3" max="2" step="0.05" value="0.7">
+      </div>
+      <div class="temp-presets">
+        <button class="btn btn-sm" id="tCold">❄️ T=0.3</button>
+        <button class="btn btn-sm" id="tHot">🔥 T=1.8</button>
+        <button class="btn btn-teal" id="sampleBtn">🎲 Campiona una parola</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 TRANSFORMER ============ -->
+<section class="section" id="architettura">
+  <div class="sec-head reveal">
+    <span class="sec-kick" style="--acc:var(--blue)">// 05 · il transformer</span>
+    <h2>Prima l'intuizione con tre esempi, <em>poi</em> il meccanismo</h2>
+    <p class="sec-sub">Il Transformer (2017) è la "ricetta" alla base di quasi tutti gli LLM. Prima di vedere gli ingranaggi, capiamo <b>quale problema risolve</b> con tre situazioni di tutti i giorni.</p>
+  </div>
+
+  <div class="int-grid">
+    <div class="int-card reveal">
+      <div class="int-ico">🎣🍑</div>
+      <h3>1 · È il contesto a decidere il significato</h3>
+      <p>La parola <b>«pesca»</b>, da sola, non basta. Sono le parole <i>intorno</i> a dirci di quale pesca si parla — ed è esattamente ciò che il modello impara a fare.</p>
+      <div class="int-btns">
+        <button class="btn btn-sm" id="pescaA">🎣 «Domani vado a pesca all'alba»</button>
+        <button class="btn btn-sm" id="pescaB">🍑 «A merenda mangio una pesca»</button>
+      </div>
+      <div class="int-res" id="pescaRes">Scegli una frase…</div>
+    </div>
+    <div class="int-card reveal">
+      <div class="int-ico">🔀</div>
+      <h3>2 · L'ordine delle parole cambia tutto</h3>
+      <p>Le stesse identiche parole possono raccontare due storie opposte: il modello deve sapere <b>dove</b> si trova ciascuna. Premi il pulsante.</p>
+      <div class="order-demo"><span id="ow1">Il cane</span> <span class="ov">morde</span> <span id="ow2">l'uomo</span> <button class="btn btn-sm" id="swapBtn">⇄ scambia</button></div>
+      <div class="int-res" id="orderRes">🐕 Il cane fa l'azione: (purtroppo) cronaca normale…</div>
+    </div>
+    <div class="int-card reveal">
+      <div class="int-ico">🔗</div>
+      <h3>3 · Di chi si sta parlando? I legami a distanza</h3>
+      <p><span id="catWord">Il gatto</span> corse a nascondersi sotto il letto: <button class="linkword" id="luiBtn">lui</button> aveva paura.</p>
+      <div class="int-res" id="luiRes">Premi «lui»: chi ha paura?</div>
+    </div>
+  </div>
+
+  <h3 class="pipe-bridge reveal">🔧 Ora seguiamo una frase vera dentro il modello</h3>
+  <p class="pipe-bridge-sub reveal">Frase di prova: <b>«Il gatto dorme sul divano»</b> — clicca le sei tappe e guarda cosa le succede, dal testo alla parola successiva.</p>
+
+  <div class="reveal">
+    <div class="pipe">
+      <div class="pipe-track">
+        <div class="pipe-line"></div>
+        <button class="pstep act" data-i="0"><span class="pn">1</span><span class="pi">✂️</span><span class="pt">Tokenizzazione</span></button>
+        <button class="pstep" data-i="1"><span class="pn">2</span><span class="pi">🔢</span><span class="pt">Embedding</span></button>
+        <button class="pstep" data-i="2"><span class="pn">3</span><span class="pi">📍</span><span class="pt">Posizione</span></button>
+        <button class="pstep" data-i="3"><span class="pn">4</span><span class="pi">👀</span><span class="pt">Attenzione ×N</span></button>
+        <button class="pstep" data-i="4"><span class="pn">5</span><span class="pi">🧮</span><span class="pt">Feed-forward</span></button>
+        <button class="pstep" data-i="5"><span class="pn">6</span><span class="pi">🎯</span><span class="pt">Probabilità</span></button>
+      </div>
+    </div>
+    <div class="pipe-detail" id="pipeDetail"></div>
+    <p class="loop-note">♻️ Il token scelto viene riaggiunto all'inizio e il giro ricomincia: per questo si dice che gli LLM sono <b>autoregressivi</b> — il testo si genera da solo, un pezzo alla volta, ed è il motivo per cui li vedete "digitare".</p>
+  </div>
+</section>
+
+<!-- ============ 06 ATTENZIONE ============ -->
+<section class="section" id="attenzione">
+  <div class="sec-head reveal">
+    <span class="sec-kick" style="--acc:var(--coral)">// 06 · attention</span>
+    <h2>Ogni parola <em>guarda</em> tutte le altre (ma non allo stesso modo)</h2>
+    <p class="sec-sub">L'hai vista in azione nella tappa 4 del transformer: ora la osserviamo da vicino. Per capire una parola, il modello calcola <b>quanto pesano</b> le altre parole della frase. Clicca sulle parole e osserva le barre.</p>
+  </div>
+  <div class="panel att-panel reveal">
+    <div class="att-ex">
+      <button class="btn btn-sm on" data-ex="0">Frase 1 · il trofeo</button>
+      <button class="btn btn-sm" data-ex="1">Frase 2 · il bicchiere</button>
+    </div>
+    <div class="att-sent" id="attSent"></div>
+    <div class="att-note" id="attNote">👆 Clicca una parola per vedere chi "guarda".</div>
+    <div class="att-tip">
+      <span class="big">💡</span>
+      <span><b style="color:var(--txt)">Domanda per la classe:</b> nella frase 1, che cosa è "troppo grande"? Il modello non ha occhi né mani: capisce il legame solo dal modo in cui le parole si influenzano a vicenda negli strati di attenzione. È la stessa capacità che gli fa risolvere frasi ambigue come "banca" (istituto o panchina?).</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 ADDESTRAMENTO ============ -->
+<section class="section" id="addestramento">
+  <div class="sec-head reveal">
+    <span class="sec-kick" style="--acc:var(--violet)">// 07 · come si impara</span>
+    <h2>Tre fasi: <em>leggere</em>, poi <em>obbedire</em>, poi <em>migliorare</em></h2>
+  </div>
+  <div class="train-grid">
+    <div class="tcard reveal">
+      <span class="tn">01</span>
+      <h3>Pre-addestramento</h3>
+      <p>Mesi di calcoli su migliaia di GPU: il modello gioca miliardi di volte a "indovina la parola mancante" su un oceano di testo. Così impara lingua e conoscenza grezza — ma non sa ancora <i>conversare</i>.</p>
+      <div class="mini">Il cielo sopra la città era<br>di un colore <b>grigio piombo</b> ▸ ✓<br><span style="opacity:.5">loss ↓ ad ogni passo</span></div>
+    </div>
+    <div class="tcard reveal">
+      <span class="tn">02</span>
+      <h3>Fine-tuning (SFT)</h3>
+      <p>Si mostrano migliaia di esempi "istruzione → risposta corretta" scritti da umani: il modello impara il formato delle domande e delle risposte, il tono, il rispetto delle consegne.</p>
+      <div class="mini"><span style="opacity:.6">utente:</span> Riassumi questo testo<br><span style="opacity:.6">assistente:</span> Ecco i 3 punti chiave…<br><span class="ok">✓ esempio umano supervisato</span></div>
+    </div>
+    <div class="tcard reveal">
+      <span class="tn">03</span>
+      <h3>RLHF</h3>
+      <p>Reinforcement Learning from Human Feedback: gli umani votano le risposte migliori, e il modello viene premiato quando si comporta come desideriamo. È qui che nasce l'"assistente".</p>
+      <div class="mini">Risposta A <span class="ok">👍 voto 9/10</span><br>Risposta B <span class="no">👎 voto 4/10</span><br><span style="opacity:.5">il modello impara a preferire A</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 CONFRONTO ============ -->
+<section class="section" id="confronto">
+  <div class="sec-head reveal">
+    <span class="sec-kick" style="--acc:var(--blue)">// 08 · i protagonisti</span>
+    <h2>Stessa architettura, <em>ricette diverse</em></h2>
+  </div>
+  <div class="arch-banner reveal">
+    <span class="ab-ico">🏛️</span>
+    <div>
+      <h3>Il cuore comune: il Transformer</h3>
+      <p>Quasi tutti i grandi modelli sono <b>decoder-only transformer</b>: cambia la dimensione, la qualità dei dati, il metodo di addestramento — ma l'idea di fondo è la stessa del paper <b>"Attention is all you need"</b> (Google, 2017). Sotto, le differenze che contano.</p>
+    </div>
+  </div>
+  <div class="tline reveal">
+    <span class="tl-chip"><b>2017</b> Transformer</span>
+    <span class="tl-chip"><b>2018</b> GPT-1 · BERT</span>
+    <span class="tl-chip"><b>2020</b> GPT-3</span>
+    <span class="tl-chip"><b>2022</b> ChatGPT 💥</span>
+    <span class="tl-chip"><b>2023</b> GPT-4 · Llama 2</span>
+    <span class="tl-chip"><b>2024</b> GPT-4o · Claude 3 · Gemini 1.5</span>
+  </div>
+  <div class="filters reveal" id="filters">
+    <button class="fchip on" data-f="all">Tutti</button>
+    <button class="fchip" data-f="closed">🔒 Chiusi (via API)</button>
+    <button class="fchip" data-f="open">🔓 Pesi aperti</button>
+    <button class="fchip" data-f="multi">🖼️ Multimodali</button>
+  </div>
+  <div class="mgrid" id="mgrid"></div>
+  <div class="sia-note reveal">
+    <h3>🎓 Collegamento con Sistemi Informativi Aziendali</h3>
+    <ul>
+      <li><b>LLM-as-a-Service:</b> i modelli chiusi si usano via API e si paga a token (input e output hanno tariffe diverse) → è un costo variabile da mettere a budget.</li>
+      <li><b>Make or buy:</b> API pronta (veloce, ma dipendenza dal fornitore) oppure modello open da installare sui propri server (controllo, ma servono competenze e hardware).</li>
+      <li><b>Governo dei dati:</b> ciò che incolli in un servizio cloud esce dal perimetro aziendale → policy su privacy, segreti industriali e GDPR.</li>
+      <li><b>Vantaggio competitivo:</b> chi integra gli LLM nei propri processi (assistenza clienti, analisi documenti, marketing) riduce tempi e costi: è già una scelta di sistema informativo.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 09 LIMITI ============ -->
+<section class="section" id="limiti">
+  <div class="sec-head reveal">
+    <span class="sec-kick" style="--acc:var(--coral)">// 09 · spirito critico</span>
+    <h2>Parla benissimo. <em>Verifica sempre.</em></h2>
+  </div>
+  <div class="lim-grid">
+    <div class="lim reveal">
+      <h3>🌀 Allucinazioni</h3>
+      <p>Il modello ottimizza la <i>plausibilità</i>, non la verità: può inventare fatti, date, sentenze e citazioni… con tono sicurissimo. Esempio inventato ma credibile:</p>
+      <div class="fake-quote"><span class="lbl">sembra vero · è falso</span>"I Promessi Sposi furono pubblicati nella versione definitiva nel 1985."<br><span style="color:var(--coral)">✗ È il 1840-42. Il modello ha solo completato in modo fluente.</span></div>
+    </div>
+    <div class="lim reveal">
+      <h3>📅 Conoscenza con data di scadenza</h3>
+      <p>L'addestramento si ferma a una certa data (<i>cutoff</i>): quello che è successo dopo, il modello non lo conosce (a meno di strumenti esterni come la ricerca web).</p>
+    </div>
+    <div class="lim reveal">
+      <h3>⚖️ Bias nei dati</h3>
+      <p>Impara da testi scritti da persone: può ereditarne stereotipi e squilibri. Per questo esistono fasi di allineamento (RLHF) e valutazioni continue.</p>
+    </div>
+    <div class="lim reveal">
+      <h3>🔐 Privacy &amp; costi</h3>
+      <p>Le richieste viaggiano su server di terzi e si pagano a token: in azienda servono policy chiare su cosa si può condividere e quanto costa.</p>
+    </div>
+  </div>
+  <p class="golden reveal">Regola d'oro della classe: <b>l'LLM è un assistente velocissimo, ma il responsabile della verifica sei tu.</b></p>
+</section>
+
+<!-- ============ 10 QUIZ ============ -->
+<section class="section" id="quiz">
+  <div class="sec-head reveal" style="text-align:center;margin-left:auto;margin-right:auto">
+    <span class="sec-kick" style="--acc:var(--teal)">// 10 · verifica lampo</span>
+    <h2>Hai capito? <em>Dimostralo.</em></h2>
+    <p class="sec-sub">Sette domande, niente voto (per ora 😏). Al termine: punteggio e verdetto.</p>
+  </div>
+  <div class="quiz-shell reveal">
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-top"><span id="quizProg">Domanda 1 di 7</span><span id="quizScore">Punti: 0</span></div>
+      <h3 id="quizQ"></h3>
+      <div class="quiz-opts" id="quizOpts"></div>
+      <div class="quiz-why" id="quizWhy" hidden></div>
+      <div class="quiz-foot"><button class="btn btn-teal" id="quizNext" hidden>Avanti →</button></div>
+    </div>
+    <div class="quiz-end" id="quizEnd" hidden>
+      <div class="score" id="endScore">0/7</div>
+      <p id="endMsg"></p>
+      <button class="btn btn-amber" id="quizRestart">↻ Ricomincia il quiz</button>
+    </div>
+    <div class="qdots" id="qdots"></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <span class="fb"><b>LLM.lab</b> · pagina didattica — Sistemi Informativi Aziendali, classe quarta</span>
+    <span>Numeri e specifiche sono indicativi e basati su fonti pubbliche (2023–2025). Realizzata per uso in classe: copia, proietta, modifica. ✏️</span>
+  </div>
+</footer>
+
+<script>
+/* ============ utilities ============ */
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============ moduli (ognuno indipendente) ============ */
+
+function initCanvas(){
+  const c=$('#bg'),x=c.getContext('2d');let W,H,nodes=[];
+  function rs(){W=c.width=innerWidth;H=c.height=innerHeight}
+  rs();addEventListener('resize',rs);
+  const N=Math.min(70,Math.floor(innerWidth/22));
+  for(let i=0;i<N;i++)nodes.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3});
+  function frame(){
+    x.clearRect(0,0,W,H);
+    for(const n of nodes){
+      n.x+=n.vx;n.y+=n.vy;
+      if(n.x<0||n.x>W)n.vx*=-1; if(n.y<0||n.y>H)n.vy*=-1;
+      x.fillStyle='rgba(90,169,255,.5)';x.beginPath();x.arc(n.x,n.y,1.6,0,7);x.fill();
+    }
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+      const a=nodes[i],b=nodes[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<130){x.strokeStyle=`rgba(90,169,255,${(1-d/130)*.14})`;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();}
+    }
+    if(!reduced)requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+function initReveal(){
+  const els=[...$$('.reveal')];
+  if(!els.length)return;
+  const show=el=>el.classList.add('in');
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(es=>es.forEach(e=>{
+      if(e.isIntersecting){show(e.target);io.unobserve(e.target)}
+    }),{threshold:0.03,rootMargin:'0px 0px -5% 0px'});
+    els.forEach(el=>io.observe(el));
+  }else{
+    const check=()=>els.forEach(el=>{
+      if(!el.classList.contains('in')&&el.getBoundingClientRect().top<innerHeight*.96)show(el);
+    });
+    addEventListener('scroll',check,{passive:true});check();
+  }
+  /* rete di sicurezza: tutto ciò che è già a schermo appare comunque */
+  setTimeout(()=>els.forEach(el=>{
+    if(!el.classList.contains('in')&&el.getBoundingClientRect().top<innerHeight)show(el);
+  }),800);
+}
+
+function initCounters(){
+  if(!('IntersectionObserver' in window))return;
+  const ioN=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting)return; ioN.unobserve(e.target);
+    const el=e.target,t=parseInt(el.dataset.n,10),suf=el.dataset.suf||'',t0=performance.now();
+    (function step(now){const p=Math.min(1,(now-t0)/1400),v=Math.round(t*(1-Math.pow(1-p,3)));
+      el.textContent=v.toLocaleString('it-IT')+suf; if(p<1)requestAnimationFrame(step);})(t0);
+  }),{threshold:.5});
+  $$('.stat .n').forEach(el=>ioN.observe(el));
+}
+
+function initNav(){
+  const secs=[...document.querySelectorAll('section[id],header[id]')];
+  const navA=[...$$('.nav-links a')];
+  if(!('IntersectionObserver' in window))return;
+  const ioNav=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting)navA.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id));
+  }),{rootMargin:'-40% 0px -55% 0px'});
+  secs.forEach(s=>ioNav.observe(s));
+}
+
+function initHeroDemo(){
+  const demoSeq=[
+   {p:"La capitale d'Italia è",c:[["Roma",94],["Milano",3],["Venezia",2],["Napoli",1]]},
+   {p:"Il sole sorge a",c:[["est",96],["ovest",3],["nord",1]]},
+   {p:"L'acqua bolle a",c:[["100 gradi",88],["50 gradi",6],["0 gradi",4],["1000 gradi",2]]},
+   {p:"Due più due fa",c:[["quattro",98],["cinque",1],["ventidue",1]]},
+   {p:"Chi trova un amico trova un",c:[["tesoro",91],["amico",4],["gatto",3],["nemico",2]]}
+  ];
+  const demoNotes=[
+   "L'LLM non \"ricorda\" la risposta: <b>stima la probabilità</b> di ogni possibile continuazione.",
+   "Percentuali quasi certe: il modello ha visto questa frase <b>migliaia di volte</b> nei dati.",
+   "Anche le opzioni assurde hanno una piccola probabilità: <b>c'è sempre tutto il vocabolario</b>.",
+   "Facile qui… ma lo stesso meccanismo scala fino a scrivere saggi e codice."
+  ];
+  (async function demo(){
+    const typed=$('#typedText'),box=$('#candBox'),note=$('#demoNote');
+    if(reduced){
+      const d=demoSeq[0];typed.textContent=d.p+' '+d.c[0][0];
+      d.c.forEach(([w,p])=>{const e=document.createElement('div');e.className='cand';
+        e.innerHTML=`<span class="cw">${w}</span><span class="track"><i style="width:${p}%"></i></span><span class="cp">${p}%</span>`;box.appendChild(e)});
+      box.firstChild.classList.add('win');return;
+    }
+    let di=0;
+    while(true){
+      const d=demoSeq[di%demoSeq.length];
+      typed.textContent='';box.innerHTML='';
+      note.innerHTML=demoNotes[di%demoNotes.length];
+      for(const ch of d.p){typed.textContent+=ch;await sleep(34)}
+      await sleep(300);
+      const chips=d.c.map(([w,p],i)=>{const e=document.createElement('div');e.className='cand';
+        e.innerHTML=`<span class="cw">${w}</span><span class="track"><i></i></span><span class="cp">${p}%</span>`;
+        box.appendChild(e);setTimeout(()=>e.querySelector('i').style.width=p+'%',60+i*120);return e});
+      await sleep(1300);
+      chips[0].classList.add('win');
+      await sleep(420);
+      typed.textContent+=' '+d.c[0][0];
+      await sleep(1500);di++;
+    }
+  })();
+}
+
+function initTokenizer(){
+  const tokIn=$('#tokInput'),tokOut=$('#tokOut');
+  function pseudoTokens(text){
+    const out=[];let space='';
+    for(const part of text.split(/(\s+)/)){
+      if(!part)continue;
+      if(/^\s+$/.test(part)){space=part;continue}
+      let i=0;
+      while(i<part.length){
+        const rem=part.length-i;
+        const len=rem<=6?rem:(3+((part.charCodeAt(i)+i)%3));
+        out.push((i===0?space:'')+part.slice(i,i+len));
+        i+=len;space='';
+      }
+      space='';
+    }
+    return out;
+  }
+  function renderTok(){
+    const t=tokIn.value;
+    const toks=pseudoTokens(t);
+    tokOut.innerHTML=toks.length?toks.map((tk,i)=>`<span class="tk t${i%4}" title="token ${i+1}">${tk.replace(/ /g,'␣')}</span>`).join(''):'<span style="color:var(--mut);font-family:var(--mono);font-size:.85rem">Scrivi qualcosa qui sopra…</span>';
+    $('#cntChar').textContent=t.length;
+    $('#cntWord').textContent=t.trim()?t.trim().split(/\s+/).length:0;
+    $('#cntTok').textContent=toks.length;
+    $('#cntCost').textContent='€ '+(toks.length*2*0.00001).toLocaleString('it-IT',{minimumFractionDigits:4,maximumFractionDigits:4});
+  }
+  tokIn.addEventListener('input',renderTok);renderTok();
+}
+
+function initVectorSpace(){
+  const NS='http://www.w3.org/2000/svg';
+  const svgEl=(n,attrs)=>{const e=document.createElementNS(NS,n);for(const k in attrs)e.setAttribute(k,attrs[k]);return e};
+  const clusterColor={royal:'#ffb547',people:'#3fd8c2',animal:'#ff6b6b',city:'#5aa9ff',food:'#a78bfa'};
+  const clusters=[
+   {c:'royal',x:330,y:155,rx:155,ry:78,label:'REGNO'},
+   {c:'people',x:215,y:432,rx:108,ry:72,label:'PERSONE'},
+   {c:'animal',x:592,y:290,rx:118,ry:96,label:'ANIMALI'},
+   {c:'city',x:562,y:468,rx:108,ry:50,label:'CITTÀ'},
+   {c:'food',x:128,y:283,rx:82,ry:78,label:'CIBO'}
+  ];
+  const pts=[
+   {t:'re',x:250,y:120,c:'royal'},{t:'regina',x:370,y:115,c:'royal'},{t:'principe',x:285,y:195,c:'royal'},
+   {t:'principessa',x:400,y:190,c:'royal'},{t:'sovrano',x:195,y:178,c:'royal'},{t:'corona',x:460,y:150,c:'royal'},
+   {t:'uomo',x:150,y:400,c:'people'},{t:'donna',x:270,y:395,c:'people'},{t:'ragazzo',x:160,y:470,c:'people'},{t:'ragazza',x:280,y:465,c:'people'},
+   {t:'cane',x:560,y:255,c:'animal'},{t:'gatto',x:625,y:215,c:'animal'},{t:'lupo',x:520,y:330,c:'animal'},{t:'tigre',x:665,y:300,c:'animal'},{t:'cucciolo',x:595,y:375,c:'animal'},
+   {t:'Roma',x:560,y:455,c:'city'},{t:'Milano',x:495,y:485,c:'city'},{t:'Parigi',x:640,y:475,c:'city'},
+   {t:'pizza',x:120,y:275,c:'food'},{t:'pasta',x:180,y:310,c:'food'},{t:'pane',x:130,y:235,c:'food'},{t:'fame',x:85,y:325,c:'food'}
+  ];
+  const vsLinks=$('#vsLinks'),vsPts=$('#vsPts'),vsFx=$('#vsFx'),vsInfo=$('#vsInfo');
+  const vsClusters=$('#vsClusters');
+  clusters.forEach(cl=>{
+    vsClusters.appendChild(svgEl('ellipse',{cx:cl.x,cy:cl.y,rx:cl.rx,ry:cl.ry,fill:clusterColor[cl.c],opacity:.06}));
+    const t=svgEl('text',{x:cl.x,y:cl.y-cl.ry+16,'text-anchor':'middle','font-size':'10','letter-spacing':'3',fill:clusterColor[cl.c],opacity:.45,'font-family':'JetBrains Mono'});
+    t.textContent=cl.label;vsClusters.appendChild(t);
+  });
+  let coordMode=false;const gMap={};
+  pts.forEach(p=>{
+    const g=svgEl('g',{class:'vs-pt'});
+    g.appendChild(svgEl('circle',{cx:p.x,cy:p.y,r:7,fill:clusterColor[p.c],stroke:'#0a0f1e','stroke-width':1.5}));
+    const t=svgEl('text',{x:p.x,y:p.y-13,'text-anchor':'middle'});t.textContent=p.t;g.appendChild(t);
+    g.addEventListener('click',()=>selectPt(p.t));
+    vsPts.appendChild(g);gMap[p.t]={g,label:t};
+  });
+  const coordLabel=p=>`[${(p.x/100).toFixed(1)}, ${(p.y/100).toFixed(1)}]`;
+  function selectPt(name){
+    clearFx();
+    const p=pts.find(x=>x.t===name);
+    const ds=pts.filter(q=>q.t!==name).map(q=>({q,d:Math.hypot(q.x-p.x,q.y-p.y)})).sort((a,b)=>a.d-b.d);
+    const dmax=ds[ds.length-1].d,top3=ds.slice(0,3);
+    top3.forEach(({q})=>{
+      vsLinks.appendChild(svgEl('line',{x1:p.x,y1:p.y,x2:q.x,y2:q.y,stroke:clusterColor[p.c],'stroke-width':1.5,opacity:.75,'stroke-dasharray':'4 4'}));
+    });
+    const keep=new Set([name,...top3.map(x=>x.q.t)]);
+    pts.forEach(q=>{
+      gMap[q.t].g.classList.toggle('dim',!keep.has(q.t));
+      gMap[q.t].g.classList.toggle('sel',q.t===name);
+    });
+    const rows=top3.map(({q,d})=>{
+      const sim=Math.round(100*(1-d/dmax));
+      return `<div class="nb-row"><span>${q.t}</span><span class="track"><i data-w="${sim}"></i></span><span class="pct">${sim}%</span></div>`;
+    }).join('');
+    vsInfo.innerHTML=`<span class="vw">${p.t}</span><span class="vec">vettore (giocattolo): [${(p.x/100).toFixed(2)}, ${(p.y/100).toFixed(2)}]<br>2 dimensioni su migliaia reali · vicinanza = somiglianza</span><b style="color:var(--txt);font-size:.8rem;letter-spacing:.08em">I 3 VICINI PIÙ SIMILI</b><div style="margin-top:10px">${rows}</div>`;
+    requestAnimationFrame(()=>vsInfo.querySelectorAll('.nb-row .track i').forEach(i=>i.style.width=i.dataset.w+'%'));
+  }
+  function clearFx(){
+    vsFx.innerHTML='';vsLinks.innerHTML='';
+    pts.forEach(q=>gMap[q.t].g.classList.remove('ana','dim','sel'));
+  }
+  function runAna(a,b,c){
+    clearFx();
+    const A=pts.find(x=>x.t===a),B=pts.find(x=>x.t===b),C=pts.find(x=>x.t===c);
+    gMap[b].g.classList.add('ana');gMap[c].g.classList.add('ana');
+    vsFx.appendChild(svgEl('line',{x1:B.x,y1:B.y,x2:C.x,y2:C.y,stroke:'#3fd8c2','stroke-width':2,'stroke-dasharray':'7 5','marker-end':'url(#arrTeal)',opacity:.9}));
+    const tx=A.x-B.x+C.x,ty=A.y-B.y+C.y;
+    const arrow=svgEl('line',{x1:A.x,y1:A.y,x2:A.x,y2:A.y,stroke:'#ffb547','stroke-width':3,'marker-end':'url(#arrAmber)'});
+    vsFx.appendChild(arrow);
+    const t0=performance.now();
+    (function step(now){
+      const p=Math.min(1,(now-t0)/900),e=1-Math.pow(1-p,3);
+      arrow.setAttribute('x2',A.x+(tx-A.x)*e);arrow.setAttribute('y2',A.y+(ty-A.y)*e);
+      if(p<1){requestAnimationFrame(step);return}
+      const pulse=svgEl('circle',{cx:tx,cy:ty,r:8,fill:'none',stroke:'#3fd8c2','stroke-width':2,class:'vs-pulse'});
+      vsFx.appendChild(pulse);setTimeout(()=>pulse.remove(),2100);
+      let best=null,bd=1e9;
+      pts.forEach(q=>{const d=Math.hypot(q.x-tx,q.y-ty);if(d<bd){bd=d;best=q}});
+      $('#anaResult').innerHTML= bd<45
+        ? `${a} − ${b} + ${c} ≈ <b>${best.t}</b> ✅ La freccia atterra proprio sulla parola giusta: le "direzioni di significato" sono reali nei numeri!`
+        : `Atterraggio dalle parti di <b>${best.t}</b>.`;
+      selectPt(best.t);
+    })(t0);
+  }
+  $('#ana1').onclick=()=>runAna('re','uomo','donna');
+  $('#ana2').onclick=()=>runAna('ragazzo','uomo','donna');
+  $('#anaClear').onclick=()=>{clearFx();$('#anaResult').textContent='Il modello impara delle vere e proprie "direzioni" di significato: prova a lanciare un\u2019analogia!';};
+  $('#coordBtn').onclick=()=>{
+    coordMode=!coordMode;
+    pts.forEach(p=>gMap[p.t].label.textContent=coordMode?coordLabel(p):p.t);
+    $('#coordBtn').textContent=coordMode?'🔤 mostra le parole':'🔢 mostra i numeri';
+  };
+}
+
+function initProbs(){
+  const scores=[["piove",4.6],["le previsioni davano pioggia",3.0],["era nuvoloso",2.3],["sta nevicando",0.5],["canta una canzone",-1.6]];
+  const probRows=$('#probRows');
+  scores.forEach(([w])=>{
+    const r=document.createElement('div');r.className='prow';
+    r.innerHTML=`<span class="pw">${w}</span><span class="track"><i></i></span><span class="pp">0%</span>`;
+    probRows.appendChild(r);
+  });
+  const rowEls=[...probRows.children];
+  function currentProbs(){
+    const T=parseFloat($('#tempRange').value);
+    const s=scores.map(x=>x[1]),mx=Math.max(...s);
+    const ex=s.map(v=>Math.exp((v-mx)/T)),sum=ex.reduce((a,b)=>a+b,0);
+    return ex.map(v=>v/sum);
+  }
+  function renderProbs(){
+    $('#tempVal').textContent=parseFloat($('#tempRange').value).toFixed(2);
+    currentProbs().forEach((p,i)=>{
+      rowEls[i].querySelector('i').style.width=(p*100)+'%';
+      rowEls[i].querySelector('.pp').textContent=(p*100).toFixed(1)+'%';
+    });
+  }
+  $('#tempRange').addEventListener('input',renderProbs);
+  $('#tCold').onclick=()=>{$('#tempRange').value=0.3;renderProbs()};
+  $('#tHot').onclick=()=>{$('#tempRange').value=1.8;renderProbs()};
+  renderProbs();
+  const samples=[];
+  $('#sampleBtn').onclick=()=>{
+    const p=currentProbs();let r=Math.random(),acc=0,win=0;
+    for(let i=0;i<p.length;i++){acc+=p[i];if(r<=acc){win=i;break}}
+    samples.unshift(scores[win][0]);if(samples.length>6)samples.pop();
+    $('#sampledZone').innerHTML=samples.map((s,i)=>`<span class="sampled${i?' ghost':''}">${s}</span>`).join('');
+    rowEls[win].style.outline='2px solid var(--teal)';rowEls[win].style.borderRadius='8px';
+    setTimeout(()=>rowEls[win].style.outline='none',900);
+  };
+}
+
+function initIntuition(){
+  $('#pescaA').onclick=()=>{$('#pescaRes').innerHTML='🎣 Qui «pesca» = <b>sport/attività</b>: sono «vado» e «all\u2019alba» a deciderlo. Per il modello, la stessa parola diventa due rappresentazioni diverse.'};
+  $('#pescaB').onclick=()=>{$('#pescaRes').innerHTML='🍑 Qui «pesca» = <b>frutto</b>: «mangio» e «merenda» cambiano tutto. Stessa identica parola, significato opposto: decide il contesto.'};
+  let swapped=false;
+  $('#swapBtn').onclick=()=>{
+    swapped=!swapped;
+    $('#ow1').textContent=swapped?"L'uomo":"Il cane";
+    $('#ow2').textContent=swapped?"il cane":"l'uomo";
+    $('#orderRes').innerHTML=swapped
+      ?'👨 Ora <b>l\u2019uomo morde il cane</b>: da prima pagina! Stesse parole, storia opposta: per questo al modello serve sapere la posizione di ogni parola.'
+      :'🐕 Il cane morde l\u2019uomo: (purtroppo) cronaca normale…';
+  };
+  $('#luiBtn').onclick=()=>{
+    $('#catWord').classList.add('hot');
+    $('#luiRes').innerHTML='«Lui» = <b>il gatto</b>! Per capirlo sei "tornato indietro" di parecchie parole: il modello fa esattamente questo con l\u2019attenzione (prossima sezione).';
+  };
+}
+
+function initPipeline(){
+  const stages=[
+   {t:"1 · Tokenizzazione",
+    d:"La frase viene spezzata in token — qui sono 6 — e ogni token diventa un numero: il suo codice nel vocabolario del modello. Da questo momento in poi il modello vede soltanto numeri.",
+    ex:"\"Il gatto dorme sul divano\"\n→ [Il][ gatto][ dorme][ sul][ divano]\n→ [ 301][ 4517][ 8823][  742][ 9214]",
+    deep:"<b>🔬 Un livello più a fondo:</b> il vocabolario viene fissato una volta per tutte in addestramento (~100.000 token). Ogni token = un numero intero: ecco perché dentro il modello esistono solo operazioni tra numeri."},
+   {t:"2 · Embedding: i numeri diventano significato",
+    d:"Ogni codice diventa un vettore: migliaia di numeri che rappresentano il significato della parola. Parole simili → vettori vicini: è la stessa idea toccata con mano nella sezione «Spazio vettoriale».",
+    ex:"gatto  → [ 0.21, -1.40,  0.07, … ,  0.93]\ndivano → [-0.62,  0.11,  1.25, … ,  0.08]\n(12.288 numeri per parola, in GPT-3!)",
+    deep:"<b>🔬 Un livello più a fondo:</b> la somiglianza tra vettori si calcola con il prodotto scalare (similarità del coseno): vettori che \"puntano nella stessa direzione\" = parole simili."},
+   {t:"3 · Posizione: l'ordine conta",
+    d:"A ogni vettore viene aggiunta un'informazione sulla sua posizione nella frase: senza, «Il cane morde l'uomo» e «L'uomo morde il cane» sarebbero per il modello la stessa identica cosa (stesse parole!).",
+    ex:"[Il]₁ [ gatto]₂ [ dorme]₃ [ sul]₄ [ divano]₅\n→ ogni vettore riceve il suo \"segnale di posizione\"",
+    deep:"<b>🔬 Un livello più a fondo:</b> i modelli più recenti usano codifiche rotazionali (RoPE), che non segnano la posizione assoluta ma quella relativa tra i token."},
+   {t:"4 · Attenzione: le parole si guardano tra loro",
+    d:"Il cuore del Transformer: ogni parola si chiede «chi mi serve per avere senso?» e guarda le altre con pesi diversi. «divano» guarda «dorme» (dove si dorme?), «Il» guarda «gatto» (di chi si parla?). Questo blocco si ripete decine di volte: a ogni passaggio la comprensione si affina.",
+    ex:"\"dorme\" → guarda \"gatto\" (chi dorme?) e \"divano\" (dove?)\nlayer 1: grammatica · layer 20: ruoli · layer 80: significato pieno",
+    deep:"<b>🔬 Un livello più a fondo:</b> ogni layer calcola per ogni token una Query (cosa cerco?), una Key (cosa offro?) e un Value (cosa passo?); i punteggi vengono normalizzati con una softmax. GPT-3: 96 layer in fila."},
+   {t:"5 · Feed-forward: il momento di \"riflessione\"",
+    d:"I vettori attraversano grandi reti di trasformazione: miliardi di moltiplicazioni. È soprattutto qui che vive la conoscenza imparata in addestramento: fatti, regole, stili.",
+    ex:"y = W₂ · attiva(W₁ · x + b₁) + b₂\n≈ ⅔ di tutti i parametri vive in queste matrici",
+    deep:"<b>🔬 Un livello più a fondo:</b> pensala così: dopo essersi \"guardata attorno\" (attenzione), ogni parola viene elaborata da sola (feed-forward). La coppia attenzione+feed-forward si ripete identica in ogni layer."},
+   {t:"6 · Probabilità del prossimo token",
+    d:"L'ultimo vettore produce un punteggio per ogni token del vocabolario; la softmax li trasforma in probabilità che sommano a 1. Si sceglie il prossimo token… e si ricomincia da capo con la frase allungata!",
+    ex:"dopo \"Il gatto dorme sul divano\" →\n[ .  : 62% |  e : 11% |  , : 9% |  morbido: 4% |  luna: 0.01% …]",
+    deep:"<b>🔬 Un livello più a fondo:</b> softmax(z_i) = e^(z_i) / Σ e^(z_j). La temperatura vista prima decide proprio come scegliere dentro questa distribuzione."}
+  ];
+  const pipeDetail=$('#pipeDetail');
+  function showStage(i){
+    $$('.pstep').forEach((b,j)=>b.classList.toggle('act',j==i));
+    const s=stages[i];
+    pipeDetail.style.animation='none';void pipeDetail.offsetWidth;pipeDetail.style.animation='';
+    pipeDetail.innerHTML=`<h4>${s.t}</h4><p>${s.d}</p><code>${s.ex}</code><div class="deeper">${s.deep}</div>`;
+  }
+  $$('.pstep').forEach(b=>b.addEventListener('click',()=>showStage(+b.dataset.i)));
+  showStage(0);
+}
+
+function initAttention(){
+  const attEx=[
+   {words:["Il","trofeo","non","entra","nella","valigia","perché","è","troppo","grande"],
+    def:"è",
+    w:{"è":{"trofeo":.58,"valigia":.22,"entra":.12,"perché":.05,"troppo":.03},
+       "grande":{"trofeo":.5,"valigia":.3,"troppo":.1,"entra":.06,"è":.04},
+       "perché":{"entra":.42,"non":.18,"trofeo":.16,"valigia":.14,"è":.1},
+       "trofeo":{"entra":.3,"grande":.24,"non":.18,"è":.14,"valigia":.14},
+       "valigia":{"entra":.3,"grande":.26,"nella":.2,"trofeo":.14,"è":.1},
+       "entra":{"trofeo":.28,"valigia":.28,"non":.2,"perché":.14,"è":.1},
+       "non":{"entra":.55,"trofeo":.2,"valigia":.15,"è":.1},
+       "troppo":{"grande":.7,"è":.15,"trofeo":.1,"valigia":.05},
+       "Il":{"trofeo":.7,"entra":.2,"non":.1},
+       "nella":{"valigia":.75,"entra":.15,"trofeo":.1}}},
+   {words:["Ho","versato","l'acqua","dalla","bottiglia","nel","bicchiere","perché","era","vuoto"],
+    def:"era",
+    w:{"era":{"bicchiere":.62,"bottiglia":.2,"versato":.1,"perché":.08},
+       "vuoto":{"bicchiere":.6,"bottiglia":.2,"era":.12,"l'acqua":.08},
+       "perché":{"versato":.4,"bicchiere":.2,"bottiglia":.2,"era":.2},
+       "bottiglia":{"versato":.3,"l'acqua":.3,"dalla":.2,"era":.1,"vuoto":.1},
+       "bicchiere":{"versato":.28,"nel":.22,"l'acqua":.2,"era":.15,"vuoto":.15},
+       "versato":{"Ho":.2,"l'acqua":.3,"bottiglia":.2,"bicchiere":.2,"perché":.1},
+       "l'acqua":{"versato":.4,"bottiglia":.25,"bicchiere":.25,"Ho":.1},
+       "dalla":{"bottiglia":.7,"versato":.2,"l'acqua":.1},
+       "nel":{"bicchiere":.7,"versato":.2,"l'acqua":.1},
+       "Ho":{"versato":.7,"l'acqua":.2,"bicchiere":.1}}}
+  ];
+  let curEx=0;
+  function buildAtt(){
+    const ex=attEx[curEx],sent=$('#attSent');
+    sent.innerHTML='';
+    ex.words.forEach(w=>{
+      const b=document.createElement('button');b.className='aw';
+      b.innerHTML=`<span>${w}</span><span class="aw-b"><i></i></span>`;
+      b.onclick=()=>attClick(w);sent.appendChild(b);
+    });
+    attClick(ex.def);
+  }
+  function attClick(target){
+    const ex=attEx[curEx],words=ex.words;
+    let wm=ex.w[target];
+    if(!wm){
+      wm={};words.forEach((w,i)=>{if(w!==target){const d=Math.abs(i-words.indexOf(target));wm[w]=1/(1+d*d)}});
+    }
+    const sum=Object.values(wm).reduce((a,b)=>a+b,0);
+    const norm={};for(const k in wm)norm[k]=wm[k]/sum;
+    let best='',bv=0;
+    [...$('#attSent').children].forEach(btn=>{
+      const w=btn.querySelector('span').textContent;
+      btn.classList.toggle('tgt',w===target);
+      const p=norm[w]||0;if(p>bv&&w!==target){bv=p;best=w}
+      btn.querySelector('.aw-b i').style.width=(p*100)+'%';
+      btn.style.background=p>0?`rgba(255,107,107,${p*.55})`:'transparent';
+    });
+    $('#attNote').innerHTML=`«<b>${target}</b>» guarda soprattutto «<b>${best}</b>» (${(bv*100).toFixed(0)}% di attenzione) — le barre rosse mostrano il peso di ogni parola.`;
+  }
+  $$('.att-ex .btn').forEach(b=>b.onclick=()=>{
+    $$('.att-ex .btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    curEx=+b.dataset.ex;buildAtt();
+  });
+  buildAtt();
+}
+
+function initModels(){
+  const models=[
+   {n:"GPT-4o",o:"OpenAI",y:2024,p:"non dichiarato",ctx:128000,tags:"closed multi",c:"#3fd8c2",arch:"Decoder-only · (indiscrezioni: Mixture of Experts)",note:"Il multimodale \"omni\": testo, immagini, voce e video nello stesso modello."},
+   {n:"GPT-3.5 Turbo",o:"OpenAI",y:2022,p:"~175 mld (stima)",ctx:16000,tags:"closed",c:"#5aa9ff",arch:"Decoder-only · denso",note:"Ha reso celebre ChatGPT nel novembre 2022: il primo LLM diventato \"di massa\"."},
+   {n:"Claude 3.5 Sonnet",o:"Anthropic",y:2024,p:"non dichiarato",ctx:200000,tags:"closed multi",c:"#ffb547",arch:"Decoder-only · addestrato con Constitutional AI",note:"Punta su affidabilità e contesto lungo; Anthropic è nata da ex ricercatori OpenAI."},
+   {n:"Gemini 1.5 Pro",o:"Google DeepMind",y:2024,p:"non dichiarato",ctx:2000000,tags:"closed multi",c:"#ff6b6b",arch:"Decoder-only · nativo multimodale · MoE",note:"La finestra di contesto più grande: può \"leggere\" migliaia di pagine in una volta."},
+   {n:"Llama 3.1 405B",o:"Meta",y:2024,p:"405 mld",ctx:128000,tags:"open",c:"#a78bfa",arch:"Decoder-only · pesi scaricabili",note:"Il gigante open weights: le aziende possono installarlo sui propri server."},
+   {n:"Mixtral 8x7B",o:"Mistral AI 🇫🇷",y:2023,p:"46,7 mld (12,9 attivi)",ctx:32000,tags:"open",c:"#3fd8c2",arch:"Mixture of Experts: 8 \"esperti\" su 46 si attivano per ogni token",note:"Efficiente: usa solo una parte dei parametri, quindi costa meno a parità di qualità."},
+   {n:"DeepSeek-V3",o:"DeepSeek",y:2024,p:"671 mld (37 attivi)",ctx:128000,tags:"open",c:"#5aa9ff",arch:"MoE open source · addestrato a costi molto ridotti",note:"Ha stupito il mondo: prestazioni da top di gamma con budget di addestramento minimo."},
+   {n:"Phi-3 mini",o:"Microsoft",y:2024,p:"3,8 mld",ctx:128000,tags:"open",c:"#ffb547",arch:"SLM (Small Language Model) · denso e compatto",note:"La tendenza opposta: piccoli modelli che girano perfino sullo smartphone."}
+  ];
+  const fmtCtx=v=>v>=1e6?(v/1e6)+' mln':(v/1e3)+'K';
+  $('#mgrid').innerHTML=models.map(m=>`
+   <article class="mcard" data-tags="${m.tags}">
+     <div class="mc-top">
+       <span class="mono-av" style="background:${m.c}">${m.n.replace(/[^A-Za-z0-9]/g,'').slice(0,2).toUpperCase()}</span>
+       <div><h3>${m.n}</h3><div class="org">${m.o} · ${m.y}</div></div>
+     </div>
+     <div class="badges">
+       ${m.tags.includes('open')?'<span class="bdg open">PESI APERTI</span>':'<span class="bdg closed">CHIUSO · API</span>'}
+       ${m.tags.includes('multi')?'<span class="bdg multi">MULTIMODALE</span>':''}
+     </div>
+     <div class="mc-row"><span class="k">Parametri</span><span class="v">${m.p}</span></div>
+     <div class="mc-row" style="display:block;border-bottom:none;padding-bottom:0">
+       <span class="k" style="display:flex;justify-content:space-between;margin-bottom:6px">Finestra di contesto <span class="v">${fmtCtx(m.ctx)} token</span></span>
+       <span class="ctx-bar"><i data-w="${Math.round(Math.log10(m.ctx)/Math.log10(2e6)*100)}"></i></span>
+     </div>
+     <div style="font-size:.8rem;color:var(--mut)"><b style="color:var(--blue);font-family:var(--mono);font-size:.72rem">ARCHITETTURA · </b>${m.arch}</div>
+     <div class="mc-note">${m.note}</div>
+   </article>`).join('');
+  $$('#filters .fchip').forEach(f=>f.onclick=()=>{
+    $$('#filters .fchip').forEach(x=>x.classList.remove('on'));f.classList.add('on');
+    const flt=f.dataset.f;
+    $$('.mcard').forEach(c=>c.classList.toggle('hide',flt!=='all'&&!c.dataset.tags.includes(flt)));
+  });
+  if('IntersectionObserver' in window){
+    const ioBar=new IntersectionObserver(es=>es.forEach(e=>{
+      if(e.isIntersecting){e.target.querySelectorAll('.ctx-bar i').forEach(i=>i.style.width=i.dataset.w+'%');ioBar.unobserve(e.target)}
+    }),{threshold:.2});
+    ioBar.observe($('#mgrid'));
+  }else{
+    $$('.ctx-bar i').forEach(i=>i.style.width=i.dataset.w+'%');
+  }
+}
+
+function initQuiz(){
+  const quiz=[
+   {q:"Cosa fa, in sostanza, un LLM?",o:["Cerca la risposta giusta su Internet","Predice il token più probabile per continuare il testo","Traduce sempre parola per parola","Memorizza tutte le frasi del mondo"],a:1,w:"Nessuna ricerca online: il modello <b>continua il testo</b> in base alle probabilità imparate in addestramento."},
+   {q:"Un token corrisponde più o meno a…",o:["Una lettera esatta","Una parola intera, sempre","Un pezzo di parola (in media ~¾ di parola)","Una frase intera"],a:2,w:"Le parole lunghe vengono spezzate in più token; quelle cortissime restano intere."},
+   {q:"Se due parole sono vicine nello spazio vettoriale…",o:["hanno probabilmente significato simile","hanno la stessa lunghezza","iniziano con la stessa lettera","compaiono sempre insieme"],a:0,w:"La distanza tra vettori misura la somiglianza di significato: re ≈ sovrano, pizza ≈ pasta."},
+   {q:"A cosa serve il meccanismo di attenzione?",o:["A dare un peso diverso alle parole della frase","A rendere il modello più educato","A cancellare le parole sbagliate","A contare le parole del testo"],a:0,w:"Ogni parola \"guarda\" le altre con pesi diversi: così il modello risolve ambiguità e riferimenti."},
+   {q:"Alzare la temperatura…",o:["Rende le risposte più certe e ripetitive","Rende le risposte più varie e imprevedibili","Accelera il computer","Non cambia assolutamente nulla"],a:1,w:"Con T alta anche i candidati meno probabili possono essere scelti: più creatività, più rischio di errori."},
+   {q:"Quando un LLM afferma con grande sicurezza un fatto inventato si parla di…",o:["Bug del browser","Allucinazione","Virus informatico","Censura"],a:1,w:"Il modello ottimizza la <b>plausibilità</b>, non la verità: per questo va sempre verificato."},
+   {q:"Llama di Meta è diverso da GPT-4 soprattutto perché…",o:["È un robot fisico","I suoi pesi sono aperti e scaricabili","Non usa l'architettura transformer","Funziona senza elettricità"],a:1,w:"Llama è <b>open weights</b>: un'azienda può scaricarlo e farlo girare sui propri server. GPT-4 si usa solo via API."}
+  ];
+  let qi=0,pts=0,answered=false;
+  const dots=$('#qdots');dots.innerHTML=quiz.map(()=>'<i></i>').join('');
+  function renderQ(){
+    answered=false;
+    $('#quizProg').textContent=`Domanda ${qi+1} di ${quiz.length}`;
+    $('#quizScore').textContent=`Punti: ${pts}`;
+    $('#quizQ').textContent=quiz[qi].q;
+    $('#quizWhy').hidden=true;$('#quizNext').hidden=true;
+    const box=$('#quizOpts');box.innerHTML='';
+    quiz[qi].o.forEach((o,i)=>{
+      const b=document.createElement('button');b.className='qopt';b.textContent=o;
+      b.onclick=()=>{
+        if(answered)return;answered=true;
+        const ok=i===quiz[qi].a;
+        if(ok)pts++;
+        [...box.children].forEach((c,j)=>{c.disabled=true;if(j===quiz[qi].a)c.classList.add('ok');else if(j===i)c.classList.add('ko')});
+        $('#quizScore').textContent=`Punti: ${pts}`;
+        const why=$('#quizWhy');why.hidden=false;
+        why.innerHTML=(ok?'✅ Esatto! ':'❌ Non proprio. ')+quiz[qi].w;
+        $('#quizNext').hidden=false;$('#quizNext').textContent=qi===quiz.length-1?'Vedi il risultato →':'Avanti →';
+        dots.children[qi].classList.add('done');
+      };
+      box.appendChild(b);
+    });
+    [...dots.children].forEach((d,i)=>d.classList.toggle('now',i===qi));
+  }
+  $('#quizNext').onclick=()=>{
+    qi++;
+    if(qi>=quiz.length){
+      $('#quizCard').hidden=true;$('#quizEnd').hidden=false;
+      $('#endScore').textContent=`${pts}/${quiz.length}`;
+      $('#endMsg').textContent=pts===7?"Punteggio perfetto: sei pronto a spiegare i transformer ai compagni! 🏆":pts>=5?"Ottimo lavoro: ripassa solo i dettagli che ti hanno tradito. 👍":"Rileggi la lezione con calma e riprova: la seconda volta va meglio! 💪";
+      [...dots.children].forEach(d=>{d.classList.add('done');d.classList.remove('now')});
+    } else renderQ();
+  };
+  $('#quizRestart').onclick=()=>{qi=0;pts=0;$('#quizCard').hidden=false;$('#quizEnd').hidden=true;[...dots.children].forEach(d=>d.className='');renderQ()};
+  renderQ();
+}
+
+/* ============ avvio: ogni modulo è isolato dagli errori degli altri ============ */
+[initReveal,initCanvas,initCounters,initNav,initHeroDemo,initTokenizer,initVectorSpace,
+ initProbs,initIntuition,initPipeline,initAttention,initModels,initQuiz]
+.forEach(fn=>{try{fn()}catch(err){console.warn('[LLM.lab] modulo "'+fn.name+'" in errore:',err)}});
+</script>
+</body>
+</html>
