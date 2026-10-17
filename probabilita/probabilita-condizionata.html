@@ -178,6 +178,46 @@
   .frac.green .num, .frac.green .den { color: var(--good); }
   .frac.orange .num, .frac.orange .den { color: var(--accent); }
 
+  /* ===== Derivation steps ===== */
+  .deriv { counter-reset: dstep; margin: 16px 0 0; }
+  .deriv .ds {
+    position: relative;
+    padding: 12px 14px 12px 50px;
+    margin-bottom: 10px;
+    background: rgba(26,34,71,0.6);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    font-size: 0.93rem;
+    line-height: 1.6;
+  }
+  .deriv .ds::before {
+    counter-increment: dstep;
+    content: counter(dstep);
+    position: absolute;
+    left: 10px;
+    top: 14px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #201205;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.82rem;
+    line-height: 1;
+  }
+  .deriv .ds b, .deriv .ds strong { color: var(--accent); }
+  .deriv .ds .eq {
+    display: block;
+    text-align: center;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1rem;
+    margin: 8px 0;
+    color: var(--good);
+    background: rgba(124,255,178,0.06);
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+
   /* ===== Callout ===== */
   .tip {
     background: rgba(255,161,78,0.08);
@@ -340,6 +380,7 @@
   .card:nth-child(1) { animation-delay: .05s; }
   .card:nth-child(2) { animation-delay: .12s; }
   .card:nth-child(3) { animation-delay: .19s; }
+  .deriv-card { animation: fadeInUp 0.6s ease-out backwards; animation-delay: .15s; }
 </style>
 </head>
 <body>
@@ -361,6 +402,7 @@
 
 <nav class="toc">
   <a href="#definizione">1 · Definizione</a>
+  <a href="#derivazione">▸ Da dove viene la formula</a>
   <a href="#tabella">2 · Tabella a doppia entrata</a>
   <a href="#indipendenza">3 · Indipendenza</a>
   <a href="#bayes">4 · Teorema di Bayes</a>
@@ -387,6 +429,47 @@
 
       <div class="tip">
         💡 <b>In parole povere:</b> «di tutti i casi in cui succede B, in quanti succede anche A?». Stai guardando il mondo <em>dentro</em> B, non il mondo intero.
+      </div>
+    </div>
+
+    <!-- ===== DA DOVE VIENE LA FORMULA ===== -->
+    <div class="card deriv-card" id="derivazione">
+      <span class="kick">// la derivazione</span>
+      <h2>Da dove salta fuori P(A ∩ B) / P(B)?</h2>
+      <p class="lead">La formula non è una definizione calata dall'alto. Nasce dal modo più naturale di contare: <strong>resto dentro B</strong> e guardo quanta parte di B è occupata da A.</p>
+
+      <div class="deriv">
+        <div class="ds">
+          <strong>Passo 1 — Casi equiprobabili (definizione classica).</strong><br>
+          Se tutti gli esiti hanno la stessa probabilità, la probabilità di un evento è semplicemente:<br>
+          <span class="eq">P(E) = (casi favorevoli a E) / (casi possibili totali)</span>
+          Esempio: nel lancio di un dado, P(pari) = 3/6 perché 3 facce hanno un numero pari su 6 facce totali.
+        </div>
+
+        <div class="ds">
+          <strong>Passo 2 — Se sai già che B è accaduto, il «totale» non è più Ω: è solo B.</strong><br>
+          Quando <b>sappiamo</b> che B si è verificato, i casi possibili <em>non</em> sono più tutti (Ω), ma solo quelli dentro B. Dentro questo mondo ristretto, vogliamo sapere in quanti di questi casi si verifica anche A — cioè <b>A ∩ B</b>.<br>
+          <span class="eq">P(A | B) = (casi dentro A ∩ B) / (casi dentro B) = |A ∩ B| / |B|</span>
+          È esattamente quello che vedi nella griglia dei dadi qui sotto: B accende 18 celle, e tra queste solo 3 sono anche A.
+        </div>
+
+        <div class="ds">
+          <strong>Passo 3 — Traduciamo in probabilità (dividendo per |Ω|).</strong><br>
+          Per passare dai «conteggi» alle «probabilità», divido numeratore e denominatore per il numero totale di casi |Ω|:<br>
+          <span class="eq">|A ∩ B| / |B| = (|A ∩ B| / |Ω|) / (|B| / |Ω|) = P(A ∩ B) / P(B)</span>
+          Così la formula funziona anche quando gli esiti <em>non</em> sono tutti equiprobabili — cioè in qualunque spazio di probabilità.
+        </div>
+
+        <div class="ds">
+          <strong>Passo 4 — La definizione generale.</strong><br>
+          Si arriva così alla definizione universale di probabilità condizionata:<br>
+          <span class="eq" style="font-size:1.15rem">P(A | B) = P(A ∩ B) / P(B) &nbsp;&nbsp;&nbsp; con P(B) > 0</span>
+          <b>Perché P(B) > 0?</b> Perché se B non può mai accadere, non ha senso chiedersi «sapendo che B è accaduto…»: staresti dividendo per zero.
+        </div>
+      </div>
+
+      <div class="tip">
+        🧠 <b>In sintesi:</b> la probabilità condizionata è una <b>proporzione</b>. Dentro il «rettangolo» B (che ora fa da 100%), A ∩ B ne occupa una fetta. Dividere per P(B) serve proprio a <b>normalizzare</b>: fa sì che il nuovo «universo» B abbia probabilità 1, come deve essere per qualunque spazio campionario.
       </div>
     </div>
 
