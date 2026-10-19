@@ -674,14 +674,150 @@ GET  /api/user/credits      ← Crediti residui
 
 2. **Hosting**: il portale può stare su Vercel/Render (backend serverless) + Supabase (auth e DB), oppure su un VPS tradizionale. I costi sono bassi all'inizio.
 
-3. **Generazione contenuti**: i testi delle lezioni chi li scrive?
-   - **Opzione A**: template con placeholder, l'insegnante compila a mano (più semplice, meno valore)
-   - **Opzione B**: usi un LLM (GPT, Claude) via API per generare i testi, vincolato ai soli contenuti del programma ministeriale (più potente, richiede crediti API, rischio allucinazioni da mitigare con prompt engineering stretto)
-   - **Opzione C**: ibrido: scheletro automatico, testi generati da LLM con possibilità di modifica manuale prima del download
+3. **Generazione contenuti — DECISO**: useremo l'AI via API per generare i testi delle lezioni. L'insegnante descrive l'argomento che gli serve, il sistema chiama un LLM (es. DeepSeek) e produce HTML già compilato. L'insegnante può poi modificare il risultato con ulteriori richieste in linguaggio naturale («accorcia questa sezione», «aggiungi un esempio sul calcolo combinatorio», «cambia il tono, è troppo formale»). Ogni richiesta di modifica consuma crediti.
+   - **Modello consigliato**: DeepSeek 4.1 Flash (o equivalente economico). Con 10-20€ di credito e pochi utenti iniziali, si coprono mesi di utilizzo.
+   - **Mitigazione allucinazioni**: il prompt di sistema vincola l'AI ai soli contenuti del programma ministeriale. Le definizioni e i quiz vengono generati con l'istruzione esplicita di attenersi ai fatti noti. L'insegnante ha sempre l'ultima parola con l'editor manuale.
+   - **Rate limiting**: ogni utente ha un limite di richieste AI al mese (es. 5 gratis, 20 col piano base, illimitate col premium). Ogni "genera lezione" e ogni "modifica con AI" scala dal contatore.
 
 4. **Multilingua?**: solo italiano, o prevedi altre lingue? Inizia solo italiano.
 
 5. **Dominio**: `prof-sciarra-website.github.io` per il sito attuale, un dominio separato per il portale (es. `generatore-lezioni.it` o `docenti.dev`) oppure un altro repo GitHub Pages?
+
+6. **Stili CSS delle singole pagine**: l'insegnante può scegliere tra più varianti CSS. Le pagine interne (lezioni) possono ereditare lo stesso stile della home oppure averne uno diverso, a scelta dell'utente. Da valutare se offrire 3-4 "temi" predefiniti (Standard Dark, Chiaro, Tech/Bluetooth, Minimal) o permettere la personalizzazione del colore accent.
+
+## 7.7 Flusso utente completo (journey)
+
+Questa sezione descrive l'esperienza dell'insegnante dall'arrivo sul portale al sito pubblicato.
+
+### Fase 1 — Onboarding e creazione del sito
+
+```
+Insegnante arriva → /register → inserisce:
+  - Nome e cognome
+  - Tipo di scuola (Liceo, Istituto Tecnico, Professionale...)
+  - Indirizzo specifico (es. Liceo Scientifico, SIA, AFM...)
+  - Classi che insegna, con materie per ogni classe
+    Esempio:
+      3ª Liceo Scientifico → Fisica, Matematica
+      4ª Liceo Scientifico → Fisica
+      5ª Liceo Scientifico → Fisica, Matematica
+  - Sceglie un tema CSS per il sito (3-4 varianti)
+```
+
+A questo punto il sistema **genera la home page** (`index.html`) usando il template identico a quello del sito Prof. Sciarra, ma popolato con i dati dell'insegnante:
+
+- Avatar (iniziali)
+- Nome e sottotitolo
+- Chip delle materie
+- Track per ogni classe (badge colorato, titolo, anno)
+- Card per ogni classe con la lista materie
+- I link alle lezioni sono inizialmente vuoti o puntano a placeholder
+
+L'insegnante vede subito **un'anteprima live** della sua home e può rigenerarla se vuole cambiare qualcosa.
+
+### Fase 2 — Lezioni pre-confezionate (offerte da noi)
+
+Sotto ogni materia di ogni classe, il sistema mostra automaticamente **2-3 lezioni già pronte** che noi abbiamo preparato per quell'indirizzo e quell'anno. Sono il "contenuto seed": danno valore immediato e mostrano all'insegnante il livello di qualità che può aspettarsi.
+
+```
+4ª SIA · Informatica
+  📚 [Nostra] Le classi in Java: progetto e istanze          ← già pronta
+  📚 [Nostra] I costruttori in Java                           ← già pronta
+  📚 [Nostra] Getter & Setter in Java — incapsulamento        ← già pronta
+  ➕ Crea una nuova lezione...                                ← tasto per generare
+```
+
+Queste lezioni pre-confezionate sono **gratuite** e servono da:
+- Dimostrazione della qualità
+- Fiducia iniziale («non parto da zero»)
+- Gancio per far venire voglia di generarne di personalizzate
+
+### Fase 3 — Generazione di una nuova lezione
+
+L'insegnante clicca **«Crea nuova lezione»**. Si apre un'interfaccia con:
+
+1. **Selezione dell'argomento dal programma ministeriale** (dropdown o ricerca)
+   - Il sistema mostra gli argomenti previsti per quella materia/classe/indirizzo
+   - L'insegnante può anche digitare un argomento libero
+
+2. **Descrizione di ciò che serve** (campo testo libero)
+   - "Voglio una lezione sui principi della dinamica, con esempi pratici di forze"
+   - "Mi serve una spiegazione del teorema di Bayes con un esempio sui test medici"
+   - "Preparami una lezione sulla Prima Guerra Mondiale, cause e conseguenze"
+
+3. **Scelta del tipo di lezione**
+   - Standard (card + paragrafi + quiz)
+   - Step-by-step (adatta per procedure / guide)
+   - Interattiva (con widget, slider, grafici)
+
+4. **Scelta dello stile CSS** (se diverso da quello della home)
+
+5. Clicca **«Genera»** → il backend chiama l'AI con:
+   - Prompt di sistema vincolato al programma ministeriale
+   - Istruzioni precise sul formato HTML atteso (struttura card, componenti, stili)
+   - Il contesto dell'insegnante (materia, classe, tono)
+
+La lezione viene generata e mostrata in **anteprima**. L'insegnante la vede esattamente come apparirà ai suoi studenti.
+
+### Fase 4 — Modifica interattiva con l'AI
+
+Una volta generata la lezione, l'insegnante può modificarla in due modi:
+
+**A) Editor manuale** (gratuito, sempre disponibile):
+- Modifica diretta del testo, titoli, paragrafi
+- Riordino delle sezioni
+- Aggiunta/rimozione di componenti (tip, formula, quiz)
+- Cambio colori
+
+**B) Modifica con AI** (consuma 1 credito a richiesta):
+L'insegnante scrive in linguaggio naturale cosa vuole cambiare:
+- «Accorcia la sezione 2, è troppo lunga»
+- «Aggiungi un esempio sul pendolo dopo il paragrafo sulle forze»
+- «Rendi il tono più informale, sembra un manuale universitario»
+- «Traduci la lezione in inglese»
+- «Aggiungi 3 domande al quiz finale»
+- «Sostituisci l'esempio delle carte con uno sui dadi»
+
+Il sistema invia all'AI il contenuto attuale della lezione + la richiesta di modifica, e restituisce la lezione aggiornata. L'insegnante può iterare quante volte vuole (finché ha crediti).
+
+### Fase 5 — Pubblicazione
+
+Quando è soddisfatto, l'insegnante clicca **«Pubblica»**. Il sistema:
+
+1. Salva la lezione nel suo "sito"
+2. Aggiorna la home page con il nuovo link
+3. Fornisce un'anteprima live
+4. Opzionalmente: esporta tutto come ZIP (HTML + CSS + asset) da caricare sul proprio hosting, oppure pubblica direttamente su un sottodominio fornito da noi (es. `mario-rossi.docenti.dev`)
+
+### Riepilogo dei crediti / consumo AI
+
+| Azione | Crediti |
+|---|---|
+| Registrazione + creazione sito | 0 (gratis) |
+| Lezioni pre-confezionate | 0 (gratis, sempre) |
+| Generare una nuova lezione con AI | 1 credito |
+| Modificare una lezione con AI | 1 credito |
+| Rigenerare la home dopo modifiche | 0 (gratis) |
+| Modifica manuale (editor testo) | 0 (gratis, sempre) |
+
+**Piani ipotetici:**
+- **Free**: 5 crediti/mese (es. 2 lezioni + 3 modifiche)
+- **Base** (9,99€/mese): 30 crediti/mese
+- **Premium** (19,99€/mese): crediti illimitati + dominio personalizzato
+
+**Costo API stimato (DeepSeek 4.1 Flash):**
+- Ogni generazione di lezione: ~50-80K token totali (input + output) → ~0,01-0,02€
+- Ogni modifica: ~15-30K token → ~0,003-0,006€
+- Con 20€ di credito API: ~1000-2000 generazioni, sufficienti per i primi mesi con pochi utenti
+
+### Vantaggi di questo flusso
+
+- **Nessuna curva di apprendimento**: l'insegnante non vede mai codice, solo linguaggio naturale
+- **Valore immediato**: le lezioni pre-confezionate dimostrano subito il prodotto
+- **Flessibilità totale**: l'AI genera, l'umano corregge e approva
+- **Monetizzazione naturale**: il piano free fa provare, i limiti spingono all'upgrade
+- **Costi contenuti**: DeepSeek è economico, i margini sono buoni anche col piano base
+- **Personalizzazione senza vincoli**: ogni insegnante può ottenere esattamente il contenuto che gli serve, nel tono e nello stile che preferisce
 
 ---
 
@@ -698,19 +834,26 @@ GET  /api/user/credits      ← Crediti residui
 ## 10. Checklist per l'avvio del nuovo repository
 
 - [ ] Creare il repo `portale-generatore-lezioni` (o nome scelto)
-- [ ] Copiare questo `.md` nella root del nuovo repo come `SPECS.md`
+- [ ] Copiare questo `.md` nella root del nuovo repo come `SPECS_PORTALE.md`
 - [ ] Ottenere i programmi di Liceo Scientifico e SIA (li stai recuperando tu)
-- [ ] Scegliere lo stack (backend + hosting + DB)
-- [ ] Implementare il primo template (Standard Dark) come proof-of-concept
+- [ ] Scegliere lo stack (backend Node/Express + Supabase consigliato)
+- [ ] Implementare il wizard di onboarding (registrazione + raccolta dati insegnante)
+- [ ] Implementare il generatore della home page (template index.html popolato coi dati)
+- [ ] Implementare il primo template di lezione (Standard Dark) come proof-of-concept
+- [ ] Integrare DeepSeek API per la generazione testi
 - [ ] Popolare il DB con i primi 2 indirizzi
-- [ ] Testare la generazione di 5 lezioni campione
-- [ ] Aggiungere auth e sistema crediti
+- [ ] Preparare 2-3 lezioni pre-confezionate per ogni indirizzo/materia/classe
+- [ ] Implementare l'editor con modifica AI (prompt «cambia X in Y»)
+- [ ] Testare la generazione + modifica di 5 lezioni campione
+- [ ] Aggiungere auth e sistema crediti/rate limiting
 - [ ] Pubblicare e testare con 2-3 insegnanti reali
 - [ ] Iterare in base al feedback
-- [ ] Aggiungere pagamento
+- [ ] Aggiungere pagamento (Stripe)
 - [ ] Aggiungere altri indirizzi ministeriali
+- [ ] Opzionale: export ZIP del sito, dominio personalizzato per utenti premium
 
 ---
 
-> **Versione:** 1.0 — 19 ottobre 2026
+> **Versione:** 2.0 — 20 ottobre 2026
+> **Ultima modifica:** aggiunto il flusso utente completo (sezione 7.7) con onboarding, generazione sito, lezioni pre-confezionate, modifica AI e sistema crediti.
 > **Prossimo passo:** tu recuperi i programmi ministeriali, io apro il nuovo repo con questa specifica come punto di partenza.
