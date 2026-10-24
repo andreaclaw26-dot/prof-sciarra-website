@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ereditarietà in Java — Laboratorio Interattivo | 4ª SIA</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☕</text></svg>">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono/index.css">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#04060d;
+  --bg2:#080d1a;
+  --panel:rgba(255,255,255,.035);
+  --panel2:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.09);
+  --border2:rgba(255,255,255,.16);
+  --txt:#e8eefc;
+  --muted:#8ea0c0;
+  --cyan:#22d3ee;
+  --violet:#a78bfa;
+  --green:#34d399;
+  --amber:#fbbf24;
+  --pink:#fb7185;
+  --blue:#60a5fa;
+  --radius:16px;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{
+  background:var(--bg);color:var(--txt);font-family:var(--body);
+  line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:-2;
+  background:
+    radial-gradient(900px 600px at 12% -8%, rgba(34,211,238,.16), transparent 60%),
+    radial-gradient(800px 600px at 92% 4%, rgba(167,139,250,.16), transparent 60%),
+    radial-gradient(700px 500px at 50% 108%, rgba(52,211,153,.10), transparent 60%),
+    var(--bg);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 20%,transparent 80%);
+}
+::selection{background:rgba(34,211,238,.3);color:#fff}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#05080f}
+::-webkit-scrollbar-thumb{background:linear-gradient(#1e293b,#334155);border-radius:20px;border:2px solid #05080f}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(#22d3ee55,#a78bfa55)}
+
+/* ============ NAV ============ */
+.progress-rail{position:fixed;top:0;left:0;right:0;height:3px;z-index:1000;background:rgba(255,255,255,.05)}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));box-shadow:0 0 14px rgba(34,211,238,.7);transition:width .1s linear}
+header.nav{
+  position:fixed;top:3px;left:0;right:0;z-index:999;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:rgba(4,6,13,.72);border-bottom:1px solid var(--border);
+  transition:box-shadow .3s;
+}
+.nav-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:12px 22px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:700;letter-spacing:-.3px;font-size:15px;white-space:nowrap}
+.logo-mark{
+  width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto;
+  background:linear-gradient(135deg,rgba(34,211,238,.22),rgba(167,139,250,.22));
+  border:1px solid rgba(34,211,238,.4);font-family:var(--mono);font-size:13px;color:var(--cyan);font-weight:700;
+  box-shadow:0 0 18px rgba(34,211,238,.25) inset;
+}
+.logo small{display:block;font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:1.4px;font-weight:400;text-transform:uppercase}
+.nav-links{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{
+  position:relative;font-size:12.5px;color:var(--muted);text-decoration:none;padding:7px 11px;border-radius:9px;
+  white-space:nowrap;transition:.2s;font-weight:500;display:flex;align-items:center;gap:6px;
+}
+.nav-links a:hover{color:var(--txt);background:var(--panel2)}
+.nav-links a.active{color:#04060d;background:linear-gradient(135deg,var(--cyan),#7dd3fc);font-weight:700}
+.nav-links a .dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.18);flex:0 0 auto}
+.nav-links a.done .dot{background:var(--green);box-shadow:0 0 7px var(--green)}
+.nav-links a.active .dot{background:rgba(0,0,0,.35)}
+.burger{display:none;margin-left:auto;background:var(--panel2);border:1px solid var(--border);border-radius:10px;width:40px;height:38px;cursor:pointer;color:var(--txt);font-size:17px}
+.pct{font-family:var(--mono);font-size:11px;color:var(--cyan);border:1px solid rgba(34,211,238,.3);padding:4px 9px;border-radius:99px;background:rgba(34,211,238,.07);white-space:nowrap}
+
+/* ============ LAYOUT ============ */
+main{max-width:1280px;margin:0 auto;padding:0 22px}
+section{padding:88px 0 22px;position:relative}
+.sec-head{margin-bottom:34px}
+.kicker{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--cyan);background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.25);
+  padding:6px 13px;border-radius:99px;margin-bottom:16px;
+}
+.kicker .n{color:var(--violet);font-weight:700}
+h2.sec-title{font-family:var(--disp);font-size:clamp(27px,4.4vw,42px);line-height:1.12;letter-spacing:-1.2px;font-weight:700;margin-bottom:12px}
+h2.sec-title em{font-style:normal;background:linear-gradient(120deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sec-sub{color:var(--muted);max-width:760px;font-size:15.5px}
+.card{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;
+  backdrop-filter:blur(8px);position:relative;overflow:hidden;
+}
+.card::before{content:'';position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent)}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(255px,1fr))}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+.note{
+  border-left:3px solid var(--amber);background:rgba(251,191,36,.07);padding:13px 16px;border-radius:0 12px 12px 0;
+  font-size:13.8px;color:#f6e3b4;margin-top:16px;
+}
+.note b{color:var(--amber)}
+.tip{border-left-color:var(--cyan);background:rgba(34,211,238,.07);color:#c9f2fb}
+.tip b{color:var(--cyan)}
+.danger{border-left-color:var(--pink);background:rgba(251,113,133,.08);color:#ffd9df}
+.danger b{color:var(--pink)}
+
+/* ============ BUTTONS ============ */
+.btn{
+  font-family:var(--disp);font-weight:600;font-size:13.5px;padding:11px 20px;border-radius:11px;cursor:pointer;
+  border:1px solid transparent;transition:.22s;display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  position:relative;overflow:hidden;
+}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),#38bdf8);color:#04060d;box-shadow:0 6px 24px -8px rgba(34,211,238,.85)}
+.btn-primary:hover{box-shadow:0 10px 34px -6px rgba(34,211,238,.95);filter:brightness(1.08)}
+.btn-violet{background:linear-gradient(135deg,var(--violet),#c084fc);color:#0b0518;box-shadow:0 6px 24px -8px rgba(167,139,250,.8)}
+.btn-violet:hover{filter:brightness(1.08)}
+.btn-ghost{background:var(--panel2);border-color:var(--border2);color:var(--txt)}
+.btn-ghost:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.3)}
+.btn-green{background:linear-gradient(135deg,var(--green),#6ee7b7);color:#04150e}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.6)}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+
+/* ============ CODE ============ */
+.code-wrap{border-radius:13px;overflow:hidden;border:1px solid var(--border);background:#050810;position:relative}
+.code-bar{
+  display:flex;align-items:center;gap:8px;padding:9px 13px;background:rgba(255,255,255,.04);
+  border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted);
+}
+.code-bar .dots{display:flex;gap:5px;margin-right:5px}
+.code-bar .dots i{width:9px;height:9px;border-radius:50%;display:block}
+.dots i:nth-child(1){background:#ff5f57}.dots i:nth-child(2){background:#febc2e}.dots i:nth-child(3){background:#28c840}
+.code-bar .fname{color:#c3d2ea}
+.code-bar .tag{margin-left:auto;font-size:9.5px;letter-spacing:1px;padding:2px 8px;border-radius:99px;border:1px solid var(--border)}
+pre.code{
+  font-family:var(--mono);font-size:12.8px;line-height:1.72;padding:15px 17px;overflow-x:auto;
+  color:#d7e3f8;tab-size:2;
+}
+pre.code.big{font-size:13.6px;line-height:1.78}
+.ln{display:inline-block;width:2.1em;color:#33415e;user-select:none;text-align:right;margin-right:1.1em}
+.tk-kw{color:#f472b6;font-weight:600}
+.tk-str{color:#86efac}
+.tk-com{color:#4b6079;font-style:italic}
+.tk-ann{color:#fbbf24}
+.tk-fn{color:#67e8f9}
+.tk-cls{color:#c4b5fd}
+.tk-num{color:#fdba74}
+.hl-line{background:linear-gradient(90deg,rgba(34,211,238,.16),transparent);display:block;margin:0 -17px;padding:0 17px;border-left:2px solid var(--cyan)}
+.hl-line.g{background:linear-gradient(90deg,rgba(52,211,153,.15),transparent);border-left-color:var(--green)}
+.hl-line.r{background:linear-gradient(90deg,rgba(251,113,133,.15),transparent);border-left-color:var(--pink)}
+
+/* ============ HERO ============ */
+#hero{padding:150px 0 60px;min-height:100vh;display:flex;align-items:center;position:relative}
+#bgcanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.6}
+.hero-in{position:relative;z-index:2;width:100%}
+.hero-badge{
+  display:inline-flex;gap:9px;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:1.6px;
+  text-transform:uppercase;padding:7px 15px;border-radius:99px;border:1px solid rgba(167,139,250,.35);
+  background:rgba(167,139,250,.09);color:#dcd0ff;margin-bottom:24px;
+}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+h1.hero-title{
+  font-family:var(--disp);font-size:clamp(40px,8.4vw,88px);line-height:.96;letter-spacing:-3px;font-weight:700;margin-bottom:6px;
+}
+h1.hero-title .gr{background:linear-gradient(115deg,#22d3ee 5%,#a78bfa 45%,#fb7185 95%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  background-size:220% 220%;animation:grad 9s ease infinite}
+@keyframes grad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero-typed{font-family:var(--mono);font-size:clamp(13px,2vw,17px);color:var(--cyan);min-height:1.6em;margin-bottom:20px}
+.hero-typed .cur{display:inline-block;width:9px;background:var(--cyan);animation:blink 1s steps(2) infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+.hero-lead{color:var(--muted);max-width:620px;font-size:16px;margin-bottom:30px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:44px}
+.hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;max-width:820px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
+.stat b{display:block;font-family:var(--disp);font-size:27px;letter-spacing:-1px;background:linear-gradient(135deg,#fff,#9fb4d8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat span{font-size:11.5px;color:var(--muted);font-family:var(--mono);letter-spacing:.4px}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:11px;font-family:var(--mono);letter-spacing:2px;text-align:center;z-index:3}
+.scroll-hint i{display:block;width:1px;height:34px;margin:9px auto 0;background:linear-gradient(var(--cyan),transparent);animation:drop 2s infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ============ TOGGLE SWITCH ============ */
+.switch-row{display:flex;gap:8px;background:rgba(0,0,0,.35);padding:5px;border-radius:12px;border:1px solid var(--border);flex-wrap:wrap}
+.sw-btn{
+  flex:1;min-width:130px;padding:10px 14px;border-radius:9px;border:0;background:transparent;color:var(--muted);
+  cursor:pointer;font-family:var(--disp);font-weight:600;font-size:13px;transition:.25s;white-space:nowrap;
+}
+.sw-btn.on{background:linear-gradient(135deg,rgba(34,211,238,.9),rgba(167,139,250,.9));color:#04060d;box-shadow:0 4px 18px -6px rgba(34,211,238,.8)}
+.sw-btn:not(.on):hover{color:var(--txt);background:var(--panel2)}
+
+/* ============ BARS / COUNTER ============ */
+.metric{margin-top:16px}
+.metric-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:6px}
+.metric-top b{color:var(--txt)}
+.bar{height:9px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.1s cubic-bezier(.2,.8,.25,1)}
+.bar.red i{background:linear-gradient(90deg,#fb7185,#f97316)}
+.bar.green i{background:linear-gradient(90deg,#34d399,#22d3ee)}
+
+/* ============ ANNOTATED CODE ============ */
+.annot-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:18px}
+@media(max-width:900px){.annot-grid{grid-template-columns:1fr}}
+.chip{
+  font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:7px;cursor:pointer;transition:.2s;
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#cfe0f7;display:inline-block;
+}
+.chip:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.1);transform:translateY(-1px)}
+.chip.sel{background:var(--cyan);color:#04060d;border-color:var(--cyan);font-weight:700;box-shadow:0 0 18px rgba(34,211,238,.5)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.annot-panel{min-height:210px}
+.annot-panel h4{font-family:var(--disp);font-size:17px;margin-bottom:8px;color:var(--cyan);letter-spacing:-.3px}
+.annot-panel p{font-size:13.8px;color:var(--muted);margin-bottom:10px}
+.annot-panel code{font-family:var(--mono);font-size:12.3px;background:rgba(255,255,255,.07);padding:1.5px 6px;border-radius:5px;color:#9fe9ff}
+.fade-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+/* ============ FLIP MATRIX ============ */
+.matrix{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:13px}
+.flip{perspective:1000px;height:158px;cursor:pointer}
+.flip-in{position:relative;width:100%;height:100%;transition:transform .65s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.flip.on .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:13px;padding:15px;border:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between}
+.face.front{background:linear-gradient(150deg,rgba(255,255,255,.06),rgba(255,255,255,.02))}
+.face.back{transform:rotateY(180deg)}
+.face.back.ok{background:linear-gradient(150deg,rgba(52,211,153,.18),rgba(52,211,153,.05));border-color:rgba(52,211,153,.45)}
+.face.back.no{background:linear-gradient(150deg,rgba(251,113,133,.18),rgba(251,113,133,.05));border-color:rgba(251,113,133,.45)}
+.face code{font-family:var(--mono);font-size:12.5px;color:#a9e9ff}
+.face .lbl{font-family:var(--disp);font-weight:700;font-size:14.5px;letter-spacing:-.2px}
+.face .hint{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px}
+.face .ans{font-family:var(--disp);font-size:30px;line-height:1}
+.face.back p{font-size:12.2px;color:#dbe6f8;line-height:1.5}
+
+/* ============ MEMORY VISUAL ============ */
+.mem{display:flex;flex-direction:column;gap:9px}
+.mem-row{display:flex;align-items:center;gap:11px;opacity:0;transform:translateX(-14px)}
+.mem-row.show{animation:slideIn .5s forwards}
+@keyframes slideIn{to{opacity:1;transform:none}}
+.mem-cell{
+  font-family:var(--mono);font-size:12px;padding:11px 14px;border-radius:10px;border:1px dashed;min-width:145px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.mem-owner{font-family:var(--disp);font-size:13px;font-weight:700;min-width:110px}
+.mem-lock{font-size:11px;opacity:.85;font-family:var(--mono)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:15px;font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:11px;height:11px;border-radius:3px;display:block}
+
+/* ============ UML SVG ============ */
+.uml-box{width:100%;overflow-x:auto}
+svg.uml{width:100%;min-width:640px;height:auto;display:block}
+.uml rect{transition:.3s}
+.uml g.node{cursor:pointer}
+.uml g.node rect.body{fill:rgba(255,255,255,.045);stroke:rgba(255,255,255,.2);stroke-width:1.4;rx:10}
+.uml g.node:hover rect.body{fill:rgba(34,211,238,.1);stroke:var(--cyan)}
+.uml g.node.sel rect.body{fill:rgba(167,139,250,.18);stroke:var(--violet);stroke-width:2.2;filter:drop-shadow(0 0 12px rgba(167,139,250,.5))}
+.uml g.node.inchain rect.body{stroke:var(--cyan);fill:rgba(34,211,238,.12)}
+.uml text.nm{fill:#eaf2ff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;text-anchor:middle}
+.uml text.st{fill:#8ea0c0;font-family:'JetBrains Mono',monospace;font-size:10.5px;text-anchor:middle}
+.uml path.edge{stroke:rgba(255,255,255,.22);stroke-width:1.6;fill:none;transition:.3s}
+.uml path.edge.hot{stroke:var(--cyan);stroke-width:2.6;filter:drop-shadow(0 0 6px rgba(34,211,238,.8))}
+.uml polygon.arrow{fill:rgba(255,255,255,.5);transition:.3s}
+.uml polygon.arrow.hot{fill:var(--cyan)}
+.isa{
+  font-family:var(--mono);font-size:13.5px;padding:14px 16px;border-radius:12px;background:rgba(0,0,0,.35);
+  border:1px solid var(--border);color:var(--muted);min-height:52px;display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+}
+.isa b{color:var(--cyan);font-weight:700}
+.isa .ar{color:var(--violet)}
+
+/* ============ DISPATCH ============ */
+.ctrl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:13px}
+.field label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+select,input[type=text]{
+  width:100%;padding:11px 13px;border-radius:10px;background:rgba(0,0,0,.42);border:1px solid var(--border2);
+  color:var(--txt);font-family:var(--mono);font-size:12.8px;outline:none;transition:.2s;appearance:none;
+}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--cyan) 50%),linear-gradient(135deg,var(--cyan) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+select:focus,input[type=text]:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.14)}
+option{background:#0a1020;color:#e8eefc}
+.chain{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.chain-node{
+  display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;border:1px solid var(--border);
+  background:rgba(255,255,255,.028);transition:.35s;position:relative;
+}
+.chain-link{height:22px;width:2px;margin-left:29px;background:linear-gradient(rgba(255,255,255,.18),rgba(255,255,255,.05));position:relative}
+.chain-link::after{content:'';position:absolute;inset:0;background:var(--cyan);opacity:0;transition:.3s}
+.chain-link.hot::after{opacity:1;box-shadow:0 0 10px var(--cyan)}
+.chain-node .idx{
+  width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-family:var(--mono);font-size:12px;
+  background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);flex:0 0 auto;transition:.3s;
+}
+.chain-node .cn{font-family:var(--disp);font-weight:700;font-size:15px}
+.chain-node .cm{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto;text-align:right}
+.chain-node.checking{border-color:rgba(251,191,36,.55);background:rgba(251,191,36,.09);transform:translateX(7px)}
+.chain-node.checking .idx{background:rgba(251,191,36,.22);color:var(--amber);border-color:rgba(251,191,36,.5)}
+.chain-node.found{border-color:rgba(52,211,153,.6);background:rgba(52,211,153,.13);transform:translateX(7px);box-shadow:0 0 26px -8px rgba(52,211,153,.6)}
+.chain-node.found .idx{background:var(--green);color:#04150e;border-color:var(--green)}
+.chain-node.miss{opacity:.42}
+.chain-node.start{border-color:rgba(167,139,250,.45)}
+
+/* ============ CONSOLE ============ */
+.console{
+  background:#03050b;border:1px solid var(--border);border-radius:12px;font-family:var(--mono);font-size:12.6px;
+  padding:14px 16px;min-height:170px;max-height:290px;overflow-y:auto;line-height:1.85;
+}
+.console .cl{display:flex;gap:9px;opacity:0;animation:clIn .32s forwards}
+@keyframes clIn{to{opacity:1}}
+.console .pr{color:#4b6079;flex:0 0 auto}
+.console .out{color:#d7e3f8}
+.console .err{color:#fb7185}
+.console .ok{color:#34d399}
+.console .info{color:#22d3ee}
+.console .warn{color:#fbbf24}
+.console .dim{color:#5b6e8c}
+.console-hd{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:1.4px;margin-bottom:9px;text-transform:uppercase}
+.console-hd i{width:7px;height:7px;border-radius:50%;background:var(--green);display:block;box-shadow:0 0 8px var(--green)}
+
+/* ============ STAGE (polimorfismo) ============ */
+.stage{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px}
+.actor{
+  border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;background:rgba(255,255,255,.03);
+  transition:.35s;position:relative;overflow:hidden;
+}
+.actor .em{font-size:33px;display:block;margin-bottom:8px;filter:grayscale(.45);transition:.35s}
+.actor .ty{font-family:var(--disp);font-weight:700;font-size:14.5px}
+.actor .ref{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:3px}
+.actor .bub{
+  position:absolute;top:6px;left:50%;transform:translate(-50%,10px) scale(.6);opacity:0;transition:.35s;
+  font-family:var(--mono);font-size:11.5px;background:#0b1526;border:1px solid var(--cyan);color:var(--cyan);
+  padding:5px 11px;border-radius:99px;white-space:nowrap;box-shadow:0 6px 20px -6px rgba(34,211,238,.7);
+}
+.actor.active{border-color:var(--cyan);background:rgba(34,211,238,.11);transform:translateY(-7px) scale(1.02);box-shadow:0 16px 40px -18px rgba(34,211,238,.85)}
+.actor.active .em{filter:none;transform:scale(1.18)}
+.actor.active .bub{opacity:1;transform:translate(-50%,0) scale(1)}
+
+/* ============ INSTANCEOF GRID ============ */
+.io-grid{display:grid;gap:7px;overflow-x:auto}
+.io-table{width:100%;border-collapse:separate;border-spacing:6px;min-width:520px}
+.io-table th{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:500;letter-spacing:.6px;padding:5px;text-align:center}
+.io-table th.rowh{text-align:left;color:#cfe0f7;font-weight:700}
+.io-cell{
+  height:46px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);cursor:pointer;
+  display:grid;place-items:center;font-family:var(--mono);font-size:12.5px;color:#54677f;transition:.25s;
+}
+.io-cell:hover{border-color:var(--border2);background:rgba(255,255,255,.07)}
+.io-cell.t{background:rgba(52,211,153,.16);border-color:rgba(52,211,153,.55);color:#8ff0c9;font-weight:700;box-shadow:0 0 16px -6px rgba(52,211,153,.8)}
+.io-cell.f{background:rgba(251,113,133,.13);border-color:rgba(251,113,133,.45);color:#ffb3bf;font-weight:700}
+.io-cell.pop{animation:pop .42s}
+@keyframes pop{0%{transform:scale(.82)}55%{transform:scale(1.09)}100%{transform:scale(1)}}
+
+/* ============ TABS ============ */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:15px}
+.tab{
+  padding:9px 16px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--muted);
+  cursor:pointer;font-family:var(--disp);font-weight:600;font-size:12.8px;transition:.22s;
+}
+.tab:hover{color:var(--txt);border-color:var(--border2)}
+.tab.on{background:linear-gradient(135deg,rgba(167,139,250,.9),rgba(96,165,250,.9));color:#0a0518;border-color:transparent}
+.tabpane{display:none}.tabpane.on{display:block;animation:fadeIn .4s}
+
+/* ============ TOGGLE (custom) ============ */
+.tg{display:flex;align-items:center;gap:11px;cursor:pointer;user-select:none;font-size:13.5px;color:var(--muted)}
+.tg input{display:none}
+.tg .track{width:46px;height:25px;border-radius:99px;background:rgba(255,255,255,.1);border:1px solid var(--border2);position:relative;transition:.28s;flex:0 0 auto}
+.tg .track::after{content:'';position:absolute;top:2.5px;left:3px;width:18px;height:18px;border-radius:50%;background:#8ea0c0;transition:.28s}
+.tg input:checked + .track{background:linear-gradient(135deg,var(--cyan),var(--violet));border-color:transparent}
+.tg input:checked + .track::after{left:23px;background:#04060d}
+.tg b{color:var(--txt);font-family:var(--mono);font-size:12.5px;font-weight:600}
+
+/* ============ ERROR CARD ============ */
+.errcard{
+  border:1px solid rgba(251,113,133,.5);background:linear-gradient(140deg,rgba(251,113,133,.14),rgba(251,113,133,.03));
+  border-radius:13px;padding:15px 17px;font-family:var(--mono);font-size:12.6px;color:#ffc9d2;display:none;
+  animation:shake .45s;
+}
+.errcard.show{display:block}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.errcard b{color:var(--pink);display:block;margin-bottom:5px;font-family:var(--disp);font-size:14px}
+.okcard{border-color:rgba(52,211,153,.5);background:linear-gradient(140deg,rgba(52,211,153,.14),rgba(52,211,153,.03));color:#c8f7e4}
+.okcard b{color:var(--green)}
+
+/* ============ BUILDER ============ */
+.tree{font-family:var(--mono);font-size:12.8px;line-height:2}
+.tree ul{list-style:none;padding-left:22px;position:relative}
+.tree ul::before{content:'';position:absolute;left:7px;top:0;bottom:11px;width:1px;background:rgba(255,255,255,.14)}
+.tree li{position:relative}
+.tree ul li::before{content:'';position:absolute;left:-15px;top:14px;width:14px;height:1px;background:rgba(255,255,255,.14)}
+.tnode{
+  display:inline-flex;align-items:center;gap:9px;padding:5px 12px;border-radius:9px;border:1px solid var(--border);
+  background:rgba(255,255,255,.04);cursor:default;transition:.2s;
+}
+.tnode:hover{border-color:var(--cyan);background:rgba(34,211,238,.1)}
+.tnode .badge{font-size:9px;letter-spacing:1px;padding:1.5px 6px;border-radius:5px;background:rgba(167,139,250,.2);color:#d6c9ff;border:1px solid rgba(167,139,250,.35)}
+.tnode.abs .badge{background:rgba(251,191,36,.2);color:#ffe6ab;border-color:rgba(251,191,36,.4)}
+.tnode .del{color:#5b6e8c;cursor:pointer;font-size:14px;line-height:1;margin-left:4px}
+.tnode .del:hover{color:var(--pink)}
+.pill-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.pill{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:99px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.28);color:#a9e9ff}
+.pill.v{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:#d9ccff}
+
+/* ============ QUIZ ============ */
+.quiz-hd{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.q-progress{flex:1;min-width:180px;height:7px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+.q-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width .5s}
+.q-count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.q-card{border:1px solid var(--border);border-radius:15px;padding:23px;background:linear-gradient(150deg,rgba(255,255,255,.05),rgba(255,255,255,.015))}
+.q-text{font-family:var(--disp);font-size:clamp(16px,2.3vw,20px);font-weight:600;letter-spacing:-.3px;margin-bottom:6px}
+.q-code{font-family:var(--mono);font-size:12.6px;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:9px;padding:11px 13px;margin:12px 0;color:#bfe6ff;white-space:pre-wrap;overflow-x:auto}
+.opts{display:grid;gap:9px;margin-top:15px}
+.opt{
+  text-align:left;padding:13px 16px;border-radius:11px;border:1px solid var(--border);background:rgba(255,255,255,.03);
+  color:var(--txt);cursor:pointer;font-size:13.8px;font-family:var(--body);transition:.2s;display:flex;gap:11px;align-items:center;
+}
+.opt:hover:not(:disabled){border-color:var(--cyan);background:rgba(34,211,238,.08);transform:translateX(4px)}
+.opt .k{font-family:var(--mono);font-size:11px;width:23px;height:23px;border-radius:6px;display:grid;place-items:center;background:rgba(255,255,255,.08);flex:0 0 auto;color:var(--muted)}
+.opt.right{border-color:var(--green);background:rgba(52,211,153,.15)}
+.opt.right .k{background:var(--green);color:#04150e}
+.opt.wrong{border-color:var(--pink);background:rgba(251,113,133,.14)}
+.opt.wrong .k{background:var(--pink);color:#2a0510}
+.opt:disabled{cursor:default}
+.q-fb{margin-top:15px;padding:14px 16px;border-radius:11px;font-size:13.6px;display:none;animation:fadeIn .35s}
+.q-fb.show{display:block}
+.q-fb.good{background:rgba(52,211,153,.11);border:1px solid rgba(52,211,153,.35);color:#c2f5e2}
+.q-fb.bad{background:rgba(251,113,133,.11);border:1px solid rgba(251,113,133,.35);color:#ffd6dd}
+.score-ring{width:132px;height:132px;position:relative;margin:0 auto 16px}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .val{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--disp);font-size:29px;font-weight:700}
+
+/* ============ ACCORDION ============ */
+.acc{border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--panel)}
+.acc + .acc{margin-top:11px}
+.acc-h{
+  width:100%;padding:16px 19px;background:transparent;border:0;color:var(--txt);cursor:pointer;
+  display:flex;align-items:center;gap:13px;font-family:var(--disp);font-size:14.8px;font-weight:600;text-align:left;transition:.2s;
+}
+.acc-h:hover{background:rgba(255,255,255,.04)}
+.acc-h .ic{margin-left:auto;color:var(--cyan);transition:transform .35s;font-size:19px;line-height:1}
+.acc.open .acc-h .ic{transform:rotate(45deg)}
+.acc-h .num{font-family:var(--mono);font-size:11px;color:var(--violet);border:1px solid rgba(167,139,250,.35);padding:2px 8px;border-radius:6px}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.3,.8,.3,1)}
+.acc-b-in{padding:2px 19px 20px;color:var(--muted);font-size:14px;border-top:1px solid var(--border)}
+.acc-b-in code{font-family:var(--mono);font-size:12.5px;color:#9fe9ff;background:rgba(255,255,255,.06);padding:1.5px 6px;border-radius:5px}
+.gloss{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.gl{border:1px solid var(--border);border-radius:12px;padding:14px 16px;background:rgba(255,255,255,.028);transition:.25s}
+.gl:hover{border-color:rgba(34,211,238,.4);transform:translateY(-3px);background:rgba(34,211,238,.05)}
+.gl b{font-family:var(--mono);font-size:13px;color:var(--cyan);display:block;margin-bottom:4px}
+.gl span{font-size:12.8px;color:var(--muted)}
+
+/* ============ FOOTER ============ */
+footer{margin-top:80px;border-top:1px solid var(--border);padding:38px 22px;text-align:center;background:rgba(0,0,0,.35)}
+footer p{color:var(--muted);font-size:13px;max-width:640px;margin:0 auto 8px}
+footer .fm{font-family:var(--mono);font-size:11px;color:#4b6079;letter-spacing:1px}
+.totop{position:fixed;right:20px;bottom:20px;width:46px;height:46px;border-radius:13px;border:1px solid var(--border2);
+  background:rgba(10,16,30,.85);backdrop-filter:blur(10px);color:var(--cyan);cursor:pointer;font-size:19px;z-index:900;
+  opacity:0;pointer-events:none;transition:.3s;box-shadow:0 10px 30px -10px #000}
+.totop.show{opacity:1;pointer-events:auto}
+.totop:hover{background:var(--cyan);color:#04060d}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);z-index:1200;padding:12px 22px;border-radius:12px;
+  background:rgba(10,18,32,.96);border:1px solid var(--cyan);color:#cdf3fb;font-family:var(--mono);font-size:12.5px;
+  box-shadow:0 16px 44px -14px rgba(34,211,238,.6);transition:.4s cubic-bezier(.2,.8,.3,1);opacity:0;pointer-events:none
+}
+.toast.show{transform:translate(-50%,0);opacity:1}
+.kbd{font-family:var(--mono);font-size:10.5px;border:1px solid var(--border2);border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--muted);background:rgba(255,255,255,.05)}
+hr.sep{border:0;border-top:1px solid var(--border);margin:22px 0}
+@media(max-width:860px){
+  .nav-links{
+    position:fixed;top:62px;left:0;right:0;flex-direction:column;background:rgba(4,6,13,.97);backdrop-filter:blur(20px);
+    padding:14px;border-bottom:1px solid var(--border);gap:3px;transform:translateY(-140%);transition:.4s cubic-bezier(.3,.8,.3,1);max-height:70vh;overflow-y:auto
+  }
+  .nav-links.open{transform:none}
+  .nav-links a{padding:12px 14px;font-size:14px;border:1px solid transparent}
+  .burger{display:block}
+  .pct{display:none}
+  section{padding:66px 0 14px}
+  #hero{padding:120px 0 70px;min-height:auto}
+  .scroll-hint{display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<div class="progress-rail"><div class="progress-bar" id="pbar"></div></div>
+
+<header class="nav">
+  <div class="nav-in">
+    <div class="logo">
+      <div class="logo-mark">J<span style="color:var(--violet)">&gt;</span></div>
+      <div>extends Lab<small>Java OOP · 4ª SIA</small></div>
+    </div>
+    <button class="burger" id="burger" aria-label="menu">☰</button>
+    <nav class="nav-links" id="navlinks"></nav>
+    <div class="pct" id="pctLabel">0%</div>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= HERO ================= -->
+<section id="hero">
+  <canvas id="bgcanvas"></canvas>
+  <div class="hero-in">
+    <div class="hero-badge"><span class="pulse"></span> Modulo interattivo · Programmazione a Oggetti</div>
+    <h1 class="hero-title">L'<span class="gr">Ereditarietà</span><br>in Java</h1>
+    <div class="hero-typed"><span id="typed"></span><span class="cur">&nbsp;</span></div>
+    <p class="hero-lead">
+      Non una lezione da leggere: un <b style="color:#cfe0f7">laboratorio da eseguire</b>. Simula il dispatch dinamico,
+      ispeziona la memoria di un oggetto, costruisci la tua gerarchia di classi e mettiti alla prova.
+      Tutto nel browser, senza compilatore.
+    </p>
+    <div class="hero-cta">
+      <a href="#perche" class="btn btn-primary">▶ Inizia il percorso</a>
+      <a href="#dispatch" class="btn btn-ghost">⚡ Vai al simulatore di dispatch</a>
+      <a href="#quiz" class="btn btn-violet">✓ Mettiti alla prova</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b data-count="11">0</b><span>sezioni interattive</span></div>
+      <div class="stat"><b data-count="9">0</b><span>simulatori live</span></div>
+      <div class="stat"><b data-count="10">0</b><span>domande di quiz</span></div>
+      <div class="stat"><b data-count="0">0</b><span>righe da compilare</span></div>
+    </div>
+  </div>
+  <div class="scroll-hint">SCORRI<i></i></div>
+</section>
+
+<!-- ================= 01 PERCHE' ================= -->
+<section id="perche">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">01</span> Il problema</div>
+    <h2 class="sec-title">Perché ci serve? <em>Il codice duplicato è un debito</em></h2>
+    <p class="sec-sub">Immagina di dover gestire Cane, Gatto e Coniglio. Senza ereditarietà riscrivi le stesse cose tre volte.
+      Cambia una regola? Devi ricordarti di modificarla in tre punti. <b style="color:#cfe0f7">Clicca il pulsante e guarda la differenza.</b></p>
+  </div>
+
+  <div class="card reveal">
+    <div class="switch-row" style="max-width:520px;margin-bottom:18px">
+      <button class="sw-btn on" data-mode="no">✗ Senza ereditarietà</button>
+      <button class="sw-btn" data-mode="si">✓ Con ereditarietà</button>
+    </div>
+    <div class="grid g2">
+      <div>
+        <div id="codeNoHer" class="code-wrap"></div>
+      </div>
+      <div>
+        <div id="codeHer" class="code-wrap" style="display:none"></div>
+        <div class="metric">
+          <div class="metric-top"><span>righe totali</span><b id="mLines">62</b></div>
+          <div class="bar red"><i id="bLines" style="width:100%"></i></div>
+        </div>
+        <div class="metric">
+          <div class="metric-top"><span>codice duplicato</span><b id="mDup">78%</b></div>
+          <div class="bar red"><i id="bDup" style="width:78%"></i></div>
+        </div>
+        <div class="metric">
+          <div class="metric-top"><span>punti da modificare per cambiare <code style="font-size:11px">mangia()</code></span><b id="mFix">3</b></div>
+          <div class="bar red"><i id="bFix" style="width:100%"></i></div>
+        </div>
+        <div class="note" id="whyNote">
+          <b>Problema:</b> ogni classe contiene gli stessi campi e gli stessi metodi. È il classico codice
+          <i>copy&nbsp;&amp;&nbsp;paste</i>: lungo, fragile, difficile da manutenere e pieno di bug nascosti.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g3 reveal" style="margin-top:18px">
+    <div class="card"><h4 style="font-family:var(--disp);color:var(--cyan);margin-bottom:7px">♻ Riuso del codice</h4>
+      <p style="font-size:13.6px;color:var(--muted)">Scrivi una volta sola i membri comuni nella <b>superclasse</b> e tutte le sottoclassi li ottengono gratis.</p></div>
+    <div class="card"><h4 style="font-family:var(--disp);color:var(--violet);margin-bottom:7px">🧩 Specializzazione</h4>
+      <p style="font-size:13.6px;color:var(--muted)">Ogni sottoclasse aggiunge solo ciò che la rende <b>unica</b>: dal generale al particolare.</p></div>
+    <div class="card"><h4 style="font-family:var(--disp);color:var(--green);margin-bottom:7px">🎭 Polimorfismo</h4>
+      <p style="font-size:13.6px;color:var(--muted)">Una stessa chiamata <code style="font-family:var(--mono);font-size:12px;color:#9fe9ff">a.parla()</code> produce comportamenti diversi a <b>runtime</b>.</p></div>
+  </div>
+</section>
+
+<!-- ================= 02 SINTASSI ================= -->
+<section id="sintassi">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">02</span> La sintassi</div>
+    <h2 class="sec-title"><em>extends</em>, <em>super</em> e <em>@Override</em>: le tre parole magiche</h2>
+    <p class="sec-sub">Clicca (o tocca) le parole chiave qui sotto: il codice si illumina e la spiegazione appare a lato.</p>
+  </div>
+
+  <div class="annot-grid">
+    <div class="card reveal" style="padding:18px">
+      <div class="chips" id="annotChips">
+        <span class="chip sel" data-k="extends">extends</span>
+        <span class="chip" data-k="super">super(...)</span>
+        <span class="chip" data-k="this">this.campo</span>
+        <span class="chip" data-k="override">@Override</span>
+        <span class="chip" data-k="protected">protected</span>
+        <span class="chip" data-k="metodo">parla() riscritto</span>
+        <span class="chip" data-k="nuovo">scodinzola() nuovo</span>
+      </div>
+      <div id="annotCode" class="code-wrap"></div>
+    </div>
+    <div class="card annot-panel reveal" id="annotPanel"></div>
+  </div>
+
+  <div class="grid g2 reveal" style="margin-top:18px">
+    <div class="card">
+      <h4 style="font-family:var(--disp);margin-bottom:10px;color:var(--amber)">⚠ Regola d'oro: <code style="font-family:var(--mono);font-size:13px">super()</code> per primo</h4>
+      <p style="font-size:13.8px;color:var(--muted);margin-bottom:12px">
+        Il costruttore di una sottoclasse <b style="color:#cfe0f7">deve</b> costruire prima la parte ereditata.
+        Se non lo scrivi, Java inserisce automaticamente <code style="font-family:var(--mono);font-size:12px;color:#9fe9ff">super()</code> come prima istruzione
+        (e se la superclasse non ha un costruttore senza argomenti → errore di compilazione).
+      </p>
+      <div class="code-wrap" id="codeSuperChain"></div>
+      <div class="btn-row"><button class="btn btn-ghost" id="btnChain">▶ Esegui la catena di costruttori</button></div>
+      <div class="console" id="consChain" style="margin-top:14px;min-height:120px"></div>
+    </div>
+    <div class="card">
+      <h4 style="font-family:var(--disp);margin-bottom:10px;color:var(--cyan)">🚫 In Java niente ereditarietà multipla</h4>
+      <p style="font-size:13.8px;color:var(--muted);margin-bottom:12px">
+        Una classe può estendere <b style="color:#cfe0f7">una sola</b> classe (<code style="font-family:var(--mono);font-size:12px;color:#9fe9ff">extends A, B</code> non compila),
+        ma può implementare <b style="color:#cfe0f7">molte interfacce</b>. È una scelta di progetto per evitare il <i>diamond problem</i>.
+      </p>
+      <div class="code-wrap" id="codeNoMulti"></div>
+      <div class="note danger" style="margin-top:14px"><b>Errore tipico:</b> confondere <code>extends</code> (classe→classe, interfaccia→interfaccia) con <code>implements</code> (classe→interfaccia).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 COSA SI EREDITA ================= -->
+<section id="cosa">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">03</span> I confini</div>
+    <h2 class="sec-title">Cosa si eredita <em>davvero</em>?</h2>
+    <p class="sec-sub">Domanda da verifica: «i campi <code style="font-family:var(--mono);font-size:13px;color:#9fe9ff">private</code> della superclasse vengono ereditati?»
+      La risposta è sottile. <b style="color:#cfe0f7">Gira le 8 carte</b> per scoprirla.</p>
+  </div>
+
+  <div class="matrix reveal" id="matrix"></div>
+  <div class="btn-row reveal" style="justify-content:space-between;align-items:center">
+    <button class="btn btn-ghost" id="btnFlipAll">↺ Gira tutte le carte</button>
+    <div style="font-family:var(--mono);font-size:12px;color:var(--muted)">scoperte: <b id="flipCount" style="color:var(--cyan)">0</b>/8</div>
+  </div>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h4 style="font-family:var(--disp);margin-bottom:6px">🔬 Dentro la memoria: com'è fatto davvero un oggetto</h4>
+    <p style="font-size:13.8px;color:var(--muted);margin-bottom:16px">
+      Seleziona una classe e guarda come Java alloca l'oggetto nell'heap: <b style="color:#cfe0f7">i campi private della superclasse ci sono</b>,
+      occupano memoria, ma dalla sottoclasse non sono raggiungibili direttamente con il nome.
+    </p>
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <div class="field" style="margin-bottom:14px">
+          <label>Classe da istanziare</label>
+          <select id="memSel">
+            <option value="Cane">new Cane(...)</option>
+            <option value="CanePoliziotto" selected>new CanePoliziotto(...)</option>
+            <option value="Gatto">new Gatto(...)</option>
+            <option value="Animale">new Animale(...)</option>
+          </select>
+        </div>
+        <div class="mem" id="memBox"></div>
+        <div class="legend">
+          <span><i style="background:rgba(52,211,153,.55);border:1px dashed #34d399"></i> visibile nella sottoclasse</span>
+          <span><i style="background:rgba(251,113,133,.35);border:1px dashed #fb7185"></i> presente ma NON accessibile</span>
+        </div>
+      </div>
+      <div>
+        <div class="code-wrap" id="codeMem"></div>
+        <div class="note tip"><b>Trucco:</b> per leggere <code>eta</code> (private di <code>Animale</code>) dentro <code>Cane</code>
+          devo passare da un metodo <code>public</code>/<code>protected</code> della superclasse, es. <code>getEta()</code>.
+          Oppure dichiararlo <code>protected</code>: resta nascosto all'esterno del pacchetto ma visibile alle sottoclassi.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 UML ================= -->
+<section id="uml">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">04</span> La mappa</div>
+    <h2 class="sec-title">La gerarchia <em>IS-A</em> in diagramma UML</h2>
+    <p class="sec-sub">Clicca un nodo del diagramma: si accende l'intera catena di ereditarietà fino a <code style="font-family:var(--mono);font-size:13px;color:#9fe9ff">Object</code>
+      e compaiono i membri della classe. La freccia vuota puntata verso l'alto significa «estende».</p>
+  </div>
+
+  <div class="grid reveal" style="grid-template-columns:1.5fr 1fr;gap:18px" id="umlGrid">
+    <div class="card" style="padding:14px">
+      <div class="uml-box">
+      <svg class="uml" id="umlSvg" viewBox="0 0 860 430" role="img" aria-label="Diagramma UML della gerarchia"></svg>
+      </div>
+      <div class="isa" id="isaBox" style="margin:8px 6px 4px">Seleziona una classe dal diagramma…</div>
+    </div>
+    <div class="card" id="umlDetails">
+      <h4 style="font-family:var(--disp);margin-bottom:4px;color:var(--violet)">Dettagli classe</h4>
+      <p style="font-size:13px;color:var(--muted)">Nessuna classe selezionata.</p>
+    </div>
+  </div>
+  <div class="note tip reveal" style="margin-top:16px">
+    <b>Lettura UML:</b> ogni box ha tre scomparti → <i>nome classe</i> / <i>attributi</i> / <i>metodi</i>.
+    La linea con il triangolo vuoto indica generalizzazione: la freccia punta sempre <b>verso la classe più generale</b>.
+  </div>
+</section>
+
+<!-- ================= 05 DISPATCH ================= -->
+<section id="dispatch">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">05</span> Il cuore dell'OOP</div>
+    <h2 class="sec-title">Simulatore di <em>binding dinamico</em></h2>
+    <p class="sec-sub">«Tipo dichiarato» contro «tipo reale». Scegli la combinazione, premi <b style="color:#cfe0f7">Esegui</b> e guarda la JVM
+      risalire la gerarchia passo per passo per decidere <i>quale</i> metodo invocare.</p>
+  </div>
+
+  <div class="card reveal">
+    <div class="ctrl-grid">
+      <div class="field"><label>① Tipo dichiarato (riferimento)</label>
+        <select id="dStatic">
+          <option>Animale</option><option>Cane</option><option>CanePoliziotto</option><option>Gatto</option><option>Object</option>
+        </select></div>
+      <div class="field"><label>② Tipo reale (new …)</label>
+        <select id="dDyn">
+          <option>Cane</option><option selected>CanePoliziotto</option><option>Gatto</option><option>Animale</option>
+        </select></div>
+      <div class="field"><label>③ Metodo invocato</label>
+        <select id="dMethod">
+          <option value="parla">parla()</option><option value="mangia">mangia()</option>
+          <option value="scodinzola">scodinzola()</option><option value="cerca">cerca()</option><option value="toString">toString()</option>
+        </select></div>
+      <div class="field"><label>④ Configurazione</label>
+        <label class="tg" style="margin-top:9px"><input type="checkbox" id="dOverride" checked><span class="track"></span><b>Cane ha @Override su parla()</b></label>
+      </div>
+    </div>
+
+    <div class="code-wrap" style="margin-top:18px"><div class="code-bar"><div class="dots"><i></i><i></i><i></i></div><span class="fname">Main.java</span><span class="tag" style="color:var(--cyan);border-color:rgba(34,211,238,.4)">live</span></div>
+      <pre class="code big" id="dispatchCode"></pre></div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnRun">▶ Esegui (passo passo)</button>
+      <button class="btn btn-ghost" id="btnFast">⚡ Risultato immediato</button>
+      <button class="btn btn-ghost" id="btnClear">✕ Pulisci console</button>
+    </div>
+
+    <div class="grid g2" style="margin-top:20px;align-items:start">
+      <div>
+        <div class="console-hd"><i></i> ricerca del metodo · runtime stack</div>
+        <div class="chain" id="chainBox"></div>
+      </div>
+      <div>
+        <div class="console-hd"><i></i> console di sistema</div>
+        <div class="console" id="consDispatch"></div>
+        <div class="note" style="margin-top:14px"><b>Fase di compilazione:</b> il compilatore controlla solo il <u>tipo dichiarato</u>
+          (il metodo deve esistere lì). <b>Fase di esecuzione:</b> la JVM guarda il <u>tipo reale</u> dell'oggetto e sceglie la versione più specifica.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px">
+      <div class="console-hd" style="margin-bottom:8px">🎯 scenari guidati — provane uno</div>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn btn-ghost scn" data-s="0">Polimorfismo classico</button>
+        <button class="btn btn-ghost scn" data-s="1">Senza @Override</button>
+        <button class="btn btn-ghost scn" data-s="2">Errore di compilazione</button>
+        <button class="btn btn-ghost scn" data-s="3">toString() da Object</button>
+        <button class="btn btn-ghost scn" data-s="4">Tipo incompatibile</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 06 POLIMORFISMO ================= -->
+<section id="polimorfismo">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">06</span> Il vantaggio pratico</div>
+    <h2 class="sec-title">Polimorfismo: <em>una chiamata, mille comportamenti</em></h2>
+    <p class="sec-sub">Un array di tipo <code style="font-family:var(--mono);font-size:13px;color:#9fe9ff">Animale[]</code> può contenere oggetti di qualunque sottoclasse.
+      Il ciclo <code style="font-family:var(--mono);font-size:13px;color:#9fe9ff">for-each</code> non sa cosa farà ogni elemento: lo decide l'oggetto stesso, a runtime.</p>
+  </div>
+
+  <div class="card reveal">
+    <div class="switch-row" style="max-width:560px;margin-bottom:18px">
+      <button class="sw-btn on" data-poly="poly">✓ Con polimorfismo</button>
+      <button class="sw-btn" data-poly="switch">✗ Con instanceof + cast</button>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <div class="code-wrap" id="codePoly"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btnPoly">▶ Esegui il ciclo</button>
+          <button class="btn btn-ghost" id="btnAddActor">＋ Aggiungi un animale</button>
+        </div>
+        <div class="metric">
+          <div class="metric-top"><span>righe di codice nel ciclo</span><b id="polyLines">3</b></div>
+          <div class="bar green"><i id="polyBar" style="width:12%"></i></div>
+        </div>
+        <div class="metric">
+          <div class="metric-top"><span>modifiche se aggiungo una nuova specie</span><b id="polyFix">0</b></div>
+          <div class="bar green"><i id="polyFixBar" style="width:2%"></i></div>
+        </div>
+      </div>
+      <div>
+        <div class="stage" id="stage"></div>
+        <div class="console-hd" style="margin-top:16px"><i></i> output</div>
+        <div class="console" id="consPoly"></div>
+      </div>
+    </div>
+    <div class="note tip" id="polyNote"><b>Open/Closed Principle:</b> con il polimorfismo il codice è <i>aperto alle estensioni</i>
+      (aggiungi una sottoclasse) ma <i>chiuso alle modifiche</i> (il ciclo non si tocca).</div>
+  </div>
+</section>
+
+<!-- ================= 07 INSTANCEOF ================= -->
+<section id="instanceof">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">07</span> Tipo reale</div>
+    <h2 class="sec-title"><em>instanceof</em> e downcasting in sicurezza</h2>
+    <p class="sec-sub">Clicca le celle della matrice per scoprire il risultato. Poi prova un cast: se il tipo non combacia, la JVM lancia <code style="font-family:var(--mono);font-size:13px;color:#9fe9ff">ClassCastException</code>.</p>
+  </div>
+
+  <div class="card reveal">
+    <div class="io-grid">
+      <table class="io-table" id="ioTable"></table>
+    </div>
+    <div class="btn-row"><button class="btn btn-ghost" id="btnIoAll">▶ Rivela tutta la matrice</button>
+      <button class="btn btn-ghost" id="btnIoReset">✕ Nascondi</button></div>
+    <div class="note tip"><b>Ricorda:</b> <code>x instanceof T</code> è <code>true</code> se l'oggetto puntato da <code>x</code> è un'istanza di <code>T</code>
+      <u>o di una sua sottoclasse</u>. Vale sempre la relazione IS-A. <code>null instanceof T</code> è sempre <code>false</code>.</div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <h4 style="font-family:var(--disp);margin-bottom:14px">🧪 Laboratorio di casting</h4>
+    <div class="ctrl-grid">
+      <div class="field"><label>Riferimento</label>
+        <select id="castRef"><option>Animale a = new Cane()</option><option>Animale a = new Gatto()</option><option>Animale a = new CanePoliziotto()</option><option>Animale a = new Animale()</option></select></div>
+      <div class="field"><label>Cast verso</label>
+        <select id="castTo"><option>Cane</option><option>Gatto</option><option>CanePoliziotto</option><option>Animale</option></select></div>
+    </div>
+    <div class="code-wrap" style="margin-top:16px"><pre class="code big" id="castCode"></pre></div>
+    <div class="btn-row"><button class="btn btn-primary" id="btnCast">▶ Esegui con controllo instanceof</button>
+      <button class="btn btn-ghost" id="btnCastBlind">☠ Esegui il cast alla cieca</button></div>
+    <div id="castResult" class="errcard" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<!-- ================= 08 ASTRATTE ================= -->
+<section id="astratte">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">08</span> Generalizzare</div>
+    <h2 class="sec-title">Classi <em>astratte</em> e interfacce</h2>
+    <p class="sec-sub">A volte la superclasse descrive un concetto che <b style="color:#cfe0f7">non ha senso istanziare</b>: «Animale» in astratto non esiste, esistono cani e gatti.
+      Gioca con gli switch e osserva cosa dice il compilatore.</p>
+  </div>
+
+  <div class="card reveal">
+    <div style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:18px">
+      <label class="tg"><input type="checkbox" id="tgAbstract" checked><span class="track"></span><b>Animale è abstract</b></label>
+      <label class="tg"><input type="checkbox" id="tgAbsMeth" checked><span class="track"></span><b>parla() è abstract</b></label>
+      <label class="tg"><input type="checkbox" id="tgCaneImpl" checked><span class="track"></span><b>Cane implementa parla()</b></label>
+      <label class="tg"><input type="checkbox" id="tgGattoImpl"><span class="track"></span><b>Gatto implementa parla()</b></label>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <div class="code-wrap" id="codeAbstract"></div>
+      <div>
+        <div class="console-hd"><i></i> diagnostica del compilatore</div>
+        <div id="absErrors"></div>
+        <div class="btn-row"><button class="btn btn-ghost" id="btnTryNew">▶ prova: new Animale()</button>
+          <button class="btn btn-ghost" id="btnTryRun">▶ prova: new Cane().parla()</button></div>
+        <div class="note" style="margin-top:14px"><b>Regola:</b> una classe concreta deve implementare <u>tutti</u> i metodi astratti ereditati,
+          altrimenti deve essere dichiarata a sua volta <code>abstract</code>. Una classe astratta può avere campi, costruttori e metodi <i>con</i> corpo.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px">
+    <div class="tabs" id="tabsAbs">
+      <button class="tab on" data-t="t1">Classe astratta</button>
+      <button class="tab" data-t="t2">Interfaccia</button>
+      <button class="tab" data-t="t3">Confronto fianco a fianco</button>
+    </div>
+    <div class="tabpane on" id="t1">
+      <div class="grid g2" style="align-items:start">
+        <div class="code-wrap" id="codeAbsCls"></div>
+        <div><p style="font-size:13.8px;color:var(--muted)">Usala quando le classi <b style="color:#cfe0f7">condividono stato e comportamento</b>: campi comuni,
+          costruttori, metodi già implementati e qualche metodo lasciato «in sospeso» alle sottoclassi.
+          Relazione <b style="color:#cfe0f7">IS-A</b> forte: <i>un Cane è un Animale</i>.</p>
+          <ul style="margin:12px 0 0 18px;font-size:13.5px;color:var(--muted);line-height:2">
+            <li>una sola classe estendibile (<code style="font-family:var(--mono);color:#9fe9ff">extends</code>)</li>
+            <li>può avere campi (anche <code style="font-family:var(--mono);color:#9fe9ff">private</code>) e costruttori</li>
+            <li>metodi concreti + metodi astratti</li>
+          </ul></div>
+      </div>
+    </div>
+    <div class="tabpane" id="t2">
+      <div class="grid g2" style="align-items:start">
+        <div class="code-wrap" id="codeIface"></div>
+        <div><p style="font-size:13.8px;color:var(--muted)">Usala per descrivere <b style="color:#cfe0f7">capacità</b> trasversali:
+          «sa nuotare», «è confrontabile», «è serializzabile». Relazione <b style="color:#cfe0f7">CAN-DO</b>.</p>
+          <ul style="margin:12px 0 0 18px;font-size:13.5px;color:var(--muted);line-height:2">
+            <li>implementabile da classi di rami diversi della gerarchia</li>
+            <li>una classe può implementarne <b>quante vuole</b></li>
+            <li>da Java 8: <code style="font-family:var(--mono);color:#9fe9ff">default</code> e <code style="font-family:var(--mono);color:#9fe9ff">static</code> methods</li>
+            <li>campi solo <code style="font-family:var(--mono);color:#9fe9ff">public static final</code> (costanti)</li>
+          </ul></div>
+      </div>
+    </div>
+    <div class="tabpane" id="t3">
+      <div class="io-grid"><table class="io-table" id="cmpTable" style="min-width:560px"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 09 BUILDER ================= -->
+<section id="builder">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">09</span> Laboratorio</div>
+    <h2 class="sec-title">Costruisci la <em>tua</em> gerarchia</h2>
+    <p class="sec-sub">Aggiungi classi, campi e metodi: il codice Java viene generato automaticamente con i costruttori corretti e le chiamate
+      <code style="font-family:var(--mono);font-size:13px;color:#9fe9ff">super(...)</code>. Poi copialo nel tuo IDE e compila davvero.</p>
+  </div>
+
+  <div class="grid reveal" style="grid-template-columns:1fr 1.25fr;gap:18px" id="builderGrid">
+    <div class="card">
+      <h4 style="font-family:var(--disp);margin-bottom:14px;color:var(--cyan)">＋ Nuova classe</h4>
+      <div class="field" style="margin-bottom:11px"><label>Nome della classe</label><input type="text" id="bName" placeholder="es. VeicoloElettrico"></div>
+      <div class="field" style="margin-bottom:11px"><label>Estende (superclasse)</label><select id="bParent"></select></div>
+      <div class="field" style="margin-bottom:11px"><label>Campi privati <span style="text-transform:none;letter-spacing:0">(separati da virgola)</span></label>
+        <input type="text" id="bFields" placeholder="String modello, int autonomiaKm"></div>
+      <div class="field" style="margin-bottom:11px"><label>Metodi aggiuntivi <span style="text-transform:none;letter-spacing:0">(uno per riga, opzionale)</span></label>
+        <input type="text" id="bMethods" placeholder="public void ricarica() | System.out.println(&quot;...&quot;)"></div>
+      <label class="tg" style="margin-bottom:14px"><input type="checkbox" id="bAbstract"><span class="track"></span><b>dichiara la classe abstract</b></label>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn btn-green" id="btnAddCls">＋ Aggiungi alla gerarchia</button>
+        <button class="btn btn-ghost" id="btnResetB">↺ Ripristina esempio</button>
+      </div>
+      <hr class="sep">
+      <h4 style="font-family:var(--disp);margin-bottom:10px;font-size:14.5px">🌳 Albero corrente</h4>
+      <div class="tree" id="bTree"></div>
+    </div>
+    <div class="card" style="padding:18px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <h4 style="font-family:var(--disp);color:var(--violet)">Codice generato</h4>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-ghost" id="btnCopy" style="padding:8px 14px;font-size:12.5px">⧉ Copia</button>
+          <span class="pill" id="bCount">0 classi</span>
+        </div>
+      </div>
+      <div class="code-wrap" style="max-height:560px;overflow:auto"><pre class="code" id="bCode"></pre></div>
+      <div class="note tip" style="margin-top:14px"><b>Come leggere il costruttore generato:</b> prima i parametri dei campi ereditati passati a
+        <code>super(...)</code>, poi i propri assegnati con <code>this.</code> — esattamente l'ordine che usa la JVM per costruire l'oggetto.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 10 QUIZ ================= -->
+<section id="quiz">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">10</span> Verifica</div>
+    <h2 class="sec-title">Quiz: <em>hai capito davvero?</em></h2>
+    <p class="sec-sub">10 domande in stile verifica/colloquio. Risposta immediata con spiegazione: sbagliare qui costa zero, sbagliare in verifica costa punti.</p>
+  </div>
+
+  <div class="card reveal" id="quizBox">
+    <div class="quiz-hd">
+      <div class="q-progress"><i id="qBar"></i></div>
+      <div class="q-count" id="qCount">Domanda 1 / 10</div>
+      <div class="q-count">Punti: <b id="qScore" style="color:var(--green)">0</b></div>
+    </div>
+    <div id="quizBody"></div>
+  </div>
+</section>
+
+<!-- ================= 11 RIPASSO ================= -->
+<section id="ripasso">
+  <div class="sec-head reveal">
+    <div class="kicker"><span class="n">11</span> Cheat sheet</div>
+    <h2 class="sec-title">Ripasso <em>last minute</em></h2>
+    <p class="sec-sub">Le dieci cose da sapere, con lo snippet da ricordare. Apri le schede.</p>
+  </div>
+  <div class="reveal" id="accList"></div>
+
+  <div class="card reveal" style="margin-top:26px">
+    <h4 style="font-family:var(--disp);margin-bottom:14px">📖 Glossario essenziale</h4>
+    <div class="gloss" id="gloss"></div>
+  </div>
+
+  <div class="card reveal" style="margin-top:18px;text-align:center;background:linear-gradient(140deg,rgba(34,211,238,.09),rgba(167,139,250,.09))">
+    <h4 style="font-family:var(--disp);font-size:21px;margin-bottom:8px">🏁 Percorso completato</h4>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:16px">
+      Sezioni visitate: <b id="doneCount" style="color:var(--cyan);font-family:var(--mono)">0</b> / <span id="totCount">11</span> ·
+      Quiz: <b id="doneQuiz" style="color:var(--green);font-family:var(--mono)">non svolto</b>
+    </p>
+    <div class="btn-row" style="justify-content:center;margin-top:0">
+      <a href="#hero" class="btn btn-ghost">↑ Torna all'inizio</a>
+      <button class="btn btn-violet" id="btnRestart">↺ Azzera il progresso</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p><b style="color:#cfe0f7">extends Lab</b> — pagina didattica interattiva sull'ereditarietà in Java, pensata per la classe 4ª Sistemi Informativi Aziendali.</p>
+  <p class="fm">HTML · CSS · JavaScript vanilla — nessun framework, nessuna dipendenza, funziona anche offline.</p>
+</footer>
+
+<button class="totop" id="totop" aria-label="torna su">↑</button>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+const $  = (s,c)=> (c||document).querySelector(s);
+const $$ = (s,c)=> Array.from((c||document).querySelectorAll(s));
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+let toastT;
+function toast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ---- syntax highlighter Java ---- */
+const KW = new Set(['public','private','protected','class','extends','implements','static','final','void','new','return',
+'super','this','if','else','for','while','do','abstract','interface','enum','instanceof','null','true','false','int','double',
+'float','boolean','char','long','byte','short','switch','case','break','continue','package','import','try','catch','finally',
+'throw','throws','default','var','record','sealed','const','assert','synchronized','transient','volatile','native','strictfp']);
+const HL_RX = /(\/\/[^\n]*)|("(?:[^"\\]|\\.)*")|(@[A-Za-z_]+)|([A-Za-z_$][\w$]*)|(\d+(?:\.\d+)?[fFdDlL]?)|(\s+)|([\s\S])/g;
+function hl(src){
+  return src.replace(HL_RX, function(m,com,str,ann,id,num,ws,other,off,full){
+    if(com) return '<span class="tk-com">'+esc(com)+'</span>';
+    if(str) return '<span class="tk-str">'+esc(str)+'</span>';
+    if(ann) return '<span class="tk-ann">'+esc(ann)+'</span>';
+    if(id){
+      if(KW.has(id)) return '<span class="tk-kw">'+id+'</span>';
+      const rest = full.slice(off+m.length);
+      if(/^\s*\(/.test(rest)) return '<span class="tk-fn">'+id+'</span>';
+      if(/^[A-Z]/.test(id)) return '<span class="tk-cls">'+id+'</span>';
+      return esc(id);
+    }
+    if(num) return '<span class="tk-num">'+num+'</span>';
+    if(ws) return ws;
+    return esc(other||'');
+  });
+}
+/* render code with optional highlighted line numbers */
+function renderCode(el, src, opts){
+  opts = opts||{};
+  const lines = src.replace(/\t/g,'  ').split('\n');
+  const html = lines.map((ln,i)=>{
+    let cls='';
+    if(opts.hl && opts.hl.includes(i+1)) cls = 'hl-line';
+    if(opts.hlG && opts.hlG.includes(i+1)) cls = 'hl-line g';
+    if(opts.hlR && opts.hlR.includes(i+1)) cls = 'hl-line r';
+    const num = opts.noNum ? '' : '<span class="ln">'+(i+1)+'</span>';
+    return '<span class="'+cls+'">'+num+hl(ln)+'</span>';
+  }).join('\n');
+  const bar = opts.noBar ? '' :
+    '<div class="code-bar"><div class="dots"><i></i><i></i><i></i></div><span class="fname">'+(opts.file||'Snippet.java')+
+    '</span>'+(opts.tag?'<span class="tag" style="color:var(--cyan);border-color:rgba(34,211,238,.4)">'+opts.tag+'</span>':'')+'</div>';
+  if(typeof el === 'string') el = $(el);
+  el.innerHTML = bar + '<pre class="code'+(opts.big?' big':'')+'">'+html+'</pre>';
+  el.dataset.raw = src;
+  return el;
+}
+/* console line */
+function cline(box, text, cls, prompt){
+  const d=document.createElement('div'); d.className='cl';
+  d.innerHTML='<span class="pr">'+(prompt===undefined?'›':prompt)+'</span><span class="'+(cls||'out')+'">'+text+'</span>';
+  box.appendChild(d); box.scrollTop=box.scrollHeight; return d;
+}
+function clearBox(box){ box.innerHTML=''; }
+
+/* ==========================================================================
+   NAV + PROGRESS + REVEAL
+   ========================================================================== */
+const NAV = [
+  {id:'perche',l:'Perché'},{id:'sintassi',l:'Sintassi'},{id:'cosa',l:'Cosa si eredita'},
+  {id:'uml',l:'UML'},{id:'dispatch',l:'Dispatch'},{id:'polimorfismo',l:'Polimorfismo'},
+  {id:'instanceof',l:'instanceof'},{id:'astratte',l:'Astratte'},{id:'builder',l:'Lab'},{id:'quiz',l:'Quiz'},{id:'ripasso',l:'Ripasso'}
+];
+const visited = new Set();
+(function buildNav(){
+  const n=$('#navlinks');
+  n.innerHTML = NAV.map(o=>'<a href="#'+o.id+'" data-t="'+o.id+'"><span class="dot"></span>'+o.l+'</a>').join('');
+  $('#totCount').textContent = NAV.length;
+})();
+$('#burger').addEventListener('click',()=>$('#navlinks').classList.toggle('open'));
+$$('#navlinks a').forEach(a=>a.addEventListener('click',()=>$('#navlinks').classList.remove('open')));
+
+function updateProgress(){
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  const p = h>0 ? (window.scrollY/h)*100 : 0;
+  $('#pbar').style.width = p+'%';
+  $('#pctLabel').textContent = Math.round(p)+'%';
+  $('#totop').classList.toggle('show', window.scrollY>600);
+  const done = Math.round(visited.size/NAV.length*100);
+  $('#doneCount').textContent = visited.size;
+}
+window.addEventListener('scroll', updateProgress, {passive:true});
+$('#totop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+const io = new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('in');
+      if(e.target.id){ visited.add(e.target.id);
+        $$('#navlinks a').forEach(a=>a.classList.toggle('done', visited.has(a.dataset.t)));
+        updateProgress();
+      }
+    }
+  });
+},{threshold:.12, rootMargin:'-40px 0px -20% 0px'});
+$$('.reveal').forEach(el=>io.observe(el));
+$$('main section[id]').forEach(el=>io.observe(el));
+
+/* scroll spy */
+const spy = new IntersectionObserver(es=>{
+  es.forEach(e=>{ if(e.isIntersecting){
+    $$('#navlinks a').forEach(a=>a.classList.toggle('active', a.dataset.t===e.target.id));
+  }});
+},{rootMargin:'-45% 0px -50% 0px'});
+NAV.forEach(o=>{const s=document.getElementById(o.id); if(s) spy.observe(s);});
+
+/* ==========================================================================
+   HERO: canvas network + typed text + counters
+   ========================================================================== */
+(function heroCanvas(){
+  const cv=$('#bgcanvas'); if(!cv) return; const ctx=cv.getContext('2d');
+  let W,H,pts=[];
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize(){
+    const r=cv.getBoundingClientRect(); W=cv.width=r.width*devicePixelRatio; H=cv.height=r.height*devicePixelRatio;
+    const n = Math.min(52, Math.floor(r.width/26));
+    pts = Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.28*devicePixelRatio, vy:(Math.random()-.5)*.28*devicePixelRatio,
+      r:(Math.random()*1.7+.7)*devicePixelRatio}));
+  }
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++){
+      const p=pts[i]; p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
+      for(let j=i+1;j<pts.length;j++){
+        const q=pts[j], dx=p.x-q.x, dy=p.y-q.y, d=Math.hypot(dx,dy), max=140*devicePixelRatio;
+        if(d<max){
+          ctx.strokeStyle='rgba(120,200,255,'+(0.16*(1-d/max))+')'; ctx.lineWidth=devicePixelRatio*.6;
+          ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke();
+        }
+      }
+      ctx.fillStyle='rgba(140,230,255,.75)'; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,7); ctx.fill();
+    }
+    if(!reduce) requestAnimationFrame(loop);
+  }
+  resize(); loop(); window.addEventListener('resize',()=>{resize(); if(reduce) loop();});
+})();
+
+(function typed(){
+  const el=$('#typed');
+  const phrases=['public class Cane extends Animale { … }','Animale a = new Cane();  // polimorfismo','a.parla();  // → "Bau bau!"','super(nome, eta);','@Override','x instanceof Cane'];
+  let pi=0,ci=0,del=false;
+  (function tick(){
+    const s=phrases[pi];
+    el.textContent = del ? s.slice(0,ci--) : s.slice(0,ci++);
+    let d = del?32:62;
+    if(!del && ci>s.length){ del=true; d=1500; }
+    else if(del && ci<0){ del=false; ci=0; pi=(pi+1)%phrases.length; d=380; }
+    setTimeout(tick,d);
+  })();
+})();
+
+(function counters(){
+  const obs=new IntersectionObserver(es=>{es.forEach(e=>{
+    if(!e.isIntersecting) return; const el=e.target; obs.unobserve(el);
+    const to=+el.dataset.count; let c=0; const st=Date.now();
+    (function up(){ const p=Math.min(1,(Date.now()-st)/900); el.textContent=Math.round(to*(1-Math.pow(1-p,3)));
+      if(p<1) requestAnimationFrame(up); })();
+  });},{threshold:.6});
+  $$('[data-count]').forEach(el=>obs.observe(el));
+})();
+
+/* ==========================================================================
+   01 — PERCHE' : duplicazione vs ereditarietà
+   ========================================================================== */
+const CODE_NO = `public class Cane {
+    private String nome;
+    private int eta;
+    public Cane(String nome, int eta){ this.nome=nome; this.eta=eta; }
+    public void mangia(){ System.out.println(nome + " mangia"); }
+    public void dorme(){ System.out.println(nome + " dorme"); }
+    public void parla(){ System.out.println("Bau bau!"); }
+}
+
+public class Gatto {
+    private String nome;          // duplicato
+    private int eta;              // duplicato
+    public Gatto(String nome, int eta){ this.nome=nome; this.eta=eta; }
+    public void mangia(){ System.out.println(nome + " mangia"); }  // duplicato
+    public void dorme(){ System.out.println(nome + " dorme"); }    // duplicato
+    public void parla(){ System.out.println("Miao!"); }
+}
+
+public class Coniglio {
+    private String nome;          // duplicato
+    private int eta;              // duplicato
+    public Coniglio(String nome, int eta){ this.nome=nome; this.eta=eta; }
+    public void mangia(){ System.out.println(nome + " mangia"); }  // duplicato
+    public void dorme(){ System.out.println(nome + " dorme"); }    // duplicato
+    public void parla(){ System.out.println("..."); }
+}`;
+
+const CODE_YES = `public class Animale {                 // SUPERCLASSE
+    protected String nome;
+    protected int eta;
+    public Animale(String nome, int eta){ this.nome=nome; this.eta=eta; }
+    public void mangia(){ System.out.println(nome + " mangia"); }
+    public void dorme(){ System.out.println(nome + " dorme"); }
+    public void parla(){ System.out.println("verso generico"); }
+}
+
+public class Cane extends Animale {     // SOTTOCLASSE
+    public Cane(String nome, int eta){ super(nome, eta); }
+    @Override public void parla(){ System.out.println("Bau bau!"); }
+}
+
+public class Gatto extends Animale {
+    public Gatto(String nome, int eta){ super(nome, eta); }
+    @Override public void parla(){ System.out.println("Miao!"); }
+}
+
+public class Coniglio extends Animale {
+    public Coniglio(String nome, int eta){ super(nome, eta); }
+}`;
+
+(function whySection(){
+  renderCode('#codeNoHer', CODE_NO, {file:'Cane.java · Gatto.java · Coniglio.java', tag:'3 file', hlR:[2,3,6,7,12,13,17,18,22,23]});
+  renderCode('#codeHer', CODE_YES, {file:'Animale.java + 3 sottoclassi', tag:'DRY', hlG:[2,3,5,6,7,12,17]});
+  const btns=$$('.sw-btn[data-mode]');
+  function setMode(m){
+    btns.forEach(b=>b.classList.toggle('on', b.dataset.mode===m));
+    const noHer = m==='no';
+    $('#codeNoHer').style.display = noHer?'block':'none';
+    $('#codeHer').style.display   = noHer?'none':'block';
+    const set=(id,bar,val,w,cls)=>{ $('#'+id).textContent=val; const b=$('#'+bar); b.style.width=w; b.parentElement.className='bar '+cls; };
+    if(noHer){
+      set('mLines','bLines','62 righe','100%','red');
+      set('mDup','bDup','78%','78%','red');
+      set('mFix','bFix','3 punti','100%','red');
+      $('#whyNote').className='note';
+      $('#whyNote').innerHTML='<b>Problema:</b> ogni classe contiene gli stessi campi e gli stessi metodi. È il classico codice <i>copy&nbsp;&amp;&nbsp;paste</i>: lungo, fragile, difficile da manutenere e pieno di bug nascosti.';
+    }else{
+      set('mLines','bLines','26 righe','42%','green');
+      set('mDup','bDup','12%','12%','green');
+      set('mFix','bFix','1 punto','33%','green');
+      $('#whyNote').className='note tip';
+      $('#whyNote').innerHTML='<b>Principio DRY (Don\'t Repeat Yourself):</b> la logica comune vive in un solo posto. Per cambiare <code>mangia()</code> modifico <u>una riga</u> in <code>Animale</code> e tutte le sottoclassi si aggiornano. Aggiungere una nuova specie costa 3 righe.';
+    }
+  }
+  btns.forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+  setMode('no');
+})();
+
+/* ==========================================================================
+   02 — SINTASSI annotata
+   ========================================================================== */
+const CODE_SYNTAX = `public class Animale {                        // SUPERCLASSE (classe base)
+    protected String nome;                    // accessibile alle sottoclassi
+    private int eta;                          // NON accessibile: serve getEta()
+
+    public Animale(String nome, int eta) {    // il costruttore NON si eredita
+        this.nome = nome;
+        this.eta  = eta;
+    }
+    public int getEta(){ return eta; }
+
+    public void parla() {                     // metodo che verr riscritto
+        System.out.println("verso generico");
+    }
+}
+
+public class Cane extends Animale {           // SOTTOCLASSE (classe derivata)
+    private String razza;                     // campo NUOVO, solo di Cane
+
+    public Cane(String nome, int eta, String razza) {
+        super(nome, eta);                     // 1 istruzione: costruisce la parte Animale
+        this.razza = razza;
+    }
+
+    @Override                                 // il compilatore verifica la firma
+    public void parla() {                     // OVERRIDE: stessa firma, corpo diverso
+        System.out.println(nome + " abbaia: Bau bau!");
+    }
+
+    public void scodinzola() {                // metodo SPECIALIZZATO: solo in Cane
+        System.out.println(nome + " scodinzola");
+    }
+}`;
+
+const ANNOT = {
+  extends:{t:'extends — la parola chiave',b:`
+    <p>Stabilisce il legame di <b style="color:#cfe0f7">generalizzazione</b>: <code>Cane extends Animale</code> si legge
+    «un Cane <b>È UN</b> Animale». La sottoclasse ottiene automaticamente tutti i membri <i>visibili</i> della superclasse.</p>
+    <p>• si scrive una volta sola, subito dopo il nome della classe<br>
+    • senza <code>extends</code> la classe estende implicitamente <code>java.lang.Object</code><br>
+    • in Java è <b>semplice</b>, mai multipla</p>
+    <p style="color:#9fe9ff;font-family:var(--mono);font-size:12px">class A { } &nbsp;→&nbsp; class B extends A { } &nbsp;→&nbsp; class C extends B { }</p>`,hl:[16]},
+  super:{t:'super(...) — costruire la parte ereditata',b:`
+    <p><code>super(...)</code> invoca il costruttore della superclasse. <b style="color:#cfe0f7">Deve essere la prima istruzione</b> del costruttore.</p>
+    <p>Perché? L'oggetto <code>Cane</code> contiene al suo interno anche i campi di <code>Animale</code>: vanno inizializzati prima di usare i propri.
+    Se non lo scrivi, il compilatore inserisce <code>super()</code> in automatico.</p>
+    <p><code>super</code> si usa anche come riferimento: <code>super.parla()</code> chiama la versione della superclasse
+    (utile dentro un override per riusare la logica esistente).</p>`,hl:[20]},
+  this:{t:'this.campo — disambiguare',b:`
+    <p><code>this</code> è il riferimento all'oggetto corrente. Serve quando un parametro del costruttore
+    ha <b style="color:#cfe0f7">lo stesso nome</b> del campo: <code>this.razza = razza</code>.</p>
+    <p>Nelle sottoclassi puoi usare <code>this</code> anche per i campi ereditati visibili
+    (<code>this.nome</code> funziona perché <code>nome</code> è <code>protected</code>).</p>
+    <p style="color:#ffb3bf">✗ <code>this.eta</code> non compila se <code>eta</code> è <code>private</code> in <code>Animale</code>.</p>`,hl:[3,21]},
+  override:{t:'@Override — l\'annotazione che ti salva',b:`
+    <p>Non è obbligatoria, ma è <b style="color:#cfe0f7">fortemente consigliata</b>: chiede al compilatore di verificare
+    che il metodo stia davvero sovrascrivendo un metodo ereditato.</p>
+    <p>Se sbagli a digitare la firma (<code>parl()</code>, tipo di ritorno diverso, parametro diverso) senza annotazione
+    creeresti in silenzio un <b>nuovo metodo</b> — e l'override non avverrebbe. Con <code>@Override</code> ottieni subito un errore.</p>`,hl:[24]},
+  protected:{t:'protected — la via di mezzo',b:`
+    <p>Visibilità intermedia tra <code>private</code> e <code>public</code>:</p>
+    <p>• <code>private</code> → solo dentro la classe che lo dichiara<br>
+    • <b><code>protected</code></b> → classe + <u>sottoclassi</u> + classi dello stesso package<br>
+    • <code>public</code> → ovunque</p>
+    <p>Nel codice <code>nome</code> è <code>protected</code>, quindi <code>Cane</code> lo può leggere direttamente
+    (<code>System.out.println(nome)</code>); <code>eta</code> è <code>private</code>, quindi serve <code>getEta()</code>.</p>`,hl:[2,3]},
+  metodo:{t:'Override (riscrittura)',b:`
+    <p>La sottoclasse ridefinisce un metodo ereditato con <b style="color:#cfe0f7">stessa firma</b> (nome + parametri) e
+    tipo di ritorno compatibile. È il meccanismo che abilita il polimorfismo.</p>
+    <p>Regole:<br>• la visibilità non può restringersi (protected → public ✓, public → private ✗)<br>
+    • non si possono fare override di metodi <code>final</code>, <code>static</code> o <code>private</code><br>
+    • il <i>binding</i> del metodo è deciso a <b>runtime</b> sul tipo reale dell'oggetto</p>`,hl:[25,26,27]},
+  nuovo:{t:'Specializzazione — membri nuovi',b:`
+    <p>Una sottoclasse può <b style="color:#cfe0f7">aggiungere</b> campi e metodi che nella superclasse non esistono:
+    è la «specializzazione» della gerarchia.</p>
+    <p>Attenzione: questi membri sono visibili solo se il riferimento ha un tipo abbastanza specifico.</p>
+    <p style="font-family:var(--mono);font-size:12px;color:#9fe9ff">Animale a = new Cane();<br>a.scodinzola(); <span style="color:#fb7185">// ✗ ERRORE di compilazione</span><br>((Cane)a).scodinzola(); <span style="color:#34d399">// ✓ con cast</span></p>`,hl:[30,31,32]}
+};
+(function annot(){
+  renderCode('#annotCode', CODE_SYNTAX, {file:'Animale.java + Cane.java', tag:'annotato', big:true});
+  const panel=$('#annotPanel');
+  function show(k){
+    $$('#annotChips .chip').forEach(c=>c.classList.toggle('sel',c.dataset.k===k));
+    const d=ANNOT[k];
+    panel.innerHTML='<div class="fade-in"><h4>'+d.t+'</h4>'+d.b+'</div>';
+    const pre=$('#annotCode pre'); if(pre && d.hl){
+      const lines=CODE_SYNTAX.split('\n');
+      pre.innerHTML = lines.map((ln,i)=>{
+        const on = d.hl.includes(i+1);
+        return '<span class="'+(on?'hl-line':'')+'"><span class="ln">'+(i+1)+'</span>'+hl(ln)+'</span>';
+      }).join('\n');
+    }
+  }
+  $$('#annotChips .chip').forEach(c=>c.addEventListener('click',()=>show(c.dataset.k)));
+  show('extends');
+
+  /* super chain demo */
+  const CHAIN = `public class Object      { public Object(){ System.out.println("1. Object()"); } }
+public class Animale     { public Animale(){ System.out.println("2. Animale()"); } }
+public class Cane extends Animale {
+    public Cane(){ super(); System.out.println("3. Cane()"); }
+}
+public class CanePoliziotto extends Cane {
+    public CanePoliziotto(){ super(); System.out.println("4. CanePoliziotto()"); }
+}
+// main:  new CanePoliziotto();`;
+  renderCode('#codeSuperChain', CHAIN, {file:'Costruttori.java', tag:'catena'});
+  let busy=false;
+  $('#btnChain').addEventListener('click', async ()=>{
+    if(busy) return; busy=true;
+    const c=$('#consChain'); clearBox(c);
+    cline(c,'$ java Main','info','$');
+    await sleep(280);
+    cline(c,'new CanePoliziotto()  →  la JVM risale la gerarchia PRIMA di costruire','dim','·');
+    await sleep(500);
+    for(const [m,t] of [['1. Object()','dim'],['2. Animale()','info'],['3. Cane()','warn'],['4. CanePoliziotto()','ok']]){
+      cline(c,m,t,'›'); await sleep(520);
+    }
+    cline(c,'Ordine = dalla radice verso la foglia (top-down).','dim','#');
+    busy=false;
+  });
+
+  const NOMULTI = `// ✗ NON compila: ereditarieta multipla di CLASSI non esiste
+public class Cane extends Animale, Fedele { }   // ERRORE
+
+// ✓ compila: una classe + quante interfacce vuoi
+public class Cane extends Animale implements Fedele, Addestrabile { }
+
+// ✓ compila: un'interfaccia puo estendere piu interfacce
+public interface Addestrabile extends Fedele, Obbediente { }`;
+  renderCode('#codeNoMulti', NOMULTI, {file:'MultiEred.java', hlR:[2], hlG:[5,8]});
+})();
+
+/* ==========================================================================
+   03 — COSA SI EREDITA (flip cards) + memoria
+   ========================================================================== */
+const CARDS = [
+  {l:'Campo public',c:'public String nome;',ok:true,t:'✓ EREDITATO',d:'È ereditato e direttamente accessibile dalla sottoclasse con il suo nome (o <code>this.nome</code>).'},
+  {l:'Campo protected',c:'protected int eta;',ok:true,t:'✓ EREDITATO',d:'Ereditato e accessibile nella sottoclasse. È la visibilità pensata apposta per l\'ereditarietà.'},
+  {l:'Campo private',c:'private String segreto;',ok:false,t:'✗ NON ACCESSIBILE',d:'Il campo <b>esiste</b> nella memoria dell\'oggetto (occupa byte!), ma il codice della sottoclasse non può nominarlo. Serve un getter public/protected.'},
+  {l:'Metodo public / protected',c:'public void mangia(){…}',ok:true,t:'✓ EREDITATO',d:'Ereditato e utilizzabile. Può essere ridefinito con <b>override</b> nella sottoclasse.'},
+  {l:'Metodo private',c:'private void helper(){…}',ok:false,t:'✗ NON EREDITATO',d:'Non è visibile fuori dalla classe che lo dichiara: la sottoclasse non lo vede e non può nemmeno farne override (sarebbe un metodo nuovo).'},
+  {l:'Costruttore',c:'public Animale(String n){…}',ok:false,t:'✗ NON EREDITATO',d:'I costruttori <b>non si ereditano mai</b>. Si invocano con <code>super(...)</code>; se non lo scrivi, Java inserisce <code>super()</code>.'},
+  {l:'Membro static',c:'static int contatore;',ok:true,t:'✓ ACCESSIBILE',d:'Accessibile come <code>Animale.contatore</code> o anche <code>Cane.contatore</code>. Attenzione: i metodi static non sono polimorfi (si fa <i>hiding</i>, non override).'},
+  {l:'Metodo final',c:'public final void run(){…}',ok:false,t:'✗ NON OVERRIDDABILE',d:'È ereditato e si può usare, ma <b>non</b> si può riscrivere: <code>final</code> blocca l\'override (utile per garantire un comportamento).'}
+];
+(function matrix(){
+  const box=$('#matrix');
+  box.innerHTML = CARDS.map((c,i)=>`
+    <div class="flip" data-i="${i}"><div class="flip-in">
+      <div class="face front">
+        <div><div class="lbl">${c.l}</div><code style="display:block;margin-top:9px;color:#9fe9ff">${esc(c.c)}</code></div>
+        <div class="hint">CLICCA PER SCOPRIRE ↻</div>
+      </div>
+      <div class="face back ${c.ok?'ok':'no'}">
+        <div><div class="ans">${c.ok?'✓':'✗'}</div><div class="lbl" style="margin-top:5px;color:${c.ok?'#8ff0c9':'#ffb3bf'}">${c.t}</div></div>
+        <p>${c.d}</p>
+      </div>
+    </div></div>`).join('');
+  function upd(){ $('#flipCount').textContent = $$('.flip.on').length; }
+  $$('.flip').forEach(f=>f.addEventListener('click',()=>{f.classList.toggle('on');upd();}));
+  $('#btnFlipAll').addEventListener('click',()=>{
+    const all = $$('.flip').every(f=>f.classList.contains('on'));
+    $$('.flip').forEach((f,i)=>setTimeout(()=>f.classList.toggle('on',!all), i*70));
+    setTimeout(upd, 8*70+50);
+  });
+})();
+
+const MEM = {
+  Animale:[{f:'nome',t:'String',o:'Animale',p:true},{f:'eta',t:'int',o:'Animale',p:true}],
+  Gatto:[{f:'nome',t:'String',o:'Animale',p:true},{f:'eta',t:'int',o:'Animale',p:true},{f:'colorePelo',t:'String',o:'Gatto',p:false}],
+  Cane:[{f:'nome',t:'String',o:'Animale',p:true},{f:'eta',t:'int',o:'Animale',p:true},{f:'razza',t:'String',o:'Cane',p:false}],
+  CanePoliziotto:[{f:'nome',t:'String',o:'Animale',p:true},{f:'eta',t:'int',o:'Animale',p:true},
+    {f:'razza',t:'String',o:'Cane',p:false},{f:'unita',t:'String',o:'CanePoliziotto',p:false},{f:'brevetto',t:'int',o:'CanePoliziotto',p:false}]
+};
+const MEMCOL = {Animale:'#34d399',Cane:'#22d3ee',CanePoliziotto:'#a78bfa',Gatto:'#fbbf24'};
+function renderMem(){
+  const cls=$('#memSel').value, box=$('#memBox');
+  const items = MEM[cls]||[];
+  box.innerHTML='<div style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:1.2px">HEAP · oggetto '+cls+' @0x1a2b3c</div>';
+  items.forEach((it,i)=>{
+    const col=MEMCOL[it.o]||'#8ea0c0';
+    const row=document.createElement('div'); row.className='mem-row';
+    row.innerHTML = `<div class="mem-owner" style="color:${col}">${it.o}</div>
+      <div class="mem-cell" style="border-color:${col}66;background:${col}14;color:#dfe9fb">
+        <span>${it.t} <b style="color:${col}">${it.f}</b></span>
+        <span class="mem-lock" style="color:${it.p?'#8ff0c9':'#ffb3bf'}">${it.p?'🔓 visibile':'🔒 private'}</span>
+      </div>`;
+    box.appendChild(row);
+    setTimeout(()=>row.classList.add('show'), 90*i);
+  });
+  const tot=items.length, priv=items.filter(x=>x.p).length;
+  const foot=document.createElement('div'); foot.className='mem-row';
+  foot.innerHTML='<div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:6px">'+
+    'Totale: <b style="color:#cfe0f7">'+tot+' campi</b> allocati · '+priv+' provengono da Animale · '+
+    (tot-priv)+' dichiarati nelle sottoclassi</div>';
+  box.appendChild(foot); setTimeout(()=>foot.classList.add('show'), 90*items.length);
+  renderCode('#codeMem', MEMCODE[cls]||'', {file:cls+'.java', tag:'accesso'});
+}
+const MEMCODE = {
+  Animale:`public class Animale {
+    protected String nome;   // OK ovunque nella gerarchia
+    private int eta;         // solo dentro Animale
+    public int getEta(){ return eta; }
+}`,
+  Gatto:`public class Gatto extends Animale {
+    private String colorePelo;
+    public void info(){
+        System.out.println(nome);        // OK  (protected)
+        System.out.println(getEta());    // OK  (via getter)
+        // System.out.println(eta);      // ERRORE: private
+    }
+}`,
+  Cane:`public class Cane extends Animale {
+    private String razza;
+    public void info(){
+        System.out.println(nome);        // OK  (protected ereditato)
+        System.out.println(getEta());    // OK  (metodo ereditato)
+        // System.out.println(eta);      // ERRORE di compilazione
+        // this.razza esiste solo in Cane
+    }
+}`,
+  CanePoliziotto:`public class CanePoliziotto extends Cane {
+    private String unita;
+    private int brevetto;
+    public void scheda(){
+        System.out.println(nome);        // OK  (da Animale, protected)
+        System.out.println(getEta());    // OK  (metodo di Animale)
+        // System.out.println(razza);    // ERRORE: private in Cane
+        System.out.println(unita);       // OK  (proprio campo)
+    }
+}`
+};
+$('#memSel').addEventListener('change', renderMem);
+renderMem();
+
+/* ==========================================================================
+   04 — UML INTERATTIVO
+   ========================================================================== */
+const UML = [
+  {id:'Object',x:430,y:52,st:'java.lang',f:[],m:['toString()','equals()','hashCode()']},
+  {id:'Animale',x:430,y:152,st:'«superclasse»',f:['#nome','#eta'],m:['+mangia()','+dorme()','+parla()']},
+  {id:'Cane',x:180,y:272,st:'',f:['-razza'],m:['+parla()','+scodinzola()']},
+  {id:'Gatto',x:430,y:272,st:'',f:['-colorePelo'],m:['+parla()','+faiFusa()']},
+  {id:'Pesce',x:680,y:272,st:'',f:['-habitat'],m:['+nuota()']},
+  {id:'CanePoliziotto',x:105,y:382,st:'',f:['-unita'],m:['+cerca()']},
+  {id:'CaneGuida',x:275,y:382,st:'',f:['-utente'],m:['+accompagna()']}
+];
+const UML_EDGE = [['Object','Animale'],['Animale','Cane'],['Animale','Gatto'],['Animale','Pesce'],['Cane','CanePoliziotto'],['Cane','CaneGuida']];
+const PARENT = {}; UML_EDGE.forEach(([p,c])=>PARENT[c]=p);
+
+(function uml(){
+  const svg=$('#umlSvg'); const W=170,H=62;
+  let s='';
+  UML_EDGE.forEach(([p,c],i)=>{
+    const A=UML.find(n=>n.id===p), B=UML.find(n=>n.id===c);
+    const x1=A.x, y1=A.y+H/2, x2=B.x, y2=B.y-H/2;
+    s+=`<path class="edge" id="e-${p}-${c}" d="M ${x1} ${y1} C ${x1} ${(y1+y2)/2}, ${x2} ${(y1+y2)/2}, ${x2} ${y2}"/>`;
+    s+=`<polygon class="arrow" id="a-${p}-${c}" points="${x2-7},${y1+12} ${x2+7},${y1+12} ${x2},${y1}"/>`;
+  });
+  UML.forEach(n=>{
+    s+=`<g class="node" id="n-${n.id}" data-id="${n.id}">
+      <rect class="body" x="${n.x-W/2}" y="${n.y-H/2}" width="${W}" height="${H}" rx="11"/>
+      <text class="nm" x="${n.x}" y="${n.y-H/2+21}">${n.id}</text>
+      <text class="st" x="${n.x}" y="${n.y-H/2+37}">${n.st||('extends '+ (PARENT[n.id]||'—'))}</text>
+      <text class="st" x="${n.x}" y="${n.y-H/2+52}" fill="#6f86a8">${n.m.slice(0,2).join(' · ')}</text>
+    </g>`;
+  });
+  svg.innerHTML=s;
+  $$('#umlSvg .node').forEach(g=>g.addEventListener('click',()=>selectNode(g.dataset.id)));
+  function chainOf(id){ const ch=[id]; let p=PARENT[id]; while(p){ch.push(p);p=PARENT[p];} return ch; }
+  window.selectNode = function(id){
+    $$('#umlSvg .node').forEach(n=>n.classList.remove('sel','inchain'));
+    $$('#umlSvg .edge').forEach(e=>e.classList.remove('hot'));
+    $$('#umlSvg .arrow').forEach(a=>a.classList.remove('hot'));
+    const ch=chainOf(id);
+    ch.forEach(c=>$('#n-'+c).classList.add('inchain'));
+    $('#n-'+id).classList.add('sel');
+    for(let i=0;i<ch.length-1;i++){
+      const e=$('#e-'+ch[i+1]+'-'+ch[i]), a=$('#a-'+ch[i+1]+'-'+ch[i]);
+      if(e)e.classList.add('hot'); if(a)a.classList.add('hot');
+    }
+    $('#isaBox').innerHTML = '<span style="color:#8ea0c0">IS-A →</span> ' +
+      ch.map((c,i)=>'<b>'+c+'</b>').join(' <span class="ar">◀ è un</span> ');
+    const n=UML.find(x=>x.id===id);
+    $('#umlDetails').innerHTML = `
+      <div class="fade-in">
+      <h4 style="font-family:var(--disp);margin-bottom:2px;color:var(--violet);font-size:19px">${n.id}</h4>
+      <p style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px">${n.st||('extends '+(PARENT[n.id]||'nessuna → Object'))}</p>
+      <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;color:var(--cyan);margin-bottom:7px">ATTRIBUTI</div>
+      <div class="pill-list" style="margin:0 0 14px">${n.f.length?n.f.map(f=>'<span class="pill">'+esc(f)+'</span>').join(''):'<span style="color:#5b6e8c;font-size:12.5px">nessun attributo proprio</span>'}</div>
+      <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;color:var(--cyan);margin-bottom:7px">METODI</div>
+      <div class="pill-list" style="margin:0 0 14px">${n.m.map(f=>'<span class="pill v">'+esc(f)+'</span>').join('')}</div>
+      <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;color:var(--cyan);margin-bottom:7px">PROFONDITÀ NELLA GERARCHIA</div>
+      <p style="font-size:13.5px;color:var(--muted)">Livello <b style="color:#cfe0f7">${chainOf(id).length-1}</b> · eredita i membri di:
+      <span style="font-family:var(--mono);font-size:12px;color:#9fe9ff">${chainOf(id).slice(1).join(', ')||'—'}</span></p>
+      </div>`;
+  };
+  selectNode('CanePoliziotto');
+})();
+
+/* ==========================================================================
+   05 — DISPATCH SIMULATOR
+   ========================================================================== */
+const MODEL = {
+  Object:{parent:null, methods:{toString:()=>'Animale@1a2b3c'}, label:'toString() · equals() · hashCode()'},
+  Animale:{parent:'Object', methods:{
+      parla:()=>'verso generico…', mangia:()=>'l\'animale mangia', dorme:()=>'Zzz…'},
+      label:'parla() · mangia() · dorme()'},
+  Cane:{parent:'Animale', methods:{
+      parla:()=>'Bau bau!', scodinzola:()=>'il cane scodinzola', mangia:()=>'il cane divora la ciotola'},
+      label:'parla() @Override · scodinzola() · mangia() @Override'},
+  CaneOV:{parent:'Animale', methods:{ scodinzola:()=>'il cane scodinzola'}, label:'scodinzola() — parla() NON riscritto'},
+  Gatto:{parent:'Animale', methods:{parla:()=>'Miao!'}, label:'parla() @Override'},
+  CanePoliziotto:{parent:'Cane', methods:{cerca:()=>'sniff sniff… trovato!'}, label:'cerca()'},
+  CanePoliziottoOV:{parent:'CaneOV', methods:{cerca:()=>'sniff sniff… trovato!'}, label:'cerca()'}
+};
+function effClass(name){
+  if(!$('#dOverride').checked){
+    if(name==='Cane') return 'CaneOV';
+    if(name==='CanePoliziotto') return 'CanePoliziottoOV';
+  }
+  return name;
+}
+function parentOf(eff){ return MODEL[eff].parent; }
+function chainFrom(eff){ const c=[eff]; let p=parentOf(eff); while(p){c.push(p);p=parentOf(p);} return c; }
+function displayName(eff){ return eff.replace('OV',''); }
+function hasMethodInChain(eff, m){ return chainFrom(eff).some(c=>MODEL[c].methods[m]); }
+function findMethod(eff,m){ const ch=chainFrom(eff); for(const c of ch){ if(MODEL[c].methods[m]) return c; } return null; }
+
+const SCENARIOS = [
+  {s:'Animale',d:'Cane',m:'parla',o:true, t:'Animale a = new Cane(); a.parla(); → vince la versione di Cane (binding dinamico).'},
+  {s:'Animale',d:'Cane',m:'parla',o:false,t:'Togliendo l\'override la JVM risale fino ad Animale: output diverso, stessa chiamata!'},
+  {s:'Animale',d:'Cane',m:'scodinzola',o:true,t:'scodinzola() esiste solo in Cane: il tipo dichiarato Animale non la conosce → errore a tempo di COMPILAZIONE.'},
+  {s:'Object',d:'CanePoliziotto',m:'toString',o:true,t:'Nessuna classe riscrive toString(): si arriva fino alla radice java.lang.Object.'},
+  {s:'Cane',d:'Gatto',m:'parla',o:true,t:'Un Gatto non è un Cane: l\'assegnamento è illegale, errore di compilazione.'}
+];
+function renderDispatchCode(){
+  const s=$('#dStatic').value, d=$('#dDyn').value, m=$('#dMethod').value;
+  const src=`public class Main {
+    public static void main(String[] args) {
+        ${s} rif = new ${d}();      // tipo dichiarato vs tipo reale
+        rif.${m}();                 // quale versione viene eseguita?
+    }
+}`;
+  renderCode('#dispatchCode', src, {file:'Main.java', tag:'esperimento', hl:[3,4], noBar:true});
+  $('#dispatchCode').insertAdjacentHTML('afterbegin','<div class="code-bar"><div class="dots"><i></i><i></i><i></i></div><span class="fname">Main.java</span><span class="tag" style="color:var(--cyan);border-color:rgba(34,211,238,.4)">live</span></div>');
+}
+function renderChain(eff){
+  const ch=chainFrom(eff), box=$('#chainBox'); box.innerHTML='';
+  ch.forEach((c,i)=>{
+    if(i>0){ const l=document.createElement('div'); l.className='chain-link'; l.id='link-'+i; box.appendChild(l); }
+    const n=document.createElement('div'); n.className='chain-node'; n.id='cn-'+i;
+    n.innerHTML=`<div class="idx">${i}</div><div><div class="cn">${displayName(c)}</div>
+      <div class="cm" style="font-size:10.5px;color:#6f86a8">${MODEL[c].label||''}</div></div>
+      <div class="cm" id="st-${i}">—</div>`;
+    if(i===0) n.classList.add('start');
+    box.appendChild(n);
+  });
+  return ch.length;
+}
+let runToken=0;
+async function runDispatch(fast){
+  const tok=++runToken;
+  const s=$('#dStatic').value, d=$('#dDyn').value, m=$('#dMethod').value, ov=$('#dOverride').checked;
+  const eff = effClass(d);
+  const cons=$('#consDispatch');
+  if(!fast) clearBox(cons);
+  cline(cons,'javac Main.java &amp;&amp; java Main','info','$');
+  const step = fast?0:520;
+  await sleep(step*0.6); if(tok!==runToken) return;
+
+  /* --- assegnabilità (IS-A) --- */
+  const dChain = chainFrom(eff).map(displayName);
+  if(!dChain.includes(s) && s!=='Object'){
+    cline(cons,'Main.java:3: error: incompatible types: '+d+' cannot be converted to '+s,'err','✗');
+    cline(cons,'Un '+d+' NON è un '+s+'. Verifica la catena IS-A: '+dChain.join(' ◀ ')+' ◀ Object','dim','#');
+    renderChain(eff);
+    return;
+  }
+  /* --- controllo a compile time sul tipo dichiarato --- */
+  const sEff = effClass(s==='Object'?'Object':s);
+  if(!hasMethodInChain(s==='Object'?'Object':sEff, m)){
+    cline(cons,'Main.java:4: error: cannot find symbol — method '+m+'() in class '+s,'err','✗');
+    cline(cons,'Il COMPILATORE guarda solo il tipo dichiarato ('+s+'), che non conosce '+m+'().','dim','#');
+    cline(cons,'Soluzione: cast esplicito  (('+d+') rif).'+m+'()  — ammesso solo se il tipo reale lo consente.','warn','#');
+    renderChain(eff);
+    return;
+  }
+  cline(cons,'Compilazione OK: '+s+' conosce '+m+'() (trovato in '+ (findMethod(s==='Object'?'Object':sEff,m)||'—') +').','ok','#');
+  await sleep(step); if(tok!==runToken) return;
+  cline(cons,'Esecuzione: la JVM parte dal TIPO REALE dell\'oggetto → '+d,'info','#');
+
+  const n = renderChain(eff);
+  let found=null;
+  for(let i=0;i<n;i++){
+    if(tok!==runToken) return;
+    const node=$('#cn-'+i), st=$('#st-'+i), cls=chainFrom(eff)[i];
+    node.classList.add('checking'); st.textContent='cerco…'; st.style.color='var(--amber)';
+    await sleep(step); if(tok!==runToken) return;
+    if(MODEL[cls].methods[m]){
+      node.classList.remove('checking'); node.classList.add('found');
+      st.textContent='TROVATO ✓'; st.style.color='var(--green)';
+      for(let k=i+1;k<n;k++){ $('#cn-'+k).classList.add('miss'); $('#st-'+k).textContent='non raggiunto'; }
+      found=cls; break;
+    }else{
+      node.classList.remove('checking'); node.classList.add('miss');
+      st.textContent='non c\'è'; st.style.color='#5b6e8c';
+      const link=$('#link-'+(i+1)); if(link) link.classList.add('hot');
+    }
+  }
+  await sleep(step*0.7); if(tok!==runToken) return;
+  if(found){
+    const out = MODEL[found].methods[m]();
+    cline(cons,'Metodo risolto in '+displayName(found)+' → invocazione dinamica (late binding)','dim','#');
+    cline(cons, out, 'ok','›');
+  }else{
+    cline(cons,'Metodo non trovato in tutta la gerarchia.','err','✗');
+  }
+}
+['#dStatic','#dDyn','#dMethod','#dOverride'].forEach(s=>$(s).addEventListener('change',()=>{renderDispatchCode(); runChainPreview();}));
+function runChainPreview(){ renderChain(effClass($('#dDyn').value)); }
+$('#btnRun').addEventListener('click',()=>runDispatch(false));
+$('#btnFast').addEventListener('click',()=>runDispatch(true));
+$('#btnClear').addEventListener('click',()=>clearBox($('#consDispatch')));
+$$('.scn').forEach(b=>b.addEventListener('click',()=>{
+  const s=SCENARIOS[+b.dataset.s];
+  $('#dStatic').value=s.s; $('#dDyn').value=s.d; $('#dMethod').value=s.m; $('#dOverride').checked=s.o;
+  renderDispatchCode(); runChainPreview();
+  const cons=$('#consDispatch'); clearBox(cons); cline(cons,'🎯 '+s.t,'warn','#');
+  runDispatch(false);
+}));
+renderDispatchCode(); runChainPreview();
+
+/* ==========================================================================
+   06 — POLIMORFISMO
+   ========================================================================== */
+const ACTORS = [
+  {t:'Cane',e:'🐕',s:'Bau bau!'},
+  {t:'Gatto',e:'🐈',s:'Miao!'},
+  {t:'CanePoliziotto',e:'🐕‍🦺',s:'Bau bau! (in servizio)'},
+  {t:'Pesce',e:'🐟',s:'...glub'},
+  {t:'Coniglio',e:'🐇',s:'...(silenzio)'},
+  {t:'Pappagallo',e:'🦜',s:'Ciao! Ciao!'}
+];
+let actorIdx = 0, polyMode='poly';
+function renderStage(){
+  const list = ACTORS.slice(0, 4+actorIdx);
+  $('#stage').innerHTML = list.map((a,i)=>`
+    <div class="actor" data-i="${i}">
+      <span class="bub">${a.s}</span>
+      <span class="em">${a.e}</span>
+      <div class="ty">${a.t}</div>
+      <div class="ref">branco[${i}]</div>
+    </div>`).join('');
+  renderPolyCode(list);
+}
+function renderPolyCode(list){
+  const decl = list.map((a,i)=>`        branco[${i}] = new ${a.t}();`).join('\n');
+  const poly = `public class Main {
+    public static void main(String[] args) {
+        Animale[] branco = new Animale[${list.length}];
+${decl}
+
+        for (Animale a : branco) {     // UN solo tipo, UN solo ciclo
+            a.parla();                 // la JVM sceglie a runtime
+        }
+    }
+}`;
+  const sw = `public class Main {
+    public static void main(String[] args) {
+        Animale[] branco = { ${list.map(a=>'new '+a.t+'()').join(', ')} };
+
+        for (Animale a : branco) {
+            if (a instanceof Cane)             ((Cane) a).abbaia();
+            else if (a instanceof Gatto)       ((Gatto) a).miagola();
+            else if (a instanceof Pesce)       ((Pesce) a).bolle();
+            else if (a instanceof CanePoliziotto) ((CanePoliziotto) a).abbaia();
+            // ... e per OGNI nuova specie devo tornare qui!
+        }
+    }
+}`;
+  const src = polyMode==='poly'?poly:sw;
+  renderCode('#codePoly', src, {file:'Main.java', tag: polyMode==='poly'?'3 righe di ciclo':'codice fragile', hlG: polyMode==='poly'?[8,9,10]:null, hlR: polyMode!=='poly'?[5,6,7,8,9,10]:null});
+  const lines = polyMode==='poly'?3:7;
+  $('#polyLines').textContent = lines+' righe';
+  $('#polyBar').style.width = (lines/7*100)+'%';
+  $('#polyBar').parentElement.className = 'bar '+(polyMode==='poly'?'green':'red');
+  const fix = polyMode==='poly'?0:1;
+  $('#polyFix').textContent = fix===0?'0 (nessuna!)':'1 punto del ciclo';
+  $('#polyFixBar').style.width = fix===0?'2%':'70%';
+  $('#polyFixBar').parentElement.className='bar '+(fix===0?'green':'red');
+  $('#polyNote').innerHTML = polyMode==='poly'
+    ? '<b>Open/Closed Principle:</b> aggiungo <code>Pappagallo extends Animale</code> e il ciclo continua a funzionare senza modifiche. Il comportamento nuovo arriva dall\'oggetto, non dall\'<code>if</code>.'
+    : '<b style="color:var(--pink)">Anti-pattern:</b> ogni nuova specie obbliga a modificare questo ciclo (violazione dell\'Open/Closed). Inoltre <code>instanceof</code> + cast a catena rende il codice fragile e illeggibile: usalo solo quando serve davvero.';
+}
+$$('.sw-btn[data-poly]').forEach(b=>b.addEventListener('click',()=>{
+  polyMode=b.dataset.poly;
+  $$('.sw-btn[data-poly]').forEach(x=>x.classList.toggle('on',x===b));
+  renderPolyCode(ACTORS.slice(0,4+actorIdx));
+}));
+$('#btnAddActor').addEventListener('click',()=>{
+  if(actorIdx >= ACTORS.length-4){ toast('Hai già tutte le specie disponibili 🐾'); return; }
+  actorIdx++; renderStage(); toast('Aggiunta la specie '+ACTORS[3+actorIdx].t+' — il ciclo non è cambiato!');
+});
+let polyBusy=false;
+$('#btnPoly').addEventListener('click', async ()=>{
+  if(polyBusy) return; polyBusy=true;
+  const cons=$('#consPoly'); clearBox(cons);
+  const cards=$$('#stage .actor');
+  cline(cons,'for (Animale a : branco) a.parla();','info','$');
+  await sleep(300);
+  for(let i=0;i<cards.length;i++){
+    cards[i].classList.add('active');
+    const t = ACTORS[i].t;
+    await sleep(150);
+    cline(cons,'branco['+i+'] è di tipo reale '+t+' → '+ (polyMode==='poly' ? 'a.parla()' : 'cast a '+t), 'dim','#');
+    cline(cons, ACTORS[i].s, 'ok','›');
+    await sleep(620);
+    cards[i].classList.remove('active');
+  }
+  cline(cons,'Ciclo terminato: '+cards.length+' oggetti, '+cards.length+' comportamenti diversi.','warn','✔');
+  polyBusy=false;
+});
+renderStage();
+
+/* ==========================================================================
+   07 — INSTANCEOF
+   ========================================================================== */
+const IO_OBJS = [
+  {code:'Animale a = new Cane()', real:'Cane'},
+  {code:'Animale a = new Gatto()', real:'Gatto'},
+  {code:'Animale a = new CanePoliziotto()', real:'CanePoliziotto'},
+  {code:'Animale a = new Animale()', real:'Animale'}
+];
+const IO_TYPES = ['Object','Animale','Cane','CanePoliziotto','Gatto'];
+const IO_PARENT = {CanePoliziotto:'Cane', Cane:'Animale', Gatto:'Animale', Animale:'Object', Object:null};
+function isA(real, type){ let c=real; while(c){ if(c===type) return true; c=IO_PARENT[c]; } return false; }
+(function ioTable(){
+  const t=$('#ioTable');
+  let h='<tr><th class="rowh">riferimento</th>'+IO_TYPES.map(x=>'<th>instanceof '+x+'</th>').join('')+'</tr>';
+  IO_OBJS.forEach((o,r)=>{
+    h+='<tr><th class="rowh" style="font-family:var(--mono);font-size:11px;white-space:nowrap">'+esc(o.code)+'</th>';
+    IO_TYPES.forEach((ty,c)=>{ h+='<td><div class="io-cell" data-r="'+r+'" data-c="'+c+'">?</div></td>'; });
+    h+='</tr>';
+  });
+  t.innerHTML=h;
+  $$('.io-cell').forEach(cell=>cell.addEventListener('click',()=>reveal(cell)));
+  function reveal(cell){
+    const r=+cell.dataset.r, c=+cell.dataset.c;
+    const res = isA(IO_OBJS[r].real, IO_TYPES[c]);
+    cell.classList.remove('pop'); void cell.offsetWidth;
+    cell.className='io-cell '+(res?'t pop':'f pop');
+    cell.textContent = res?'true':'false';
+    cell.title = IO_OBJS[r].real+' instanceof '+IO_TYPES[c];
+  }
+  $('#btnIoAll').addEventListener('click',()=>{ $$('.io-cell').forEach((cell,i)=>setTimeout(()=>reveal(cell), i*45)); });
+  $('#btnIoReset').addEventListener('click',()=>{ $$('.io-cell').forEach(cell=>{cell.className='io-cell';cell.textContent='?';}); });
+})();
+
+function renderCast(){
+  const ref=$('#castRef').value, to=$('#castTo').value;
+  const m = ref.match(/new (\w+)/); const real=m?m[1]:'Cane';
+  const src=`Animale a = new ${real}();
+
+if (a instanceof ${to}) {                 // 1) controllo di sicurezza
+    ${to} t = (${to}) a;                  // 2) downcast esplicito
+    t.metodoSpecifico();                  // 3) ora posso usare i membri di ${to}
+} else {
+    System.out.println("cast non possibile");
+}`;
+  renderCode('#castCode', src, {file:'Cast.java', tag:real+' → '+to, hlG:[3,4,5]});
+}
+function doCast(blind){
+  const ref=$('#castRef').value, to=$('#castTo').value;
+  const real = ref.match(/new (\w+)/)[1];
+  const ok = isA(real, to);
+  const box=$('#castResult');
+  box.className='errcard show';
+  if(ok){
+    box.classList.add('okcard');
+    box.innerHTML='<b>✓ Cast riuscito</b> Un oggetto di tipo reale <u>'+real+'</u> È ANCHE un <u>'+to+'</u> (catena IS-A: '+
+      (function(){let c=real,a=[];while(c){a.push(c);c=IO_PARENT[c];}return a.join(' ◀ ');})()+' ◀ Object).<br>'+
+      'Il downcast <code>(('+to+') a)</code> è legale e <code>a instanceof '+to+'</code> restituisce <b>true</b>.';
+  }else if(blind){
+    box.innerHTML='<b>☠ Exception in thread "main" java.lang.ClassCastException</b>'+
+      'class <u>'+real+'</u> cannot be cast to class <u>'+to+'</u><br>'+
+      'L\'oggetto reale non ha nulla a che fare con '+to+'. Senza il controllo <code>instanceof</code> l\'errore esplode a <b>runtime</b> e il programma termina.';
+  }else{
+    box.innerHTML='<b>⛔ Cast bloccato dal controllo</b> <code>a instanceof '+to+'</code> → <b>false</b>: un <u>'+real+
+      '</u> non è un <u>'+to+'</u>. Il ramo <code>else</code> evita la <code>ClassCastException</code>.<br>'+
+      'Nota: il downcast ha senso solo per recuperare i membri specifici della sottoclasse, e solo se l\'oggetto lo è davvero.';
+  }
+}
+$('#castRef').addEventListener('change',renderCast);
+$('#castTo').addEventListener('change',renderCast);
+$('#btnCast').addEventListener('click',()=>doCast(false));
+$('#btnCastBlind').addEventListener('click',()=>doCast(true));
+renderCast();
+
+/* ==========================================================================
+   08 — ASTRATTE
+   ========================================================================== */
+function renderAbstract(){
+  const abs=$('#tgAbstract').checked, am=$('#tgAbsMeth').checked, ci=$('#tgCaneImpl').checked, gi=$('#tgGattoImpl').checked;
+  const mod = abs?'abstract ':'';
+  const parleBase = am && abs ? '    public abstract void parla();        // nessuna implementazione qui'
+    : '    public void parla() { System.out.println("verso generico"); }';
+  let src = mod+'public class Animale {\n';
+  src += '    protected String nome;\n';
+  src += '    public Animale(String nome) { this.nome = nome; }   // le astratte HANNO costruttori\n';
+  src += parleBase+'\n}\n\n';
+  src += 'public class Cane extends Animale {\n';
+  src += '    public Cane(String nome) { super(nome); }\n';
+  if(ci && (am||abs)) src += '    @Override\n    public void parla() { System.out.println(nome+": Bau bau!"); }\n';
+  else if(!ci) src += '    // parla() NON implementata!\n';
+  else src += '    public void parla() { System.out.println(nome+": Bau bau!"); }\n';
+  src += '}\n\n';
+  src += 'public class Gatto extends Animale {\n';
+  src += '    public Gatto(String nome) { super(nome); }\n';
+  src += gi ? '    @Override\n    public void parla() { System.out.println(nome+": Miao!"); }\n' : '    // parla() NON implementata!\n';
+  src += '}\n\n';
+  src += 'public class Main {\n    public static void main(String[] a) {\n';
+  src += abs ? '        // Animale x = new Animale("x");   // IMPOSSIBILE\n' : '        Animale x = new Animale("x");      // lecito\n';
+  src += '        Animale y = new Cane("Rex");\n        y.parla();\n    }\n}';
+  const hlR=[];
+  renderCode('#codeAbstract', src, {file:'Gerarchia.java', tag:abs?'abstract':'concreta', hlR});
+  /* diagnostics */
+  const errs=[];
+  if(abs && am && !ci) errs.push(['Cane.java:1','error: Cane is not abstract and does not override abstract method parla() in Animale','La classe è concreta ma non implementa il metodo astratto ereditato. Soluzioni: implementarlo, oppure dichiarare <code>abstract class Cane</code>.']);
+  if(abs && am && !gi) errs.push(['Gatto.java:1','error: Gatto is not abstract and does not override abstract method parla() in Animale','Stesso problema per Gatto: il compilatore si ferma prima ancora di eseguire il programma.']);
+  if(am && !abs) errs.push(['Animale.java:4','error: missing class declaration modifier — abstract method in a non-abstract class','Un metodo <code>abstract</code> può stare SOLO in una classe <code>abstract</code> (o in un\'interfaccia).']);
+  if(!errs.length) errs.push(['✔ Nessun errore','Compilazione riuscita: javac produce Cane.class, Gatto.class, Animale.class, Main.class','ok']);
+  $('#absErrors').innerHTML = errs.map(e=>`<div class="errcard show ${e[2]==='ok'?'okcard':''}" style="margin-bottom:9px;animation:none">
+      <b>${e[0]} — ${e[1].startsWith('✔')?'OK':'ERRORE'}</b>${e[1].startsWith('✔')?'':esc(e[1])}<br>${e[2]||''}</div>`).join('');
+}
+['#tgAbstract','#tgAbsMeth','#tgCaneImpl','#tgGattoImpl'].forEach(s=>$(s).addEventListener('change',renderAbstract));
+$('#btnTryNew').addEventListener('click',()=>{
+  const abs=$('#tgAbstract').checked;
+  const box=$('#absErrors');
+  const d=document.createElement('div');
+  d.className='errcard show '+(abs?'':'okcard'); d.style.marginBottom='9px';
+  d.innerHTML = abs
+    ? '<b>Main.java:3 — error: Animale is abstract; cannot be instantiated</b>Una classe astratta è un <i>modello parziale</i>: descrive cosa sanno fare i figli, ma non può esistere da sola. Puoi però dichiarare riferimenti di tipo astratto: <code>Animale a = new Cane("Rex");</code> ✓'
+    : '<b>✔ Nessun errore</b>Animale non è più astratta, quindi <code>new Animale("x")</code> è perfettamente lecito. Il metodo <code>parla()</code> stampa il comportamento di default.';
+  box.prepend(d);
+});
+$('#btnTryRun').addEventListener('click',()=>{
+  const ci=$('#tgCaneImpl').checked, abs=$('#tgAbstract').checked, am=$('#tgAbsMeth').checked;
+  const box=$('#absErrors'); const d=document.createElement('div'); d.className='errcard show '+(ci?'okcard':''); d.style.marginBottom='9px';
+  d.innerHTML = ci
+    ? '<b>✔ Output: Rex: Bau bau!</b>Il riferimento è dichiarato <code>Animale</code> ma l\'oggetto è un <code>Cane</code>: il binding dinamico sceglie la versione riscritta.'
+    : '<b>Errore di compilazione</b>Cane non implementa <code>parla()</code>.'+(abs&&am?' Essendo il metodo astratto, la classe deve essere dichiarata abstract o fornire il corpo del metodo.':'');
+  box.prepend(d);
+});
+renderAbstract();
+
+const CODE_ABSCLS = `// CLASSE ASTRATTA: modello parziale con stato comune
+public abstract class Figura {
+    protected String colore;                       // STATO condiviso
+    public Figura(String colore){ this.colore = colore; }
+
+    public abstract double area();                 // solo firma, niente corpo
+    public abstract double perimetro();
+
+    public void descrivi() {                       // metodo CONCRETO riusabile
+        System.out.println("Figura " + colore + ", area = " + area());
+    }
+}
+
+public class Cerchio extends Figura {
+    private double raggio;
+    public Cerchio(String c, double r){ super(c); this.raggio = r; }
+
+    @Override public double area(){ return Math.PI * raggio * raggio; }
+    @Override public double perimetro(){ return 2 * Math.PI * raggio; }
+}`;
+const CODE_IFACE = `// INTERFACCIA: contratto di comportamenti (CAN-DO)
+public interface Nuotatore {
+    int VELOCITA_MAX = 10;                 // implicitamente public static final
+
+    void nuota();                          // implicitamente public abstract
+
+    default void galleggia() {             // Java 8+: corpo di default
+        System.out.println("resto a galla");
+    }
+    static Nuotatore crea(){ return null; } // Java 8+: metodo statico
+}
+
+public interface Addestrabile { void eseguiComando(String c); }
+
+// una classe puo implementare PIU interfacce, anche di rami diversi
+public class Anatra extends Animale implements Nuotatore, Addestrabile {
+    @Override public void nuota(){ System.out.println("sguazzo"); }
+    @Override public void eseguiComando(String c){ System.out.println("ok: " + c); }
+    @Override public void parla(){ System.out.println("Quack!"); }
+}`;
+renderCode('#codeAbsCls', CODE_ABSCLS, {file:'Figura.java', tag:'abstract class'});
+renderCode('#codeIface', CODE_IFACE, {file:'Nuotatore.java', tag:'interface'});
+$$('#tabsAbs .tab').forEach(t=>t.addEventListener('click',()=>{
+  $$('#tabsAbs .tab').forEach(x=>x.classList.toggle('on',x===t));
+  $$('.tabpane').forEach(p=>p.classList.toggle('on',p.id===t.dataset.t));
+}));
+(function cmp(){
+  const rows=[
+    ['Parola chiave','extends (una sola)','implements (anche molte)'],
+    ['Costruttori','✓ sì, invocati con super()','✗ no'],
+    ['Campi di istanza','✓ qualsiasi visibilità','✗ solo costanti public static final'],
+    ['Metodi con corpo','✓ sì','solo default / static (da Java 8)'],
+    ['Metodi senza corpo','✓ abstract','✓ tutti (implicitamente abstract)'],
+    ['Istanziazione','✗ mai','✗ mai'],
+    ['Relazione espressa','IS-A (è un)','CAN-DO (sa fare)'],
+    ['Ereditarietà multipla','✗','✓ (più interfacce)']
+  ];
+  $('#cmpTable').innerHTML = '<tr><th class="rowh">caratteristica</th><th>abstract class</th><th>interface</th></tr>'+
+    rows.map(r=>'<tr><th class="rowh" style="font-size:12px">'+r[0]+'</th>'+
+      '<td><div class="io-cell t" style="cursor:default;font-size:11.5px;height:auto;padding:9px">'+r[1]+'</div></td>'+
+      '<td><div class="io-cell f" style="cursor:default;font-size:11.5px;height:auto;padding:9px;background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.4);color:#bcd9ff">'+r[2]+'</div></td></tr>').join('');
+})();
+
+/* ==========================================================================
+   09 — BUILDER
+   ========================================================================== */
+let BCLS = [];
+const BPRESET = [
+  {name:'Dipendente', parent:null, abs:false, fields:[['String','nome'],['double','stipendioBase']], methods:['public void timbra(){ System.out.println(nome + " timbra il cartellino"); }']},
+  {name:'Manager', parent:'Dipendente', abs:false, fields:[['int','teamSize']], methods:['@Override public void timbra(){ System.out.println(nome + " arriva per ultimo"); }']},
+  {name:'Impiegato', parent:'Dipendente', abs:false, fields:[['String','ufficio']], methods:['public void pratica(){ System.out.println("gestisco una pratica"); }']},
+  {name:'ImpiegatoSIA', parent:'Impiegato', abs:false, fields:[['String','linguaggio']], methods:['@Override public void pratica(){ System.out.println("automatizzo la pratica in " + linguaggio); }']}
+];
+function bReset(){ BCLS = JSON.parse(JSON.stringify(BPRESET)); bRender(); }
+function bFieldParse(str){
+  return str.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{
+    const p=s.split(/\s+/); if(p.length>=2) return [p.slice(0,-1).join(' '), p[p.length-1]];
+    return ['String', p[0]];
+  });
+}
+function bAncestors(c){ const out=[]; let p=c.parent; while(p){ const pc=BCLS.find(x=>x.name===p); if(!pc)break; out.unshift(pc); p=pc.parent; } return out; }
+function bGenerate(){
+  if(!BCLS.length) return '// nessuna classe: aggiungine una dal pannello a sinistra';
+  let out='';
+  BCLS.forEach((c,i)=>{
+    const anc=bAncestors(c);
+    const inh=[]; anc.forEach(a=>a.fields.forEach(f=>inh.push(f)));
+    out += (c.abs?'public abstract class ':'public class ')+c.name+(c.parent?' extends '+c.parent:'')+' {\n';
+    c.fields.forEach(f=>{ out+='    private '+f[0]+' '+f[1]+';\n'; });
+    out += '\n';
+    const params = inh.map(f=>f[0]+' '+f[1]).concat(c.fields.map(f=>f[0]+' '+f[1])).join(', ');
+    out += '    public '+c.name+'('+params+') {\n';
+    if(inh.length) out += '        super('+inh.map(f=>f[1]).join(', ')+');\n';
+    c.fields.forEach(f=>{ out+='        this.'+f[1]+' = '+f[1]+';\n'; });
+    out += '    }\n';
+    if(c.methods.length){ out+='\n'; c.methods.forEach(m=>{ out+='    '+m+'\n'; }); }
+    out += '}\n';
+    if(i<BCLS.length-1) out+='\n';
+  });
+  return out;
+}
+function bTreeHtml(){
+  const roots=BCLS.filter(c=>!c.parent || !BCLS.find(x=>x.name===c.parent));
+  function node(c){
+    const kids=BCLS.filter(x=>x.parent===c.name);
+    return '<li><span class="tnode'+(c.abs?' abs':'')+'">'+(c.abs?'<span class="badge">abstract</span>':'')+
+      '<b style="color:#cfe0f7">'+esc(c.name)+'</b>'+
+      '<span style="color:#5b6e8c;font-size:11px">'+(c.fields.length+' camp · '+c.methods.length+' met')+'</span>'+
+      '<span class="del" data-del="'+esc(c.name)+'" title="elimina">×</span></span>'+
+      (kids.length?'<ul>'+kids.map(node).join('')+'</ul>':'')+'</li>';
+  }
+  return '<ul style="padding-left:0">'+ (roots.length?roots.map(node).join(''):'<li style="color:#5b6e8c">nessuna classe</li>') +'</ul>';
+}
+function bRender(){
+  $('#bTree').innerHTML=bTreeHtml();
+  $$('#bTree .del').forEach(d=>d.addEventListener('click',()=>{
+    const n=d.dataset.del;
+    const kids=BCLS.filter(x=>x.parent===n);
+    if(kids.length && !confirm('Eliminando '+n+' anche '+kids.map(k=>k.name).join(', ')+' perderanno la superclasse. Procedo eliminando tutto il sottoalbero?')) return;
+    const rm=new Set([n]); let grew=true;
+    while(grew){ grew=false; BCLS.forEach(c=>{ if(c.parent && rm.has(c.parent) && !rm.has(c.name)){rm.add(c.name);grew=true;} }); }
+    BCLS=BCLS.filter(c=>!rm.has(c.name)); bRender(); toast('Classe rimossa');
+  }));
+  renderCode('#bCode', bGenerate(), {file:'Gerarchia.java', tag:'generato'});
+  $('#bCount').textContent = BCLS.length+' class'+(BCLS.length===1?'e':'i');
+  const sel=$('#bParent'); const cur=sel.value;
+  sel.innerHTML='<option value="">(nessuna → Object)</option>'+BCLS.map(c=>'<option value="'+esc(c.name)+'">'+esc(c.name)+'</option>').join('');
+  if(cur && BCLS.find(c=>c.name===cur)) sel.value=cur;
+}
+$('#btnAddCls').addEventListener('click',()=>{
+  const name=$('#bName').value.trim().replace(/\s+/g,'');
+  if(!name){ toast('Inserisci un nome di classe'); return; }
+  if(!/^[A-Z][A-Za-z0-9_]*$/.test(name)){ toast('Nome non valido: deve iniziare con maiuscola (convenzione Java)'); return; }
+  if(BCLS.find(c=>c.name===name)){ toast('Esiste già una classe con questo nome'); return; }
+  const parent=$('#bParent').value||null;
+  const methods=$('#bMethods').value.split('|').map(s=>s.trim()).filter(Boolean);
+  BCLS.push({name,parent,abs:$('#bAbstract').checked,fields:bFieldParse($('#bFields').value),methods});
+  $('#bName').value=''; $('#bFields').value=''; $('#bMethods').value=''; $('#bAbstract').checked=false;
+  bRender(); toast('Classe '+name+' aggiunta alla gerarchia');
+});
+$('#btnResetB').addEventListener('click',bReset);
+$('#btnCopy').addEventListener('click',async ()=>{
+  try{ await navigator.clipboard.writeText(bGenerate()); toast('Codice copiato negli appunti ⧉'); }
+  catch(e){ toast('Copia non disponibile: seleziona il testo a mano'); }
+});
+bReset();
+
+/* ==========================================================================
+   10 — QUIZ
+   ========================================================================== */
+const QUIZ = [
+ {q:'Quale parola chiave crea una relazione di ereditarietà tra due classi Java?',o:['implements','extends','inherits','super'],a:1,
+  e:'<code>extends</code> lega classe→classe (o interfaccia→interfaccia). <code>implements</code> lega classe→interfaccia, <code>super</code> è un riferimento, <code>inherits</code> in Java non esiste.'},
+ {q:'Cosa stampa questo codice?',c:'Animale a = new Cane();\na.parla();   // Cane fa override: "Bau bau!"',
+  o:['verso generico','Bau bau!','errore di compilazione','ClassCastException'],a:1,
+  e:'Binding dinamico: il compilatore usa il tipo dichiarato <code>Animale</code> solo per <i>controllare</i> che il metodo esista, ma a runtime la JVM guarda il tipo reale dell\'oggetto (<code>Cane</code>) e invoca la sua versione.'},
+ {q:'I campi <code>private</code> della superclasse…',o:['non esistono nell\'oggetto sottoclasse','esistono in memoria ma non sono accessibili col nome dalla sottoclasse','vengono copiati nella sottoclasse','diventano automaticamente protected'],a:1,
+  e:'L\'oggetto sottoclasse contiene anche i campi private ereditati (occupano memoria!), ma il codice della sottoclasse non può nominarli: deve passare da metodi <code>public</code>/<code>protected</code> della superclasse.'},
+ {q:'I costruttori vengono ereditati?',o:['sì, sempre','sì, ma solo quelli senza parametri','no: si invocano con super(...)','solo se dichiarati protected'],a:2,
+  e:'I costruttori <b>non si ereditano mai</b>. Il costruttore della sottoclasse deve invocare quello della superclasse con <code>super(...)</code> come prima istruzione (altrimenti Java inserisce <code>super()</code> implicitamente).'},
+ {q:'Quale classe si trova alla radice di ogni gerarchia Java?',o:['Class','java.lang.Object','java.lang.Class','Main'],a:1,
+  e:'<code>java.lang.Object</code>: ogni classe la estende, anche implicitamente. Per questo <code>toString()</code>, <code>equals()</code> e <code>hashCode()</code> sono disponibili ovunque.'},
+ {q:'Cosa restituisce <code>new CanePoliziotto() instanceof Animale</code>?',o:['true','false','errore di compilazione','dipende dal compilatore'],a:0,
+  e:'<code>instanceof</code> verifica la catena IS-A: un CanePoliziotto è un Cane, che è un Animale, che è un Object → <b>true</b> per tutti i tipi della catena.'},
+ {q:'Con <code>Animale a = new Cane();</code> quale istruzione NON compila?',o:['a.parla()','a.mangia()','a.scodinzola()','a.toString()'],a:2,
+  e:'Il compilatore conosce solo il tipo dichiarato <code>Animale</code>, che non ha <code>scodinzola()</code>. Servirebbe un downcast: <code>((Cane) a).scodinzola()</code>.'},
+ {q:'Una classe astratta…',o:['non può avere campi','non può essere istanziata con new','non può avere metodi concreti','non può avere costruttori'],a:1,
+  e:'Non si può fare <code>new ClasseAstratta()</code>. Può invece avere campi, costruttori (usati via <code>super()</code> dalle sottoclassi) e metodi già implementati.'},
+ {q:'A cosa serve l\'annotazione <code>@Override</code>?',o:['a rendere il metodo più veloce','a far verificare al compilatore la corretta riscrittura','a impedire l\'override','a rendere il metodo static'],a:1,
+  e:'Non cambia il comportamento a runtime: è un <i>controllo</i>. Se la firma non coincide con un metodo ereditato (typo, parametri diversi), il compilatore segnala subito l\'errore invece di creare silenziosamente un metodo nuovo.'},
+ {q:'Qual è la differenza principale tra classe astratta e interfaccia?',o:['nessuna, sono sinonimi','la classe astratta può avere stato e costruttori, l\'interfaccia no','l\'interfaccia può essere istanziata','la classe astratta può essere implementata più volte'],a:1,
+  e:'Classe astratta = <b>IS-A</b> con stato condiviso (campi, costruttori, metodi concreti) ma ereditabile una sola volta. Interfaccia = <b>CAN-DO</b>, solo contratto (più eventuali metodi <code>default</code>/<code>static</code>), implementabile in numero illimitato.'}
+];
+let qI=0, qScore=0, qDone=false;
+function renderQuiz(){
+  const b=$('#quizBody');
+  if(qI>=QUIZ.length){
+    const pctv=Math.round(qScore/QUIZ.length*100);
+    const R=54, C=2*Math.PI*R;
+    let msg, col;
+    if(pctv===100){msg='🏆 Perfetto. Sei pronto a spiegare l\'ereditarietà ai tuoi compagni.';col='var(--green)';}
+    else if(pctv>=70){msg='💪 Ottimo livello: rivedi le sezioni con i pallini non verdi e riprova.';col='var(--cyan)';}
+    else if(pctv>=50){msg='📚 Buone basi, ma serve un giro di ripasso: torna al simulatore di dispatch e alle carte «cosa si eredita».';col='var(--amber)';}
+    else{msg='🔁 Riparti dalla sezione 01 e rifai gli esperimenti passo passo: l\'ereditarietà si capisce eseguendo, non leggendo.';col='var(--pink)';}
+    b.innerHTML=`<div style="text-align:center;padding:14px 0">
+      <div class="score-ring"><svg width="132" height="132">
+        <circle cx="66" cy="66" r="${R}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="11"/>
+        <circle id="ringF" cx="66" cy="66" r="${R}" fill="none" stroke="${col}" stroke-width="11" stroke-linecap="round"
+          stroke-dasharray="${C}" stroke-dashoffset="${C}" style="transition:stroke-dashoffset 1.3s cubic-bezier(.2,.8,.25,1)"/>
+      </svg><div class="val" style="color:${col}">${qScore}/${QUIZ.length}</div></div>
+      <h4 style="font-family:var(--disp);font-size:22px;margin-bottom:8px">Risultato: ${pctv}%</h4>
+      <p style="color:var(--muted);max-width:520px;margin:0 auto 18px">${msg}</p>
+      <button class="btn btn-primary" id="btnQuizAgain">↺ Rifai il quiz</button>
+      <a href="#ripasso" class="btn btn-ghost" style="margin-left:8px">📖 Vai al ripasso</a></div>`;
+    setTimeout(()=>{const r=$('#ringF'); if(r) r.style.strokeDashoffset = C*(1-qScore/QUIZ.length);},80);
+    $('#btnQuizAgain').addEventListener('click',()=>{qI=0;qScore=0;renderQuiz();});
+    qDone=true; $('#doneQuiz').textContent=qScore+'/'+QUIZ.length; updateProgress();
+    return;
+  }
+  const q=QUIZ[qI];
+  $('#qCount').textContent='Domanda '+(qI+1)+' / '+QUIZ.length;
+  $('#qBar').style.width=(qI/QUIZ.length*100)+'%';
+  b.innerHTML=`<div class="q-card fade-in">
+    <div class="q-text">${q.q}</div>
+    ${q.c?'<div class="q-code">'+esc(q.c)+'</div>':''}
+    <div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${o}</span></button>`).join('')}</div>
+    <div class="q-fb" id="qfb"></div>
+    <div class="btn-row" style="display:none" id="qNextRow"><button class="btn btn-primary" id="qNext">${qI===QUIZ.length-1?'Vedi il risultato →':'Prossima domanda →'}</button></div>
+  </div>`;
+  $$('#quizBody .opt').forEach(btn=>btn.addEventListener('click',()=>{
+    const i=+btn.dataset.i, ok=i===q.a;
+    $$('#quizBody .opt').forEach((b,j)=>{ b.disabled=true; if(j===q.a)b.classList.add('right'); if(j===i&&!ok)b.classList.add('wrong'); });
+    const fb=$('#qfb'); fb.className='q-fb show '+(ok?'good':'bad');
+    fb.innerHTML='<b>'+(ok?'✓ Corretto! ':'✗ Non proprio. ')+'</b>'+q.e;
+    if(ok) qScore++;
+    $('#qScore').textContent=qScore;
+    $('#qNextRow').style.display='flex';
+    $('#qNext').addEventListener('click',()=>{qI++;renderQuiz();});
+  }));
+}
+renderQuiz();
+
+/* ==========================================================================
+   11 — RIPASSO
+   ========================================================================== */
+const ACC = [
+ {t:'La definizione in una riga',b:`L'ereditarietà è il meccanismo per cui una classe (<b>sottoclasse</b>) acquisisce campi e metodi di un'altra (<b>superclasse</b>), potendo aggiungere membri propri o riscrivere quelli ereditati. In Java si attiva con <code>extends</code>.`},
+ {t:'Lo snippet minimo da saper scrivere',b:`<pre class="code" style="margin:8px 0">class Animale { protected String nome;
+  public Animale(String n){ nome = n; }
+  public void parla(){ System.out.println("..."); } }
+
+class Cane extends Animale {
+  public Cane(String n){ super(n); }
+  @Override public void parla(){ System.out.println("Bau!"); } }</pre>`},
+ {t:'Override vs Overloading',b:`<b>Override</b> (riscrittura): stesso nome <u>e</u> stessa firma nella sottoclasse → si decide a <b>runtime</b> (polimorfismo).<br>
+ <b>Overloading</b> (sovraccarico): stesso nome, <u>parametri diversi</u>, anche nella stessa classe → si decide a <b>compile time</b>. Non c'entra con l'ereditarietà.`},
+ {t:'Le quattro visibilità',b:`<code>private</code> → solo nella classe · <code>(default)</code> → solo nel package · <code>protected</code> → package <b>+ sottoclassi</b> · <code>public</code> → ovunque.<br>
+ Nella progettazione OO i campi restano <code>private</code> e si espongono con getter/setter; <code>protected</code> si usa quando le sottoclassi hanno davvero bisogno di accedere direttamente.`},
+ {t:'Upcasting e downcasting',b:`<b>Up</b> (automatico, sempre sicuro): <code>Animale a = new Cane();</code> — restringe i metodi visibili.<br>
+ <b>Down</b> (esplicito, rischioso): <code>((Cane) a).scodinzola();</code> — va preceduto da <code>if (a instanceof Cane)</code>, altrimenti <code>ClassCastException</code>.`},
+ {t:'Quando usare l\'ereditarietà (e quando no)',b:`Usala per una vera relazione <b>IS-A</b> e per condividere comportamento. <u>Non</u> usarla solo per riusare codice: spesso la <b>composizione</b> («HAS-A»: la classe contiene un oggetto di un'altra) è più flessibile e meno fragile. Regola pratica: <i>preferisci la composizione all'ereditarietà</i>.`},
+ {t:'final: il freno all\'ereditarietà',b:`<code>final class</code> → non estendibile (es. <code>String</code>).<br><code>final method</code> → non riscrivibile.<br><code>final field</code> → assegnabile una volta sola. Utile per sicurezza, immutabilità e prestazioni.`},
+ {t:'equals() e toString() da riscrivere',b:`<code>toString()</code> di <code>Object</code> stampa <code>NomeClasse@hash</code>: quasi sempre va fatto override per un output leggibile.<br>
+ <code>equals()</code> di default confronta i <b>riferimenti</b> (== ): va riscritto per confrontare il <b>contenuto</b>, e insieme a lui <code>hashCode()</code>.`},
+ {t:'Object: la radice',b:`Ogni classe estende <code>java.lang.Object</code>, quindi ogni oggetto ha <code>toString()</code>, <code>equals(Object)</code>, <code>hashCode()</code>, <code>getClass()</code>. La ricerca di un metodo termina sempre lì.`},
+ {t:'Errori di compilazione più frequenti in verifica',b:`1. dimenticare <code>super(...)</code> quando la superclasse non ha un costruttore vuoto<br>
+ 2. chiamare un metodo della sottoclasse su un riferimento di tipo superclasse (serve il cast)<br>
+ 3. assegnare <code>Cane c = new Animale();</code> (direzione sbagliata: vale solo il contrario)<br>
+ 4. metodo <code>abstract</code> dentro una classe non <code>abstract</code><br>
+ 5. restringere la visibilità in un override (<code>public</code> → <code>private</code>)`}
+];
+(function acc(){
+  $('#accList').innerHTML = ACC.map((a,i)=>`
+    <div class="acc reveal"><button class="acc-h"><span class="num">${String(i+1).padStart(2,'0')}</span>${a.t}<span class="ic">＋</span></button>
+    <div class="acc-b"><div class="acc-b-in">${a.b}</div></div></div>`).join('');
+  $$('.acc-h').forEach(h=>h.addEventListener('click',()=>{
+    const acc=h.parentElement, body=acc.querySelector('.acc-b'), open=acc.classList.contains('open');
+    $$('.acc').forEach(a=>{a.classList.remove('open'); a.querySelector('.acc-b').style.maxHeight='0px';});
+    if(!open){ acc.classList.add('open'); body.style.maxHeight = body.scrollHeight+'px'; }
+  }));
+  $$('.acc.reveal').forEach(el=>io.observe(el));
+})();
+
+const GLOSS = [
+ ['Superclasse (base)','la classe generale da cui si eredita: <code style="font-family:var(--mono)">Animale</code>'],
+ ['Sottoclasse (derivata)','la classe specializzata che estende: <code style="font-family:var(--mono)">Cane extends Animale</code>'],
+ ['extends','parola chiave che attiva l\'ereditarietà tra classi'],
+ ['super(...)','invocazione del costruttore della superclasse; prima istruzione obbligatoria'],
+ ['super.metodo()','chiamata esplicita alla versione ereditata del metodo'],
+ ['Override','riscrittura di un metodo ereditato con la stessa firma'],
+ ['Binding dinamico','scelta del metodo a runtime in base al tipo reale dell\'oggetto'],
+ ['Polimorfismo','stessa chiamata, comportamenti diversi a seconda dell\'oggetto'],
+ ['instanceof','operatore che verifica se un oggetto appartiene a un tipo (o a un suo sottotipo)'],
+ ['Upcasting','assegnamento sottoclasse → superclasse, implicito e sicuro'],
+ ['Downcasting','cast superclasse → sottoclasse, esplicito e da proteggere con instanceof'],
+ ['Classe astratta','modello non istanziabile; può avere metodi astratti e concreti'],
+ ['Metodo abstract','solo firma, senza corpo: deve essere implementato dalla sottoclasse concreta'],
+ ['Interfaccia','contratto puro di comportamenti; implementabile in numero illimitato'],
+ ['Object','radice implicita di ogni gerarchia di classi Java'],
+ ['DRY','Don\'t Repeat Yourself: il principio che l\'ereditarietà aiuta a rispettare'],
+ ['protected','visibilità pensata per l\'ereditarietà: classe + sottoclassi + package'],
+ ['final','blocca l\'ereditarietà (classe) o l\'override (metodo)']
+];
+$('#gloss').innerHTML = GLOSS.map(g=>'<div class="gl"><b>'+g[0]+'</b><span>'+g[1]+'</span></div>').join('');
+
+$('#btnRestart').addEventListener('click',()=>{
+  visited.clear(); $$('#navlinks a').forEach(a=>a.classList.remove('done'));
+  $$('.flip').forEach(f=>f.classList.remove('on')); $('#flipCount').textContent='0';
+  qI=0;qScore=0;renderQuiz(); $('#qScore').textContent='0'; $('#doneQuiz').textContent='non svolto';
+  $$('.io-cell').forEach(c=>{c.className='io-cell';c.textContent='?';});
+  clearBox($('#consDispatch')); clearBox($('#consPoly')); clearBox($('#consChain'));
+  updateProgress(); toast('Progresso azzerato ↺'); window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* responsive: stack builder & uml grids */
+(function resp(){
+  function apply(){
+    const w=window.innerWidth;
+    $('#umlGrid').style.gridTemplateColumns = w<900 ? '1fr' : '1.5fr 1fr';
+    $('#builderGrid').style.gridTemplateColumns = w<980 ? '1fr' : '1fr 1.25fr';
+  }
+  apply(); window.addEventListener('resize',apply);
+})();
+
+updateProgress();
+setTimeout(()=>toast('Suggerimento: prova il simulatore di dispatch nella sezione 05 ⚡'),2200);
+</script>
+</body>
+</html>
