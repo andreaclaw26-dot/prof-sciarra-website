@@ -1,0 +1,2663 @@
+<!DOCTYPE html>
+<html lang="it" data-level="facile">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CICLI//LAB — Impara i cicli in modo interattivo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔁</text></svg>">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/space-grotesk@latest/latin-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/space-grotesk@latest/latin-600-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/space-grotesk@latest/latin-700-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono@latest/latin-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/jetbrains-mono@latest/latin-700-normal.css">
+<style>
+/* ============ BASE ============ */
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --bg:#05070f; --bg2:#080d1a; --panel:#0d1524; --panel2:#111c31; --panel3:#16233c;
+  --line:rgba(126,163,255,.16); --line2:rgba(126,163,255,.30);
+  --txt:#e7eefb; --mut:#93a4c4; --mut2:#6b7c9c;
+  --cyan:#22d3ee; --vio:#a78bfa; --lime:#a3e635; --amb:#fbbf24; --red:#fb7185; --grn:#34d399;
+  --grad:linear-gradient(120deg,#22d3ee 0%,#a78bfa 55%,#f472b6 100%);
+  --sh:0 20px 50px -20px rgba(0,0,0,.85);
+  --r:16px;
+}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--txt);
+  font-family:'Space Grotesk',system-ui,sans-serif;font-size:16px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background:
+    radial-gradient(900px 600px at 12% -8%,rgba(34,211,238,.14),transparent 60%),
+    radial-gradient(800px 700px at 92% 6%,rgba(167,139,250,.16),transparent 62%),
+    radial-gradient(700px 500px at 50% 110%,rgba(163,230,53,.07),transparent 60%),
+    linear-gradient(180deg,#05070f,#070b16 40%,#05070f);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.35;
+  background-image:linear-gradient(rgba(126,163,255,.055) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(126,163,255,.055) 1px,transparent 1px);
+  background-size:52px 52px;
+  mask-image:radial-gradient(circle at 50% 20%,#000,transparent 78%);
+}
+h1,h2,h3,h4{font-weight:700;line-height:1.2;margin:0 0 .5rem}
+p{margin:0 0 .8rem}
+a{color:var(--cyan);text-decoration:none}
+code,pre,.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+::selection{background:rgba(34,211,238,.3)}
+/* scrollbar */
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:#080d18}
+*::-webkit-scrollbar-thumb{background:#1d2b47;border-radius:20px;border:2px solid #080d18}
+*::-webkit-scrollbar-thumb:hover{background:#2b3f66}
+
+/* ============ UTILITIES ============ */
+.is-hidden{display:none !important}
+.grad-txt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wrap{max-width:1400px;margin:0 auto;padding:0 20px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:999px;
+  border:1px solid var(--line2);background:rgba(34,211,238,.07);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--cyan);font-weight:600}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 18px;border-radius:11px;border:1px solid var(--line2);
+  background:linear-gradient(180deg,#16233c,#0f1930);color:var(--txt);
+  font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;
+  transition:.18s transform,.18s box-shadow,.18s border-color,.18s background;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-2px);border-color:var(--cyan);box-shadow:0 10px 24px -12px rgba(34,211,238,.7)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn.primary{background:var(--grad);color:#04070f;border-color:transparent}
+.btn.primary:hover{box-shadow:0 12px 30px -10px rgba(167,139,250,.75)}
+.btn.ghost{background:transparent}
+.btn.danger{border-color:rgba(251,113,133,.5);color:#ffd7de}
+.btn.danger:hover{border-color:var(--red);box-shadow:0 10px 24px -14px rgba(251,113,133,.8)}
+.btn.sm{padding:6px 12px;font-size:.78rem;border-radius:9px}
+.btn.icon{padding:8px;width:38px;height:38px;border-radius:10px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+input,select,textarea{
+  font-family:inherit;font-size:.9rem;color:var(--txt);background:#0a1222;
+  border:1px solid var(--line);border-radius:10px;padding:9px 12px;outline:none;transition:.18s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.16)}
+select{cursor:pointer;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+input[type=range]{padding:0;height:6px;background:#16233c;border-radius:99px;cursor:pointer;-webkit-appearance:none;border:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--grad);border:2px solid #05070f;box-shadow:0 0 12px rgba(34,211,238,.7);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#22d3ee;border:2px solid #05070f;cursor:pointer}
+label{font-size:.78rem;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+
+/* ============ TOPBAR ============ */
+.progress-top{position:fixed;top:0;left:0;height:3px;width:100%;z-index:120;background:transparent}
+.progress-top i{display:block;height:100%;width:0;background:var(--grad);box-shadow:0 0 14px rgba(34,211,238,.8)}
+header.top{
+  position:sticky;top:0;z-index:110;
+  background:rgba(6,10,20,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.top-in{max-width:1400px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.02em;font-size:1.06rem}
+.brand .logo{width:38px;height:38px;border-radius:11px;background:var(--grad);display:grid;place-items:center;
+  box-shadow:0 8px 22px -8px rgba(167,139,250,.9);position:relative;overflow:hidden}
+.brand .logo svg{width:22px;height:22px;animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.brand small{display:block;font-size:.62rem;letter-spacing:.24em;color:var(--mut);text-transform:uppercase;font-weight:600}
+.top-spacer{flex:1}
+/* level segmented */
+.seg{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:13px;background:#0a1122;position:relative}
+.seg button{
+  border:0;background:transparent;color:var(--mut);font-family:inherit;font-weight:700;font-size:.8rem;
+  padding:7px 15px;border-radius:9px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:7px;letter-spacing:.02em;
+}
+.seg button .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.5}
+.seg button:hover{color:var(--txt)}
+.seg button[aria-pressed=true]{color:#04070f;background:var(--grad);box-shadow:0 6px 18px -8px rgba(34,211,238,.9)}
+.seg button[aria-pressed=true] .dot{opacity:1}
+.seg.mini button{padding:5px 10px;font-size:.72rem}
+.lvl-lab{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut2);font-weight:700}
+.top-actions{display:flex;align-items:center;gap:10px}
+.ring{position:relative;width:42px;height:42px}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:.62rem;font-weight:700;color:var(--cyan)}
+.note-btn{position:relative}
+.note-btn .badge{position:absolute;top:-6px;right:-6px;min-width:19px;height:19px;border-radius:99px;background:var(--red);
+  color:#fff;font-size:.66rem;font-weight:700;display:grid;place-items:center;padding:0 5px;border:2px solid #070c17}
+.note-btn .badge:empty,.note-btn .badge[data-n="0"]{display:none}
+
+/* ============ LAYOUT ============ */
+.layout{max-width:1400px;margin:0 auto;padding:0 20px 80px;display:grid;grid-template-columns:236px minmax(0,1fr);gap:30px;align-items:start}
+aside.side{position:sticky;top:82px;padding:26px 0 20px;max-height:calc(100vh - 100px);overflow:auto}
+.side h6{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut2);margin:0 0 12px;padding-left:12px}
+.side a{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;color:var(--mut);
+  font-size:.85rem;font-weight:600;border-left:2px solid transparent;transition:.18s;margin-bottom:2px}
+.side a:hover{color:var(--txt);background:rgba(126,163,255,.06)}
+.side a.active{color:var(--cyan);background:rgba(34,211,238,.09);border-left-color:var(--cyan)}
+.side a .n{font-family:'JetBrains Mono',monospace;font-size:.7rem;opacity:.6;width:18px}
+.side a .tick{margin-left:auto;width:15px;height:15px;border-radius:5px;border:1.5px solid var(--line2);display:grid;place-items:center;font-size:.6rem;color:transparent}
+.side a.done .tick{background:var(--grn);border-color:var(--grn);color:#04140c}
+.side a.done{color:var(--grn)}
+
+/* ============ HERO ============ */
+.hero{position:relative;padding:64px 20px 54px;max-width:1400px;margin:0 auto;overflow:hidden}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.75}
+.hero-in{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr);gap:38px;align-items:center}
+.hero h1{font-size:clamp(2.4rem,6.4vw,4.6rem);letter-spacing:-.045em;line-height:.95;margin:14px 0 6px}
+.hero h1 .l2{display:block}
+.hero .lead{font-size:clamp(1rem,1.6vw,1.18rem);color:var(--mut);max-width:60ch}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.hero-stats{display:flex;gap:26px;flex-wrap:wrap;margin-top:30px;padding-top:22px;border-top:1px solid var(--line)}
+.hero-stats div b{display:block;font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+.hero-stats div span{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut2)}
+.terminal{
+  background:linear-gradient(180deg,rgba(17,28,49,.94),rgba(9,14,26,.96));border:1px solid var(--line2);
+  border-radius:18px;box-shadow:var(--sh);overflow:hidden;position:relative;
+}
+.terminal::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 40%,rgba(34,211,238,.07) 50%,transparent 60%)}
+.term-bar{display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--line);background:rgba(5,9,18,.6)}
+.term-bar i{width:11px;height:11px;border-radius:50%;display:block}
+.term-bar i:nth-child(1){background:#ff5f57}.term-bar i:nth-child(2){background:#febc2e}.term-bar i:nth-child(3){background:#28c840}
+.term-bar span{margin-left:8px;font-size:.72rem;color:var(--mut2);font-family:'JetBrains Mono',monospace}
+.term-body{padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:.84rem;min-height:230px}
+.term-body .ln{opacity:0;animation:fadeUp .4s forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.term-body .pmt{color:var(--lime)}
+.term-body .cmt{color:var(--mut2)}
+.cursor{display:inline-block;width:8px;height:15px;background:var(--cyan);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* ============ SECTIONS ============ */
+section.blk{padding:44px 0;border-top:1px solid var(--line);scroll-margin-top:88px}
+.sec-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.sec-num{flex:none;width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;
+  font-weight:700;font-size:.95rem;background:linear-gradient(180deg,#16233c,#0d1524);border:1px solid var(--line2);color:var(--cyan)}
+.sec-head h2{font-size:clamp(1.4rem,3vw,2rem);letter-spacing:-.03em}
+.sec-head .sub{color:var(--mut);font-size:.95rem;max-width:75ch;margin:0}
+.sec-tools{margin-left:auto;display:flex;gap:8px;align-items:center}
+.chk{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;color:var(--mut);cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;padding:6px 13px;background:#0a1122;transition:.2s;user-select:none}
+.chk input{display:none}
+.chk .box{width:15px;height:15px;border-radius:5px;border:1.5px solid var(--line2);display:grid;place-items:center;font-size:.6rem;color:transparent}
+.chk.on{color:var(--grn);border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.09)}
+.chk.on .box{background:var(--grn);border-color:var(--grn);color:#04140c}
+
+.card{background:linear-gradient(180deg,rgba(15,23,40,.86),rgba(10,16,29,.9));border:1px solid var(--line);
+  border-radius:var(--r);padding:22px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.card.glow::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:var(--r);padding:1px;
+  background:var(--grad);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.4}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}
+.card h3{font-size:1.06rem;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.card h3 .ico{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:.9rem;
+  background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.3)}
+.card h4{font-size:.9rem;letter-spacing:.02em}
+.mut{color:var(--mut)}
+.small{font-size:.84rem}
+.tiny{font-size:.75rem;color:var(--mut2)}
+kbd{font-family:'JetBrains Mono',monospace;font-size:.82em;background:#16233c;border:1px solid var(--line2);
+  border-bottom-width:2px;border-radius:6px;padding:1px 6px;color:var(--cyan)}
+
+/* callouts */
+.cal{border-radius:13px;padding:14px 16px 14px 18px;margin:14px 0;border:1px solid var(--line);
+  background:rgba(126,163,255,.05);border-left:3px solid var(--cyan);font-size:.9rem}
+.cal.tip{border-left-color:var(--lime);background:rgba(163,230,53,.06)}
+.cal.warn{border-left-color:var(--amb);background:rgba(251,191,36,.06)}
+.cal.bad{border-left-color:var(--red);background:rgba(251,113,133,.07)}
+.cal b{letter-spacing:.02em}
+.cal .h{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.78rem;letter-spacing:.14em;
+  text-transform:uppercase;margin-bottom:5px;color:var(--cyan)}
+.cal.tip .h{color:var(--lime)}.cal.warn .h{color:var(--amb)}.cal.bad .h{color:var(--red)}
+.cal p:last-child{margin-bottom:0}
+
+/* code blocks */
+.codewrap{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#070c17;margin:12px 0}
+.codebar{display:flex;align-items:center;gap:9px;padding:8px 13px;background:rgba(126,163,255,.05);border-bottom:1px solid var(--line)}
+.codebar .lang{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--vio);border:1px solid rgba(167,139,250,.35);background:rgba(167,139,250,.09);padding:2px 8px;border-radius:6px}
+.codebar .ttl{font-size:.76rem;color:var(--mut2);font-family:'JetBrains Mono',monospace}
+.codebar .sp{flex:1}
+pre.code{margin:0;padding:15px 16px;overflow-x:auto;font-size:.84rem;line-height:1.75;tab-size:4}
+pre.code .cl{display:block;padding:0 10px;margin:0 -10px;border-left:2px solid transparent;border-radius:3px;transition:.2s}
+pre.code .cl:hover{background:rgba(126,163,255,.05)}
+pre.code .cl.active{background:rgba(34,211,238,.12);border-left-color:var(--cyan);box-shadow:inset 0 0 30px -14px rgba(34,211,238,.9)}
+pre.code .cl.was{background:rgba(167,139,250,.07)}
+pre.code .cl.bugline{cursor:pointer}
+pre.code .cl.bugline:hover{background:rgba(251,191,36,.1)}
+pre.code .cl.right{background:rgba(52,211,153,.16);border-left-color:var(--grn)}
+pre.code .cl.wrong{background:rgba(251,113,133,.16);border-left-color:var(--red);animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.c-kw{color:#f472b6}.c-ty{color:#22d3ee}.c-str{color:#a3e635}.c-num{color:#fbbf24}.c-com{color:#5b6c8c;font-style:italic}
+.c-fn{color:#a78bfa}.c-op{color:#93a4c4}.c-var{color:#e7eefb}
+
+/* console */
+.console{background:#050810;border:1px solid var(--line);border-radius:12px;padding:13px 15px;
+  font-family:'JetBrains Mono',monospace;font-size:.82rem;min-height:120px;max-height:280px;overflow:auto;line-height:1.8}
+.console .co-line{white-space:pre-wrap;word-break:break-word;color:#d5e4ff;border-left:2px solid rgba(34,211,238,.25);padding-left:9px;margin-bottom:1px}
+.console .co-line.err{color:#ffb3c0;border-left-color:var(--red)}
+.console .co-line.ok{color:var(--lime);border-left-color:var(--lime)}
+.console .empty{color:var(--mut2);font-style:italic}
+
+/* vars table */
+table.vars{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.82rem}
+table.vars th,table.vars td{padding:8px 11px;border:1px solid var(--line);text-align:left}
+table.vars th{background:rgba(126,163,255,.07);color:var(--mut);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+table.vars td.vv{color:var(--amb);font-weight:700}
+table.vars td.vn{color:var(--cyan)}
+table.vars tr.flash td{animation:flash .7s}
+@keyframes flash{0%{background:rgba(34,211,238,.28)}100%{background:transparent}}
+
+/* stepper */
+.stp-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.stp-msg{background:linear-gradient(90deg,rgba(34,211,238,.1),rgba(167,139,250,.06));border:1px solid var(--line2);
+  border-radius:12px;padding:12px 16px;font-size:.9rem;min-height:52px;display:flex;align-items:center;gap:11px}
+.stp-msg .em{font-size:1.2rem}
+.stp-bar{height:6px;border-radius:99px;background:#0d1729;overflow:hidden;border:1px solid var(--line);margin-top:12px}
+.stp-bar i{display:block;height:100%;background:var(--grad);width:0;transition:width .25s}
+
+/* anatomy */
+.ana{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.ana button{flex:1;min-width:150px;text-align:left;padding:12px 14px;border-radius:12px;cursor:pointer;
+  border:1px solid var(--line);background:#0b1324;color:var(--mut);font-family:inherit;font-size:.82rem;font-weight:600;transition:.2s}
+.ana button:hover{border-color:var(--line2);color:var(--txt)}
+.ana button.on{color:#04070f;background:var(--grad);border-color:transparent;box-shadow:0 10px 26px -14px rgba(34,211,238,.9)}
+.ana button b{display:block;font-size:.86rem;letter-spacing:-.01em}
+.ana button span{font-size:.72rem;opacity:.8;font-weight:500}
+.ana-info{border:1px dashed var(--line2);border-radius:12px;padding:15px;background:rgba(126,163,255,.04);min-height:96px}
+.hl-init{background:rgba(34,211,238,.22);border-radius:4px;box-shadow:0 0 0 2px rgba(34,211,238,.25)}
+.hl-cond{background:rgba(251,191,36,.22);border-radius:4px;box-shadow:0 0 0 2px rgba(251,191,36,.25)}
+.hl-upd{background:rgba(167,139,250,.24);border-radius:4px;box-shadow:0 0 0 2px rgba(167,139,250,.25)}
+.hl-body{background:rgba(163,230,53,.2);border-radius:4px;box-shadow:0 0 0 2px rgba(163,230,53,.22)}
+/* lifecycle */
+.life{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
+.life .node{flex:1;min-width:120px;padding:12px;border-radius:12px;border:1px solid var(--line);background:#0b1324;
+  text-align:center;font-size:.78rem;font-weight:600;color:var(--mut);transition:.3s;position:relative}
+.life .node b{display:block;font-size:.86rem;color:var(--txt);margin-bottom:2px}
+.life .node.on{border-color:var(--cyan);color:#04070f;background:var(--grad);transform:translateY(-3px) scale(1.03);
+  box-shadow:0 14px 30px -14px rgba(34,211,238,.85)}
+.life .node.on b{color:#04070f}
+.life .arw{color:var(--mut2);font-size:1.1rem;flex:none}
+
+/* grid visualizer */
+.gv{display:grid;gap:5px;justify-content:start}
+.gv .cell{width:100%;aspect-ratio:1;border-radius:7px;border:1px solid var(--line);background:#0a1222;
+  display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--mut2);transition:.25s}
+.gv .cell.on{background:linear-gradient(140deg,rgba(34,211,238,.85),rgba(167,139,250,.85));color:#04070f;font-weight:700;
+  border-color:transparent;transform:scale(1.06);box-shadow:0 0 18px -4px rgba(34,211,238,.8)}
+.gv .cell.cur{outline:2px solid var(--amb);outline-offset:2px;background:rgba(251,191,36,.25);color:var(--amb);font-weight:700}
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px;margin-top:12px}
+.bars .b{flex:1;background:linear-gradient(180deg,var(--cyan),rgba(167,139,250,.35));border-radius:6px 6px 2px 2px;
+  position:relative;transition:height .5s cubic-bezier(.2,.9,.3,1);min-height:3px}
+.bars .b span{position:absolute;top:-19px;left:50%;transform:translateX(-50%);font-size:.62rem;color:var(--mut);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.bars .b em{position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);font-size:.62rem;color:var(--mut2);font-style:normal;font-family:'JetBrains Mono',monospace}
+
+/* stream (break/continue) */
+.stream{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0;min-height:44px}
+.chip{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;
+  font-size:.82rem;font-weight:700;border:1px solid var(--line);background:#0b1324;color:var(--mut);transition:.3s}
+.chip.done{background:rgba(52,211,153,.16);border-color:rgba(52,211,153,.6);color:var(--grn)}
+.chip.skip{background:rgba(251,191,36,.14);border-color:rgba(251,191,36,.5);color:var(--amb);text-decoration:line-through}
+.chip.stop{background:rgba(251,113,133,.18);border-color:rgba(251,113,133,.6);color:var(--red)}
+.chip.cur{transform:scale(1.22);box-shadow:0 0 20px -2px rgba(34,211,238,.9);border-color:var(--cyan);color:var(--cyan)}
+.chip.idle{opacity:.45}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.75rem;color:var(--mut);margin-top:6px}
+.legend i{width:11px;height:11px;border-radius:4px;display:inline-block;margin-right:6px;vertical-align:-1px}
+
+/* infinity lab */
+.cpu{height:10px;border-radius:99px;background:#0d1729;border:1px solid var(--line);overflow:hidden;margin:10px 0}
+.cpu i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--lime),var(--amb) 55%,var(--red));transition:width .2s}
+.bigcount{font-family:'JetBrains Mono',monospace;font-size:clamp(1.6rem,5vw,2.6rem);font-weight:700;color:var(--red);
+  text-shadow:0 0 30px rgba(251,113,133,.55);letter-spacing:-.02em}
+.alert{border:1px solid rgba(251,113,133,.5);background:rgba(251,113,133,.1);border-radius:12px;padding:14px 16px;
+  display:flex;gap:12px;align-items:flex-start;animation:pulseRed 1.4s infinite}
+@keyframes pulseRed{50%{box-shadow:0 0 0 6px rgba(251,113,133,.08)}}
+
+/* playground */
+.editor{width:100%;min-height:230px;background:#050810;border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+  font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.75;color:#dbe7ff;resize:vertical;tab-size:4}
+.editor:focus{border-color:var(--vio);box-shadow:0 0 0 3px rgba(167,139,250,.15)}
+.pl-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+
+/* quiz */
+.q{border:1px solid var(--line);border-radius:14px;padding:18px;background:#0b1324;margin-bottom:14px}
+.q .qh{display:flex;gap:11px;align-items:flex-start;margin-bottom:12px}
+.q .qn{flex:none;width:27px;height:27px;border-radius:8px;background:var(--grad);color:#04070f;display:grid;place-items:center;
+  font-weight:700;font-size:.8rem}
+.q .opt{display:flex;gap:11px;align-items:flex-start;padding:11px 14px;border-radius:11px;border:1px solid var(--line);
+  background:#080e1c;cursor:pointer;margin-bottom:8px;transition:.18s;font-size:.9rem}
+.q .opt:hover{border-color:var(--line2);transform:translateX(3px)}
+.q .opt .k{flex:none;width:22px;height:22px;border-radius:6px;border:1px solid var(--line2);display:grid;place-items:center;
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--mut)}
+.q .opt.sel{border-color:var(--cyan);background:rgba(34,211,238,.09)}
+.q .opt.ok{border-color:var(--grn);background:rgba(52,211,153,.13)}
+.q .opt.ok .k{background:var(--grn);color:#04140c;border-color:var(--grn)}
+.q .opt.no{border-color:var(--red);background:rgba(251,113,133,.11)}
+.q .opt.no .k{background:var(--red);color:#fff;border-color:var(--red)}
+.q .opt.lock{pointer-events:none}
+.q .why{margin-top:10px;padding:12px 14px;border-radius:11px;font-size:.86rem;border:1px dashed var(--line2);background:rgba(126,163,255,.05)}
+.scorebox{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:18px;border-radius:14px;
+  background:linear-gradient(120deg,rgba(34,211,238,.12),rgba(167,139,250,.1));border:1px solid var(--line2)}
+.scorebox .big{font-size:2.6rem;font-weight:700;letter-spacing:-.03em;line-height:1}
+
+/* glossary / map */
+.gl{border-left:2px solid var(--vio);padding:4px 0 4px 14px;margin-bottom:16px}
+.gl b{color:var(--vio);font-family:'JetBrains Mono',monospace;font-size:.86rem}
+table.cmp{width:100%;border-collapse:collapse;font-size:.84rem}
+table.cmp th,table.cmp td{padding:11px 13px;border:1px solid var(--line);text-align:left;vertical-align:top}
+table.cmp th{background:rgba(126,163,255,.07);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+table.cmp tr:hover td{background:rgba(34,211,238,.045)}
+table.cmp code{color:var(--lime);font-size:.8rem}
+
+/* drawer notes */
+.backdrop{position:fixed;inset:0;background:rgba(3,6,14,.72);backdrop-filter:blur(4px);z-index:130;opacity:0;pointer-events:none;transition:.3s}
+.backdrop.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(430px,100%);z-index:140;background:linear-gradient(180deg,#0a1122,#070c17);
+  border-left:1px solid var(--line2);box-shadow:-30px 0 70px -30px #000;transform:translateX(102%);transition:transform .35s cubic-bezier(.2,.9,.25,1);
+  display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dr-head{padding:18px 20px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.dr-head h3{margin:0;font-size:1.1rem;letter-spacing:-.02em}
+.dr-body{flex:1;overflow:auto;padding:18px 20px}
+.dr-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:9px}
+.dr-foot .btn{flex:1}
+#noteForm{display:grid;gap:9px;margin-bottom:20px}
+#noteForm textarea{min-height:88px;resize:vertical;font-size:.88rem}
+.note{border:1px solid var(--line);border-radius:13px;padding:13px 15px;background:#0b1324;margin-bottom:11px;position:relative;transition:.2s}
+.note:hover{border-color:var(--line2);transform:translateY(-1px)}
+.note.res{border-left:3px solid var(--grn);opacity:.82}
+.note.open{border-left:3px solid var(--amb)}
+.note .nh{display:flex;gap:9px;align-items:center;margin-bottom:6px}
+.note .nh b{font-size:.9rem;letter-spacing:-.01em}
+.note .tag{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:99px;
+  border:1px solid var(--line2);color:var(--cyan);background:rgba(34,211,238,.08);font-weight:700}
+.note .tag.lvl{color:var(--vio);border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.09)}
+.note p{font-size:.86rem;color:var(--mut);margin:0 0 9px;white-space:pre-wrap;word-break:break-word}
+.note .na{display:flex;gap:7px;align-items:center;font-size:.7rem;color:var(--mut2)}
+.note .na .sp{flex:1}
+.mini-b{border:1px solid var(--line);background:#0e1830;color:var(--mut);border-radius:8px;padding:4px 9px;
+  font-size:.7rem;cursor:pointer;font-family:inherit;font-weight:600;transition:.18s}
+.mini-b:hover{color:var(--txt);border-color:var(--cyan)}
+.empty-state{text-align:center;padding:34px 16px;color:var(--mut2);border:1px dashed var(--line);border-radius:14px}
+.empty-state .em{font-size:2rem;display:block;margin-bottom:8px}
+
+/* toasts */
+.toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:9px;align-items:center;pointer-events:none}
+.toast{background:linear-gradient(120deg,#12203a,#0c1526);border:1px solid var(--line2);border-radius:12px;padding:11px 18px;
+  font-size:.86rem;font-weight:600;box-shadow:var(--sh);animation:tin .35s;display:flex;gap:9px;align-items:center}
+@keyframes tin{from{opacity:0;transform:translateY(16px) scale(.94)}}
+.toast.out{animation:tout .3s forwards}
+@keyframes tout{to{opacity:0;transform:translateY(10px) scale(.96)}}
+
+.fab{position:fixed;right:20px;bottom:20px;z-index:100;display:flex;flex-direction:column;gap:10px}
+.fab .btn{width:50px;height:50px;border-radius:15px;font-size:1.15rem;box-shadow:0 16px 34px -14px #000}
+footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;color:var(--mut2);font-size:.82rem}
+
+/* SVG flow */
+.flowwrap{overflow-x:auto;padding:6px 0}
+.flow text{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#dbe7ff}
+.flow .bx{fill:#0d1729;stroke:rgba(126,163,255,.45);stroke-width:1.4}
+.flow .dm{fill:#141027;stroke:rgba(251,191,36,.6);stroke-width:1.4}
+.flow .tm{fill:#0a1a1a;stroke:rgba(52,211,153,.55);stroke-width:1.4}
+.flow .ln{stroke:rgba(126,163,255,.4);stroke-width:1.5;fill:none;marker-end:url(#arw)}
+.flow .lnc{stroke:rgba(52,211,153,.7);stroke-dasharray:5 4}
+.flow .lbl{fill:#93a4c4;font-size:10px}
+
+/* responsive */
+@media(max-width:1100px){
+  .layout{grid-template-columns:1fr;gap:0}
+  aside.side{position:sticky;top:64px;z-index:60;background:rgba(6,10,20,.94);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);max-height:none;padding:9px 0;margin:0 -20px;padding-left:20px;padding-right:20px}
+  aside.side h6{display:none}
+  .side-list{display:flex;gap:7px;overflow-x:auto;padding-bottom:5px;scrollbar-width:none}
+  .side-list::-webkit-scrollbar{height:0}
+  .side a{flex:none;border-left:0;border:1px solid var(--line);border-radius:99px;padding:6px 13px;font-size:.78rem;background:#0a1122}
+  .side a.active{background:rgba(34,211,238,.12)}
+  .side a .n{display:none}
+  .side a .tick{display:none}
+  .hero-in{grid-template-columns:1fr}
+  .pl-grid{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .top-in{gap:10px;padding:9px 14px}
+  .brand small{display:none}
+  .lvl-lab{display:none}
+  .seg button{padding:6px 11px;font-size:.74rem}
+  .seg button .dot{display:none}
+  .hero{padding:38px 14px 30px}
+  .layout{padding:0 14px 60px}
+  .card{padding:17px}
+  .sec-tools{margin-left:0;width:100%}
+  .hero-stats{gap:16px}
+  .life .arw{display:none}
+}
+@media(max-width:420px){
+  .ring{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-top"><i id="progBar"></i></div>
+
+<!-- ================= TOPBAR ================= -->
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#04070f" stroke-width="2.4" stroke-linecap="round">
+          <path d="M17 2.5 21 6l-4 3.5"/><path d="M21 6H8a5 5 0 0 0 0 10h1"/>
+          <path d="M7 21.5 3 18l4-3.5"/><path d="M3 18h13a5 5 0 0 0 0-10h-1"/>
+        </svg>
+      </div>
+      <div>CICLI<span class="grad-txt">//</span>LAB<small>Informatica · 3ª SIA</small></div>
+    </div>
+
+    <div class="top-spacer"></div>
+
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="lvl-lab">Livello</span>
+      <div class="seg" id="levelSeg" role="group" aria-label="Selettore di difficoltà">
+        <button data-lv="facile" aria-pressed="true"><span class="dot"></span>Facile</button>
+        <button data-lv="medio" aria-pressed="false"><span class="dot"></span>Medio</button>
+        <button data-lv="difficile" aria-pressed="false"><span class="dot"></span>Difficile</button>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <div class="ring" title="Progresso del percorso">
+        <svg width="42" height="42" viewBox="0 0 42 42">
+          <circle cx="21" cy="21" r="17" fill="none" stroke="#16233c" stroke-width="4"/>
+          <circle id="ringArc" cx="21" cy="21" r="17" fill="none" stroke="url(#rg)" stroke-width="4"
+                  stroke-linecap="round" stroke-dasharray="106.8" stroke-dashoffset="106.8"/>
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+        </svg>
+        <b id="ringTxt">0%</b>
+      </div>
+      <button class="btn sm note-btn" id="openNotes" title="Le mie note">
+        📝 <span class="d-none-sm">Note</span><span class="badge" id="noteBadge" data-n="0">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<div class="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-in">
+    <div>
+      <span class="pill">◆ Unità didattica interattiva · I cicli</span>
+      <h1>I <span class="grad-txt">CICLI</span><span class="l2">ripetere <em style="font-style:normal">senza</em> impazzire</span></h1>
+      <p class="lead" data-lvl="facile">Un <b>ciclo</b> (o <b>loop</b>) è un'istruzione che fa ripetere al computer un blocco di codice tante volte, finché una condizione resta vera. Qui sotto lo vedi <b>muoversi</b>: niente teoria noiosa, solo esperimenti.</p>
+      <p class="lead" data-lvl="medio">Dal <code>for</code> al <code>while</code>, dagli <b>accumulatori</b> alle <b>sentinelle</b>: esplora l'anatomia dei cicli, esegui il codice <b>passo passo</b>, osserva le variabili cambiare e verifica le tue ipotesi con la palestra di codice.</p>
+      <p class="lead" data-lvl="difficile">Cicli <b>annidati</b>, <b>complessità O(n²)</b>, ricerca del massimo, <b>bubble sort</b>, matrici, <code>break</code>/<code>continue</code> e tutti gli errori off-by-one che costano punti nella verifica. Traccia, simula, dimostra.</p>
+
+      <div class="hero-cta">
+        <button class="btn primary" data-goto="stepper">▶ Esegui un ciclo passo passo</button>
+        <button class="btn" data-goto="palestra">⌨ Palestra di codice</button>
+        <button class="btn ghost" data-goto="perche">📖 Parti dalla teoria</button>
+      </div>
+
+      <div class="hero-stats">
+        <div><b class="grad-txt">10</b><span>laboratori</span></div>
+        <div><b class="grad-txt">3</b><span>livelli</span></div>
+        <div><b class="grad-txt">18</b><span>quiz</span></div>
+        <div><b class="grad-txt">∞</b><span>cicli infiniti evitati</span></div>
+      </div>
+    </div>
+
+    <div class="terminal">
+      <div class="term-bar"><i></i><i></i><i></i><span>LoopDemo.java — esecuzione</span></div>
+      <div class="term-body" id="termBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MAIN LAYOUT ================= -->
+<div class="layout">
+  <aside class="side">
+    <h6>Percorso</h6>
+    <div class="side-list" id="sideList"></div>
+  </aside>
+
+  <div class="content">
+
+  <!-- ========== 01 PERCHÉ ========== -->
+  <section class="blk" id="perche">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div>
+        <h2>Perché esistono i cicli?</h2>
+        <p class="sub">Il computer è bravissimo a ripetere, noi no. Il ciclo trasforma <b>tante istruzioni uguali</b> in <b>poche istruzioni intelligenti</b>.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="perche">＋ Nota</button>
+        <label class="chk" data-done="perche"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3><span class="ico">🧠</span>Teoria lampo</h3>
+        <div data-lvl="facile">
+          <p>Immagina di dover scrivere <b>100 volte</b> «Buongiorno». A mano sarebbe lunghissimo e pieno di errori. Con un ciclo scrivi <b>una sola volta</b> l'istruzione e dici al computer quante volte ripeterla.</p>
+          <div class="cal tip"><div class="h">💡 In una frase</div><p>Un <b>ciclo</b> = «ripeti questo blocco di codice <b>finché</b> è vera una condizione».</p></div>
+          <p>Le tre domande che un ciclo deve sempre avere chiare:</p>
+          <ol class="mut small">
+            <li><b>Da dove parto?</b> (valore iniziale del contatore)</li>
+            <li><b>Quando mi fermo?</b> (la condizione)</li>
+            <li><b>Come vado avanti?</b> (l'incremento)</li>
+          </ol>
+        </div>
+        <div data-lvl="medio">
+          <p>Un ciclo è una <b>struttura di controllo ripetitiva</b>: modifica il flusso del programma, che non procede più in sequenza lineare ma torna indietro su un blocco (il <b>corpo del ciclo</b>).</p>
+          <p>Elementi fondamentali: <b>inizializzazione</b>, <b>condizione di permanenza</b>, <b>aggiornamento</b> della variabile di controllo e <b>corpo</b>. Se uno di questi manca o è sbagliato, ottieni 0 iterazioni oppure un <b>ciclo infinito</b>.</p>
+          <div class="cal"><div class="h">🔑 Principio DRY</div><p><b>Don't Repeat Yourself</b>: ogni blocco di logica duplicato è un punto in più dove può nascere un bug. Il ciclo elimina la duplicazione.</p></div>
+          <p>Due famiglie di cicli:</p>
+          <ul class="mut small">
+            <li><b>Precondizionali</b> (<code>for</code>, <code>while</code>): la condizione è verificata <u>prima</u> → il corpo può anche non essere mai eseguito (0 iterazioni).</li>
+            <li><b>Postcondizionali</b> (<code>do-while</code>): la condizione è verificata <u>dopo</u> → il corpo è eseguito <u>almeno una volta</u>.</li>
+          </ul>
+        </div>
+        <div data-lvl="difficile">
+          <p>Un ciclo è una <b>struttura di controllo ripetitiva</b> con <b>variabile di controllo</b>, <b>invariante</b> e <b>variante di terminazione</b>. Dimostrare che un ciclo termina significa individuare una grandezza che <b>decresce monotonicamente</b> (variante) ed è limitata inferiormente.</p>
+          <div class="cal"><div class="h">🔑 Invariante di ciclo</div><p>Una proprietà che è <b>vera prima</b> del ciclo, <b>resta vera</b> dopo ogni iterazione e, all'uscita, <b>dimostra la correttezza</b> dell'algoritmo.<br>
+          Es. nella somma <code>somma += i</code>: l'invariante è «<i>somma contiene la somma degli interi da 1 a i−1</i>».</p></div>
+          <p><b>Costo computazionale:</b> se il corpo costa <i>c</i> e le iterazioni sono <i>n</i>, il ciclo costa <i>c·n</i> → <b>O(n)</b>. Con cicli annidati <b>O(n²)</b>; su una matrice n×m <b>O(n·m)</b>. Contare le iterazioni è la prima abilità da allenare.</p>
+          <div class="cal warn"><div class="h">⚠️ Termination</div><p>Un <code>for</code> con passo che allontana dall'estremo (<code>i--</code> con <code>i&lt;=n</code>) o un <code>while</code> la cui condizione non dipende da variabili modificate nel corpo <b>non termina mai</b>.</p></div>
+        </div>
+      </div>
+
+      <div class="card glow">
+        <h3><span class="ico">⚡</span>Lab 1 · Senza ciclo vs con ciclo</h3>
+        <p class="small mut">Premi il pulsante e guarda quante <b>righe di codice</b> servono nei due casi per ottenere lo stesso risultato.</p>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 14px">
+          <select id="d1n" style="min-width:130px">
+            <option value="3">Ripeti 3 volte</option>
+            <option value="5" selected>Ripeti 5 volte</option>
+            <option value="10">Ripeti 10 volte</option>
+            <option value="50">Ripeti 50 volte 😱</option>
+          </select>
+          <button class="btn primary sm" id="d1run">▶ Confronta</button>
+        </div>
+        <div class="grid2" style="gap:12px">
+          <div>
+            <div class="tiny" style="letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:6px">❌ Senza ciclo</div>
+            <div class="codewrap" style="margin:0"><pre class="code" id="d1a" style="max-height:200px;overflow:auto;font-size:.76rem"></pre></div>
+            <div class="tiny" style="margin-top:6px">Righe scritte: <b id="d1ca" style="color:var(--red)">0</b></div>
+          </div>
+          <div>
+            <div class="tiny" style="letter-spacing:.12em;text-transform:uppercase;color:var(--grn);margin-bottom:6px">✅ Con il ciclo</div>
+            <div class="codewrap" style="margin:0"><pre class="code" id="d1b" style="max-height:200px;overflow:auto;font-size:.76rem"></pre></div>
+            <div class="tiny" style="margin-top:6px">Righe scritte: <b id="d1cb" style="color:var(--grn)">0</b></div>
+          </div>
+        </div>
+        <div class="stp-bar"><i id="d1bar"></i></div>
+        <p class="small mut" id="d1msg" style="margin-top:11px">Scegli quante ripetizioni e premi «Confronta».</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3><span class="ico">🗺️</span>Il flusso di un ciclo <span class="tiny" style="font-weight:400">(il pallino luminoso segue il percorso dei dati)</span></h3>
+      <div class="flowwrap">
+        <svg class="flow" viewBox="0 0 760 250" width="100%" style="min-width:660px" role="img" aria-label="Diagramma di flusso di un ciclo while">
+          <defs>
+            <marker id="arw" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+              <path d="M0,0 L7,3.2 L0,6.4 z" fill="rgba(126,163,255,.75)"/>
+            </marker>
+          </defs>
+          <rect class="tm" x="16" y="100" width="96" height="42" rx="21"/><text x="64" y="126" text-anchor="middle">INIZIO</text>
+          <rect class="bx" x="150" y="100" width="120" height="42" rx="8"/><text x="210" y="120" text-anchor="middle">inizializzazione</text><text x="210" y="134" text-anchor="middle" class="lbl">i = 0</text>
+          <path class="dm" d="M370 78 L440 121 L370 164 L300 121 Z"/><text x="370" y="118" text-anchor="middle">condizione?</text><text x="370" y="133" text-anchor="middle" class="lbl">i &lt; n</text>
+          <rect class="bx" x="480" y="30" width="130" height="42" rx="8"/><text x="545" y="50" text-anchor="middle">corpo del ciclo</text><text x="545" y="64" text-anchor="middle" class="lbl">istruzioni</text>
+          <rect class="bx" x="480" y="170" width="130" height="42" rx="8"/><text x="545" y="190" text-anchor="middle">aggiornamento</text><text x="545" y="204" text-anchor="middle" class="lbl">i++</text>
+          <rect class="tm" x="660" y="100" width="86" height="42" rx="21"/><text x="703" y="126" text-anchor="middle">FINE</text>
+
+          <path class="ln" d="M112 121 H148"/>
+          <path class="ln" d="M270 121 H298"/>
+          <path id="pLoop" class="ln" d="M370 78 V51 H478"/>
+          <text x="405" y="44" class="lbl">VERO</text>
+          <path class="ln" d="M610 51 H640 V191 H612"/>
+          <path id="pBack" class="ln" d="M478 191 H440 V121"/>
+          <path id="pOut" class="ln lnc" d="M440 121 H658"/>
+          <text x="470" y="140" class="lbl" fill="#34d399">FALSO → esci</text>
+
+          <circle r="5" fill="#22d3ee"><animateMotion dur="5s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.62;1" calcMode="linear"><mpath href="#pLoop"/></animateMotion></circle>
+          <circle r="5" fill="#a78bfa"><animateMotion dur="5s" repeatCount="indefinite" keyPoints="0;0;1" keyTimes="0;0.62;1" calcMode="linear"><mpath href="#pBack"/></animateMotion></circle>
+          <circle r="5" fill="#34d399"><animateMotion dur="5s" repeatCount="indefinite" keyPoints="0;0;1" keyTimes="0;0.86;1" calcMode="linear"><mpath href="#pOut"/></animateMotion></circle>
+        </svg>
+      </div>
+      <div class="grid3" style="margin-top:6px">
+        <div class="cal" style="margin:0"><b>1. Inizializzazione</b><br><span class="small mut">Eseguita <u>una sola volta</u>, prima di tutto.</span></div>
+        <div class="cal warn" style="margin:0"><b>2. Condizione</b><br><span class="small mut">Controllata a <u>ogni giro</u>. Se falsa → si esce subito.</span></div>
+        <div class="cal tip" style="margin:0"><b>3. Aggiornamento</b><br><span class="small mut">A fine giro: è ciò che <u>avvicina</u> alla condizione falsa.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 02 ANATOMIA ========== -->
+  <section class="blk" id="anatomia">
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <div>
+        <h2>Anatomia del <code style="color:var(--cyan)">for</code></h2>
+        <p class="sub">Clicca le quattro parti del ciclo: il codice si illumina e scopri il ruolo di ciascuna. Poi guarda il «ciclo di vita» animato.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="anatomia">＋ Nota</button>
+        <label class="chk" data-done="anatomia"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ana" id="anaBtns">
+        <button data-part="init" class="on"><b>① Inizializzazione</b><span>si esegue 1 volta sola</span></button>
+        <button data-part="cond"><b>② Condizione</b><span>vero = continuo, falso = esco</span></button>
+        <button data-part="upd"><b>③ Aggiornamento</b><span>a ogni fine iterazione</span></button>
+        <button data-part="body"><b>④ Corpo</b><span>il lavoro ripetuto</span></button>
+      </div>
+
+      <div class="codewrap">
+        <div class="codebar"><span class="lang">Java</span><span class="ttl" id="anaTtl">Esempio</span><div class="sp"></div>
+          <button class="btn sm ghost" data-copy="anaCode">⧉ Copia</button></div>
+        <pre class="code" id="anaCode"></pre>
+      </div>
+
+      <div class="ana-info" id="anaInfo"></div>
+
+      <h4 style="margin-top:22px">🔄 Ciclo di vita (osserva l'ordine reale di esecuzione)</h4>
+      <div class="life" id="life">
+        <div class="node" data-n="0"><b>① init</b>i = valore iniziale</div>
+        <div class="arw">→</div>
+        <div class="node" data-n="1"><b>② test</b>condizione vera?</div>
+        <div class="arw">→</div>
+        <div class="node" data-n="2"><b>④ corpo</b>esegui istruzioni</div>
+        <div class="arw">→</div>
+        <div class="node" data-n="3"><b>③ update</b>i cambia</div>
+        <div class="arw">↩</div>
+      </div>
+      <div class="stp-msg" id="lifeMsg" style="margin-top:10px"><span class="em">▶</span><span>Premi Play per vedere l'ordine: nota che l'<b>aggiornamento</b> arriva <u>dopo</u> il corpo e che il <b>test</b> viene rifatto a ogni giro.</span></div>
+      <div class="stp-controls">
+        <button class="btn sm primary" id="lifePlay">▶ Play</button>
+        <button class="btn sm" id="lifeStep">⇢ Un passo alla volta</button>
+        <button class="btn sm ghost" id="lifeReset">↺ Reset</button>
+        <span class="tiny" id="lifeCount">iterazione 0</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3><span class="ico">🎚️</span>Lab 2 · Simulatore di <code>for</code></h3>
+      <p class="small mut">Muovi i tre cursori: il ciclo <code>for (int i = A; i &lt;= B; i += P)</code> si riscrive da solo e vedi subito la sequenza generata.</p>
+      <div class="grid3" style="margin:14px 0">
+        <div><label for="fA">A · inizio = <b id="fAv" style="color:var(--cyan)">1</b></label><input type="range" id="fA" min="-5" max="20" value="1" style="width:100%"></div>
+        <div><label for="fB">B · fine = <b id="fBv" style="color:var(--amb)">10</b></label><input type="range" id="fB" min="-5" max="30" value="10" style="width:100%"></div>
+        <div><label for="fP">P · passo = <b id="fPv" style="color:var(--vio)">1</b></label><input type="range" id="fP" min="-5" max="5" value="1" style="width:100%"></div>
+      </div>
+      <div class="codewrap" style="margin:0"><div class="codebar"><span class="lang">Java</span><span class="ttl">codice generato</span></div>
+        <pre class="code" id="fCode" style="padding:12px 16px"></pre></div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin:14px 0">
+        <div><div class="tiny" style="text-transform:uppercase;letter-spacing:.12em">Iterazioni</div><div style="font-size:1.7rem;font-weight:700" id="fIter">10</div></div>
+        <div style="flex:1;min-width:220px"><div class="tiny" style="text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px">Sequenza di <code>i</code></div>
+          <div class="stream" id="fSeq" style="margin:0;min-height:38px"></div></div>
+      </div>
+      <div id="fWarn"></div>
+    </div>
+  </section>
+
+  <!-- ========== 03 STEPPER ========== -->
+  <section class="blk" id="stepper">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
+        <h2>Stepper · esegui il codice passo passo</h2>
+        <p class="sub">Il cuore del laboratorio: scegli un programma, vai avanti un passo alla volta e guarda <b>riga corrente</b>, <b>variabili</b> e <b>output</b> aggiornarsi in tempo reale.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="stepper">＋ Nota</button>
+        <label class="chk" data-done="stepper"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:6px">
+        <select id="stpProg" style="min-width:250px;flex:1"></select>
+        <span class="pill" id="stpLevel">livello: facile</span>
+      </div>
+      <p class="small mut" id="stpDesc"></p>
+
+      <div class="grid2" style="grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:start">
+        <div>
+          <div class="codewrap" style="margin:0">
+            <div class="codebar"><span class="lang">Java</span><span class="ttl">codice sorgente</span><div class="sp"></div>
+              <label class="tiny" style="display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0">
+                <input type="checkbox" id="stpTable" style="width:auto"> tabella di traccia</label></div>
+            <pre class="code" id="stpCode"></pre>
+          </div>
+          <div class="stp-controls">
+            <button class="btn sm ghost" id="stpStart">⏮</button>
+            <button class="btn sm" id="stpPrev">◀ Indietro</button>
+            <button class="btn sm primary" id="stpPlay">▶ Play</button>
+            <button class="btn sm" id="stpNext">Avanti ▶</button>
+            <div style="display:flex;align-items:center;gap:8px;min-width:150px;flex:1">
+              <span class="tiny">velocità</span><input type="range" id="stpSpeed" min="60" max="1400" value="620" style="flex:1">
+            </div>
+          </div>
+          <div class="stp-bar"><i id="stpBar"></i></div>
+          <div class="tiny" style="margin-top:7px">Passo <b id="stpNow">0</b> / <span id="stpTot">0</span></div>
+        </div>
+        <div>
+          <div class="stp-msg" id="stpMsg"><span class="em">👀</span><span>Premi <b>Play</b> oppure <b>Avanti</b> per iniziare l'esecuzione.</span></div>
+          <h4 style="margin:18px 0 8px">📦 Stato delle variabili</h4>
+          <div style="overflow-x:auto"><table class="vars" id="stpVars"><thead><tr><th>variabile</th><th>valore</th></tr></thead><tbody></tbody></table></div>
+          <h4 style="margin:18px 0 8px">🖥️ Output a console</h4>
+          <div class="console" id="stpOut"><span class="empty">// ancora niente…</span></div>
+        </div>
+      </div>
+
+      <div id="stpTableWrap" class="is-hidden" style="margin-top:20px">
+        <h4>📋 Tabella di traccia completa <span class="tiny">(quella che si scrive a mano nella verifica!)</span></h4>
+        <div style="max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:12px">
+          <table class="vars" id="stpFullTable" style="font-size:.76rem"><thead><tr><th>passo</th><th>riga</th><th>variabili</th><th>output</th><th>cosa succede</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 04 WHILE / DO-WHILE ========== -->
+  <section class="blk" id="while">
+    <div class="sec-head">
+      <div class="sec-num">04</div>
+      <div>
+        <h2><code style="color:var(--amb)">while</code> e <code style="color:var(--vio)">do-while</code></h2>
+        <p class="sub">Quando non sai <b>quante</b> volte ripeterai, ma sai <b>quando fermarti</b>. La differenza sta nel momento del controllo.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="while">＋ Nota</button>
+        <label class="chk" data-done="while"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3><span class="ico">🔁</span>while — precondizionale</h3>
+        <div class="codewrap"><div class="codebar"><span class="lang">Java</span><span class="ttl">sintassi</span></div>
+<pre class="code"><span class="c-kw">while</span> ( condizione ) {
+    <span class="c-com">// corpo: eseguito solo se la condizione è vera</span>
+}</pre></div>
+        <p class="small mut">Prima <b>chiede il permesso</b>, poi lavora. Se la condizione è falsa dall'inizio, il corpo <b>non viene eseguito nemmeno una volta</b>.</p>
+        <div data-lvl="medio difficile" class="cal"><div class="h">🎯 Quando si usa</div><p>Iterazioni <b>non note a priori</b>: lettura con valore sentinella, validazione input, algoritmi che convergono (es. ricerca binaria, Euclide per il MCD).</p></div>
+        <div data-lvl="difficile" class="cal warn"><div class="h">⚠️ Errore classico</div><p>Dimenticare l'aggiornamento della variabile di condizione nel corpo → <b>ciclo infinito</b>. La variante di terminazione deve decrescere a ogni iterazione.</p></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="ico">🔃</span>do-while — postcondizionale</h3>
+        <div class="codewrap"><div class="codebar"><span class="lang">Java</span><span class="ttl">sintassi</span></div>
+<pre class="code"><span class="c-kw">do</span> {
+    <span class="c-com">// corpo: eseguito SEMPRE almeno una volta</span>
+} <span class="c-kw">while</span> ( condizione );</pre></div>
+        <p class="small mut">Prima <b>lavora</b>, poi chiede se deve rifarlo. Il punto e virgola dopo la condizione <b>è obbligatorio</b>.</p>
+        <div data-lvl="medio difficile" class="cal tip"><div class="h">💡 Uso tipico</div><p><b>Menu a scelta</b> e <b>validazione dell'input</b>: «ripeti finché l'utente non inserisce un valore corretto» — devi per forza chiedere almeno una volta.</p></div>
+        <div data-lvl="difficile" class="cal"><div class="h">🧪 Equivalenze</div><p><code>while(C){B}</code> ≡ <code>if(C){ do{B}while(C); }</code><br>Un <code>for</code> è sempre traducibile in <code>while</code>: <code>init; while(cond){ body; update; }</code>. Il <code>for</code> è solo più compatto e rende visibile la variante di terminazione.</p></div>
+      </div>
+    </div>
+
+    <div class="card glow" style="margin-top:20px">
+      <h3><span class="ico">🧪</span>Lab 3 · Il duello: quante iterazioni?</h3>
+      <p class="small mut">Stesso codice, stesso valore iniziale di <code>x</code>. Muovi lo slider e scopri l'unico caso in cui i due cicli <b>non</b> sono d'accordo.</p>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0">
+        <div style="flex:1;min-width:230px">
+          <label for="wX">valore iniziale di x = <b id="wXv" style="color:var(--cyan);font-size:1rem">1</b></label>
+          <input type="range" id="wX" min="0" max="12" value="1" style="width:100%">
+        </div>
+        <button class="btn primary sm" id="wRun">▶ Esegui entrambi</button>
+        <button class="btn sm ghost" id="wReset">↺ Reset</button>
+      </div>
+      <div class="grid2">
+        <div>
+          <div class="tiny" style="letter-spacing:.12em;text-transform:uppercase;color:var(--amb);margin-bottom:6px">while (x &lt; 8)</div>
+          <div class="codewrap" style="margin:0"><pre class="code" id="wCodeA" style="font-size:.78rem"></pre></div>
+          <div style="margin-top:9px">Iterazioni: <b id="wItA" style="color:var(--amb);font-size:1.2rem">–</b> · x finale: <b id="wXfA">–</b></div>
+          <div class="stream" id="wTrackA" style="margin:8px 0 0"></div>
+        </div>
+        <div>
+          <div class="tiny" style="letter-spacing:.12em;text-transform:uppercase;color:var(--vio);margin-bottom:6px">do-while (x &lt; 8)</div>
+          <div class="codewrap" style="margin:0"><pre class="code" id="wCodeB" style="font-size:.78rem"></pre></div>
+          <div style="margin-top:9px">Iterazioni: <b id="wItB" style="color:var(--vio);font-size:1.2rem">–</b> · x finale: <b id="wXfB">–</b></div>
+          <div class="stream" id="wTrackB" style="margin:8px 0 0"></div>
+        </div>
+      </div>
+      <div class="cal tip" id="wMsg" style="margin-bottom:0"><div class="h">💡 Risultato</div><p>Premi «Esegui entrambi».</p></div>
+    </div>
+
+    <div data-lvl="medio difficile" class="card" style="margin-top:20px">
+      <h3><span class="ico">🚦</span>Il valore sentinella</h3>
+      <p class="small mut">Tecnica fondamentale: un <b>valore speciale</b> (es. <code>-1</code>, <code>0</code>, <code>"fine"</code>) che segnala la fine dei dati. Il ciclo si ferma quando lo incontra.</p>
+      <div class="grid2">
+        <div class="codewrap" style="margin:0"><div class="codebar"><span class="lang">Java</span><span class="ttl">media dei voti con sentinella</span><div class="sp"></div><button class="btn sm ghost" data-copy="sentCode">⧉</button></div>
+<pre class="code" id="sentCode">int somma = 0, n = 0;
+int voto = leggi();          <span class="c-com">// prima lettura</span>
+while (voto != -1) {         <span class="c-com">// -1 = sentinella</span>
+    somma = somma + voto;
+    n = n + 1;
+    voto = leggi();          <span class="c-com">// lettura successiva</span>
+}
+double media = (double) somma / n;
+System.out.println("Media = " + media);</pre></div>
+        <div>
+          <div class="cal warn" style="margin-top:0"><div class="h">⚠️ Le due letture</div><p>La lettura va fatta <b>prima</b> del ciclo (per avere un valore da testare) e <b>in fondo</b> al corpo (per procedere). Se ne manca una: ciclo infinito o primo valore perso.</p></div>
+          <div class="cal"><div class="h">🧮 Attenzione alla divisione</div><p><code>somma / n</code> con due <code>int</code> fa <b>divisione intera</b> (26/4 = 6!). Serve il cast <code>(double)</code> per ottenere 6.5.</p></div>
+          <div data-lvl="difficile" class="cal bad"><div class="h">☠️ Edge case</div><p>Se il primo valore è già la sentinella, <code>n = 0</code> → <b>divisione per zero</b>. Nei programmi reali si protegge sempre: <code>if (n &gt; 0) …</code></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 05 ANNIDATI ========== -->
+  <section class="blk" id="annidati">
+    <div class="sec-head">
+      <div class="sec-num">05</div>
+      <div>
+        <h2>Cicli annidati <span class="tiny" style="font-weight:400;color:var(--mut)">(un ciclo dentro un ciclo)</span></h2>
+        <p class="sub">Per ogni giro del ciclo esterno, il ciclo interno riparte <b>da capo</b>. Costruisci pattern e conta le iterazioni.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="annidati">＋ Nota</button>
+        <label class="chk" data-done="annidati"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+
+    <div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start">
+      <div class="card glow">
+        <h3><span class="ico">🧱</span>Lab 4 · Costruttore di griglie</h3>
+        <div style="display:grid;gap:11px;margin:12px 0">
+          <div><label for="gR">Righe (i) = <b id="gRv" style="color:var(--cyan)">5</b></label><input type="range" id="gR" min="1" max="9" value="5" style="width:100%"></div>
+          <div><label for="gC">Colonne (j) = <b id="gCv" style="color:var(--vio)">6</b></label><input type="range" id="gC" min="1" max="12" value="6" style="width:100%"></div>
+          <div><label for="gPat">Pattern</label>
+            <select id="gPat" style="width:100%">
+              <option value="pieno">Quadrato pieno — tutte le celle</option>
+              <option value="triangolo">Triangolo — j &lt;= i</option>
+              <option value="scacchiera">Scacchiera — (i+j) % 2 == 0</option>
+              <option value="cornice">Solo cornice — bordi esterni</option>
+              <option value="tabelline" data-lvl="medio difficile">Tabelline — valore i*j</option>
+              <option value="diagonale" data-lvl="difficile">Diagonale — i == j</option>
+            </select></div>
+        </div>
+        <div class="stp-controls" style="margin:6px 0 14px">
+          <button class="btn sm primary" id="gPlay">▶ Costruisci</button>
+          <button class="btn sm ghost" id="gReset">↺ Reset</button>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:120px"><span class="tiny">vel.</span><input type="range" id="gSpeed" min="10" max="300" value="90" style="flex:1"></div>
+        </div>
+        <div class="gv" id="grid"></div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:16px">
+          <div><div class="tiny" style="text-transform:uppercase;letter-spacing:.12em">i (esterno)</div><b id="gI" style="font-size:1.4rem;color:var(--cyan)">–</b></div>
+          <div><div class="tiny" style="text-transform:uppercase;letter-spacing:.12em">j (interno)</div><b id="gJ" style="font-size:1.4rem;color:var(--vio)">–</b></div>
+          <div><div class="tiny" style="text-transform:uppercase;letter-spacing:.12em">celle riempite</div><b id="gCnt" style="font-size:1.4rem;color:var(--lime)">0</b></div>
+          <div><div class="tiny" style="text-transform:uppercase;letter-spacing:.12em">iterazioni totali</div><b id="gTot" style="font-size:1.4rem;color:var(--amb)">–</b></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3><span class="ico">💻</span>Codice generato (si aggiorna da solo)</h3>
+          <div class="codewrap" style="margin:0"><div class="codebar"><span class="lang">Java</span><span class="ttl" id="gPatName">quadrato pieno</span><div class="sp"></div><button class="btn sm ghost" data-copy="gCode">⧉</button></div>
+          <pre class="code" id="gCode" style="font-size:.8rem"></pre></div>
+          <div class="cal" style="margin-bottom:0"><div class="h">🧮 Formula</div><p>iterazioni totali = <b>righe × colonne</b> = <span id="gFormula">5 × 6 = 30</span></p></div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <h3><span class="ico">📈</span>Lab 5 · Perché O(n²) fa paura</h3>
+          <p class="small mut">Stesso algoritmo con n che cresce: le iterazioni di un doppio ciclo <b>esplodono</b> in modo quadratico.</p>
+          <div class="bars" id="bars"></div>
+          <div class="tiny" style="margin-top:26px;text-align:center">n → da 1 a 10 · altezza = numero di iterazioni (n²)</div>
+          <div data-lvl="difficile" class="cal warn" style="margin-bottom:0"><div class="h">⏱️ Ordine di grandezza</div>
+            <p>n = 1.000 → 10⁶ iterazioni (istante).<br>n = 100.000 → 10¹⁰ iterazioni (<b>ore</b>).<br>Per questo, quando n è grande, si cercano algoritmi O(n log n) come <i>merge sort</i>.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 06 BREAK / CONTINUE ========== -->
+  <section class="blk" id="breakcontinue">
+    <div class="sec-head">
+      <div class="sec-num">06</div>
+      <div>
+        <h2><code style="color:var(--red)">break</code> e <code style="color:var(--amb)">continue</code></h2>
+        <p class="sub">Due «scorciatoie» che cambiano il flusso del ciclo: una lo <b>interrompe</b>, l'altra <b>salta un giro</b>.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="breakcontinue">＋ Nota</button>
+        <label class="chk" data-done="breakcontinue"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-bottom:20px">
+      <div class="card"><h3><span class="ico" style="background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.35)">⛔</span>break</h3>
+        <p class="small mut">Esce <b>immediatamente</b> dal ciclo più interno e prosegue con la prima istruzione <u>dopo</u> il ciclo. Le iterazioni restanti non vengono eseguite.</p>
+        <div class="cal bad" style="margin:0"><p><b>Uso tipico:</b> ricerca — appena trovi l'elemento, fermati.</p></div></div>
+      <div class="card"><h3><span class="ico" style="background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35)">⏭️</span>continue</h3>
+        <p class="small mut">Salta <b>solo il resto dell'iterazione corrente</b> e torna subito al test della condizione (nel <code>for</code> esegue prima l'aggiornamento).</p>
+        <div class="cal warn" style="margin:0"><p><b>Uso tipico:</b> filtrare — scarta i valori che non ti interessano.</p></div></div>
+      <div class="card"><h3><span class="ico">🆚</span>La differenza</h3>
+        <p class="small mut"><code>break</code> = <b>«basta, esco»</b>.<br><code>continue</code> = <b>«questo lo salto, vado al prossimo»</b>.</p>
+        <div data-lvl="difficile" class="cal" style="margin:0"><div class="h">🎯 Annidati</div><p>In cicli annidati <code>break</code> esce <b>solo dal ciclo che lo contiene</b>. Per uscire da tutti serve un'etichetta: <code>break esterno;</code> (Java) oppure una variabile flag.</p></div>
+      </div>
+    </div>
+
+    <div class="card glow">
+      <h3><span class="ico">🌊</span>Lab 6 · Il filtro dei numeri</h3>
+      <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin:12px 0">
+        <div><label for="bcN">Numeri da 1 a N = <b id="bcNv" style="color:var(--cyan)">12</b></label><input type="range" id="bcN" min="5" max="24" value="12" style="width:100%"></div>
+        <div><label for="bcK">continue se multiplo di <b id="bcKv" style="color:var(--amb)">3</b></label><input type="range" id="bcK" min="2" max="7" value="3" style="width:100%"></div>
+        <div><label for="bcT">break se i &gt; <b id="bcTv" style="color:var(--red)">9</b></label><input type="range" id="bcT" min="3" max="24" value="9" style="width:100%"></div>
+      </div>
+      <div class="stp-controls" style="margin:4px 0 10px">
+        <button class="btn sm primary" id="bcRun">▶ Filtra</button>
+        <button class="btn sm ghost" id="bcReset">↺ Reset</button>
+      </div>
+      <div class="stream" id="bcStream"></div>
+      <div class="legend">
+        <span><i style="background:rgba(52,211,153,.6)"></i>stampato</span>
+        <span><i style="background:rgba(251,191,36,.6)"></i>continue → saltato</span>
+        <span><i style="background:rgba(251,113,133,.6)"></i>break → ciclo interrotto</span>
+        <span><i style="background:#16233c"></i>mai raggiunto</span>
+      </div>
+      <div class="grid2" style="margin-top:16px;align-items:start">
+        <div class="codewrap" style="margin:0"><div class="codebar"><span class="lang">Java</span><span class="ttl">codice corrispondente ai tuoi parametri</span><div class="sp"></div><button class="btn sm ghost" data-copy="bcCode">⧉</button></div>
+          <pre class="code" id="bcCode" style="font-size:.8rem"></pre></div>
+        <div>
+          <h4>Output prodotto</h4>
+          <div class="console" id="bcOut" style="min-height:96px"><span class="empty">// premi «Filtra»</span></div>
+          <div class="cal tip" id="bcMsg" style="margin-bottom:0"><p>Regola i parametri e osserva come cambiano codice e output.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 07 ERRORI ========== -->
+  <section class="blk" id="errori">
+    <div class="sec-head">
+      <div class="sec-num">07</div>
+      <div>
+        <h2>Laboratorio errori &amp; ciclo infinito</h2>
+        <p class="sub">Sbagliare è il modo migliore per imparare. <b>Trova la riga difettosa</b> cliccandola, poi guarda cosa succede quando un ciclo non termina mai.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="errori">＋ Nota</button>
+        <label class="chk" data-done="errori"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+
+    <div class="grid2" style="align-items:start">
+      <div class="card">
+        <h3><span class="ico">🐛</span>Lab 7 · Trova il bug</h3>
+        <div style="display:flex;gap:9px;align-items:center;margin:10px 0;flex-wrap:wrap">
+          <span class="pill" id="bugIdx">sfida 1 / 2</span>
+          <span class="tiny" id="bugTitle"></span>
+          <div style="flex:1"></div>
+          <button class="btn sm ghost" id="bugHint">💡 Suggerimento</button>
+          <button class="btn sm" id="bugNext">Prossima →</button>
+        </div>
+        <div class="codewrap" style="margin:0"><div class="codebar"><span class="lang">Java</span><span class="ttl">clicca la riga che contiene l'errore</span></div>
+          <pre class="code" id="bugCode"></pre></div>
+        <div id="bugFb" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="ico">☠️</span>Lab 8 · La stanza del ciclo infinito</h3>
+        <div class="codewrap" style="margin:12px 0"><div class="codebar"><span class="lang">Java</span><span class="ttl">programma difettoso</span></div>
+<pre class="code" id="infCode"></pre></div>
+        <p class="small mut">Il contatore non viene mai aggiornato: la condizione resta vera <b>per sempre</b>. Premi Esegui… ma tieni pronto il pulsante <b>STOP</b>.</p>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0">
+          <div class="bigcount" id="infCount">0</div>
+          <div style="flex:1;min-width:150px">
+            <div class="tiny" style="text-transform:uppercase;letter-spacing:.12em">carico CPU simulato</div>
+            <div class="cpu"><i id="infCpu"></i></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <button class="btn sm danger" id="infRun">▶ Esegui (pericoloso!)</button>
+          <button class="btn sm primary" id="infStop" disabled>⏹ STOP — uccidi il processo</button>
+        </div>
+        <div id="infFb" style="margin-top:14px"></div>
+        <div class="cal warn" style="margin-bottom:0"><div class="h">🛡️ Come difendersi</div>
+          <p>1) chiediti sempre «<i>cosa cambia a ogni giro?</i>» · 2) la variabile della condizione deve <b>avvicinarsi</b> al valore di uscita · 3) nei cicli annidati controlla <b>tutti</b> gli aggiornamenti · 4) in caso di dubbio, stampa la variabile di controllo dentro il corpo.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 08 PALESTRA ========== -->
+  <section class="blk" id="palestra">
+    <div class="sec-head">
+      <div class="sec-num">08</div>
+      <div>
+        <h2>Palestra di codice</h2>
+        <p class="sub">Scrivi, modifica, esegui. Il codice gira in un <b>ambiente isolato</b> con protezione anti-ciclo-infinito: puoi sperimentare senza paura.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="palestra">＋ Nota</button>
+        <label class="chk" data-done="palestra"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+
+    <div class="card glow">
+      <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+        <select id="plPreset" style="min-width:250px;flex:1"></select>
+        <button class="btn sm" id="plLoad">↧ Carica esempio</button>
+        <div style="flex:1"></div>
+        <button class="btn sm primary" id="plRun">▶ Esegui</button>
+        <button class="btn sm danger" id="plStop">⏹ Stop</button>
+        <button class="btn sm ghost" id="plClear">🗑 Svuota</button>
+      </div>
+      <div class="pl-grid">
+        <div>
+          <div class="tiny" style="text-transform:uppercase;letter-spacing:.12em;margin-bottom:7px">Editor · <span style="color:var(--lime)">JavaScript</span></div>
+          <textarea class="editor" id="plCode" spellcheck="false"></textarea>
+          <div class="tiny" style="margin-top:8px">💡 <kbd>Tab</kbd> inserisce 2 spazi · <kbd>Ctrl</kbd>+<kbd>Invio</kbd> esegue</div>
+        </div>
+        <div>
+          <div class="tiny" style="text-transform:uppercase;letter-spacing:.12em;margin-bottom:7px">Console di output</div>
+          <div class="console" id="plOut" style="min-height:230px;max-height:340px"><span class="empty">// l'output compare qui</span></div>
+          <div class="tiny" id="plInfo" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <div class="cal" style="margin-bottom:0"><div class="h">🔁 Java → JavaScript</div>
+        <p class="small">La <b>logica dei cicli è identica</b>, cambia solo la sintassi: <code>System.out.println(x)</code> → <code>console.log(x)</code> · <code>int i = 0</code> → <code>let i = 0</code> · <code>&amp;&amp;</code>, <code>||</code>, <code>!</code>, <code>%</code> funzionano allo stesso modo. Gli array si dichiarano con <code>[1,2,3]</code> e la lunghezza è <code>a.length</code>.</p></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3><span class="ico">📜</span>Sfide di programmazione <span class="tiny" style="font-weight:400">(risolvile nella palestra)</span></h3>
+      <div class="grid3" id="challenges"></div>
+    </div>
+  </section>
+
+  <!-- ========== 09 CONFRONTO SINTASSI ========== -->
+  <section class="blk" id="confronto">
+    <div class="sec-head">
+      <div class="sec-num">09</div>
+      <div>
+        <h2>Sintassi a confronto</h2>
+        <p class="sub">Stesso algoritmo, tre linguaggi. La <b>struttura logica</b> non cambia: è questo che dovete portarvi a casa.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="confronto">＋ Nota</button>
+        <label class="chk" data-done="confronto"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+    <div class="card" style="overflow-x:auto">
+      <table class="cmp">
+        <thead><tr><th style="width:15%">Concetto</th><th style="width:29%">Java (SIA)</th><th style="width:28%">JavaScript</th><th style="width:28%">Pseudocodice</th></tr></thead>
+        <tbody>
+          <tr><td><b>for</b> contatore</td><td><code>for (int i=0; i&lt;n; i++) { … }</code></td><td><code>for (let i=0; i&lt;n; i++) { … }</code></td><td><code>PER i DA 0 A n-1 FA … FINE PER</code></td></tr>
+          <tr><td><b>while</b></td><td><code>while (c) { … }</code></td><td><code>while (c) { … }</code></td><td><code>FINCHÉ c FA … FINE FINCHÉ</code></td></tr>
+          <tr><td><b>do-while</b></td><td><code>do { … } while (c);</code></td><td><code>do { … } while (c);</code></td><td><code>RIPETI … FINCHÉ NON c</code></td></tr>
+          <tr><td><b>foreach</b></td><td><code>for (int x : v) { … }</code></td><td><code>for (const x of v) { … }</code></td><td><code>PER OGNI x IN v FA …</code></td></tr>
+          <tr><td><b>stampa</b></td><td><code>System.out.println(x);</code></td><td><code>console.log(x);</code></td><td><code>SCRIVI x</code></td></tr>
+          <tr><td><b>uscita / salto</b></td><td><code>break; continue;</code></td><td><code>break; continue;</code></td><td><code>ESCI / VAI AL PROSSIMO GIRO</code></td></tr>
+          <tr><td><b>incremento</b></td><td><code>i++ / i += 2</code></td><td><code>i++ / i += 2</code></td><td><code>i ← i + 1</code></td></tr>
+          <tr><td><b>lunghezza array</b></td><td><code>v.length</code></td><td><code>v.length</code></td><td><code>LUNGHEZZA(v)</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========== 10 QUIZ ========== -->
+  <section class="blk" id="quiz">
+    <div class="sec-head">
+      <div class="sec-num">10</div>
+      <div>
+        <h2>Quiz di autovalutazione</h2>
+        <p class="sub">Le domande cambiano in base al livello selezionato in alto. Rispondi: feedback e spiegazione immediati.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="quiz">＋ Nota</button>
+        <label class="chk" data-done="quiz"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+    <div class="card">
+      <div class="scorebox" style="margin-bottom:18px">
+        <div><div class="tiny" style="text-transform:uppercase;letter-spacing:.12em">Punteggio</div><div class="big grad-txt" id="qScore">0/6</div></div>
+        <div style="flex:1;min-width:180px">
+          <div class="tiny" style="text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px">Avanzamento</div>
+          <div class="stp-bar" style="margin:0"><i id="qBar"></i></div>
+          <div class="tiny" style="margin-top:7px" id="qMsg">Livello <b id="qLvl">facile</b> · rispondi a tutte le domande</div>
+        </div>
+        <button class="btn sm" id="qReset">↺ Ricomincia</button>
+      </div>
+      <div id="qList"></div>
+    </div>
+  </section>
+
+  <!-- ========== 11 RIEPILOGO ========== -->
+  <section class="blk" id="riepilogo">
+    <div class="sec-head">
+      <div class="sec-num">11</div>
+      <div>
+        <h2>Riepilogo &amp; glossario</h2>
+        <p class="sub">La mappa dei concetti e le parole chiave da sapere per la verifica.</p>
+      </div>
+      <div class="sec-tools">
+        <button class="btn sm ghost" data-note="riepilogo">＋ Nota</button>
+        <label class="chk" data-done="riepilogo"><input type="checkbox"><span class="box">✓</span>Fatto</label>
+      </div>
+    </div>
+
+    <div class="grid2" style="align-items:start">
+      <div class="card">
+        <h3><span class="ico">🧭</span>Quale ciclo scelgo?</h3>
+        <div class="flowwrap">
+          <svg class="flow" viewBox="0 0 520 330" width="100%" style="min-width:420px">
+            <defs><marker id="arw2" markerWidth="9" markerHeight="9" refX="7" refY="3.2" orient="auto">
+              <path d="M0,0 L7,3.2 L0,6.4 z" fill="rgba(126,163,255,.75)"/></marker></defs>
+            <path class="dm" d="M260 14 L400 62 L260 110 L120 62 Z"/><text x="260" y="60" text-anchor="middle">Conosco il NUMERO</text><text x="260" y="75" text-anchor="middle">di iterazioni?</text>
+            <path class="ln" style="marker-end:url(#arw2)" d="M400 62 H470 V150 H410"/><text x="420" y="54" class="lbl">SÌ</text>
+            <rect class="bx" x="290" y="128" width="120" height="46" rx="9"/><text x="350" y="148" text-anchor="middle">for</text><text x="350" y="163" text-anchor="middle" class="lbl">contatore</text>
+            <path class="ln" style="marker-end:url(#arw2)" d="M120 62 H50 V150 H110"/><text x="70" y="54" class="lbl">NO</text>
+            <path class="dm" d="M200 128 L280 173 L200 218 L120 173 Z"/><text x="200" y="170" text-anchor="middle">Il corpo va eseguito</text><text x="200" y="185" text-anchor="middle">almeno 1 volta?</text>
+            <path class="ln" style="marker-end:url(#arw2)" d="M110 150 H80 V250 H150"/><text x="86" y="200" class="lbl" fill="#a78bfa">SÌ</text>
+            <rect class="bx" x="150" y="228" width="130" height="46" rx="9" style="stroke:rgba(167,139,250,.6)"/><text x="215" y="248" text-anchor="middle">do-while</text><text x="215" y="263" text-anchor="middle" class="lbl">menu, validazione</text>
+            <path class="ln" style="marker-end:url(#arw2)" d="M280 173 H350 V250 H300"/><text x="300" y="165" class="lbl" fill="#22d3ee">NO</text>
+            <rect class="bx" x="170" y="228" width="0" height="0"/>
+            <rect class="bx" x="300" y="228" width="130" height="46" rx="9" style="stroke:rgba(34,211,238,.6)"/><text x="365" y="248" text-anchor="middle">while</text><text x="365" y="263" text-anchor="middle" class="lbl">sentinella, convergenza</text>
+            <text x="260" y="312" text-anchor="middle" class="lbl">In tutti i casi: servono inizializzazione, condizione e aggiornamento!</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="ico">📚</span>Glossario essenziale</h3>
+        <div class="gl"><b>ciclo / loop</b><br><span class="small mut">Struttura di controllo che ripete un blocco di istruzioni finché una condizione resta vera.</span></div>
+        <div class="gl"><b>iterazione</b><br><span class="small mut">Un singolo «giro» del ciclo. Il numero di iterazioni determina il costo dell'algoritmo.</span></div>
+        <div class="gl"><b>variabile di controllo</b><br><span class="small mut">Il contatore (es. <code>i</code>) che compare nella condizione e viene aggiornato a ogni giro.</span></div>
+        <div class="gl"><b>accumulatore</b><br><span class="small mut">Variabile che «accumula» un risultato parziale (<code>somma += i</code>); va inizializzata prima del ciclo.</span></div>
+        <div class="gl"><b>contatore</b><br><span class="small mut">Variabile che conta quante volte succede qualcosa (<code>n++</code>).</span></div>
+        <div class="gl"><b>sentinella</b><br><span class="small mut">Valore speciale che segnala la fine dei dati e fa terminare il ciclo.</span></div>
+        <div data-lvl="medio difficile" class="gl"><b>flag</b><br><span class="small mut">Variabile booleana che memorizza un esito («trovato», «valido») per decidere dopo il ciclo.</span></div>
+        <div data-lvl="medio difficile" class="gl"><b>off-by-one</b><br><span class="small mut">Errore di un'unità: <code>&lt;</code> invece di <code>&lt;=</code>, indici da 0, <code>length</code> incluso…</span></div>
+        <div data-lvl="difficile" class="gl"><b>invariante di ciclo</b><br><span class="small mut">Proprietà vera all'inizio e mantenuta da ogni iterazione: serve a dimostrare la correttezza.</span></div>
+        <div data-lvl="difficile" class="gl"><b>complessità O(n²)</b><br><span class="small mut">Costo quadratico tipico dei cicli annidati: raddoppiando n, le iterazioni quadruplicano.</span></div>
+        <div data-lvl="difficile" class="gl"><b>tabella di traccia</b><br><span class="small mut">Strumento di verifica: per ogni iterazione si annotano i valori delle variabili e l'output.</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3><span class="ico">✅</span>Checklist delle competenze</h3>
+      <p class="small mut">Spunta ciò che sai già fare: la percentuale in alto a destra tiene il conto del tuo percorso.</p>
+      <div class="grid3" id="skills"></div>
+    </div>
+  </section>
+
+  </div>
+</div>
+
+<footer class="ft">
+  <div class="wrap">
+    <b class="grad-txt">CICLI//LAB</b> · pagina didattica interattiva per Informatica — 3ª Sistemi Informativi Aziendali<br>
+    <span class="tiny">Le note e i progressi restano salvati nel tuo browser (localStorage). Nessun dato viene inviato online.</span>
+  </div>
+</footer>
+
+<!-- FAB -->
+<div class="fab">
+  <button class="btn" id="fabNote" title="Aggiungi una nota">📝</button>
+  <button class="btn" id="fabTop" title="Torna in cima">↑</button>
+</div>
+
+<!-- DRAWER NOTE -->
+<div class="backdrop" id="backdrop"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Blocco note">
+  <div class="dr-head">
+    <div style="flex:1">
+      <h3>📝 Le mie note</h3>
+      <div class="tiny">Salvate nella cache del browser · <span id="noteCount">0</span> note</div>
+    </div>
+    <button class="btn sm icon" id="drClose" aria-label="Chiudi">✕</button>
+  </div>
+  <div class="dr-body">
+    <form id="noteForm" autocomplete="off">
+      <input id="noteTitle" placeholder="Titolo (es. «non capisco il continue»)" maxlength="70">
+      <select id="noteSection"></select>
+      <textarea id="noteText" placeholder="Scrivi qui cosa non ti è chiaro, un dubbio, una cosa da chiedere al prof…" maxlength="1200"></textarea>
+      <div style="display:flex;gap:9px;align-items:center">
+        <label class="chk" id="noteResChk" style="margin:0"><input type="checkbox" id="noteResolved"><span class="box">✓</span>già chiarito</label>
+        <div style="flex:1"></div>
+        <button class="btn sm ghost" type="button" id="noteCancel">Annulla</button>
+        <button class="btn sm primary" type="submit" id="noteSave">💾 Salva nota</button>
+      </div>
+    </form>
+    <div style="display:flex;gap:9px;margin-bottom:14px;flex-wrap:wrap">
+      <input id="noteSearch" placeholder="🔎 Cerca nelle note…" style="flex:1;min-width:150px">
+      <div class="seg mini" id="noteFilter">
+        <button data-f="all" aria-pressed="true">Tutte</button>
+        <button data-f="open" aria-pressed="false">Da chiarire</button>
+        <button data-f="res" aria-pressed="false">Chiarite</button>
+      </div>
+    </div>
+    <div id="noteList"></div>
+  </div>
+  <div class="dr-foot">
+    <button class="btn sm" id="exportNotes">⬇ Esporta .md</button>
+    <button class="btn sm danger" id="clearNotes">🗑 Elimina tutte</button>
+  </div>
+</aside>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* =========================================================================
+   CICLI//LAB — motore della pagina
+   ========================================================================= */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const LEVELS = ['facile','medio','difficile'];
+const LS = { level:'cicli_lab_level_v1', notes:'cicli_lab_notes_v1', done:'cicli_lab_done_v1', skills:'cicli_lab_skills_v1', pl:'cicli_lab_playground_v1' };
+const SECTIONS = [
+  {id:'perche',n:'01',t:'Perché i cicli'},
+  {id:'anatomia',n:'02',t:'Anatomia del for'},
+  {id:'stepper',n:'03',t:'Stepper passo-passo'},
+  {id:'while',n:'04',t:'while e do-while'},
+  {id:'annidati',n:'05',t:'Cicli annidati'},
+  {id:'breakcontinue',n:'06',t:'break e continue'},
+  {id:'errori',n:'07',t:'Errori & ciclo infinito'},
+  {id:'palestra',n:'08',t:'Palestra di codice'},
+  {id:'confronto',n:'09',t:'Sintassi a confronto'},
+  {id:'quiz',n:'10',t:'Quiz'},
+  {id:'riepilogo',n:'11',t:'Riepilogo'}
+];
+let LEVEL = localStorage.getItem(LS.level) || 'facile';
+if(!LEVELS.includes(LEVEL)) LEVEL='facile';
+
+/* ---------- toast ---------- */
+function toast(msg,icon='◆'){
+  const t=document.createElement('div');t.className='toast';t.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
+  $('#toasts').appendChild(t);
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),320)},2300);
+}
+
+/* ---------- syntax highlight ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+const KW={
+  java:'int|double|float|boolean|char|String|long|for|while|do|if|else|break|continue|return|void|class|public|static|private|new|true|false|null|this|Arrays|System|Math|final|switch|case',
+  js:'let|const|var|for|while|do|if|else|break|continue|return|function|true|false|null|undefined|console|Math|new|of|in|typeof'
+};
+function hl(src,lang='java'){
+  let s=esc(src);
+  const re=new RegExp('(\\/\\/[^\\n]*)|(&quot;[^&]*?&quot;|"(?:[^"\\\\\\n]|\\\\.)*"|\'(?:[^\'\\\\\\n]|\\\\.)*\')|\\b('+KW[lang]+')\\b|(\\b[A-Za-z_]\\w*\\b)(?=\\s*\\()|(\\b\\d+(?:\\.\\d+)?\\b)','g');
+  return s.replace(re,(m,cm,st,kw,fn,nm)=>{
+    if(cm)return `<span class="c-com">${cm}</span>`;
+    if(st)return `<span class="c-str">${st}</span>`;
+    if(kw)return /^(int|double|float|boolean|char|String|long|void|final)$/.test(kw)?`<span class="c-ty">${kw}</span>`:`<span class="c-kw">${kw}</span>`;
+    if(fn)return `<span class="c-fn">${fn}</span>`;
+    if(nm)return `<span class="c-num">${nm}</span>`;
+    return m;
+  });
+}
+function paintCode(el,src,lang='java'){
+  el.innerHTML=src.split('\n').map((l,i)=>`<span class="cl" data-ln="${i}">${hl(l.length?l:' ',lang)}</span>`).join('');
+}
+function codeText(el){
+  return [...el.querySelectorAll('.cl')].map(c=>c.textContent.replace(/\u00a0/g,'')).join('\n');
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-copy]');
+  if(!b)return;
+  const el=document.getElementById(b.dataset.copy);
+  const txt=el.tagName==='PRE'?codeText(el):el.value;
+  navigator.clipboard?.writeText(txt).then(()=>toast('Codice copiato negli appunti','⧉')).catch(()=>toast('Copia non riuscita','⚠'));
+});
+
+/* ---------- livello ---------- */
+function applyLvlVisibility(){
+  $$('[data-lvl]').forEach(el=>{
+    const list=el.dataset.lvl.split(/\s+/);
+    el.classList.toggle('is-hidden',!list.includes(LEVEL));
+  });
+}
+function setLevel(lv,silent){
+  LEVEL=lv;document.documentElement.dataset.level=lv;
+  localStorage.setItem(LS.level,lv);
+  $$('#levelSeg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lv===lv)));
+  applyLvlVisibility();
+  buildStepperSelect();buildPresets();buildQuiz();buildBug();buildChallenges();buildSkills();
+  $('#stpLevel').textContent='livello: '+lv;
+  $('#qLvl').textContent=lv;
+  if(!silent)toast('Livello impostato: '+lv.toUpperCase(),lv==='facile'?'🟢':lv==='medio'?'🟡':'🔴');
+}
+$$('#levelSeg button').forEach(b=>b.addEventListener('click',()=>setLevel(b.dataset.lv)));
+
+/* ---------- sidenav ---------- */
+function buildNav(){
+  $('#sideList').innerHTML=SECTIONS.map(s=>`<a href="#${s.id}" data-link="${s.id}"><span class="n">${s.n}</span>${s.t}<span class="tick">✓</span></a>`).join('');
+  $('#noteSection').innerHTML=SECTIONS.map(s=>`<option value="${s.t}">📍 ${s.t}</option>`).join('')+`<option value="Generale">📍 Generale</option>`;
+}
+buildNav();
+const doneSet=new Set(JSON.parse(localStorage.getItem(LS.done)||'[]'));
+$$('[data-done]').forEach(l=>{
+  const id=l.dataset.done;
+  const upd=()=>{
+    const cb=$('input',l);
+    if(cb.checked)doneSet.add(id);else doneSet.delete(id);
+    l.classList.toggle('on',cb.checked);
+    localStorage.setItem(LS.done,JSON.stringify([...doneSet]));
+    updateProgress();
+  };
+  l.addEventListener('click',e=>{e.preventDefault();const cb=$('input',l);cb.checked=!cb.checked;upd();});
+  if(doneSet.has(id)){$('input',l).checked=true;l.classList.add('on');}
+});
+/* skills checklist */
+const SKILLS={
+  facile:['Riconoscere un ciclo nel codice','Sapere cosa fa il contatore <code>i</code>','Prevedere l\'output di un <code>for</code> semplice','Distinguere <code>for</code> e <code>while</code>','Spiegare cos\'è un ciclo infinito','Costruire la tabella di traccia di un ciclo semplice'],
+  medio:['Usare accumulatori e contatori','Gestire un valore sentinella','Costruire un menu con <code>do-while</code>','Scorrere un array con l\'indice','Usare correttamente <code>break</code> e <code>continue</code>','Validare l\'input con un ciclo','Contare le iterazioni di un ciclo con passo ≠ 1'],
+  difficile:['Analizzare cicli annidati e calcolare O(n²)','Scrivere la ricerca del min/max in un array','Implementare il bubble sort','Gestire matrici con doppio indice','Dimostrare la terminazione (variante)','Costruire pattern con condizioni su <code>i</code> e <code>j</code>','Riconoscere e correggere errori off-by-one','Usare flag booleani per la ricerca']
+};
+function buildSkills(){
+  const saved=JSON.parse(localStorage.getItem(LS.skills)||'[]');
+  $('#skills').innerHTML=SKILLS[LEVEL].map((s,i)=>{
+    const key=LEVEL+'#'+i,on=saved.includes(key);
+    return `<label class="chk" data-skill="${key}" style="align-items:flex-start;border-radius:12px;padding:10px 13px;text-align:left;text-transform:none;letter-spacing:0;font-size:.84rem;font-weight:500">
+      <input type="checkbox" ${on?'checked':''}><span class="box" style="margin-top:3px">✓</span><span>${s}</span></label>`;
+  }).join('');
+  $$('[data-skill]').forEach(l=>{
+    if(l.classList.contains('on'))return;
+    const key=l.dataset.skill;
+    if(saved.includes(key))l.classList.add('on');
+    l.addEventListener('click',e=>{
+      e.preventDefault();
+      const arr=JSON.parse(localStorage.getItem(LS.skills)||'[]');
+      const i=arr.indexOf(key);
+      if(i>=0)arr.splice(i,1);else arr.push(key);
+      localStorage.setItem(LS.skills,JSON.stringify(arr));
+      l.classList.toggle('on',arr.includes(key));
+      $('input',l).checked=arr.includes(key);
+    });
+  });
+}
+function updateProgress(){
+  const tot=SECTIONS.length,got=SECTIONS.filter(s=>doneSet.has(s.id)).length;
+  const p=Math.round(got/tot*100);
+  $('#ringArc').style.strokeDashoffset=String(106.8-106.8*p/100);
+  $('#ringTxt').textContent=p+'%';
+  $$('#sideList a').forEach(a=>a.classList.toggle('done',doneSet.has(a.dataset.link)));
+}
+updateProgress();
+
+/* scroll spy + progress bar */
+const spy=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){
+    $$('#sideList a').forEach(a=>a.classList.toggle('active',a.dataset.link===e.target.id));
+  }});
+},{rootMargin:'-20% 0px -70% 0px'});
+SECTIONS.forEach(s=>{const el=document.getElementById(s.id);if(el)spy.observe(el)});
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const p=h.scrollTop/(h.scrollHeight-h.clientHeight||1);
+  $('#progBar').style.width=(p*100)+'%';
+},{passive:true});
+$$('[data-goto]').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.goto)?.scrollIntoView({behavior:'smooth'})));
+$('#fabTop').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+
+/* =========================================================================
+   HERO CANVAS
+   ========================================================================= */
+(function(){
+  const cv=$('#heroCanvas'),cx=cv.getContext('2d');let W,H,parts=[],raf=null,t=0;
+  function size(){const r=cv.getBoundingClientRect();W=cv.width=r.width*devicePixelRatio;H=cv.height=r.height*devicePixelRatio;}
+  function init(){size();parts=[];const n=Math.min(70,Math.floor(W/26));
+    for(let i=0;i<n;i++)parts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.28*devicePixelRatio,vy:(Math.random()-.5)*.28*devicePixelRatio,r:(Math.random()*1.7+.6)*devicePixelRatio});}
+  function draw(){
+    cx.clearRect(0,0,W,H);t+=.006;
+    cx.strokeStyle='rgba(126,163,255,.10)';cx.lineWidth=1*devicePixelRatio;
+    for(let i=0;i<parts.length;i++){
+      const a=parts[i];a.x+=a.vx;a.y+=a.vy;
+      if(a.x<0||a.x>W)a.vx*=-1;if(a.y<0||a.y>H)a.vy*=-1;
+      for(let j=i+1;j<parts.length;j++){
+        const b=parts[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy),lim=120*devicePixelRatio;
+        if(d<lim){cx.globalAlpha=(1-d/lim)*.5;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}
+      }
+    }
+    cx.globalAlpha=1;
+    parts.forEach(a=>{cx.fillStyle='rgba(34,211,238,.75)';cx.beginPath();cx.arc(a.x,a.y,a.r,0,7);cx.fill()});
+    /* orbita "loop" */
+    const ccx=W*.5,ccy=H*.5,rx=Math.min(W*.34,320*devicePixelRatio),ry=rx*.42;
+    cx.strokeStyle='rgba(167,139,250,.20)';cx.lineWidth=1.4*devicePixelRatio;
+    cx.beginPath();cx.ellipse(ccx,ccy,rx,ry,0,0,7);cx.stroke();
+    for(let k=0;k<3;k++){
+      const ang=t*1.4+k*2.09;
+      const px=ccx+Math.cos(ang)*rx,py=ccy+Math.sin(ang)*ry;
+      const g=cx.createRadialGradient(px,py,0,px,py,16*devicePixelRatio);
+      g.addColorStop(0,'rgba(34,211,238,.9)');g.addColorStop(1,'rgba(34,211,238,0)');
+      cx.fillStyle=g;cx.beginPath();cx.arc(px,py,16*devicePixelRatio,0,7);cx.fill();
+      cx.fillStyle='#a5f3fc';cx.beginPath();cx.arc(px,py,2.4*devicePixelRatio,0,7);cx.fill();
+    }
+    raf=requestAnimationFrame(draw);
+  }
+  init();draw();
+  addEventListener('resize',()=>{init()});
+  new IntersectionObserver(e=>{
+    if(e[0].isIntersecting){if(!raf)draw()}else{cancelAnimationFrame(raf);raf=null}
+  },{threshold:.02}).observe(cv);
+})();
+
+/* ---------- terminal typing ---------- */
+(function(){
+  const lines=[
+    {t:'c',s:'// Lab: somma dei numeri da 1 a 5'},
+    {t:'n',s:''},
+    {t:'c',s:'int somma = 0;'},
+    {t:'c',s:'for (int i = 1; i <= 5; i++) {'},
+    {t:'c',s:'    somma = somma + i;'},
+    {t:'c',s:'}'},
+    {t:'c',s:'System.out.println(somma);'},
+    {t:'n',s:''},
+    {t:'o',s:'> 15'},
+    {t:'s',s:'5 iterazioni · 1 variabile · 0 righe ripetute ✦'}
+  ];
+  const box=$('#termBody');let i=0;
+  function step(){
+    if(i>=lines.length){box.insertAdjacentHTML('beforeend','<span class="cursor"></span>');return}
+    const l=lines[i++];
+    const cls=l.t==='c'?'':l.t==='o'?'pmt':l.t==='s'?'cmt':'';
+    box.insertAdjacentHTML('beforeend',`<div class="ln ${cls}" style="animation-delay:0s">${esc(l.s)||'&nbsp;'}</div>`);
+    setTimeout(step,l.t==='o'?520:l.t==='s'?400:260);
+  }
+  setTimeout(step,500);
+})();
+
+/* =========================================================================
+   LAB 1 · senza ciclo vs con ciclo
+   ========================================================================= */
+(function(){
+  const run=$('#d1run');
+  function paint(){
+    const n=+$('#d1n').value;
+    $('#d1a').innerHTML='';$('#d1b').innerHTML='';
+    let a='',b='';
+    for(let i=1;i<=n;i++)a+=`System.out.println("Buongiorno!");\n`;
+    b=`for (int i = 1; i <= ${n}; i++) {\n    System.out.println("Buongiorno!");\n}`;
+    let k=0;const aLines=a.trimEnd().split('\n');
+    const iv=setInterval(()=>{
+      if(k<aLines.length){$('#d1a').innerHTML+=`<span class="cl">${hl(aLines[k]+'')}</span>\n`;k++;$('#d1ca').textContent=k;
+        $('#d1bar').style.width=Math.min(100,k/aLines.length*100)+'%';}
+      else clearInterval(iv);
+    },Math.max(18,900/aLines.length));
+    $('#d1b').innerHTML=b.split('\n').map(l=>`<span class="cl">${hl(l)}</span>`).join('\n');
+    $('#d1cb').textContent=b.split('\n').length;
+    const save=Math.round((1-3/Math.max(3,aLines.length))*100);
+    $('#d1msg').innerHTML=`Hai ottenuto lo stesso risultato con <b style="color:var(--grn)">${b.split('\n').length} righe</b> invece di <b style="color:var(--red)">${aLines.length}</b>`
+      +(aLines.length>6?` · risparmio del <b>${save}%</b> di codice, e se dovessi cambiare il testo del messaggio lo modifichi in <b>un punto solo</b>.`:' · con poche ripetizioni la differenza sembra piccola: prova con 50!');
+    setTimeout(()=>{$('#d1bar').style.width='100%'},1200);
+  }
+  run.addEventListener('click',paint);
+  $('#d1n').addEventListener('change',paint);
+  paint();
+})();
+
+/* =========================================================================
+   ANATOMIA
+   ========================================================================= */
+const ANA={
+  facile:{ttl:'Stampa i numeri da 1 a 5',code:
+`for (int i = 1; i <= 5; i++) {
+    System.out.println("Numero: " + i);
+}`,
+    parts:{
+      init:{h:'① Inizializzazione — <code>int i = 1</code>',t:'Creo la <b>variabile contatore</b> <code>i</code> e le do un valore di partenza. Viene eseguita <b>una sola volta</b>, prima di tutto il resto. Qui decido <i>da dove comincio a contare</i>.',ex:'Output: 1 2 3 4 5 — il ciclo fa esattamente 5 giri.'},
+      cond:{h:'② Condizione — <code>i &lt;= 5</code>',t:'È il <b>cancello</b> del ciclo: viene valutata <u>prima di ogni giro</u>. Se è <b>vera</b> si entra nel corpo, se è <b>falsa</b> il ciclo finisce e il programma prosegue dopo la parentesi graffa chiusa.',ex:'Attenzione a <code>&lt;=</code> (5 incluso) e <code>&lt;</code> (5 escluso): cambia il numero di iterazioni!'},
+      upd:{h:'③ Aggiornamento — <code>i++</code>',t:'Eseguito <b>alla fine di ogni iterazione</b>. Fa avanzare il contatore: è ciò che <u>avvicina</u> il ciclo alla condizione falsa. Senza di esso → <b>ciclo infinito</b>.',ex:'<code>i++</code> equivale a <code>i = i + 1</code>; puoi usare anche <code>i += 2</code> o <code>i--</code>.'},
+      body:{h:'④ Corpo — <code>{ … }</code>',t:'Il blocco di istruzioni che viene <b>ripetuto</b>. Può contenere una o mille righe, altri cicli (annidati) e <code>if</code>. Se è una sola istruzione le graffe sono facoltative… ma <b>mettile sempre</b>.',ex:'Qui <code>i</code> assume 5 valori diversi: 1, 2, 3, 4, 5 → 5 stampe.'}
+    }},
+  medio:{ttl:'Somma con passo 2 e accumulatore',code:
+`int somma = 0;                     // accumulatore
+for (int i = 10; i >= 0; i -= 2) {
+    if (i % 4 == 0) {
+        somma += i;
+    }
+    System.out.println(i + " -> somma " + somma);
+}`,
+    parts:{
+      init:{h:'① Inizializzazione — <code>int i = 10</code> (+ accumulatore)',t:'Oltre al contatore preparo <b>l\'accumulatore</b> <code>somma = 0</code>: una variabile che conserva il risultato parziale e <u>deve essere inizializzata fuori dal ciclo</u>, altrimenti riparte da zero a ogni giro.',ex:'Contatore decrescente: si parte da 10 e si scende.'},
+      cond:{h:'② Condizione — <code>i &gt;= 0</code>',t:'Con un contatore che <b>decresce</b>, la condizione deve essere <code>&gt;=</code> (o <code>&gt;</code>). Errore classico: lasciare <code>i &lt;= 10</code> con <code>i -= 2</code> → il ciclo non parte mai oppure non finisce mai.',ex:'Iterazioni: i = 10, 8, 6, 4, 2, 0 → <b>6 giri</b>.'},
+      upd:{h:'③ Aggiornamento — <code>i -= 2</code>',t:'Il passo può essere qualsiasi: <code>+1</code>, <code>-2</code>, <code>*2</code>. Il numero di iterazioni si calcola come <code>(fine − inizio)/passo + 1</code> (se il passo ha il verso giusto).',ex:'(0 − 10)/(−2) + 1 = 6 iterazioni.'},
+      body:{h:'④ Corpo — accumulatore + if',t:'Nel corpo combino più strutture: un <code>if</code> che filtra (<code>i % 4 == 0</code>) e l\'accumulo <code>somma += i</code>. Il valore di <code>somma</code> <b>dipende dalla storia</b> delle iterazioni precedenti: è la differenza chiave rispetto a un semplice <code>println</code>.',ex:'somma finale = 0 + 8 + 4 + 0 = 12 (10 no, 6 no, 2 no).'}
+    }},
+  difficile:{ttl:'Scansione array all\'indietro con due contatori',code:
+`int[] v = {3, 7, 1, 9, 4};
+int trovati = 0;
+for (int i = v.length - 1, j = 1; i >= 0 && trovati < 2; i--, j++) {
+    if (v[i] > 5) {
+        trovati++;
+        System.out.println("pos " + i + " val " + v[i] + " (il " + j + "° esaminato)");
+    }
+}`,
+    parts:{
+      init:{h:'① Inizializzazione — due variabili',t:'Il <code>for</code> può inizializzare <b>più variabili</b> separate da virgola: qui <code>i</code> (indice che parte dall\'ultimo elemento, <code>length-1</code>) e <code>j</code> (contatore di elementi esaminati). Serve anche l\'accumulatore <code>trovati</code>.',ex:'<code>v.length - 1</code> = 4: si parte dalla fine → scansione inversa.'},
+      cond:{h:'② Condizione composta — <code>i &gt;= 0 &amp;&amp; trovati &lt; 2</code>',t:'Due condizioni in <b>AND logico</b>: il ciclo continua solo se <u>entrambe</u> sono vere. La seconda è un <b>criterio di stop anticipato</b> (equivalente a un <code>break</code> dentro il corpo): si ferma dopo 2 valori trovati.',ex:'Java valuta da sinistra a destra con <b>cortocircuito</b>: se <code>i &gt;= 0</code> è falsa, <code>v[i]</code> non viene mai letto → niente <i>ArrayIndexOutOfBounds</i>.'},
+      upd:{h:'③ Aggiornamento multiplo — <code>i--, j++</code>',t:'Anche l\'aggiornamento può gestire più variabili, in direzioni <b>opposte</b>. Ogni variabile deve avere una propria garanzia di terminazione: qui è <code>i--</code> che porta <code>i</code> a −1.',ex:'Senza <code>j++</code> il contatore resterebbe fermo: errore silenzioso, nessun crash.'},
+      body:{h:'④ Corpo — filtro e output',t:'Il corpo contiene la <b>ricerca con condizione</b>: solo gli elementi <code>&gt; 5</code> incrementano <code>trovati</code>. Il contatore <code>j</code> invece conta <u>tutti</u> gli elementi esaminati, anche quelli scartati: due contatori, due significati diversi.',ex:'Traccia: i=4 (4 no) → i=3 (9 sì, trovati=1) → i=2 (1 no) → i=1 (7 sì, trovati=2) → condizione falsa, esco.'}
+    }}
+};
+function paintAna(){
+  const d=ANA[LEVEL];
+  $('#anaTtl').textContent=d.ttl;
+  paintCode($('#anaCode'),d.code,'java');
+  showPart('init');
+}
+function showPart(p){
+  const d=ANA[LEVEL],info=d.parts[p];
+  $$('#anaBtns button').forEach(b=>b.classList.toggle('on',b.dataset.part===p));
+  const cls={init:'hl-init',cond:'hl-cond',upd:'hl-upd',body:'hl-body'};
+  const raw=d.code;
+  let out=raw.split('\n').map((l,i)=>{
+    let h=hl(l);
+    if(p!=='body'&&i===0){
+      h=h.replace(/(\[?int[\]\s]*\w+\s*=\s*[^,;]+)/g,m=>`<span class="${cls.init}">${m}</span>`);
+    }
+    return `<span class="cl">${h}</span>`;
+  }).join('\n');
+  if(p!=='body'){
+    out=out.replace(/(i\s*&lt;=\s*5|i\s*&gt;=\s*0|i\s*&gt;=\s*0\s*&amp;&amp;[^)]*)/,(m,g)=>`<span class="hl-cond">${g}</span>`);
+    out=out.replace(/(i\+\+|i -= 2|i--, j\+\+)/g,m=>`<span class="hl-upd">${m}</span>`);
+  }else{
+    out=raw.split('\n').map((l,i)=>`<span class="cl">${i>=1?`<span class="hl-body">${hl(l)}</span>`:hl(l)}</span>`).join('\n');
+  }
+  $('#anaCode').innerHTML=out;
+  $('#anaInfo').innerHTML=`<div style="font-weight:700;margin-bottom:6px">${info.h}</div><p class="small mut" style="margin-bottom:6px">${info.t}</p>
+    <div class="cal tip" style="margin:0"><div class="h">🔍 Nel nostro esempio</div><p class="small" style="margin:0">${info.ex}</p></div>`;
+}
+$$('#anaBtns button').forEach(b=>b.addEventListener('click',()=>showPart(b.dataset.part)));
+$$('#anaBtns button').forEach(b=>b.addEventListener('mouseenter',()=>showPart(b.dataset.part)));
+paintAna();
+
+/* ciclo di vita animato */
+(function(){
+  const nodes=$$('#life .node');let idx=-1,iter=0,timer=null,playing=false;
+  const msgs=[
+    ['▶','<b>① Inizializzazione:</b> creo il contatore. Succede <u>una volta sola</u>, prima del primo test.'],
+    ['🔍','<b>② Test della condizione:</b> vera → entro nel corpo; falsa → esco dal ciclo e proseguo.'],
+    ['⚙️','<b>④ Corpo:</b> eseguo le istruzioni ripetute (attenzione: vengono <u>dopo</u> il test).'],
+    ['🔁','<b>③ Aggiornamento:</b> modifico il contatore, poi <u>torno al punto ②</u>: il test si rifà sempre!']
+  ];
+  function set(i){
+    idx=i;nodes.forEach((n,k)=>n.classList.toggle('on',k===i));
+    const m=msgs[i];
+    $('#lifeMsg').innerHTML=`<span class="em">${m[0]}</span><span>${m[1]}</span>`;
+    if(i===3)iter++;
+    $('#lifeCount').textContent='iterazione '+iter+(i===1?' · test in corso':'');
+  }
+  function next(){set((idx+1)%4);if(idx===0&&iter>4){stop();}}
+  function stop(){playing=false;clearInterval(timer);timer=null;$('#lifePlay').textContent='▶ Play';}
+  $('#lifePlay').addEventListener('click',()=>{
+    if(playing){stop();return}
+    playing=true;$('#lifePlay').textContent='⏸ Pausa';
+    timer=setInterval(next,+($('#stpSpeed')?.value||620));
+  });
+  $('#lifeStep').addEventListener('click',()=>{stop();next()});
+  $('#lifeReset').addEventListener('click',()=>{stop();idx=-1;iter=0;nodes.forEach(n=>n.classList.remove('on'));
+    $('#lifeCount').textContent='iterazione 0';
+    $('#lifeMsg').innerHTML='<span class="em">▶</span><span>Premi Play per vedere l\'ordine: nota che l\'<b>aggiornamento</b> arriva <u>dopo</u> il corpo.</span>';});
+  set(0);nodes.forEach(n=>n.classList.remove('on'));
+})();
+
+/* ---------- simulatore for ---------- */
+(function(){
+  const A=$('#fA'),B=$('#fB'),P=$('#fP');
+  function upd(){
+    const a=+A.value,b=+B.value,p=+P.value;
+    $('#fAv').textContent=a;$('#fBv').textContent=b;$('#fPv').textContent=p;
+    const sign=p<0?'-=':'+=';
+    $('#fCode').innerHTML=[
+      `<span class="cl">${hl(`for (int i = ${a}; i <= ${b}; i ${sign} ${Math.abs(p)}) {`)}</span>`,
+      `<span class="cl">${hl('    System.out.println(i);   // corpo')}</span>`,
+      `<span class="cl">}</span>`
+    ].join('\n');
+    const seq=[];let warn='';
+    if(p===0){warn=`<div class="cal bad" style="margin:0"><div class="h">☠️ Ciclo infinito</div><p>Il passo è <b>0</b>: <code>i</code> resta ${a} per sempre e la condizione <code>i &lt;= ${b}</code> ${a<=b?'non diventerà mai falsa':'è già falsa'}.</p></div>`;}
+    else if(p>0&&a>b){warn=`<div class="cal warn" style="margin:0"><div class="h">⚠️ 0 iterazioni</div><p>Parti da ${a} con passo positivo ma il limite è ${b}: la condizione <code>${a} &lt;= ${b}</code> è <b>falsa subito</b>, il corpo non viene mai eseguito.</p></div>`;}
+    else if(p<0){warn=`<div class="cal bad" style="margin:0"><div class="h">☠️ Attenzione</div><p>Con <code>i &lt;= ${b}</code> e passo negativo ${p}, la condizione resta vera per sempre se parti da un valore ≤ ${b}: <b>ciclo infinito</b>. Dovresti scrivere <code>i &gt;= ${b}</code>.</p></div>`;}
+    else{
+      for(let i=a;i<=b&&seq.length<200;i+=p)seq.push(i);
+      warn=`<div class="cal tip" style="margin:0"><div class="h">✅ Tutto ok</div><p>Formula delle iterazioni: <code>(B − A) / P + 1</code> = (${b} − ${a}) / ${p} + 1 = <b>${seq.length}</b>.</p></div>`;
+    }
+    $('#fIter').textContent=(p===0||p<0)?'∞ / 0':seq.length;
+    $('#fSeq').innerHTML=seq.slice(0,60).map(v=>`<span class="chip done" style="width:auto;padding:0 10px">${v}</span>`).join('')+(seq.length>60?`<span class="chip idle" style="width:auto;padding:0 10px">+${seq.length-60}</span>`:'');
+    if(!seq.length&&!warn.includes('infinito'))$('#fSeq').innerHTML='<span class="tiny">nessun valore: il corpo non viene eseguito</span>';
+    $('#fWarn').innerHTML=warn;
+  }
+  [A,B,P].forEach(el=>el.addEventListener('input',upd));
+  upd();
+})();
+
+/* =========================================================================
+   MINI INTERPRETE + TRACER (motore dello stepper)
+   ========================================================================= */
+const S={
+  decl:(name,value,line,vt='int')=>({type:'decl',name,value,line,vt}),
+  set:(name,value,line)=>({type:'set',name,value,line}),
+  setel:(name,index,value,line)=>({type:'setel',name,index,value,line}),
+  print:(value,line,nl=true)=>({type:'print',value,line,nl}),
+  read:(name,queue,line)=>({type:'read',name,queue,line,_i:0}),
+  forSt:(init,cond,condTxt,update,body,line)=>({type:'for',init,cond,condTxt,update,body,line}),
+  whileSt:(cond,condTxt,body,line)=>({type:'while',cond,condTxt,body,line}),
+  doSt:(body,cond,condTxt,line)=>({type:'do',body,cond,condTxt,line}),
+  ifSt:(cond,condTxt,thenB,line,elseB=[])=>({type:'if',cond,condTxt,thenB,elseB,line}),
+  brk:line=>({type:'break',line}),
+  cont:line=>({type:'continue',line})
+};
+function fmtVal(v){
+  if(Array.isArray(v))return '['+v.map(fmtVal).join(', ')+']';
+  if(typeof v==='number')return Number.isInteger(v)?String(v):String(Math.round(v*1000)/1000);
+  return String(v);
+}
+function traceProgram(prog){
+  const steps=[],vars={},out=[];let guard=0,overflow=false;
+  (function reset(ast){ast.forEach(st=>{if(st.type==='read')st._i=0;
+    ['body','thenB','elseB'].forEach(k=>{if(Array.isArray(st[k]))reset(st[k])});
+    if(st.init&&Array.isArray(st.init))reset(st.init);});})(prog.ast);
+  const snap=()=>{const o={};for(const k in vars)o[k]=Array.isArray(vars[k])?vars[k].slice():vars[k];return o};
+  const ev=e=>{
+    if(e===undefined||e===null)return undefined;
+    const keys=Object.keys(vars);
+    try{const fn=new Function(...keys,'"use strict";return ('+e+');');return fn(...keys.map(k=>vars[k]))}
+    catch(err){return undefined}
+  };
+  const push=o=>{if(steps.length>900){overflow=true;throw new Error('cap')}steps.push(Object.assign({vars:snap(),out:out.slice()},o))};
+  const BRK={},CONT={};
+  function block(sts){for(const st of sts){const r=stmt(st);if(r)return r}return null}
+  function stmt(st){
+    if(++guard>60000){overflow=true;throw new Error('guard')}
+    switch(st.type){
+      case 'decl':vars[st.name]=ev(st.value);
+        push({line:st.line,icon:'📦',msg:`Dichiaro <code>${st.vt} ${st.name}</code> e le assegno <b>${fmtVal(vars[st.name])}</b>`});return null;
+      case 'set':vars[st.name]=ev(st.value);
+        push({line:st.line,icon:'✏️',msg:`Assegnazione: <code>${st.name} = ${esc(st.value)}</code> → ora vale <b>${fmtVal(vars[st.name])}</b>`});return null;
+      case 'setel':{const arr=vars[st.name],ix=ev(st.index),v=ev(st.value);arr[ix]=v;
+        push({line:st.line,icon:'✏️',msg:`<code>${st.name}[${ix}] = ${fmtVal(v)}</code> → array: <b>${fmtVal(arr)}</b>`});return null;}
+      case 'print':{const v=ev(st.value);const s=(typeof v==='string')?v:fmtVal(v);
+        if(st.nl)out.push(s);else{out.length?out[out.length-1]+=s:out.push(s)}
+        push({line:st.line,icon:'🖨️',msg:`Stampo a video: <b>${esc(s)}</b>`});return null;}
+      case 'read':{const v=st.queue[Math.min(st._i,st.queue.length-1)];st._i++;vars[st.name]=v;
+        push({line:st.line,icon:'⌨️',msg:`<code>leggi()</code> restituisce il valore <b>${fmtVal(v)}</b> → assegnato a <code>${st.name}</code>`});return null;}
+      case 'for':{
+        if(st.init)stmt(st.init);
+        let it=0;
+        for(;;){
+          const c=ev(st.cond);
+          push({line:st.line,icon:'🔍',msg:`Test condizione <code>${esc(st.condTxt)}</code> → <b style="color:${c?'var(--lime)':'var(--red)'}">${c?'VERO':'FALSO'}</b> · ${c?'entro nel corpo (iterazione '+(it+1)+')':'esco dal ciclo'}`});
+          if(!c)break;
+          const r=block(st.body);
+          it++;
+          if(r===BRK)break;
+          if(st.update)stmt(st.update);
+        }
+        return null;}
+      case 'while':{
+        let it=0;
+        for(;;){
+          const c=ev(st.cond);
+          push({line:st.line,icon:'🔍',msg:`Test condizione <code>${esc(st.condTxt)}</code> → <b style="color:${c?'var(--lime)':'var(--red)'}">${c?'VERO':'FALSO'}</b>${c?' · eseguo il corpo':' · esco dal ciclo'}`});
+          if(!c)break;
+          const r=block(st.body);it++;
+          if(r===BRK)break;
+        }
+        return null;}
+      case 'do':{
+        let it=0;
+        for(;;){
+          push({line:st.line,icon:'⚙️',msg:`<b>do-while:</b> eseguo il corpo <u>senza prima controllare</u> la condizione (iterazione ${it+1})`});
+          const r=block(st.body);it++;
+          if(r===BRK)break;
+          const c=ev(st.cond);
+          push({line:st.line,icon:'🔍',msg:`Ora test <code>${esc(st.condTxt)}</code> → <b style="color:${c?'var(--lime)':'var(--red)'}">${c?'VERO, ripeto':'FALSO, esco'}</b>`});
+          if(!c)break;
+        }
+        return null;}
+      case 'if':{
+        const c=ev(st.cond);
+        push({line:st.line,icon:'🔀',msg:`<code>if (${esc(st.condTxt)})</code> → <b style="color:${c?'var(--lime)':'var(--amb)'}">${c?'VERO':'FALSO'}</b> · ${c?'eseguo il blocco then':'salto il blocco'+(st.elseB.length?' (eseguo else)':'')}`});
+        const r=block(c?st.thenB:st.elseB);
+        return r||null;}
+      case 'break':push({line:st.line,icon:'⛔',msg:`<b style="color:var(--red)">break</b>: esco immediatamente dal ciclo. Le iterazioni restanti non verranno eseguite.`});return BRK;
+      case 'continue':push({line:st.line,icon:'⏭️',msg:`<b style="color:var(--amb)">continue</b>: salto il resto del corpo e torno subito al test della condizione.`});return CONT;
+    }
+    return null;
+  }
+  try{block(prog.ast);push({line:-1,icon:'🏁',msg:`<b style="color:var(--lime)">Fine del programma.</b> ${out.length?` Prodotte ${out.length} righe di output.`:'Nessun output.'}`});}
+  catch(e){if(!overflow)console.warn(e)}
+  return {steps,overflow};
+}
+
+/* ---------- programmi ---------- */
+const PROGRAMS={
+  facile:[
+    {name:'① Conta da 1 a 5',desc:'Il ciclo più semplice: un contatore, una condizione, una stampa.',
+     lines:['for (int i = 1; i <= 5; i++) {','    System.out.println(i);','}','System.out.println("Fine");'],
+     ast:[S.forSt(S.decl('i','1',0),  'i <= 5','i <= 5',S.set('i','i + 1',0),[S.print('i',1)],0),
+          S.print('"Fine"',3)]},
+    {name:'② Somma con while',desc:'Un accumulatore (somma) e un contatore gestito a mano: il while richiede disciplina.',
+     lines:['int somma = 0;','int i = 1;','while (i <= 5) {','    somma = somma + i;','    i = i + 1;','}','System.out.println("Somma = " + somma);'],
+     ast:[S.decl('somma','0',0),S.decl('i','1',1),
+          S.whileSt('i <= 5','i <= 5',[S.set('somma','somma + i',3),S.set('i','i + 1',4)],2),
+          S.print('"Somma = " + somma',6)]},
+    {name:'③ Tabellina del 3',desc:'Uso del contatore dentro un\'espressione: stampa e calcolo insieme.',
+     lines:['int n = 3;','for (int i = 1; i <= 10; i++) {','    System.out.println(n + " x " + i + " = " + (n * i));','}'],
+     ast:[S.decl('n','3',0),
+          S.forSt(S.decl('i','1',1),'i <= 10','i <= 10',S.set('i','i + 1',1),[S.print('n + " x " + i + " = " + (n * i)',2)],1)]}
+  ],
+  medio:[
+    {name:'① Accumulatori: somma e conteggio dei pari',desc:'Due accumulatori e un if: come si contano e sommano solo gli elementi che rispettano una condizione.',
+     lines:['int somma = 0;','int conteggio = 0;','for (int i = 1; i <= 10; i++) {','    if (i % 2 == 0) {','        somma = somma + i;','        conteggio = conteggio + 1;','    }','}','System.out.println("Somma = " + somma + " (" + conteggio + " valori)");'],
+     ast:[S.decl('somma','0',0),S.decl('conteggio','0',1),
+          S.forSt(S.decl('i','1',2),'i <= 10','i <= 10',S.set('i','i + 1',2),[
+            S.ifSt('i % 2 == 0','i % 2 == 0',[S.set('somma','somma + i',4),S.set('conteggio','conteggio + 1',5)],3)
+          ],2),
+          S.print('"Somma = " + somma + " (" + conteggio + " valori)"',8)]},
+    {name:'② Sentinella: media dei voti',desc:'Il ciclo termina su un valore speciale (-1). Nota le DUE letture.',
+     lines:['int somma = 0;','int n = 0;','int voto = leggi();            // 6','while (voto != -1) {','    somma = somma + voto;','    n = n + 1;','    voto = leggi();            // 7, 5, 8, -1','}','System.out.println("Media = " + (somma / n));'],
+     ast:[S.decl('somma','0',0),S.decl('n','0',1),S.read('voto',[6,7,5,8,-1],2),
+          S.whileSt('voto != -1','voto != -1',[S.set('somma','somma + voto',4),S.set('n','n + 1',5),S.read('voto',[6,7,5,8,-1],6)],3),
+          S.print('"Media = " + (somma / n)',8)]},
+    {name:'③ break e continue insieme',desc:'Salto dei multipli di 3 e uscita anticipata quando i supera 7.',
+     lines:['for (int i = 1; i <= 10; i++) {','    if (i % 3 == 0) {','        continue;','    }','    if (i > 7) {','        break;','    }','    System.out.println(i);','}'],
+     ast:[S.forSt(S.decl('i','1',0),'i <= 10','i <= 10',S.set('i','i + 1',0),[
+            S.ifSt('i % 3 == 0','i % 3 == 0',[S.cont(2)],1),
+            S.ifSt('i > 7','i > 7',[S.brk(5)],4),
+            S.print('i',7)
+          ],0)]}
+  ],
+  difficile:[
+    {name:'① Ricerca del massimo in un array',desc:'Scansione con indice e doppio accumulatore (valore + posizione).',
+     lines:['int[] v = {4, 9, 2, 7, 5};','int max = v[0];','int posMax = 0;','for (int i = 1; i < v.length; i++) {','    if (v[i] > max) {','        max = v[i];','        posMax = i;','    }','}','System.out.println("Max = " + max + " in posizione " + posMax);'],
+     ast:[S.decl('v','[4, 9, 2, 7, 5]',0,'int[]'),S.decl('max','v[0]',1),S.decl('posMax','0',2),
+          S.forSt(S.decl('i','1',3),'i < v.length','i < v.length',S.set('i','i + 1',3),[
+            S.ifSt('v[i] > max','v[i] > max',[S.set('max','v[i]',5),S.set('posMax','i',6)],4)
+          ],3),
+          S.print('"Max = " + max + " in posizione " + posMax',9)]},
+    {name:'② Bubble sort (cicli annidati)',desc:'Ordinamento a bolle: due cicli, uno scambio a tre variabili, limite interno che si riduce.',
+     lines:['int[] a = {5, 2, 8, 1, 4};','for (int i = 0; i < a.length - 1; i++) {','    for (int j = 0; j < a.length - 1 - i; j++) {','        if (a[j] > a[j + 1]) {','            int tmp = a[j];','            a[j] = a[j + 1];','            a[j + 1] = tmp;','        }','    }','}','System.out.println("Ordinato: " + Arrays.toString(a));'],
+     ast:[S.decl('a','[5, 2, 8, 1, 4]',0,'int[]'),
+          S.forSt(S.decl('i','0',1),'i < a.length - 1','i < a.length - 1',S.set('i','i + 1',1),[
+            S.forSt(S.decl('j','0',2),'j < a.length - 1 - i','j < a.length - 1 - i',S.set('j','j + 1',2),[
+              S.ifSt('a[j] > a[j + 1]','a[j] > a[j + 1]',[
+                S.decl('tmp','a[j]',4),S.setel('a','j','a[j + 1]',5),S.setel('a','j + 1','tmp',6)
+              ],3)
+            ],2)
+          ],1),
+          S.print('"Ordinato: " + a',10)]},
+    {name:'③ Matrice: somma per riga',desc:'Ciclo annidato su matrice con accumulatore azzerato a ogni riga.',
+     lines:['int[][] m = { {1, 2, 3}, {4, 5, 6} };','int totale = 0;','for (int r = 0; r < m.length; r++) {','    int sommaRiga = 0;','    for (int c = 0; c < m[r].length; c++) {','        sommaRiga = sommaRiga + m[r][c];','    }','    totale = totale + sommaRiga;','    System.out.println("Riga " + r + " = " + sommaRiga);','}','System.out.println("Totale = " + totale);'],
+     ast:[S.decl('m','[[1, 2, 3], [4, 5, 6]]',0,'int[][]'),S.decl('totale','0',1),
+          S.forSt(S.decl('r','0',2),'r < m.length','r < m.length',S.set('r','r + 1',2),[
+            S.decl('sommaRiga','0',3),
+            S.forSt(S.decl('c','0',4),'c < m[r].length','c < m[r].length',S.set('c','c + 1',4),[
+              S.set('sommaRiga','sommaRiga + m[r][c]',5)
+            ],4),
+            S.set('totale','totale + sommaRiga',7),
+            S.print('"Riga " + r + " = " + sommaRiga',8)
+          ],2),
+          S.print('"Totale = " + totale',10)]},
+    {name:'④ Fibonacci con scambio',desc:'Tre variabili che ruotano: classico esempio dove l\'ordine delle assegnazioni è critico.',
+     lines:['int a = 0;','int b = 1;','for (int i = 1; i <= 10; i++) {','    System.out.print(a + " ");','    int c = a + b;','    a = b;','    b = c;','}','System.out.println();','System.out.println("Decimo termine = " + a);'],
+     ast:[S.decl('a','0',0),S.decl('b','1',1),
+          S.forSt(S.decl('i','1',2),'i <= 10','i <= 10',S.set('i','i + 1',2),[
+            S.print('a + " "',3,false),S.decl('c','a + b',4),S.set('a','b',5),S.set('b','c',6)
+          ],2),
+          S.print('""',8),S.print('"Decimo termine = " + a',9)]}
+  ]
+};
+
+/* ---------- stepper UI ---------- */
+let STP={steps:[],i:-1,timer:null,prog:null};
+function buildStepperSelect(){
+  const sel=$('#stpProg');
+  sel.innerHTML=PROGRAMS[LEVEL].map((p,i)=>`<option value="${i}">${p.name}</option>`).join('');
+  loadProgram(0);
+}
+function loadProgram(idx){
+  stopPlay();
+  STP.prog=PROGRAMS[LEVEL][idx];
+  $('#stpDesc').textContent=STP.prog.desc;
+  paintCode($('#stpCode'),STP.prog.lines.join('\n'),'java');
+  const {steps,overflow}=traceProgram(STP.prog);
+  STP.steps=steps;STP.i=-1;
+  $('#stpTot').textContent=steps.length;$('#stpNow').textContent=0;$('#stpBar').style.width='0%';
+  $$('#stpCode .cl').forEach(c=>c.classList.remove('active','was'));
+  renderStep(-1);
+  if(overflow)toast('Programma troncato: troppe iterazioni (>900 passi)','⚠');
+  buildFullTable();
+}
+function renderStep(i){
+  const s=STP.steps[i];
+  $$('#stpCode .cl').forEach(c=>c.classList.remove('active'));
+  if(s&&s.line>=0){const cl=$(`#stpCode .cl[data-ln="${s.line}"]`);if(cl){cl.classList.add('active');
+    for(let k=0;k<s.line;k++)$(`#stpCode .cl[data-ln="${k}"]`)?.classList.add('was');}
+    cl?.scrollIntoView({block:'nearest'});}
+  $('#stpNow').textContent=Math.max(0,i+1);
+  $('#stpBar').style.width=((i+1)/STP.steps.length*100)+'%';
+  if(s){
+    $('#stpMsg').innerHTML=`<span class="em">${s.icon||'▸'}</span><span>${s.msg}</span>`;
+    const tb=$('#stpVars tbody');
+    const keys=Object.keys(s.vars);
+    tb.innerHTML=keys.length?keys.map(k=>`<tr><td class="vn">${esc(k)}</td><td class="vv">${esc(fmtVal(s.vars[k]))}</td></tr>`).join(''):'<tr><td colspan="2" class="mut">nessuna variabile</td></tr>';
+    if(s.icon==='✏️'||s.icon==='📦')$$('tr',tb).forEach(r=>{r.classList.add('flash');setTimeout(()=>r.classList.remove('flash'),700)});
+    const oc=$('#stpOut');
+    oc.innerHTML=s.out.length?s.out.map(o=>`<div class="co-line">${esc(o)}</div>`).join(''):'<span class="empty">// ancora niente…</span>';
+    oc.scrollTop=oc.scrollHeight;
+  }else{
+    $('#stpMsg').innerHTML='<span class="em">👀</span><span>Premi <b>Play</b> oppure <b>Avanti</b> per iniziare l\'esecuzione.</span>';
+    $('#stpVars tbody').innerHTML='<tr><td colspan="2" class="mut">—</td></tr>';
+    $('#stpOut').innerHTML='<span class="empty">// ancora niente…</span>';
+    $$('#stpCode .cl').forEach(c=>c.classList.remove('was'));
+  }
+}
+function stepBy(d){
+  const n=Math.max(-1,Math.min(STP.steps.length-1,STP.i+d));
+  if(n===STP.i)return;STP.i=n;renderStep(n);
+  if(n>=STP.steps.length-1)stopPlay();
+}
+function stopPlay(){clearInterval(STP.timer);STP.timer=null;$('#stpPlay').textContent='▶ Play'}
+$('#stpNext').addEventListener('click',()=>{stopPlay();stepBy(1)});
+$('#stpPrev').addEventListener('click',()=>{stopPlay();stepBy(-1)});
+$('#stpStart').addEventListener('click',()=>{stopPlay();STP.i=-1;renderStep(-1)});
+$('#stpPlay').addEventListener('click',()=>{
+  if(STP.timer){stopPlay();return}
+  if(STP.i>=STP.steps.length-1){STP.i=-1;renderStep(-1)}
+  $('#stpPlay').textContent='⏸ Pausa';
+  const tick=()=>{stepBy(1);if(STP.i>=STP.steps.length-1)stopPlay()};
+  tick();STP.timer=setInterval(tick,1560-(+$('#stpSpeed').value));
+});
+$('#stpSpeed').addEventListener('input',()=>{if(STP.timer){stopPlay();$('#stpPlay').click()}});
+$('#stpProg').addEventListener('change',e=>loadProgram(+e.target.value));
+$('#stpTable').addEventListener('change',e=>$('#stpTableWrap').classList.toggle('is-hidden',!e.target.checked));
+function buildFullTable(){
+  const tb=$('#stpFullTable tbody');
+  tb.innerHTML=STP.steps.map((s,i)=>{
+    const vars=Object.keys(s.vars).map(k=>`${k}=${fmtVal(s.vars[k])}`).join(' · ')||'—';
+    const msg=s.msg.replace(/<[^>]+>/g,'');
+    return `<tr><td>${i+1}</td><td>${s.line>=0?s.line+1:'—'}</td><td>${esc(vars)}</td><td>${esc(s.out.join(' | ')||'')}</td><td style="font-family:'Space Grotesk',sans-serif">${esc(msg)}</td></tr>`;
+  }).join('');
+}
+document.addEventListener('keydown',e=>{
+  if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
+  const r=$('#stepper').getBoundingClientRect();
+  if(r.top<innerHeight*.75&&r.bottom>innerHeight*.25){
+    if(e.key==='ArrowRight'){e.preventDefault();stopPlay();stepBy(1)}
+    if(e.key==='ArrowLeft'){e.preventDefault();stopPlay();stepBy(-1)}
+  }
+});
+buildStepperSelect();
+
+/* =========================================================================
+   LAB 3 · while vs do-while
+   ========================================================================= */
+(function(){
+  const A=$('#wCodeA'),B=$('#wCodeB');
+  A.innerHTML=['int x = X;','int n = 0;','while (x < 8) {','    System.out.println(x);','    x = x + 2;','    n = n + 1;','}'].map(l=>`<span class="cl">${hl(l)}</span>`).join('\n');
+  B.innerHTML=['int x = X;','int n = 0;','do {','    System.out.println(x);','    x = x + 2;','    n = n + 1;','} while (x < 8);'].map(l=>`<span class="cl">${hl(l)}</span>`).join('\n');
+  const X=$('#wX');let timer=null;
+  function setX(){const v=+X.value;$('#wXv').textContent=v;
+    [A,B].forEach(el=>{
+      [...el.querySelectorAll('.cl')].forEach((c,i)=>{if(i===0)c.innerHTML=hl(`int x = ${v};`)});
+    });}
+  X.addEventListener('input',setX);setX();
+  $('#wReset').addEventListener('click',()=>{clearInterval(timer);$('#wItA').textContent='–';$('#wItB').textContent='–';
+    $('#wXfA').textContent='–';$('#wXfB').textContent='–';$('#wTrackA').innerHTML='';$('#wTrackB').innerHTML='';
+    $('#wMsg').innerHTML='<div class="h">💡 Risultato</div><p>Premi «Esegui entrambi».</p>'});
+  $('#wRun').addEventListener('click',()=>{
+    clearInterval(timer);
+    const x0=+X.value;
+    let xa=x0,na=0,xb=x0,nb=0,first=true;
+    const ta=$('#wTrackA'),tb=$('#wTrackB');ta.innerHTML='';tb.innerHTML='';
+    const pushA=()=>ta.insertAdjacentHTML('beforeend',`<span class="chip done" style="width:auto;padding:0 9px">${xa}</span>`);
+    const pushB=()=>tb.insertAdjacentHTML('beforeend',`<span class="chip done" style="width:auto;padding:0 9px">${xb}</span>`);
+    timer=setInterval(()=>{
+      /* while */
+      if(na<50&&xa<8){pushA();xa+=2;na++;$('#wItA').textContent=na;$('#wXfA').textContent=xa}
+      /* do-while */
+      if(first||xb<8){if(nb<50){pushB();xb+=2;nb++;$('#wItB').textContent=nb;$('#wXfB').textContent=xb}}
+      first=false;
+      const doneA=!(xa<8),doneB=!first&&!(xb<8);
+      if(doneA&&doneB){
+        clearInterval(timer);
+        let html;
+        if(na===nb)html=`<div class="h">✅ Stesso risultato</div><p>Con <code>x = ${x0}</code> entrambi eseguono <b>${na}</b> iterazioni: la condizione iniziale era già <b>vera</b>, quindi il controllo «prima» o «dopo» non cambia nulla.</p>`;
+        else html=`<div class="h">🎯 Ecco la differenza!</div><p>Con <code>x = ${x0}</code> la condizione <code>x &lt; 8</code> è <b>falsa fin dall'inizio</b>: il <code>while</code> non entra mai nel corpo (<b>${na}</b> iterazioni), il <code>do-while</code> invece esegue il corpo <b>almeno una volta</b> (<b>${nb}</b> iterazioni). Prova a riportare lo slider su un valore &lt; 8: tornano identici.</p>`;
+        $('#wMsg').innerHTML=html+(na===0?'':'');
+        $('#wMsg').className='cal '+(na===nb?'tip':'warn');
+      }
+    },420);
+  });
+})();
+
+/* =========================================================================
+   LAB 4/5 · cicli annidati
+   ========================================================================= */
+(function(){
+  const R=$('#gR'),C=$('#gC'),PAT=$('#gPat'),grid=$('#grid');
+  let timer=null;
+  const PATTERNS={
+    pieno:{name:'quadrato pieno',test:(i,j,r,c)=>true,cell:()=>'■',
+      code:(r,c)=>['for (int i = 0; i < R; i++) {','    for (int j = 0; j < C; j++) {','        System.out.print("* ");','    }','    System.out.println();','}']},
+    triangolo:{name:'triangolo',test:(i,j)=>j<=i,cell:()=>'▲',
+      code:()=>['for (int i = 0; i < R; i++) {','    for (int j = 0; j <= i; j++) {','        System.out.print("* ");','    }','    System.out.println();','}']},
+    scacchiera:{name:'scacchiera',test:(i,j)=>(i+j)%2===0,cell:()=>'◆',
+      code:()=>['for (int i = 0; i < R; i++) {','    for (int j = 0; j < C; j++) {','        if ((i + j) % 2 == 0) {','            System.out.print("# ");','        } else {','            System.out.print("  ");','        }','    }','    System.out.println();','}']},
+    cornice:{name:'solo cornice',test:(i,j,r,c)=>i===0||j===0||i===r-1||j===c-1,cell:()=>'▣',
+      code:()=>['for (int i = 0; i < R; i++) {','    for (int j = 0; j < C; j++) {','        if (i == 0 || j == 0 || i == R - 1 || j == C - 1) {','            System.out.print("* ");','        } else {','            System.out.print("  ");','        }','    }','    System.out.println();','}']},
+    tabelline:{name:'tabelline (i*j)',test:()=>true,cell:(i,j)=>String((i+1)*(j+1)),num:true,
+      code:()=>['for (int i = 1; i <= R; i++) {','    for (int j = 1; j <= C; j++) {','        System.out.print(i * j + "\\t");','    }','    System.out.println();','}']},
+    diagonale:{name:'diagonale',test:(i,j)=>i===j,cell:()=>'✕',
+      code:()=>['for (int i = 0; i < R; i++) {','    for (int j = 0; j < C; j++) {','        if (i == j) {','            System.out.print("X ");','        } else {','            System.out.print(". ");','        }','    }','    System.out.println();','}']}
+  };
+  function build(){
+    stop();
+    const r=+R.value,c=+C.value,p=PATTERNS[PAT.value];
+    $('#gRv').textContent=r;$('#gCv').textContent=c;$('#gPatName').textContent=p.name;
+    grid.style.gridTemplateColumns=`repeat(${c},minmax(0,1fr))`;
+    grid.style.maxWidth=Math.min(560,c*46)+'px';
+    let html='';
+    for(let i=0;i<r;i++)for(let j=0;j<c;j++)html+=`<div class="cell" data-i="${i}" data-j="${j}"></div>`;
+    grid.innerHTML=html;
+    $('#gCode').innerHTML=(p.code(r,c).join('\n')).split('\n').map(l=>`<span class="cl">${hl(l.replace('R',r).replace('C',c))}</span>`).join('\n');
+    $('#gTot').textContent='–';$('#gCnt').textContent='0';$('#gI').textContent='–';$('#gJ').textContent='–';
+    $('#gFormula').innerHTML=`${r} × ${c} = <b>${r*c}</b> iterazioni del ciclo interno`;
+  }
+  function stop(){clearInterval(timer);timer=null;$('#gPlay').textContent='▶ Costruisci'}
+  function run(){
+    if(timer){stop();return}
+    const r=+R.value,c=+C.value,p=PATTERNS[PAT.value];
+    const cells=$$('#grid .cell');let i=0,j=0,cnt=0,iter=0;
+    $('#gPlay').textContent='⏸ Pausa';
+    timer=setInterval(()=>{
+      cells.forEach(cl=>cl.classList.remove('cur'));
+      const cell=cells[i*c+j];
+      cell.classList.add('cur');
+      $('#gI').textContent=i;$('#gJ').textContent=j;
+      if(p.test(i,j,r,c)){cell.classList.add('on');cell.classList.remove('cur');cell.textContent=p.cell(i,j,r,c);cnt++}
+      iter++;$('#gCnt').textContent=cnt;$('#gTot').textContent=iter+' / '+r*c;
+      j++;
+      if(j>=c){j=0;i++}
+      if(i>=r){stop();$('#gTot').textContent=r*c;
+        toast(`Fatte ${r*c} iterazioni, ${cnt} celle attive`,'🧱')}
+    },320-(+$('#gSpeed').value));
+  }
+  $('#gPlay').addEventListener('click',run);
+  $('#gReset').addEventListener('click',build);
+  [R,C].forEach(e=>e.addEventListener('input',build));
+  PAT.addEventListener('change',build);
+  $('#gSpeed').addEventListener('input',()=>{if(timer){stop();run()}});
+  build();
+  /* bars O(n^2) */
+  const bars=$('#bars');
+  bars.innerHTML=Array.from({length:10},(_,k)=>{const n=k+1;return `<div class="b" style="height:${(n*n/100)*100}%"><span>${n*n}</span><em>n=${n}</em></div>`}).join('');
+})();
+
+/* =========================================================================
+   LAB 6 · break & continue
+   ========================================================================= */
+(function(){
+  const N=$('#bcN'),K=$('#bcK'),T=$('#bcT');let timer=null;
+  function params(){return{n:+N.value,k:+K.value,t:+T.value}}
+  function paintCodeGen(){
+    const {n,k,t}=params();
+    $('#bcNv').textContent=n;$('#bcKv').textContent=k;$('#bcTv').textContent=t;
+    const src=[
+      `for (int i = 1; i <= ${n}; i++) {`,
+      `    if (i % ${k} == 0) {`,
+      `        continue;              // salta questo giro`,
+      `    }`,
+      `    if (i > ${t}) {`,
+      `        break;                 // esce dal ciclo`,
+      `    }`,
+      `    System.out.println(i);`,
+      `}`
+    ];
+    $('#bcCode').innerHTML=src.map(l=>`<span class="cl">${hl(l)}</span>`).join('\n');
+  }
+  function buildStream(){
+    const {n}=params();let h='';
+    for(let i=1;i<=n;i++)h+=`<span class="chip idle" data-v="${i}">${i}</span>`;
+    $('#bcStream').innerHTML=h;
+    $('#bcOut').innerHTML='<span class="empty">// premi «Filtra»</span>';
+    $('#bcMsg').innerHTML='<p>Regola i parametri e osserva come cambiano codice e output.</p>';
+    $('#bcMsg').className='cal tip';
+  }
+  function run(){
+    clearInterval(timer);buildStream();paintCodeGen();
+    const {n,k,t}=params();
+    const chips=$$('#bcStream .chip');const printed=[];let i=0,stopped=false;
+    timer=setInterval(()=>{
+      if(i>=n){finish();return}
+      const v=i+1,ch=chips[i];
+      ch.classList.remove('idle');ch.classList.add('cur');
+      setTimeout(()=>{
+        ch.classList.remove('cur');
+        if(v%k===0){ch.classList.add('skip');}
+        else if(v>t){ch.classList.add('stop');stopped=true;}
+        else{ch.classList.add('done');printed.push(v);}
+      },140);
+      i++;
+      if(stopped){setTimeout(finish,260);clearInterval(timer);}
+    },300);
+    function finish(){
+      clearInterval(timer);
+      const oc=$('#bcOut');
+      oc.innerHTML=printed.length?printed.map(p=>`<div class="co-line">${p}</div>`).join('')+'<div class="co-line ok">// fine ciclo</div>':'<span class="empty">// nessun valore stampato!</span>';
+      let m;
+      if(!printed.length){m=`<div class="h">🤔 Nessuna stampa</div><p>Ogni valore è stato scartato da <code>continue</code> (multipli di ${k}) oppure il <code>break</code> è scattato subito. Controlla i parametri!</p>`;$('#bcMsg').className='cal warn'}
+      else if(stopped){m=`<div class="h">⛔ break attivato</div><p>Il ciclo si è fermato a <b>i = ${t+1}</b>: i numeri ${t+1}…${n} non sono <u>mai stati esaminati</u>. Valori stampati: <b>${printed.length}</b> su ${n}.</p>`;$('#bcMsg').className='cal bad'}
+      else{m=`<div class="h">✅ Ciclo completato</div><p>Sono stati stampati <b>${printed.length}</b> valori su ${n}; i multipli di ${k} sono stati saltati dal <code>continue</code>, che però <u>ha eseguito comunque</u> l'aggiornamento <code>i++</code>.</p>`;$('#bcMsg').className='cal tip'}
+      $('#bcMsg').innerHTML=m;
+    }
+  }
+  [N,K,T].forEach(e=>e.addEventListener('input',()=>{clearInterval(timer);paintCodeGen();buildStream()}));
+  $('#bcRun').addEventListener('click',run);
+  $('#bcReset').addEventListener('click',()=>{clearInterval(timer);buildStream()});
+  paintCodeGen();buildStream();
+})();
+
+/* =========================================================================
+   LAB 7 · trova il bug
+   ========================================================================= */
+const BUGS={
+  facile:[
+    {title:'Dovrebbe stampare 1 2 3 4 5',
+     lines:['for (int i = 1; i <= 5; i--) {','    System.out.println(i);','}'],
+     bug:0,hint:'Guarda come cambia <code>i</code> a ogni giro: si avvicina o si allontana da 5?',
+     why:'L\'aggiornamento <code>i--</code> <b>allontana</b> il contatore dal limite: <code>i</code> diventa 0, −1, −2… e la condizione <code>i &lt;= 5</code> resta vera per sempre → <b>ciclo infinito</b>.',
+     fix:'for (int i = 1; i <= 5; i++) {'},
+    {title:'Dovrebbe stampare da 0 a 10 COMPRESI',
+     lines:['for (int i = 0; i < 10; i++) {','    System.out.println(i);','}'],
+     bug:0,hint:'Quanti numeri stampa davvero? L\'ultimo è 9 o 10?',
+     why:'Errore <b>off-by-one</b>: <code>i &lt; 10</code> si ferma a 9, quindi il 10 non viene stampato. Per includere l\'estremo serve <code>&lt;=</code>.',
+     fix:'for (int i = 0; i <= 10; i++) {'}
+  ],
+  medio:[
+    {title:'Dovrebbe contare alla rovescia da 10 a 1',
+     lines:['int i = 10;','while (i >= 1) {','    System.out.println(i);','    i = i + 1;','}'],
+     bug:3,hint:'La variabile della condizione viene modificata nel corpo… nella direzione giusta?',
+     why:'Il corpo <b>incrementa</b> <code>i</code> invece di decrementarlo: la condizione <code>i &gt;= 1</code> resta vera per sempre e il contatore cresce all\'infinito (fino all\'overflow).',
+     fix:'    i = i - 1;'},
+    {title:'Dovrebbe stampare solo i numeri PARI da 1 a 10',
+     lines:['for (int i = 1; i <= 10; i++) {','    if (i % 2 == 1) {','        continue;','    }','    System.out.println(i);','}'],
+     bug:1,hint:'<code>i % 2</code> vale 0 per i pari e 1 per i dispari. Quale dei due vuoi saltare?',
+     why:'La condizione <code>i % 2 == 1</code> è vera per i <b>dispari</b>: vengono saltati proprio loro. Il testo però chiede di <u>stampare</u> i pari: il risultato è corretto, ma il filtro è scritto in modo ambiguo e poco leggibile. Meglio esplicitare <code>i % 2 != 0</code> per «salta i dispari».',
+     fix:'    if (i % 2 != 0) {        // salta i dispari'}
+  ],
+  difficile:[
+    {title:'Dovrebbe sommare tutti gli elementi dell\'array',
+     lines:['int[] v = {3, 7, 2, 8};','int somma = 0;','for (int i = 0; i <= v.length; i++) {','    somma = somma + v[i];','}','System.out.println(somma);'],
+     bug:2,hint:'Qual è l\'ultimo indice valido di un array di 4 elementi?',
+     why:'Gli indici vanno da <b>0</b> a <b>length − 1</b>. Con <code>i &lt;= v.length</code> si tenta di leggere <code>v[4]</code> → eccezione <code>ArrayIndexOutOfBoundsException</code>. La condizione corretta è <code>i &lt; v.length</code>.',
+     fix:'for (int i = 0; i < v.length; i++) {'},
+    {title:'Dovrebbe calcolare la somma TOTALE della matrice',
+     lines:['int[][] m = {{1,2},{3,4}};','int totale = 0;','for (int i = 0; i < m.length; i++) {','    totale = 0;','    for (int j = 0; j < m[i].length; j++) {','        totale = totale + m[i][j];','    }','}','System.out.println(totale);'],
+     bug:3,hint:'Dove deve vivere l\'accumulatore: dentro o fuori dal ciclo esterno?',
+     why:'L\'azzeramento di <code>totale</code> è <b>dentro</b> il ciclo esterno: a ogni riga il parziale viene cancellato. Alla fine resta solo la somma dell\'<u>ultima</u> riga (7 invece di 10). L\'inizializzazione degli accumulatori va fatta <b>prima</b> del ciclo.',
+     fix:'    int sommaRiga = 0;   // accumulatore di riga, non totale!'},
+    {title:'Dovrebbe fermarsi al primo numero negativo',
+     lines:['int[] v = {4, 8, -3, 7, -9};','for (int i = 0; i < v.length; i++) {','    if (v[i] < 0) {','        continue;','    }','    System.out.println(v[i]);','}'],
+     bug:3,hint:'Vuoi uscire dal ciclo o solo saltare un valore?',
+     why:'<code>continue</code> <b>salta</b> l\'iterazione corrente ma il ciclo prosegue fino alla fine. Per <u>interrompere</u> la scansione al primo negativo serve <code>break</code>.',
+     fix:'        break;'}
+  ]
+};
+let bugIdx=0,bugTries=0;
+function buildBug(){
+  bugIdx=0;paintBug();
+}
+function paintBug(){
+  const list=BUGS[LEVEL],b=list[bugIdx%list.length];bugTries=0;
+  $('#bugIdx').textContent=`sfida ${(bugIdx%list.length)+1} / ${list.length}`;
+  $('#bugTitle').textContent=b.title;
+  $('#bugCode').innerHTML=b.lines.map((l,i)=>`<span class="cl bugline" data-ln="${i}">${hl(l)}</span>`).join('\n');
+  $('#bugFb').innerHTML=`<div class="cal"><div class="h">🎯 Obiettivo</div><p class="small" style="margin:0">${esc(b.title)}. Una riga è sbagliata: <b>cliccala</b>.</p></div>`;
+  $$('#bugCode .cl').forEach(cl=>{
+    cl.classList.remove('right','wrong');
+    cl.onclick=()=>{
+      const i=+cl.dataset.ln;
+      if(i===b.bug){
+        cl.classList.add('right');
+        $$('#bugCode .cl').forEach(c=>c.onclick=null);
+        $('#bugFb').innerHTML=`<div class="cal tip"><div class="h">✅ Esatto! ${bugTries?`(al ${bugTries+1}° tentativo)`:'Al primo colpo!'}</div>
+          <p class="small">${b.why}</p>
+          <div class="codewrap" style="margin:10px 0 0"><div class="codebar"><span class="lang">Java</span><span class="ttl">riga corretta</span></div>
+          <pre class="code" style="padding:10px 14px"><span class="cl">${hl(b.fix)}</span></pre></div></div>`;
+      }else{
+        bugTries++;cl.classList.add('wrong');
+        setTimeout(()=>cl.classList.remove('wrong'),500);
+        $('#bugFb').innerHTML=`<div class="cal bad"><div class="h">❌ Non è quella</div><p class="small" style="margin:0">Riga ${i+1} corretta sintatticamente. Tentativi: <b>${bugTries}</b>. <button class="mini-b" id="hintBtn2">💡 suggerimento</button></p></div>`;
+        $('#hintBtn2')?.addEventListener('click',()=>showHint(b));
+      }
+    };
+  });
+}
+function showHint(b){
+  $('#bugFb').insertAdjacentHTML('beforeend',`<div class="cal warn"><div class="h">💡 Suggerimento</div><p class="small" style="margin:0">${b.hint}</p></div>`);
+}
+$('#bugHint').addEventListener('click',()=>showHint(BUGS[LEVEL][bugIdx%BUGS[LEVEL].length]));
+$('#bugNext').addEventListener('click',()=>{bugIdx++;paintBug()});
+buildBug();
+
+/* ---------- LAB 8 ciclo infinito ---------- */
+(function(){
+  $('#infCode').innerHTML=[
+    'int i = 1;',
+    'while (i <= 10) {',
+    '    System.out.println("giro " + i);',
+    '    // MANCA: i = i + 1;',
+    '}'
+  ].map(l=>`<span class="cl">${hl(l)}</span>`).join('\n');
+  let t=null,n=0,cpu=0;
+  $('#infRun').addEventListener('click',()=>{
+    $('#infRun').disabled=true;$('#infStop').disabled=false;n=0;cpu=5;
+    $('#infFb').innerHTML=`<div class="alert"><div style="font-size:1.3rem">🚨</div><div><b>CICLO INFINITO IN CORSO!</b><br>
+      <span class="small">Il contatore <code>i</code> vale sempre 1, la condizione <code>i &lt;= 10</code> non diventa mai falsa. Il processo non si fermerà da solo: premi <b>STOP</b>.</span></div></div>`;
+    t=setInterval(()=>{
+      n+=Math.floor(Math.random()*9000)+3000;
+      cpu=Math.min(100,cpu+Math.random()*7);
+      $('#infCount').textContent=n.toLocaleString('it-IT');
+      $('#infCpu').style.width=cpu+'%';
+      if(n>4000000){kill(true)}
+    },60);
+  });
+  function kill(auto){
+    clearInterval(t);t=null;$('#infRun').disabled=false;$('#infStop').disabled=true;
+    $('#infCpu').style.width='0%';
+    $('#infFb').innerHTML=`<div class="cal ${auto?'bad':'tip'}"><div class="h">${auto?'🔥 Processo terminato dal sistema':'⏹ Processo terminato da te'}</div>
+      <p class="small">Iterazioni eseguite: <b>${n.toLocaleString('it-IT')}</b>${auto?' (limite di sicurezza raggiunto)':''}.<br>
+      In un programma reale questo blocca il thread, consuma CPU e batteria e — se il corpo scrive su file o DB — può riempire il disco.<br>
+      <b>La correzione:</b> aggiungere <code>i = i + 1;</code> come ultima istruzione del corpo.</p>
+      <div class="codewrap" style="margin:8px 0 0"><div class="codebar"><span class="lang">Java</span><span class="ttl">versione corretta</span></div>
+      <pre class="code" style="padding:10px 14px;font-size:.8rem">${['int i = 1;','while (i <= 10) {','    System.out.println("giro " + i);','    i = i + 1;      // ← aggiornamento!','}'].map(l=>`<span class="cl">${hl(l)}</span>`).join('\n')}</pre></div></div>`;
+  }
+  $('#infStop').addEventListener('click',()=>kill(false));
+})();
+
+/* =========================================================================
+   PALESTRA DI CODICE (worker + guard anti loop infinito)
+   ========================================================================= */
+const PRESETS={
+  facile:[
+    {name:'Stampa da 1 a 10',code:
+`// Stampa i numeri da 1 a 10
+for (let i = 1; i <= 10; i++) {
+  console.log(i);
+}
+console.log("Finito!");`},
+    {name:'Somma da 1 a 100',code:
+`// Accumulatore: somma dei primi 100 numeri
+let somma = 0;
+for (let i = 1; i <= 100; i++) {
+  somma = somma + i;
+}
+console.log("Somma =", somma);
+// verifica con la formula di Gauss: n*(n+1)/2
+console.log("Formula =", 100 * 101 / 2);`},
+    {name:'Tabellina del 7',code:
+`const n = 7;
+for (let i = 1; i <= 10; i++) {
+  console.log(n + " x " + i + " = " + (n * i));
+}`},
+    {name:'Conto alla rovescia (while)',code:
+`let secondi = 10;
+while (secondi > 0) {
+  console.log(secondi + "...");
+  secondi = secondi - 1;
+}
+console.log("BUON ANNO!");`}
+  ],
+  medio:[
+    {name:'Numeri primi fino a 50',code:
+`// Ciclo annidato + flag + break
+for (let n = 2; n <= 50; n++) {
+  let primo = true;
+  for (let d = 2; d * d <= n; d++) {
+    if (n % d === 0) { primo = false; break; }
+  }
+  if (primo) console.log(n + " e' primo");
+}`},
+    {name:'Media di un array con sentinella',code:
+`const voti = [6, 7, 5, 8, 9, -1];  // -1 = sentinella
+let somma = 0, n = 0, i = 0;
+while (voti[i] !== -1) {
+  somma += voti[i];
+  n++;
+  i++;
+}
+console.log("Voti letti:", n);
+console.log("Media =", (somma / n).toFixed(2));`},
+    {name:'Massimo, minimo e conteggio pari',code:
+`const v = [4, 9, 2, 15, 8, 3, 22, 7];
+let max = v[0], min = v[0], pari = 0;
+for (let i = 1; i < v.length; i++) {
+  if (v[i] > max) max = v[i];
+  if (v[i] < min) min = v[i];
+}
+for (let x of v) {
+  if (x % 2 === 0) pari++;
+}
+console.log("max =", max, "| min =", min, "| pari =", pari);`},
+    {name:'Menu con do-while',code:
+`// Simuliamo le scelte dell'utente
+const scelte = [1, 2, 3, 9];   // 9 = esci
+let k = 0, opzione;
+do {
+  opzione = scelte[k];
+  k++;
+  if (opzione === 1) console.log("> Nuova partita");
+  else if (opzione === 2) console.log("> Classifica");
+  else if (opzione === 3) console.log("> Impostazioni");
+  else console.log("> Arrivederci!");
+} while (opzione !== 9);`}
+  ],
+  difficile:[
+    {name:'Bubble sort con traccia',code:
+`const a = [5, 2, 9, 1, 7, 3];
+for (let i = 0; i < a.length - 1; i++) {
+  let scambi = 0;
+  for (let j = 0; j < a.length - 1 - i; j++) {
+    if (a[j] > a[j + 1]) {
+      const tmp = a[j]; a[j] = a[j + 1]; a[j + 1] = tmp;
+      scambi++;
+    }
+  }
+  console.log("passo " + i + " -> " + a.join(" ") + "  (scambi: " + scambi + ")");
+  if (scambi === 0) { console.log("gia' ordinato, esco prima"); break; }
+}
+console.log("Risultato:", a.join(", "));`},
+    {name:'Matrice: prodotto riga per colonna',code:
+`const m = [[1,2,3],[4,5,6],[7,8,9]];
+let totale = 0;
+for (let r = 0; r < m.length; r++) {
+  let sommaRiga = 0;
+  for (let c = 0; c < m[r].length; c++) {
+    sommaRiga += m[r][c];
+  }
+  totale += sommaRiga;
+  console.log("riga " + r + " somma = " + sommaRiga);
+}
+console.log("totale matrice =", totale);`},
+    {name:'Fibonacci e confronto O(n) vs O(n^2)',code:
+`// Fibonacci iterativo: O(n)
+let a = 0, b = 1;
+const fib = [a];
+for (let i = 1; i < 20; i++) {
+  const c = a + b; a = b; b = c; fib.push(a);
+}
+console.log("Fibonacci:", fib.join(" "));
+
+// conteggio operazioni: ciclo singolo vs annidato
+const n = 30;
+let op1 = 0, op2 = 0;
+for (let i = 0; i < n; i++) { op1++; }
+for (let i = 0; i < n; i++) {
+  for (let j = 0; j < n; j++) { op2++; }
+}
+console.log("n =", n, "-> O(n):", op1, "| O(n^2):", op2);`},
+    {name:'Ricerca binaria (while)',code:
+`const v = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91];
+const target = 23;
+let lo = 0, hi = v.length - 1, passi = 0, pos = -1;
+while (lo <= hi) {
+  passi++;
+  const mid = Math.floor((lo + hi) / 2);
+  console.log("passo " + passi + ": lo=" + lo + " hi=" + hi + " mid=" + mid + " v[mid]=" + v[mid]);
+  if (v[mid] === target) { pos = mid; break; }
+  else if (v[mid] < target) lo = mid + 1;
+  else hi = mid - 1;
+}
+console.log(pos >= 0 ? "Trovato in posizione " + pos : "Non trovato");`}
+  ]
+};
+const CHALLENGES={
+  facile:[
+    {t:'Conta fino a N',d:'Stampa i numeri da 1 a 20 ma salta il 13 usando <code>continue</code>.'},
+    {t:'Somma dei dispari',d:'Calcola la somma dei numeri dispari da 1 a 99 con un accumulatore.'},
+    {t:'Quadrato di stelle',d:'Con due cicli annidati stampa un quadrato 5×5 di asterischi (una riga per ogni <code>console.log</code>).'},
+    {t:'Conta alla rovescia',d:'Da 10 a 1 con <code>while</code>, poi stampa «Decollo!».'},
+    {t:'Tabelline',d:'Stampa la tabellina dall\'1 al 10 (tabellone 10×10) separando i valori con un tab.'},
+    {t:'Media di 5 voti',d:'Dato l\'array <code>[6,7,8,5,9]</code> calcola somma e media con un ciclo.'}
+  ],
+  medio:[
+    {t:'Validazione password',d:'Con <code>do-while</code> simula l\'inserimento di una password: ripeti finché non è lunga almeno 8 caratteri.'},
+    {t:'Fattoriale',d:'Calcola n! con un ciclo e gestisci il caso n = 0 (risultato 1).'},
+    {t:'Conteggio vocali',d:'Scorri una stringa carattere per carattere e conta le vocali (usa <code>for...of</code>).'},
+    {t:'Inverti array',d:'Senza usare <code>reverse()</code>, costruisci un array con gli elementi in ordine inverso.'},
+    {t:'Numeri perfetti',d:'Un numero è perfetto se è uguale alla somma dei suoi divisori propri (es. 6 = 1+2+3). Trovali fino a 500.'},
+    {t:'Duplicati',d:'Verifica con cicli annidati se un array contiene valori duplicati e stampa quali.'}
+  ],
+  difficile:[
+    {t:'Ricerca binaria',d:'Implementala con <code>while</code> su un array ordinato e conta i passi effettuati.'},
+    {t:'MCD di Euclide',d:'Con <code>while</code>: finché b ≠ 0 scambia (a, b) con (b, a % b).'},
+    {t:'Matrice trasposta',d:'Costruisci la trasposta di una matrice 3×4 con due cicli annidati.'},
+    {t:'Selection sort',d:'Ordina un array trovando a ogni passo il minimo nel sottoarray rimanente.'},
+    {t:'Palindroma',d:'Verifica se una parola è palindroma confrontando gli indici <code>i</code> e <code>length-1-i</code>.'},
+    {t:'Triangolo di Floyd',d:'Stampa il triangolo con numeri progressivi usando un accumulatore esterno ai due cicli.'}
+  ]
+};
+function buildChallenges(){
+  $('#challenges').innerHTML=CHALLENGES[LEVEL].map((c,i)=>`<div class="card" style="padding:16px;background:#0b1324">
+    <div style="display:flex;gap:9px;align-items:center;margin-bottom:6px">
+      <span class="sec-num" style="width:30px;height:30px;font-size:.75rem;border-radius:9px">${i+1}</span>
+      <b style="font-size:.95rem">${c.t}</b></div>
+    <p class="small mut" style="margin:0">${c.d}</p></div>`).join('');
+}
+function buildPresets(){
+  $('#plPreset').innerHTML=PRESETS[LEVEL].map((p,i)=>`<option value="${i}">${p.name}</option>`).join('');
+  const saved=localStorage.getItem(LS.pl);
+  $('#plCode').value=saved||PRESETS[LEVEL][0].code;
+}
+buildPresets();buildChallenges();
+$('#plLoad').addEventListener('click',()=>{$('#plCode').value=PRESETS[LEVEL][+$('#plPreset').value].code;toast('Esempio caricato','↧')});
+$('#plClear').addEventListener('click',()=>{$('#plCode').value='';$('#plOut').innerHTML='<span class="empty">// console vuota</span>'});
+$('#plCode').addEventListener('input',e=>localStorage.setItem(LS.pl,e.target.value));
+$('#plCode').addEventListener('keydown',e=>{
+  if(e.key==='Tab'){e.preventDefault();const t=e.target,s=t.selectionStart;t.value=t.value.slice(0,s)+'  '+t.value.slice(t.selectionEnd);t.selectionStart=t.selectionEnd=s+2}
+  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();$('#plRun').click()}
+});
+
+/* --- guard: strumentazione delle condizioni dei cicli --- */
+function matchParen(s,i){let d=0;for(let k=i;k<s.length;k++){if(s[k]==='(')d++;else if(s[k]===')'){d--;if(!d)return k}}return -1}
+function splitTop(s,ch){const out=[];let d=0,cur='',q=null;
+  for(let i=0;i<s.length;i++){const c=s[i];
+    if(q){cur+=c;if(c===q&&s[i-1]!=='\\')q=null;continue}
+    if(c==='"'||c==="'"||c==='`'){q=c;cur+=c;continue}
+    if('([{'.includes(c))d++;if(')]}'.includes(c))d--;
+    if(c===ch&&d===0){out.push(cur);cur='';continue}
+    cur+=c;}
+  out.push(cur);return out;}
+function instrument(src){
+  const edits=[];const re=/\b(for|while)\s*\(/g;let m;
+  while((m=re.exec(src))){
+    const open=m.index+m[0].length-1,close=matchParen(src,open);
+    if(close<0)continue;
+    const inner=src.slice(open+1,close);
+    let neu=null;
+    if(m[1]==='for'){
+      const p=splitTop(inner,';');
+      if(p.length===3){p[1]=p[1].trim()?'__chk(),('+p[1]+')':'__chk()';neu=p.join(';')}
+    }else if(inner.trim()){neu='__chk(),('+inner+')'}
+    if(neu)edits.push([open+1,close,neu]);
+  }
+  let out=src;
+  for(let i=edits.length-1;i>=0;i--){const [a,b,t]=edits[i];out=out.slice(0,a)+t+out.slice(b)}
+  return out;
+}
+const WORKER_SRC=`
+self.onmessage=function(e){
+  var src=e.data;
+  var count=0;
+  function __chk(){ if(++count>200000){ throw new Error('__LOOP__'); } return true; }
+  function fmt(v){
+    if(Array.isArray(v)) return '['+v.map(fmt).join(', ')+']';
+    if(v&&typeof v==='object'){ try{return JSON.stringify(v)}catch(x){return String(v)} }
+    return String(v);
+  }
+  var sandboxConsole={ log:function(){ self.postMessage({t:'log',d:Array.prototype.map.call(arguments,fmt).join(' ')}); },
+    error:function(){ self.postMessage({t:'err',d:Array.prototype.map.call(arguments,fmt).join(' ')}); } };
+  self.postMessage({t:'start'});
+  var t0=Date.now();
+  try{
+    var f=new Function('console','__chk','print','"use strict";\\n'+src);
+    f(sandboxConsole,__chk,function(){ sandboxConsole.log.apply(null,arguments); });
+    self.postMessage({t:'done',ms:Date.now()-t0,iter:count});
+  }catch(err){
+    if(err && err.message==='__LOOP__'){ self.postMessage({t:'loop',iter:count}); }
+    else { self.postMessage({t:'error',d:err.message}); }
+  }
+};`;
+let PL={worker:null,url:null,timer:null};
+function plPrint(txt,cls){
+  const o=$('#plOut');
+  if(o.querySelector('.empty'))o.innerHTML='';
+  const d=document.createElement('div');d.className='co-line'+(cls?' '+cls:'');d.textContent=txt;o.appendChild(d);
+  while(o.children.length>600)o.removeChild(o.firstChild);
+  o.scrollTop=o.scrollHeight;
+}
+function plStop(){
+  if(PL.timer){clearTimeout(PL.timer);PL.timer=null}
+  if(PL.worker){PL.worker.terminate();PL.worker=null}
+  if(PL.url){URL.revokeObjectURL(PL.url);PL.url=null}
+  $('#plStop').disabled=true;$('#plRun').disabled=false;
+}
+function plRun(){
+  plStop();
+  const src=$('#plCode').value;
+  localStorage.setItem(LS.pl,src);
+  $('#plOut').innerHTML='<span class="empty">esecuzione…</span>';$('#plInfo').textContent='';
+  $('#plRun').disabled=true;$('#plStop').disabled=false;
+  const t0=performance.now();
+  let fallback=false;
+  try{
+    const blob=new Blob([WORKER_SRC],{type:'text/javascript'});
+    PL.url=URL.createObjectURL(blob);
+    PL.worker=new Worker(PL.url);
+  }catch(err){fallback=true}
+  if(!fallback){
+    PL.worker.onmessage=ev=>{
+      const m=ev.data;
+      if(m.t==='start')$('#plOut').innerHTML='';
+      else if(m.t==='log')plPrint(m.d);
+      else if(m.t==='err')plPrint(m.d,'err');
+      else if(m.t==='done'){plStop();$('#plInfo').innerHTML=`✅ esecuzione completata in <b>${m.ms} ms</b> · controlli anti-loop: <b>${m.iter.toLocaleString('it-IT')}</b>`;toast('Codice eseguito','✅')}
+      else if(m.t==='loop'){plStop();$('#plOut').innerHTML='';plPrint('⚠ CICLO INFINITO RILEVATO','err');plPrint('Interrotto dopo '+m.iter.toLocaleString('it-IT')+' controlli della condizione.','err');plPrint('Controlla l\'aggiornamento della variabile di controllo.','err');toast('Ciclo infinito bloccato dal sistema di sicurezza','☠️')}
+      else if(m.t==='error'){plStop();plPrint('✖ Errore: '+m.d,'err');toast('Errore nel codice','✖')}
+    };
+    PL.worker.onerror=e=>{plStop();plPrint('✖ Errore: '+(e.message||'sconosciuto'),'err')};
+    PL.worker.postMessage(instrument(src));
+    PL.timer=setTimeout(()=>{plStop();$('#plOut').innerHTML='';plPrint('⏱ Timeout: esecuzione oltre 3 secondi — probabile ciclo infinito.','err');toast('Timeout: possibile ciclo infinito','⏱')},3000);
+  }else{
+    /* fallback senza worker */
+    $('#plOut').innerHTML='';
+    const cs={log:(...a)=>plPrint(a.map(fmtAny).join(' ')),error:(...a)=>plPrint(a.map(fmtAny).join(' '),'err')};
+    let count=0;const __chk=()=>{if(++count>200000)throw new Error('__LOOP__');return true};
+    try{
+      const f=new Function('console','__chk','print','"use strict";\n'+instrument(src));
+      f(cs,__chk,(...a)=>plPrint(a.map(fmtAny).join(' ')));
+      $('#plInfo').innerHTML=`✅ completato in <b>${Math.round(performance.now()-t0)} ms</b>`;
+    }catch(err){
+      if(err.message==='__LOOP__'){plPrint('⚠ CICLO INFINITO RILEVATO','err');plPrint('Interrotto dopo '+count.toLocaleString('it-IT')+' iterazioni.','err')}
+      else plPrint('✖ Errore: '+err.message,'err');
+    }
+    plStop();
+  }
+  function fmtAny(v){if(Array.isArray(v))return '['+v.map(fmtAny).join(', ')+']';if(v&&typeof v==='object'){try{return JSON.stringify(v)}catch(e){return String(v)}}return String(v)}
+}
+$('#plRun').addEventListener('click',plRun);
+$('#plStop').addEventListener('click',()=>{plStop();plPrint('⏹ interrotto dall\'utente','err')});
+
+/* =========================================================================
+   QUIZ
+   ========================================================================= */
+const QUIZ={
+  facile:[
+    {q:'Quante volte viene eseguito il corpo di questo ciclo?',code:'for (int i = 0; i < 3; i++) {\n    System.out.println("ciao");\n}',
+     o:['2 volte','3 volte','4 volte','0 volte'],a:1,why:'i assume 0, 1, 2: tre valori. Quando arriva a 3 la condizione <code>i &lt; 3</code> è falsa e il ciclo termina. Regola: con <code>i &lt; n</code> e passo 1 le iterazioni sono <b>n</b>.'},
+    {q:'Cosa stampa questo programma?',code:'for (int i = 1; i <= 4; i++) {\n    System.out.print(i + " ");\n}',
+     o:['0 1 2 3','1 2 3 4','1 2 3 4 5','4 3 2 1'],a:1,why:'Il contatore parte da 1 e la condizione <code>i &lt;= 4</code> include il 4: la sequenza è 1 2 3 4.'},
+    {q:'Il ciclo <code>while</code> controlla la condizione…',o:['dopo aver eseguito il corpo','prima di eseguire il corpo','solo alla fine del programma','mai: va sempre all\'infinito'],a:1,
+     why:'Il <code>while</code> è <b>precondizionale</b>: il test avviene prima. Se la condizione è falsa dall\'inizio il corpo non viene eseguito nemmeno una volta (è il <code>do-while</code> a garantire almeno un\'esecuzione).'},
+    {q:'Quale istruzione fa uscire IMMEDIATAMENTE dal ciclo?',o:['continue','return()','break','exit'],a:2,
+     why:'<code>break</code> interrompe il ciclo più interno. <code>continue</code> salta solo l\'iterazione corrente, tornando al test della condizione.'},
+    {q:'Cosa succede se la condizione di un ciclo non diventa mai falsa?',o:['Il ciclo si ferma dopo 1000 giri','Il programma dà errore di compilazione','Il ciclo diventa infinito e blocca il programma','Il corpo viene eseguito una sola volta'],a:2,
+     why:'Si ottiene un <b>ciclo infinito</b>: il corpo viene ripetuto per sempre (in pratica finché non si termina il processo o la memoria si esaurisce).'},
+    {q:'Qual è il valore finale di i?',code:'int i = 0;\nwhile (i < 5) {\n    i = i + 2;\n}\nSystem.out.println(i);',
+     o:['4','5','6','8'],a:2,why:'i: 0 → 2 → 4 → 6. Con i = 4 la condizione <code>4 &lt; 5</code> è ancora vera, quindi si fa un altro giro e i diventa 6: ora <code>6 &lt; 5</code> è falso e si esce. Il valore stampato è <b>6</b>, non 5!'}
+  ],
+  medio:[
+    {q:'Cosa stampa?',code:'int somma = 0;\nfor (int i = 1; i <= 5; i++) {\n    somma = somma + i;\n}\nSystem.out.println(somma);',
+     o:['5','10','15','20'],a:2,why:'Somma di 1+2+3+4+5 = <b>15</b>. Formula di Gauss: n(n+1)/2 = 5·6/2 = 15.'},
+    {q:'Un <code>do-while</code> la cui condizione è falsa dall\'inizio…',o:['non esegue mai il corpo','esegue il corpo esattamente 1 volta','esegue il corpo 2 volte','dà errore'],a:1,
+     why:'Il controllo è <b>postcondizionale</b>: prima si esegue il corpo, poi si valuta la condizione. Quindi il corpo viene eseguito <b>almeno una volta</b>, sempre.'},
+    {q:'Quante iterazioni compie questo ciclo?',code:'for (int i = 10; i > 0; i -= 3) {\n    System.out.println(i);\n}',
+     o:['3','4','5','10'],a:1,why:'i assume 10, 7, 4, 1 (poi −2 → condizione falsa): <b>4 iterazioni</b>. Formula: ⌈(inizio − fine)/passo⌉ = ⌈10/3⌉ = 4.'},
+    {q:'Cosa fa <code>continue</code> dentro un <code>for</code>?',o:['Esce dal ciclo','Salta il resto del corpo ed esegue l\'aggiornamento, poi rifà il test','Ricomincia il ciclo da capo','Interrompe il programma'],a:1,
+     why:'<code>continue</code> abbandona l\'iterazione corrente ma il ciclo prosegue: nel <code>for</code> viene comunque eseguito l\'aggiornamento e poi il test.'},
+    {q:'Nella lettura con valore sentinella, dove vanno effettuate le letture?',o:['Solo prima del ciclo','Solo dentro il ciclo','Una prima del ciclo e una in fondo al corpo','Dentro la condizione del while'],a:2,
+     why:'Schema classico: <b>prima lettura</b> fuori (per avere un valore da testare) e <b>lettura successiva</b> in fondo al corpo. Se manca la seconda → ciclo infinito; se manca la prima → il test usa una variabile non inizializzata.'},
+    {q:'Quanti numeri pari conta?',code:'int c = 0;\nfor (int i = 1; i <= 10; i++) {\n    if (i % 2 == 0) {\n        c++;\n    }\n}\nSystem.out.println(c);',
+     o:['4','5','6','10'],a:1,why:'I pari tra 1 e 10 sono 2, 4, 6, 8, 10 → <b>5</b>. <code>i % 2 == 0</code> è il test di divisibilità per 2.'},
+    {q:'Cosa contiene <code>s</code> alla fine?',code:'String s = "";\nfor (int i = 3; i >= 1; i--) {\n    s = s + i;\n}\nSystem.out.println(s);',
+     o:['123','321','6','333'],a:1,why:'Concatenando in ordine decrescente: "3" → "32" → "321". Attenzione: con le stringhe <code>+</code> concatena, non somma!'}
+  ],
+  difficile:[
+    {q:'Quante iterazioni totali esegue il corpo più interno?',code:'for (int i = 0; i < 4; i++) {\n    for (int j = 0; j < 5; j++) {\n        System.out.print("*");\n    }\n}',
+     o:['9','12','20','25'],a:2,why:'4 × 5 = <b>20</b> iterazioni del corpo interno: il ciclo interno riparte da capo per ogni giro dell\'esterno. Complessità O(n·m).'},
+    {q:'Qual è la complessità di due cicli annidati entrambi su n elementi?',o:['O(n)','O(n log n)','O(n²)','O(2n)'],a:2,
+     why:'n × n = n² operazioni: raddoppiando n le iterazioni diventano <b>quadruple</b>. O(2n) = O(n) è lineare, non è il caso dei cicli annidati.'},
+    {q:'Cosa succede con questo ciclo?',code:'int[] v = {1, 2, 3};\nfor (int i = 0; i <= v.length; i++) {\n    System.out.println(v[i]);\n}',
+     o:['Stampa 1 2 3','Stampa 1 2 3 e poi null','Solleva ArrayIndexOutOfBoundsException','Ciclo infinito'],a:2,
+     why:'Con <code>i &lt;= v.length</code> si arriva a <code>v[3]</code>, ma gli indici validi sono 0…length−1. Errore a run-time: classico <b>off-by-one</b>. La condizione corretta è <code>i &lt; v.length</code>.'},
+    {q:'Su quale ciclo agisce <code>break</code> in un ciclo annidato?',o:['Su tutti i cicli','Solo sul ciclo più esterno','Solo sul ciclo che lo contiene direttamente','Su nessuno: nei cicli annidati non si può usare'],a:2,
+     why:'<code>break</code> esce dal <b>ciclo più interno</b> che lo racchiude; quello esterno continua la sua iterazione successiva. Per uscire da tutti serve un\'etichetta (<code>break esterno;</code>) o un flag.'},
+    {q:'Quali numeri vengono stampati?',code:'for (int i = 1; i <= 6; i++) {\n    if (i % 2 == 0) continue;\n    if (i > 4) break;\n    System.out.println(i);\n}',
+     o:['1 3 5','1 3','1 2 3 4','3 5'],a:1,why:'i=1 → stampato; i=2 → continue; i=3 → stampato; i=4 → continue; i=5 → <code>i &gt; 4</code> vero → <b>break</b>. Risultato: <b>1 3</b>.'},
+    {q:'Che valore ha <code>x</code> alla fine?',code:'int x = 1;\nfor (int i = 0; i < 4; i++) {\n    x = x * 2;\n}\nSystem.out.println(x);',
+     o:['8','9','16','5'],a:2,why:'Quattro raddoppi: 1→2→4→8→<b>16</b> = 2⁴. Gli accumulatori moltiplicativi partono da <b>1</b> (non da 0!).'},
+    {q:'Quante volte viene eseguito il corpo del while?',code:'int i = 5;\nwhile (i > 0) {\n    i = i - 2;\n}\nSystem.out.println(i);',
+     o:['2 volte, stampa 1','3 volte, stampa -1','3 volte, stampa 1','2 volte, stampa -1'],a:1,why:'i: 5 → 3 → 1 → −1. I test sono: 5&gt;0 ✓, 3&gt;0 ✓, 1&gt;0 ✓, −1&gt;0 ✗. Quindi <b>3 iterazioni</b> e valore finale <b>−1</b>: il contatore può «scavalcare» lo zero.'},
+    {q:'Nell\'algoritmo di ricerca del massimo, perché si parte da <code>i = 1</code> e non da <code>i = 0</code>?',
+     o:['Perché gli array iniziano da 1','Perché max è già inizializzato con v[0]: confrontarlo con sé stesso è inutile','Per evitare un ciclo infinito','Perché v[0] non esiste'],a:1,
+     why:'<code>max = v[0]</code> usa il primo elemento come candidato iniziale: partire da <code>i = 1</code> evita un confronto inutile. È un\'<b>ottimizzazione</b>, non un obbligo (partire da 0 darebbe lo stesso risultato).'}
+  ]
+};
+let qState={ans:[],score:0};
+function buildQuiz(){
+  const list=QUIZ[LEVEL];qState={ans:new Array(list.length).fill(null),score:0};
+  $('#qScore').textContent='0/'+list.length;$('#qBar').style.width='0%';
+  $('#qList').innerHTML=list.map((q,qi)=>`
+    <div class="q" data-qi="${qi}">
+      <div class="qh"><div class="qn">${qi+1}</div><div style="flex:1"><div>${q.q}</div>
+      ${q.code?`<div class="codewrap" style="margin:9px 0 0"><pre class="code" style="padding:11px 14px;font-size:.8rem">${q.code.split('\n').map(l=>`<span class="cl">${hl(l)}</span>`).join('\n')}</pre></div>`:''}</div></div>
+      <div class="opts">${q.o.map((o,oi)=>`<div class="opt" data-oi="${oi}"><span class="k">${'ABCD'[oi]}</span><span>${o}</span></div>`).join('')}</div>
+      <div class="why is-hidden"></div>
+    </div>`).join('');
+  $$('.q').forEach(box=>{
+    const qi=+box.dataset.qi;
+    $$('.opt',box).forEach(op=>op.addEventListener('click',()=>{
+      if(qState.ans[qi]!==null)return;
+      const oi=+op.dataset.oi,ok=oi===QUIZ[LEVEL][qi].a;
+      qState.ans[qi]=oi;
+      $$('.opt',box).forEach(o=>o.classList.add('lock'));
+      op.classList.add(ok?'ok':'no');
+      if(!ok)$(`.opt[data-oi="${QUIZ[LEVEL][qi].a}"]`,box)?.classList.add('ok');
+      if(ok)qState.score++;
+      const done=qState.ans.filter(a=>a!==null).length;
+      $('#qScore').textContent=qState.score+'/'+QUIZ[LEVEL].length;
+      $('#qBar').style.width=(done/QUIZ[LEVEL].length*100)+'%';
+      const w=$('.why',box);w.classList.remove('is-hidden');
+      w.innerHTML=`<b style="color:${ok?'var(--lime)':'var(--red)'}">${ok?'✅ Corretto!':'❌ Non esattamente.'}</b> <span class="small">${QUIZ[LEVEL][qi].why}</span>`;
+      if(done===QUIZ[LEVEL].length){
+        const p=Math.round(qState.score/QUIZ[LEVEL].length*100);
+        $('#qMsg').innerHTML=p>=80?`🏆 <b>${qState.score}/${QUIZ[LEVEL].length}</b> — ottimo, il livello ${LEVEL} è tuo! Prova a salire di livello.`
+          :p>=50?`👍 <b>${qState.score}/${QUIZ[LEVEL].length}</b> — bene, riguarda le spiegazioni in rosso e riprova.`
+          :`📖 <b>${qState.score}/${QUIZ[LEVEL].length}</b> — nessun problema: torna allo <a href="#stepper">stepper</a> e traccia i cicli a mano, poi ripeti il quiz.`;
+        toast('Quiz completato: '+qState.score+'/'+QUIZ[LEVEL].length,'🏁');
+      }
+    }));
+  });
+}
+$('#qReset').addEventListener('click',()=>{buildQuiz();toast('Quiz azzerato','↺')});
+
+/* =========================================================================
+   NOTE (localStorage)
+   ========================================================================= */
+let notes=JSON.parse(localStorage.getItem(LS.notes)||'[]');
+let noteFilter='all',editingId=null;
+function saveNotes(){localStorage.setItem(LS.notes,JSON.stringify(notes))}
+function fmtDate(ts){const d=new Date(ts);return d.toLocaleDateString('it-IT',{day:'2-digit',month:'short'})+' · '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}
+function renderNotes(){
+  const q=$('#noteSearch').value.toLowerCase().trim();
+  let list=notes.slice().sort((a,b)=>b.ts-a.ts);
+  if(noteFilter==='open')list=list.filter(n=>!n.res);
+  if(noteFilter==='res')list=list.filter(n=>n.res);
+  if(q)list=list.filter(n=>(n.title+' '+n.text+' '+n.section).toLowerCase().includes(q));
+  const cntOpen=notes.filter(n=>!n.res).length;
+  $('#noteBadge').textContent=cntOpen;$('#noteBadge').dataset.n=cntOpen;
+  $('#noteCount').textContent=notes.length+(cntOpen?` · ${cntOpen} da chiarire`:'');
+  $('#noteList').innerHTML=list.length?list.map(n=>`
+    <div class="note ${n.res?'res':'open'}">
+      <div class="nh"><b>${esc(n.title||'(senza titolo)')}</b>
+        <span class="tag">${esc(n.section)}</span><span class="tag lvl">${esc(n.level)}</span></div>
+      <p>${esc(n.text)}</p>
+      <div class="na"><span>🕑 ${fmtDate(n.ts)}</span><div class="sp"></div>
+        <button class="mini-b" data-toggle="${n.id}">${n.res?'↩ Riapri':'✓ Chiarito'}</button>
+        <button class="mini-b" data-edit="${n.id}">✎ Modifica</button>
+        <button class="mini-b" data-del="${n.id}">🗑</button>
+      </div>
+    </div>`).join(''):
+    `<div class="empty-state"><span class="em">🗒️</span>Nessuna nota qui.<br><span class="tiny">Usa il modulo sopra oppure il pulsante «＋ Nota» accanto a ogni sezione: ti serviranno per preparare le domande da fare a lezione.</span></div>`;
+}
+$('#noteList').addEventListener('click',e=>{
+  const d=e.target.dataset;
+  if(d.del){notes=notes.filter(n=>n.id!==d.del);saveNotes();renderNotes();toast('Nota eliminata','🗑')}
+  if(d.toggle){const n=notes.find(x=>x.id===d.toggle);if(n){n.res=!n.res;saveNotes();renderNotes()}}
+  if(d.edit){
+    const n=notes.find(x=>x.id===d.edit);if(!n)return;
+    editingId=n.id;$('#noteTitle').value=n.title;$('#noteText').value=n.text;
+    $('#noteSection').value=n.section;$('#noteResolved').checked=n.res;
+    $('#noteResChk').classList.toggle('on',n.res);
+    $('#noteSave').textContent='💾 Aggiorna nota';
+    $('#noteTitle').focus();openDrawer();
+  }
+});
+$('#noteForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const text=$('#noteText').value.trim();
+  if(!text){toast('Scrivi almeno una riga di testo','✍');$('#noteText').focus();return}
+  const obj={title:$('#noteTitle').value.trim(),text,section:$('#noteSection').value,
+    res:$('#noteResolved').checked,level:LEVEL,ts:Date.now()};
+  if(editingId){const n=notes.find(x=>x.id===editingId);Object.assign(n,obj);n.ts=Date.now();toast('Nota aggiornata','✎')}
+  else{obj.id='n'+Date.now()+Math.random().toString(36).slice(2,6);notes.push(obj);toast('Nota salvata nel browser','💾')}
+  editingId=null;resetForm();renderNotes();
+});
+function resetForm(){
+  $('#noteForm').reset();$('#noteResChk').classList.remove('on');
+  $('#noteSave').textContent='💾 Salva nota';editingId=null;
+}
+$('#noteCancel').addEventListener('click',resetForm);
+$('#noteResolved').addEventListener('change',e=>$('#noteResChk').classList.toggle('on',e.target.checked));
+$('#noteSearch').addEventListener('input',renderNotes);
+$$('#noteFilter button').forEach(b=>b.addEventListener('click',()=>{
+  noteFilter=b.dataset.f;$$('#noteFilter button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderNotes();
+}));
+function openDrawer(sec){
+  $('#drawer').classList.add('on');$('#backdrop').classList.add('on');
+  $('#drawer').setAttribute('aria-hidden','false');
+  if(sec)$('#noteSection').value=sec;
+  setTimeout(()=>$('#noteTitle').focus(),320);
+}
+function closeDrawer(){$('#drawer').classList.remove('on');$('#backdrop').classList.remove('on');$('#drawer').setAttribute('aria-hidden','true')}
+$('#openNotes').addEventListener('click',()=>openDrawer());
+$('#fabNote').addEventListener('click',()=>openDrawer(currentSection()));
+$('#drClose').addEventListener('click',closeDrawer);
+$('#backdrop').addEventListener('click',closeDrawer);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+$$('[data-note]').forEach(b=>b.addEventListener('click',()=>openDrawer(SECTIONS.find(s=>s.id===b.dataset.note)?.t)));
+let curSec='Generale';
+function currentSection(){return SECTIONS.find(s=>s.id===curSec)?.t||'Generale'}
+const secObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)curSec=e.target.id})},{rootMargin:'-40% 0px -55% 0px'});
+SECTIONS.forEach(s=>{const el=document.getElementById(s.id);if(el)secObs.observe(el)});
+$('#exportNotes').addEventListener('click',()=>{
+  if(!notes.length){toast('Nessuna nota da esportare','⚠');return}
+  const md=`# Note — CICLI//LAB (${new Date().toLocaleString('it-IT')})\n\n`+
+    notes.slice().sort((a,b)=>a.ts-b.ts).map(n=>`## ${n.title||'(senza titolo)'}\n- **Sezione:** ${n.section}\n- **Livello:** ${n.level}\n- **Stato:** ${n.res?'chiarito':'da chiarire'}\n- **Data:** ${fmtDate(n.ts)}\n\n${n.text}\n`).join('\n---\n\n');
+  const url=URL.createObjectURL(new Blob([md],{type:'text/markdown'}));
+  const a=document.createElement('a');a.href=url;a.download='note-cicli.md';a.click();URL.revokeObjectURL(url);
+  toast('Note esportate in Markdown','⬇');
+});
+$('#clearNotes').addEventListener('click',()=>{
+  if(!notes.length)return;
+  if(confirm('Eliminare definitivamente tutte le '+notes.length+' note?')){notes=[];saveNotes();renderNotes();toast('Tutte le note eliminate','🗑')}
+});
+renderNotes();
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+setLevel(LEVEL,true);
+setTimeout(()=>toast('Livello: '+LEVEL.toUpperCase()+' — cambialo quando vuoi dal menu in alto','🎚'),900);
+</script>
+</body>
+</html>
