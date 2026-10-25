@@ -97,7 +97,7 @@ aside.side{position:sticky;top:82px;padding:26px 0 20px;max-height:calc(100vh - 
 .side a.done .tick{background:var(--grn);border-color:var(--grn);color:#04140c}
 .side a.done{color:var(--grn)}
 .hero{position:relative;padding:60px 20px 50px;max-width:1440px;margin:0 auto;overflow:hidden}
-#heroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.55}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.85}
 .hero-in{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.95fr);gap:38px;align-items:center}
 .hero h1{font-size:clamp(2.2rem,6vw,4.4rem);letter-spacing:-.045em;line-height:.95;margin:14px 0 8px}
 .hero .lead{font-size:clamp(1rem,1.55vw,1.15rem);color:var(--mut);max-width:62ch}
@@ -197,7 +197,6 @@ table.cmp code{color:var(--lime);font-size:.79rem}
 .frame .lv{color:var(--mut);font-size:.72rem;margin-top:3px;display:block}
 .frame.main{border-left-color:var(--mut2)}
 .stackbase{text-align:center;font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut2);border-top:1px dashed var(--line2);padding-top:7px;margin-top:2px}
-/* RAM cells */
 .ramgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:11px;margin:14px 0}
 .ramcell{border:1px solid var(--line2);border-radius:12px;background:linear-gradient(180deg,#101c31,#0a1122);padding:10px 12px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
 .ramcell:hover{transform:translateY(-2px);border-color:var(--cyan)}
@@ -208,15 +207,12 @@ table.cmp code{color:var(--lime);font-size:.79rem}
 .ramcell .tp{position:absolute;top:9px;right:10px;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:rgba(129,140,248,.15);color:var(--vio);border:1px solid rgba(129,140,248,.35)}
 .ramcell.hit .vl{animation:pop .55s}
 @keyframes pop{0%{transform:scale(1.5);color:#fff;text-shadow:0 0 20px rgba(251,191,36,.9)}100%{transform:scale(1)}}
-.ramcell.gone{opacity:.25;filter:grayscale(1)}
-/* bits */
 .bits{display:flex;gap:2px;flex-wrap:wrap;margin:12px 0}
 .bits i{width:19px;height:26px;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-style:normal;
   border:1px solid var(--line);border-radius:4px;background:#0a1222;color:var(--mut);transition:.15s}
 .bits i.on{background:rgba(251,191,36,.2);color:var(--amb);border-color:rgba(251,191,36,.5)}
 .bits i.sign{border-color:var(--red);color:var(--red)}
 .bits i.sign.on{background:rgba(251,113,133,.22)}
-/* timeline */
 .tl{border:1px solid var(--line);border-radius:12px;padding:12px;background:#080e1c;max-height:260px;overflow:auto}
 .tlrow{display:flex;gap:10px;align-items:center;margin-bottom:8px}
 .tlrow:last-child{margin-bottom:0}
@@ -227,7 +223,6 @@ table.cmp code{color:var(--lime);font-size:.79rem}
   font-family:'JetBrains Mono',monospace;transition:.15s}
 .tlv:hover{border-color:var(--cyan);color:var(--txt)}
 .tlv.cur{background:var(--grad);color:#0a0703;border-color:transparent;font-weight:700}
-/* memory diagram */
 .mem{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin:12px 0}
 .mem-col{flex:1;min-width:200px}
 .mem-col h5{margin:0 0 8px;font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mut2)}
@@ -243,7 +238,6 @@ table.cmp code{color:var(--lime);font-size:.79rem}
 .mem-heap .fn{color:var(--vio);font-weight:700;display:block;margin-bottom:6px;font-size:.72rem}
 .mem-ar{text-align:center;color:var(--amb);font-size:1.3rem;padding:6px 0}
 .mem-ar em{display:block;font-size:.64rem;color:var(--mut2);font-style:normal;letter-spacing:.06em}
-/* anatomy chips */
 .ana{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .ana button{flex:1;min-width:140px;text-align:left;padding:11px 13px;border-radius:12px;cursor:pointer;border:1px solid var(--line);background:#0b1324;color:var(--mut);font-family:inherit;font-size:.8rem;font-weight:600;transition:.2s}
 .ana button:hover{border-color:var(--line2);color:var(--txt)}
@@ -306,7 +300,7 @@ table.cmp code{color:var(--lime);font-size:.79rem}
 .empty-state{text-align:center;padding:32px 16px;color:var(--mut2);border:1px dashed var(--line);border-radius:14px}
 .empty-state .em{font-size:2rem;display:block;margin-bottom:8px}
 .toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:9px;align-items:center;pointer-events:none}
-.toast{background:linear-gradient(120deg,#1a2440,#0b1424);border:1px solid var(--line2);border-radius:12px;padding:11px 18px;font-size:.86rem;font-weight:600;box-shadow:var(--sh);animation:tin .35s;display:flex;gap:9px;align-items:center}
+.toast{background:linear-gradient(120deg,#1a2440,#0b1424);border:1px solid var(--line2);border-radius:12px;padding:11px 18px;font-size:.86rem;font-weight:600;box-shadow:var(--sh);animation:tin .35s;display:flex;gap:9px;align-items:center;max-width:90vw}
 @keyframes tin{from{opacity:0;transform:translateY(16px) scale(.94)}}
 .toast.out{animation:tout .3s forwards}
 @keyframes tout{to{opacity:0;transform:translateY(10px) scale(.96)}}
@@ -378,7 +372,6 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
   </div>
 </header>
 
-<!-- ============ HERO ============ -->
 <div class="hero">
   <canvas id="heroCanvas"></canvas>
   <div class="hero-in">
@@ -396,7 +389,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
       <div class="hero-stats">
         <div><b class="grad-txt">11</b><span>laboratori</span></div>
         <div><b class="grad-txt">3</b><span>livelli</span></div>
-        <div><b class="grad-txt">21</b><span>quiz</span></div>
+        <div><b class="grad-txt">22</b><span>quiz</span></div>
         <div><b class="grad-txt">8</b><span>tipi primitivi Java</span></div>
       </div>
     </div>
@@ -451,7 +444,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
         </div>
         <div data-lvl="difficile">
           <p>Una variabile è una <b>tripla</b> ⟨nome, indirizzo, tipo⟩ associata a un <b>ambiente</b> (binding) con un proprio <b>tempo di vita</b>. Distinguiamo: <b>allocazione</b> (statica per i campi di classe, dinamica sullo <i>stack</i> per le locali, sull'<i>heap</i> per gli oggetti), <b>binding</b> del nome e <b>scope</b> lessicale.</p>
-          <div class="cal"><div class="h">🔑 Rappresentazione</div><p>Interi in <b>complemento a due</b> (n bit → range −2ⁿ⁻¹ … 2ⁿ⁻¹−1, zero con una sola rappresentazione), reali in <b>IEEE 754</b> (segno · esponente polarizzato · mantissa normalizzata): valori esatti solo per frazioni dyadiche, da cui gli errori di arrotondamento.</p></div>
+          <div class="cal"><div class="h">🔑 Rappresentazione</div><p>Interi in <b>complemento a due</b> (n bit → range −2ⁿ⁻¹ … 2ⁿ⁻¹−1, zero con una sola rappresentazione), reali in <b>IEEE 754</b> (segno · esponente polarizzato · mantissa normalizzata): sono esatti solo i valori dyadici, da cui gli errori di arrotondamento.</p></div>
           <div class="cal warn"><div class="h">⚠️ Conseguenze pratiche</div><p><b>Overflow silenzioso</b> sugli interi (nessuna eccezione: wrapping modulare), <b>perdita di precisione</b> sui reali (0.1 + 0.2 ≠ 0.3), <b>troncamento</b> nel narrowing cast, <b>condivisione</b> involontaria di oggetti tramite riferimenti, <b>immutabilità</b> di <code>String</code>.</p></div>
           <p><b>Denaro e precisione:</b> mai usare <code>double</code> per gli importi. In Java si usa <code>BigDecimal</code> oppure interi in <b>centesimi</b>.</p>
         </div>
@@ -508,7 +501,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
           <div><label for="ramType">tipo</label><select id="ramType"></select></div>
         </div>
         <div style="display:grid;gap:9px">
-          <div><label for="ramVal">valore iniziale</label><input id="ramVal" class="mono" placeholder="es. 18" value="18"></div>
+          <div><label for="ramVal">valore iniziale (lascia vuoto per non inizializzare)</label><input id="ramVal" class="mono" placeholder="es. 18" value="18"></div>
           <div style="display:flex;gap:8px;align-items:end">
             <button class="btn primary sm" id="ramAdd" style="flex:1">＋ Dichiara</button>
             <button class="btn sm ghost" id="ramReset">↺</button>
@@ -522,7 +515,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
           <input id="ramNewVal" class="mono" placeholder="nuovo valore" style="max-width:180px">
           <button class="btn sm" id="ramAssign">✎ Assegna</button>
           <button class="btn sm" id="ramInc">+1</button>
-          <button class="btn sm" id="ramZero">0 / ""</button>
+          <button class="btn sm" id="ramZero">valore di default</button>
           <button class="btn sm danger" id="ramDel">🗑 elimina</button>
         </div>
       </div>
@@ -544,11 +537,11 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
       <div class="card">
         <h3><span class="ico">🔤</span>Regole e convenzioni</h3>
         <div class="cal tip" style="margin-top:0"><div class="h">✅ Obbligatorio</div>
-          <p class="small" style="margin:0">Solo lettere, cifre, <code>_</code> e <code>$</code> · <b>non</b> può iniziare con una cifra · <b>non</b> può essere una parola chiave (<code>int</code>, <code>class</code>, <code>while</code>…) · niente spazi · attenzione a maiuscole/minuscole (<code>eta</code> ≠ <code>ETA</code>).</p></div>
+          <p class="small" style="margin:0">Solo lettere, cifre, <code>_</code> e <code>$</code> · <b>non</b> può iniziare con una cifra · <b>non</b> può essere una parola chiave (<code>int</code>, <code>class</code>, <code>while</code>…) · niente spazi · Java <b>distingue</b> maiuscole e minuscole (<code>eta</code> ≠ <code>ETA</code>).</p></div>
         <div class="cal"><div class="h">📐 Convenzione</div>
           <p class="small" style="margin:0"><b>camelCase</b> per variabili e metodi (<code>totaleFattura</code>) · <b>MAIUSCOLE_CON_UNDERSCORE</b> per le costanti <code>final</code> (<code>IVA_ALIQUOTA</code>) · <b>MaiuscoloIniziale</b> per le classi (<code>Fattura</code>) · nomi <b>parlanti</b>: <code>contatore</code>, non <code>x</code>.</p></div>
         <div class="cal warn" style="margin-bottom:0"><div class="h">⚠️ Da evitare</div>
-          <p class="small" style="margin:0">Nomi di una lettera (tranne indici <code>i</code>, <code>j</code>), accenti, nomi che differiscono solo per maiuscole, <code>l</code> e <code>O</code> (si confondono con 1 e 0), parole chiave travestite (<code>Int</code> è lecito ma fuorviante).</p></div>
+          <p class="small" style="margin:0">Nomi di una lettera (tranne indici <code>i</code>, <code>j</code>), accenti, nomi che differiscono solo per maiuscole, <code>l</code> e <code>O</code> (si confondono con 1 e 0), identificatori fuorvianti come <code>Int</code>.</p></div>
       </div>
     </div>
   </section>
@@ -606,7 +599,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
     <div class="card" style="overflow-x:auto">
       <h3><span class="ico">📏</span>Gli 8 tipi primitivi di Java</h3>
       <table class="cmp" id="primTable">
-        <thead><tr><th>tipo</th><th>bit</th><th>byte</th><th>intervallo</th><th>valore di default*</th><th>esempio</th><th>si usa per</th></tr></thead>
+        <thead><tr><th>tipo</th><th>bit</th><th>byte</th><th>intervallo</th><th>default*</th><th>esempio</th><th>si usa per</th></tr></thead>
         <tbody></tbody>
       </table>
       <p class="tiny">* Il default vale solo per le <b>variabili di classe</b> (campi): le variabili <b>locali</b> non hanno default e devono essere inizializzate prima dell'uso.</p>
@@ -623,7 +616,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
         <h3><span class="ico">🔍</span>Lab 2 · Che tipo è questo valore?</h3>
         <p class="small mut">Scrivi un <b>letterale</b> Java: lo analizzo e ti dico di che tipo è, quanti byte occupa e quali tipi possono contenerlo.</p>
         <div style="display:flex;gap:8px;margin:10px 0">
-          <input id="ttIn" class="mono" placeholder="es. 42, 3.14, 'A', true, &quot;ciao&quot;, 5L, 3000000000" value="42">
+          <input id="ttIn" class="mono" placeholder='es. 42, 3.14, "A", true, 5L, 3000000000' value="42">
           <button class="btn sm primary" id="ttGo">Analizza</button>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="ttQuick"></div>
@@ -844,12 +837,12 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
           <button class="btn sm" data-fp="b">somma 0.1 × 10</button>
           <button class="btn sm" data-fp="c">7 / 2 e (double)7/2</button>
           <button class="btn sm" data-fp="d">1.0 - 0.9</button>
-          <button class="btn sm" data-fp="e">confronto == </button>
+          <button class="btn sm" data-fp="e">denaro: come si fa</button>
         </div>
         <div class="console" id="fpOut" style="min-height:130px"><span class="empty">// scegli un esperimento</span></div>
         <div id="fpNote"></div>
         <div class="cal tip" style="margin-bottom:0"><div class="h">💡 La soluzione giusta</div>
-          <p class="small" style="margin:0">Per il <b>denaro</b> usa <code>BigDecimal</code> oppure interi in <b>centesimi</b> (<code>int prezzoCent = 475;</code>). Per i confronti tra double usa un <b>tolleranza</b>: <code>Math.abs(a - b) &lt; 1e-9</code>.</p></div>
+          <p class="small" style="margin:0">Per il <b>denaro</b> usa <code>BigDecimal</code> oppure interi in <b>centesimi</b> (<code>int prezzoCent = 475;</code>). Per i confronti tra double usa una <b>tolleranza</b>: <code>Math.abs(a - b) &lt; 1e-9</code>.</p></div>
       </div>
     </div>
 
@@ -860,7 +853,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0">
           <input id="finName" class="mono" value="IVA" style="max-width:130px">
           <input id="finVal" class="mono" value="0.22" style="max-width:110px">
-          <label class="chk" id="finChk"><input type="checkbox" id="finOn" checked><span class="box">✓</span>final</label>
+          <label class="chk on" id="finChk" style="margin:0"><input type="checkbox" id="finOn" checked><span class="box">✓</span>final</label>
           <button class="btn sm primary" id="finTry">Prova a riassegnare</button>
         </div>
         <div class="codewrap" style="margin:0"><pre class="code" id="finCode" style="font-size:.8rem;padding:12px 15px"></pre></div>
@@ -881,7 +874,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
       <div class="sec-num">09</div>
       <div>
         <h2>Stepper · la vita delle variabili, passo passo</h2>
-        <p class="sub">Esegui il programma un'istruzione alla volta e guarda la <b>linea corrente</b>, le <b>variabili</b> e la <b>linea del tempo</b> di ogni valore. Clicca un valore della timeline per saltare a quel passo.</p>
+        <p class="sub">Esegui il programma un'istruzione alla volta e guarda la <b>riga corrente</b>, le <b>variabili</b> e la <b>linea del tempo</b> di ogni valore. Clicca un valore della timeline per saltare a quel passo.</p>
       </div>
       <div class="sec-tools">
         <button class="btn sm ghost" data-note="stepper">＋ Nota</button>
@@ -1059,7 +1052,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
           <tr><td><b>Reali</b></td><td><code>float double</code></td><td><code>number</code></td><td><code>float</code></td><td>reale</td></tr>
           <tr><td><b>Testo</b></td><td><code>String</code> (riferimento, immutabile)</td><td><code>string</code> (primitivo)</td><td><code>str</code> (immutabile)</td><td>stringa</td></tr>
           <tr><td><b>Booleano</b></td><td><code>boolean</code> true/false</td><td><code>boolean</code> + valori truthy/falsy</td><td><code>bool</code> True/False</td><td>vero / falso</td></tr>
-          <tr><td><b>Divisione</b></td><td><code>7/2 = 3</code>, <code>7.0/2 = 3.5</code></td><td><code>7/2 = 3.5</code> → <code>Math.floor</code></td><td><code>7/2 = 3.5</code>, <code>7//2 = 3</code></td><td>7 DIV 2 = 3, 7 / 2 = 3.5</td></tr>
+          <tr><td><b>Divisione</b></td><td><code>7/2 = 3</code>, <code>7.0/2 = 3.5</code></td><td><code>7/2 = 3.5</code>, intero con <code>Math.floor</code></td><td><code>7/2 = 3.5</code>, <code>7//2 = 3</code></td><td>7 DIV 2 = 3 · 7 / 2 = 3.5</td></tr>
           <tr><td><b>Non inizializzata</b></td><td>errore di compilazione (locali)</td><td><code>undefined</code></td><td>errore <code>NameError</code></td><td>indefinito</td></tr>
           <tr><td><b>Scope</b></td><td>a blocchi <code>{ }</code></td><td><code>let</code> a blocchi, <code>var</code> a funzione</td><td>a funzione</td><td>a blocco</td></tr>
         </tbody>
@@ -1205,7 +1198,7 @@ footer.ft{border-top:1px solid var(--line);padding:34px 20px;text-align:center;c
    ===================================================================== */
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const LEVELS=['facile','medio','difficile'];
-const LS={level:'var_lab_level_v1',notes:'var_lab_notes_v1',done:'var_lab_done_v1',skills:'var_lab_skills_v1',pl:'var_lab_pl_v1'};
+const LS={level:'var_lab_level_v2',notes:'var_lab_notes_v2',done:'var_lab_done_v2',skills:'var_lab_skills_v2',pl:'var_lab_pl_v2'};
 const SECTIONS=[
   {id:'perche',n:'01',t:'Cos\'è una variabile'},
   {id:'memoria',n:'02',t:'Costruisci la memoria'},
@@ -1228,9 +1221,10 @@ if(!LEVELS.includes(LEVEL))LEVEL='facile';
 /* ---------- utils ---------- */
 function toast(msg,icon='◆'){
   const t=document.createElement('div');t.className='toast';t.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
-  $('#toasts').appendChild(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),320)},2400);
+  $('#toasts').appendChild(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),320)},2600);
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escAttr(s){return esc(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 const KW={java:'int|double|float|boolean|char|String|long|byte|short|void|for|while|do|if|else|break|continue|return|class|public|private|protected|static|final|new|true|false|null|this|super|System|Math|Arrays|Scanner|BigDecimal|var',
           js:'let|const|var|function|return|for|while|do|if|else|break|continue|true|false|null|undefined|console|Math|new|of|in|typeof|BigInt'};
 function hl(src,lang='java'){
@@ -1249,7 +1243,7 @@ function paintCode(el,src,lang='java'){el.innerHTML=src.split('\n').map((l,i)=>`
 function codeText(el){return [...el.querySelectorAll('.cl')].map(c=>c.textContent).join('\n')}
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-copy]');if(!b)return;
-  const el=document.getElementById(b.dataset.copy);
+  const el=document.getElementById(b.dataset.copy);if(!el)return;
   const txt=el.tagName==='PRE'?codeText(el):el.value;
   navigator.clipboard?.writeText(txt).then(()=>toast('Codice copiato','⧉')).catch(()=>toast('Copia non riuscita','⚠'));
 });
@@ -1259,20 +1253,132 @@ function fmtVal(v){
   if(typeof v==='number')return Number.isInteger(v)?String(v):String(Math.round(v*1e12)/1e12);
   return String(v);
 }
+function fmtT(v,t){
+  if(t==='char'&&typeof v==='number'&&!isNaN(v))return "'"+String.fromCharCode(v)+"'  ("+v+")";
+  return fmtVal(v);
+}
+function sizeOf(t){return ({byte:1,char:2,short:2,int:4,float:4,long:8,double:8,boolean:1,String:4})[String(t).replace('[]','')]||4}
 
-/* ---------- livello, nav, progresso ---------- */
+/* ---------- AST: costruttori di istruzioni (DEFINITI PRIMA DI TUTTO) ---------- */
+const S={
+  decl:(name,value,line,vt='int')=>({type:'decl',name,value,line,vt}),
+  declU:(name,line,vt='int')=>({type:'declU',name,line,vt}),
+  set:(name,value,line,disp)=>({type:'set',name,value,line,disp}),
+  setel:(name,index,value,line)=>({type:'setel',name,index,value,line}),
+  print:(value,line,nl=true)=>({type:'print',value,line,nl}),
+  call:(fn,args,line,store=null,storeType='int')=>({type:'call',fn,args,line,store,storeType}),
+  ret:(value,line)=>({type:'ret',value,line}),
+  retCall:(fn,args,line)=>({type:'retCall',fn,args,line}),
+  forSt:(init,cond,condTxt,update,body,line)=>({type:'for',init,cond,condTxt,update,body,line}),
+  whileSt:(cond,condTxt,body,line)=>({type:'while',cond,condTxt,body,line}),
+  ifSt:(cond,condTxt,thenB,line,elseB=[])=>({type:'if',cond,condTxt,thenB,elseB,line}),
+  brk:line=>({type:'break',line}),
+  cont:line=>({type:'continue',line})
+};
+
+/* =====================================================================
+   MOTORE DI TRACCIA (variabili + frame + variabili di classe)
+   ===================================================================== */
+function traceProg(prog){
+  const steps=[],out=[];const globals={},gtypes={};let stack=[];let seq=0,guard=0,overflow=false;let finalVars={};
+  (prog.fields||[]).forEach(f=>{try{globals[f.name]=new Function('"use strict";return ('+f.value+')')()}catch(e){globals[f.name]=undefined}gtypes[f.name]=f.vt});
+  function scopeVars(){const o={};for(const k in globals)o[k]=globals[k];const t=stack[stack.length-1];if(t)for(const k in t.vars)o[k]=t.vars[k];return o}
+  function ev(e){
+    if(e===undefined||e===null)return undefined;
+    const v=scopeVars(),keys=Object.keys(v);
+    try{return new Function(...keys,'"use strict";return ('+e+');')(...keys.map(k=>v[k]))}catch(err){return undefined}
+  }
+  function assign(name,val){const t=stack[stack.length-1];
+    if(t&&Object.prototype.hasOwnProperty.call(t.vars,name))t.vars[name]=val;
+    else if(Object.prototype.hasOwnProperty.call(globals,name))globals[name]=val;
+    else if(t)t.vars[name]=val;else globals[name]=val;}
+  const clone=o=>{const r={};for(const k in o)r[k]=Array.isArray(o[k])?o[k].slice():o[k];return r};
+  function snapV(){const t=stack[stack.length-1];return t?clone(t.vars):{}}
+  function snapS(){return stack.map(f=>({id:f.id,name:f.name,args:f.args.slice(),vars:clone(f.vars),main:f.main}))}
+  function push(o){if(steps.length>1400){overflow=true;throw new Error('cap')}
+    const t=stack[stack.length-1];
+    steps.push(Object.assign({vars:snapV(),globals:clone(globals),gtypes:Object.assign({},gtypes),
+      types:t?Object.assign({},t.types):{},stack:snapS(),out:out.slice(),depth:stack.length},o));}
+  const BRK={},CONT={};const RET=v=>({ret:v});
+  function invoke(fn,argVals,callLine){
+    const f=(prog.funcs||{})[fn];if(!f)throw new Error('funzione mancante: '+fn);
+    if(stack.length>80){overflow=true;throw new Error('depth')}
+    const frame={id:++seq,name:fn,args:argVals,vars:{},types:{},main:false};
+    (f.params||[]).forEach((p,i)=>{frame.vars[p.n]=argVals[i];frame.types[p.n]=p.t});
+    stack.push(frame);
+    push({type:'push',fid:frame.id,line:f.defLine,icon:'⤵️',msg:`<b>Chiamata di <code>${fn}(${argVals.map(fmtVal).join(', ')})</code></b>: nuovo frame sullo stack, gli argomenti diventano variabili locali.`});
+    const r=block(f.ast);const val=(r&&r.ret!==undefined)?r.ret:undefined;
+    stack.pop();
+    push({type:'pop',fid:frame.id,line:callLine,icon:'⤴️',msg:`<b>${fn}</b> termina${f.void?' (void)':` e restituisce <b>${fmtVal(val)}</b>`}: il frame viene distrutto e le sue variabili locali <u>cessano di esistere</u>.`});
+    return val;
+  }
+  function block(sts){for(const st of sts){const r=stmt(st);if(r)return r}return null}
+  function stmt(st){
+    if(++guard>90000){overflow=true;throw new Error('guard')}
+    const t=stack[stack.length-1];
+    switch(st.type){
+      case 'decl':{const v=ev(st.value);
+        if(t){t.vars[st.name]=v;t.types[st.name]=st.vt}else{globals[st.name]=v;gtypes[st.name]=st.vt}
+        push({line:st.line,icon:'📦',msg:`Dichiaro <code>${st.vt} ${st.name}</code> e riservo <b>${sizeOf(st.vt)} byte</b>: valore iniziale <b>${fmtT(v,st.vt)}</b>`});return null;}
+      case 'declU':{if(t){t.vars[st.name]=undefined;t.types[st.name]=st.vt}else{globals[st.name]=undefined;gtypes[st.name]=st.vt}
+        push({line:st.line,icon:'📦',msg:`Dichiaro <code>${st.vt} ${st.name}</code> <b>senza inizializzarla</b>: la cella esiste ma il contenuto non è utilizzabile (errore di compilazione se la leggi).`});return null;}
+      case 'set':{const v=ev(st.value);assign(st.name,v);
+        push({line:st.line,icon:'✏️',msg:`<code>${st.name} = ${esc(st.disp||st.value)}</code> → la cella ora contiene <b>${fmtT(v,(t&&t.types[st.name])||gtypes[st.name])}</b>`});return null;}
+      case 'setel':{const a=ev(st.name),i=ev(st.index),v=ev(st.value);
+        if(Array.isArray(a))a[i]=v;
+        push({line:st.line,icon:'✏️',msg:`<code>${st.name}[${i}] = ${fmtVal(v)}</code> → <b>${fmtVal(a)}</b> <span class="tiny">(l'array è condiviso: la modifica è visibile a chi ha lo stesso riferimento)</span>`});return null;}
+      case 'print':{const v=ev(st.value);const s=(typeof v==='string')?v:fmtVal(v);
+        if(st.nl)out.push(s);else{out.length?out[out.length-1]+=s:out.push(s)}
+        push({line:st.line,icon:'🖨️',msg:`Stampo: <b>${esc(s)}</b>`});return null;}
+      case 'call':{const vals=(st.args||[]).map(a=>ev(a));const val=invoke(st.fn,vals,st.line);
+        if(st.store){assign(st.store,val);if(t)t.types[st.store]=st.storeType;
+          push({line:st.line,icon:'📥',msg:`Il valore restituito (<b>${fmtVal(val)}</b>) viene memorizzato in <code>${st.storeType} ${st.store}</code>.`});}
+        return null;}
+      case 'retCall':{const vals=(st.args||[]).map(a=>ev(a));const val=invoke(st.fn,vals,st.line);
+        push({line:st.line,icon:'↩️',msg:`<code>return</code> propaga il risultato <b>${fmtVal(val)}</b>.`});return RET(val);}
+      case 'ret':{const v=ev(st.value);push({line:st.line,icon:'↩️',msg:`<code>return</code> → <b>${fmtVal(v)}</b>, la funzione si chiude.`});return RET(v);}
+      case 'for':{if(st.init)stmt(st.init);
+        for(;;){const c=ev(st.cond);
+          push({line:st.line,icon:'🔍',msg:`Test <code>${esc(st.condTxt)}</code> → <b style="color:${c?'var(--lime)':'var(--red)'}">${c?'VERO':'FALSO'}</b>`});
+          if(!c)break;const r=block(st.body);if(r===BRK)break;if(r&&r.ret!==undefined)return r;if(st.update)stmt(st.update);}
+        return null;}
+      case 'while':{for(;;){const c=ev(st.cond);
+          push({line:st.line,icon:'🔍',msg:`Test <code>${esc(st.condTxt)}</code> → <b style="color:${c?'var(--lime)':'var(--red)'}">${c?'VERO':'FALSO'}</b>`});
+          if(!c)break;const r=block(st.body);if(r===BRK)break;if(r&&r.ret!==undefined)return r;}
+        return null;}
+      case 'if':{const c=ev(st.cond);
+        push({line:st.line,icon:'🔀',msg:`<code>if (${esc(st.condTxt)})</code> → <b style="color:${c?'var(--lime)':'var(--amb)'}">${c?'VERO':'FALSO'}</b>`});
+        const r=block(c?st.thenB:(st.elseB||[]));return r||null;}
+      case 'break':push({line:st.line,icon:'⛔',msg:`<b style="color:var(--red)">break</b>: esco dal ciclo`});return BRK;
+      case 'continue':push({line:st.line,icon:'⏭️',msg:`<b style="color:var(--amb)">continue</b>: passo al giro successivo`});return CONT;
+    }
+    return null;
+  }
+  try{
+    stack.push({id:++seq,name:'main',args:[],vars:{},types:{},main:true});
+    push({type:'push',fid:seq,line:prog.mainLine,icon:'🚀',msg:`La JVM avvia <b>main()</b>: si apre il primo frame dello stack.`});
+    block(prog.main||[]);
+    finalVars=Object.assign({},globals,snapV());
+    stack.pop();
+    push({type:'pop',fid:seq,line:prog.mainLine,icon:'🏁',msg:`<b>main</b> termina: stack vuoto, tutte le variabili locali sono state distrutte. ${out.length?`Output prodotto: ${out.length} righe.`:''}`});
+  }catch(e){if(!overflow)console.warn('trace:',e)}
+  return {steps,out,overflow,finalVars,maxDepth:steps.reduce((m,s)=>Math.max(m,s.depth||0),0)};
+}
+
+/* ---------- livello / nav / progresso ---------- */
 function applyLvlVisibility(){$$('[data-lvl]').forEach(el=>el.classList.toggle('is-hidden',!el.dataset.lvl.split(/\s+/).includes(LEVEL)))}
 function setLevel(lv,silent){
   LEVEL=lv;document.documentElement.dataset.level=lv;localStorage.setItem(LS.level,lv);
   $$('#levelSeg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lv===lv)));
   applyLvlVisibility();
-  buildRamTypes();buildAna();buildStepperSelect();buildGuess();buildMemScenarios();buildScope();buildPresets();buildQuiz();buildBug();buildChallenges();buildSkills();
+  buildRamTypes();buildAna();buildStepperSelect();buildGuess();buildMemScenarios();buildScope();
+  buildPresets();buildQuiz();buildBug();buildChallenges();buildSkills();
   $('#stpLevel').textContent='livello: '+lv;$('#qLvl').textContent=lv;
   if(!silent)toast('Livello: '+lv.toUpperCase(),lv==='facile'?'🟢':lv==='medio'?'🟡':'🔴');
 }
 $$('#levelSeg button').forEach(b=>b.addEventListener('click',()=>setLevel(b.dataset.lv)));
 $('#sideList').innerHTML=SECTIONS.map(s=>`<a href="#${s.id}" data-link="${s.id}"><span class="n">${s.n}</span>${s.t}<span class="tick">✓</span></a>`).join('');
-$('#noteSection').innerHTML=SECTIONS.map(s=>`<option value="${s.t}">📍 ${s.t}</option>`).join('')+`<option value="Generale">📍 Generale</option>`;
+$('#noteSection').innerHTML=SECTIONS.map(s=>`<option value="${escAttr(s.t)}">📍 ${esc(s.t)}</option>`).join('')+`<option value="Generale">📍 Generale</option>`;
 const doneSet=new Set(JSON.parse(localStorage.getItem(LS.done)||'[]'));
 $$('[data-done]').forEach(l=>{
   const id=l.dataset.done,cb=$('input',l);
@@ -1290,7 +1396,7 @@ function buildSkills(){
   const saved=JSON.parse(localStorage.getItem(LS.skills)||'[]');
   $('#skills').innerHTML=SKILLS[LEVEL].map((s,i)=>{
     const key=LEVEL+'#'+i,on=saved.includes(key);
-    return `<label class="chk" data-skill="${key}" style="align-items:flex-start;border-radius:12px;padding:10px 13px;text-align:left;text-transform:none;letter-spacing:0;font-size:.84rem;font-weight:500">
+    return `<label class="chk" data-skill="${escAttr(key)}" style="align-items:flex-start;border-radius:12px;padding:10px 13px;text-align:left;text-transform:none;letter-spacing:0;font-size:.84rem;font-weight:500">
       <input type="checkbox" ${on?'checked':''}><span class="box" style="margin-top:3px">✓</span><span>${s}</span></label>`;
   }).join('');
   $$('[data-skill]').forEach(l=>{
@@ -1311,20 +1417,21 @@ updateProgress();
 const spy=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)
   $$('#sideList a').forEach(a=>a.classList.toggle('active',a.dataset.link===e.target.id))}),{rootMargin:'-20% 0px -70% 0px'});
 SECTIONS.forEach(s=>{const el=document.getElementById(s.id);if(el)spy.observe(el)});
-addEventListener('scroll',()=>{const h=document.documentElement;$('#progBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight||1)*100)+'%'},{passive:true});
+addEventListener('scroll',()=>{const h=document.documentElement;$('#progBar').style.width=(h.scrollTop/((h.scrollHeight-h.clientHeight)||1)*100)+'%'},{passive:true});
 $$('[data-goto]').forEach(b=>b.addEventListener('click',()=>document.getElementById(b.dataset.goto)?.scrollIntoView({behavior:'smooth'})));
 $('#fabTop').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
 
-/* ---------- hero canvas: celle di memoria animate ---------- */
+/* ---------- hero canvas ---------- */
 (function(){
   const cv=$('#heroCanvas'),cx=cv.getContext('2d');let W,H,raf=null,t=0,cells=[];
-  function size(){const r=cv.getBoundingClientRect();W=cv.width=r.width*devicePixelRatio;H=cv.height=r.height*devicePixelRatio}
+  function size(){const r=cv.getBoundingClientRect();W=cv.width=Math.max(1,r.width*devicePixelRatio);H=cv.height=Math.max(1,r.height*devicePixelRatio)}
   function init(){
     size();cells=[];
-    const cols=Math.max(6,Math.floor(W/(86*devicePixelRatio))),rows=Math.max(3,Math.floor(H/(52*devicePixelRatio)));
+    const cw=86*devicePixelRatio,ch=52*devicePixelRatio;
+    const cols=Math.max(4,Math.floor(W/cw)),rows=Math.max(3,Math.floor(H/ch));
     for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)
-      cells.push({x:c*86*devicePixelRatio+18*devicePixelRatio,y:r*52*devicePixelRatio+22*devicePixelRatio,
-        w:70*devicePixelRatio,h:36*devicePixelRatio,ph:Math.random()*6.3,v:Math.floor(Math.random()*90)+10});
+      cells.push({x:c*cw+16*devicePixelRatio,y:r*ch+20*devicePixelRatio,w:70*devicePixelRatio,h:34*devicePixelRatio,
+        ph:Math.random()*6.28,v:Math.floor(Math.random()*90)+10});
   }
   function draw(){
     cx.clearRect(0,0,W,H);t+=.012;
@@ -1333,13 +1440,13 @@ $('#fabTop').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
       cx.strokeStyle=`rgba(126,163,255,${.10+pulse*.20})`;cx.lineWidth=devicePixelRatio;
       cx.beginPath();cx.roundRect(c.x,c.y,c.w,c.h,5*devicePixelRatio);cx.stroke();
       if(pulse>.86){
-        cx.fillStyle=`rgba(251,191,36,${(pulse-.86)*1.6})`;
+        cx.fillStyle=`rgba(251,191,36,${(pulse-.86)*1.5})`;
         cx.beginPath();cx.roundRect(c.x,c.y,c.w,c.h,5*devicePixelRatio);cx.fill();
         cx.fillStyle='rgba(10,7,3,.9)';cx.font=`700 ${12*devicePixelRatio}px monospace`;
-        cx.fillText(String(c.v),c.x+8*devicePixelRatio,c.y+23*devicePixelRatio);
+        cx.fillText(String(c.v),c.x+8*devicePixelRatio,c.y+22*devicePixelRatio);
       }else{
         cx.fillStyle=`rgba(149,165,197,${.16+pulse*.22})`;cx.font=`${10*devicePixelRatio}px monospace`;
-        cx.fillText(String(c.v),c.x+8*devicePixelRatio,c.y+22*devicePixelRatio);
+        cx.fillText(String(c.v),c.x+8*devicePixelRatio,c.y+21*devicePixelRatio);
       }
     });
     raf=requestAnimationFrame(draw);
@@ -1375,108 +1482,117 @@ $('#fabTop').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
 /* =====================================================================
    LAB 1 · celle di memoria
    ===================================================================== */
+const JAVA_KEYWORDS=['abstract','assert','boolean','break','byte','case','catch','char','class','const','continue','default','do','double','else','enum','extends','final','finally','float','for','goto','if','implements','import','instanceof','int','interface','long','native','new','package','private','protected','public','return','short','static','strictfp','super','switch','synchronized','this','throw','throws','transient','try','void','volatile','while','true','false','null','var','record','yield'];
 const RAM_TYPES={
-  facile:[{t:'int',def:0,ph:'18'},{t:'double',def:0,ph:'4.5'},{t:'String',def:'""',ph:'"ciao"'}],
-  medio:[{t:'int',def:0,ph:'18'},{t:'double',def:0,ph:'4.5'},{t:'boolean',def:false,ph:'true'},{t:'char',def:"'?'",ph:"'A'"},{t:'String',def:'""',ph:'"ciao"'},{t:'long',def:0,ph:'3000000000'}],
-  difficile:[{t:'int',def:0,ph:'18'},{t:'double',def:0,ph:'4.5'},{t:'boolean',def:false,ph:'true'},{t:'char',def:"'?'",ph:"'A'"},{t:'String',def:'""',ph:'"ciao"'},{t:'long',def:0,ph:'3000000000'},{t:'byte',def:0,ph:'100'},{t:'int[]',def:'null',ph:'1, 2, 3'}]
+  facile:[{t:'int',def:'0',ph:'18'},{t:'double',def:'0.0',ph:'4.5'},{t:'String',def:'null',ph:'ciao'},{t:'boolean',def:'false',ph:'true'}],
+  medio:[{t:'int',def:'0',ph:'18'},{t:'double',def:'0.0',ph:'4.5'},{t:'boolean',def:'false',ph:'true'},{t:'char',def:"'?'",ph:'A'},{t:'String',def:'null',ph:'ciao'},{t:'long',def:'0L',ph:'3000000000'}],
+  difficile:[{t:'int',def:'0',ph:'18'},{t:'double',def:'0.0',ph:'4.5'},{t:'boolean',def:'false',ph:'true'},{t:'char',def:"'?'",ph:'A'},{t:'String',def:'null',ph:'ciao'},{t:'long',def:'0L',ph:'3000000000'},{t:'byte',def:'0',ph:'100'},{t:'int[]',def:'null',ph:'1, 2, 3'}]
 };
 let RAM=[],ramSel=null,ramAddr=0x100,ramLog=[];
 function buildRamTypes(){$('#ramType').innerHTML=RAM_TYPES[LEVEL].map(t=>`<option value="${t.t}">${t.t}</option>`).join('')}
-function ramTypeMeta(t){return RAM_TYPES[LEVEL].find(x=>x.t===t)||RAM_TYPES.difficile.find(x=>x.t===t)||{def:0,ph:'0'}}
+function ramMeta(t){return RAM_TYPES[LEVEL].find(x=>x.t===t)||RAM_TYPES.difficile.find(x=>x.t===t)||{def:'0',ph:'0'}}
 function parseVal(type,raw){
   const s=String(raw).trim();
-  if(type==='int'||type==='long'||type==='byte'){const n=Number(s.replace(/[^\d.\-]/g,''));return {v:Math.trunc(n),ok:!isNaN(n)}}
-  if(type==='double'||type==='float')return {v:Number(s),ok:!isNaN(Number(s))};
-  if(type==='boolean')return {v:/^(true|vero|1|si|sì)$/i.test(s),ok:true};
-  if(type==='char')return {v:s.replace(/^'|'$/g,'').charAt(0)||'?',ok:true};
+  if(type==='int'||type==='long'||type==='byte'){
+    const clean=s.replace(/[^\d.\-]/g,'');
+    if(!clean||isNaN(Number(clean)))return {v:0,ok:false};
+    return {v:Math.trunc(Number(clean)),ok:true};
+  }
+  if(type==='double'){if(s===''||isNaN(Number(s)))return {v:0,ok:false};return {v:Number(s),ok:true}}
+  if(type==='boolean')return {v:/^(true|vero|1|si|sì)$/i.test(s),ok:s!==''};
+  if(type==='char'){const c=s.replace(/^'|'$/g,'').charAt(0);return {v:c||'?',ok:s!==''}}
   if(type==='String')return {v:'"'+s.replace(/^"|"$/g,'')+'"',ok:true};
-  if(type==='int[]')return {v:'{'+s.replace(/[{}\s]/g,'')+'}',ok:true};
+  if(type==='int[]')return {v:'{'+s.replace(/[{}\s]/g,'')+'}',ok:s!==''};
   return {v:s,ok:true};
 }
 function ramDisplay(v,type){
-  if(type==='String')return v;
+  if(v===undefined)return '—';
   if(type==='char')return "'"+v+"'";
-  if(type==='int[]')return v;
   return String(v);
 }
-function renderRam(flashName){
-  const g=$('#ramGrid');
-  g.innerHTML=RAM.length?RAM.map(c=>`
-    <div class="ramcell ${ramSel===c.id?'sel':''} ${flashName===c.name?'hit':''}" data-id="${c.id}">
-      <div class="addr">${c.addr}</div><div class="nm">${esc(c.name)}</div>
-      <div class="vl">${esc(ramDisplay(c.v,c.t))}</div><div class="tp">${esc(c.t)}</div>
-    </div>`).join(''):'<div class="empty-state" style="grid-column:1/-1"><span class="em">🗄️</span>Memoria vuota: dichiara la prima variabile.</div>';
-  $$('.ramcell',g).forEach(el=>el.addEventListener('click',()=>{ramSel=el.dataset.id;renderRam();showSel()}));
-  $('#ramCode').innerHTML=ramLog.length?ramLog.map(l=>`<span class="cl">${hl(l)}</span>`).join('\n'):'<span class="cl"><span class="c-com">// le istruzioni generate compaiono qui</span></span>';
-  showSel();
-}
-function showSel(){
-  const c=RAM.find(x=>x.id===ramSel);
-  const p=$('#ramSelPanel');
-  if(!c){p.classList.add('is-hidden');return}
-  p.classList.remove('is-hidden');
-  $('#ramSelName').textContent=c.t+' '+c.name+' = '+ramDisplay(c.v,c.t);
-}
-function logJava(s){ramLog.push(s);if(ramLog.length>40)ramLog.shift()}
-function fb(html,cls='tip'){$('#ramFb').innerHTML=`<div class="cal ${cls}"><p class="small" style="margin:0">${html}</p></div>`}
-$('#ramAdd').addEventListener('click',()=>{
-  const name=$('#ramName').value.trim(),t=$('#ramType').value,meta=ramTypeMeta(t);
-  if(!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name)){fb('Nome non valido: deve iniziare con una lettera (niente spazi, accenti o cifre iniziali).','bad');return}
-  if(JAVA_KEYWORDS.includes(name)){fb(`<code>${esc(name)}</code> è una <b>parola chiave</b> di Java: non puoi usarla come nome.`,'bad');return}
-  if(RAM.some(c=>c.name===name)){fb(`La variabile <code>${esc(name)}</code> esiste già nello stesso scope: <b>duplicate local variable</b>. Selezionala e cambia il valore.`,'bad');return}
-  const raw=$('#ramVal').value.trim();
-  const pv=parseVal(t,raw||meta.ph);
-  if(!pv.ok){fb('Valore non compatibile con il tipo <code>'+t+'</code>.','bad');return}
-  if(t==='byte'&&(pv.v<-128||pv.v>127)){fb('Il valore '+pv.v+' non sta in un <code>byte</code> (−128 … 127).','bad');return}
-  ramAddr+=8;
-  RAM.push({id:'c'+Date.now()+Math.random().toString(36).slice(2,5),name,t,v:pv.v,addr:'0x'+ramAddr.toString(16).toUpperCase().padStart(4,'0')});
-  logJava(`${t} ${name} = ${raw?litOf(t,pv.v):meta.def};`);
-  fb(raw?`Hai <b>dichiarato e inizializzato</b> <code>${esc(t)} ${esc(name)}</code>: riservata una cella da <b>${sizeOf(t)} byte</b> all'indirizzo ${RAM[RAM.length-1].addr} e scritto il valore <b>${esc(ramDisplay(pv.v,t))}</b>.`
-        :`Hai <b>solo dichiarato</b> <code>${esc(t)} ${esc(name)}</code>: in un metodo locale <u>non ha alcun valore utilizzabile</u> finché non la inizializzi (come campo di classe varrebbe ${meta.def}).`,raw?'tip':'warn');
-  ramSel=RAM[RAM.length-1].id;renderRam(name);
-});
 function litOf(t,v){
   if(t==='String')return v;
   if(t==='char')return "'"+v+"'";
   if(t==='long')return v+'L';
+  if(t==='double')return v===Math.trunc(Number(v))?v+'.0':String(v);
   if(t==='int[]')return 'new int[]{'+String(v).replace(/[{}]/g,'')+'}';
   return String(v);
 }
-function sizeOf(t){return ({byte:1,char:2,short:2,int:4,float:4,long:8,double:8,boolean:1,String:4,'int[]':4})[t]||4}
+function ramFb(html,cls='tip'){$('#ramFb').innerHTML=`<div class="cal ${cls}"><p class="small" style="margin:0">${html}</p></div>`}
+function renderRam(flashName){
+  const g=$('#ramGrid');
+  g.innerHTML=RAM.length?RAM.map(c=>`
+    <div class="ramcell ${ramSel===c.id?'sel':''} ${flashName===c.name?'hit':''}" data-id="${escAttr(c.id)}">
+      <div class="addr">${esc(c.addr)}</div><div class="nm">${esc(c.name)}</div>
+      <div class="vl">${esc(ramDisplay(c.v,c.t))}</div><div class="tp">${esc(c.t)}</div>
+    </div>`).join(''):'<div class="empty-state" style="grid-column:1/-1"><span class="em">🗄️</span>Memoria vuota: dichiara la prima variabile.</div>';
+  $$('.ramcell',g).forEach(el=>el.addEventListener('click',()=>{ramSel=el.dataset.id;renderRam()}));
+  $('#ramCode').innerHTML=ramLog.length?ramLog.map(l=>`<span class="cl">${hl(l)}</span>`).join('\n'):'<span class="cl"><span class="c-com">// le istruzioni Java generate compaiono qui</span></span>';
+  const c=RAM.find(x=>x.id===ramSel);
+  if(c){$('#ramSelPanel').classList.remove('is-hidden');$('#ramSelName').textContent=c.t+' '+c.name+' = '+ramDisplay(c.v,c.t)}
+  else $('#ramSelPanel').classList.add('is-hidden');
+}
+function logJava(s){ramLog.push(s);if(ramLog.length>40)ramLog.shift()}
+$('#ramAdd').addEventListener('click',()=>{
+  const name=$('#ramName').value.trim(),t=$('#ramType').value,meta=ramMeta(t),raw=$('#ramVal').value.trim();
+  if(!t){ramFb('Scegli un tipo per la variabile.','bad');return}
+  if(!name){ramFb('Scrivi un nome per la variabile.','bad');return}
+  if(!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name)){ramFb('Nome non valido: deve iniziare con una lettera (niente spazi, accenti o cifre iniziali).','bad');return}
+  if(JAVA_KEYWORDS.includes(name)){ramFb(`<code>${esc(name)}</code> è una <b>parola chiave</b> di Java: non puoi usarla come nome di variabile.`,'bad');return}
+  if(RAM.some(c=>c.name===name)){ramFb(`La variabile <code>${esc(name)}</code> esiste già in questo scope: <b>duplicate local variable</b>. Selezionala e cambiale valore.`,'bad');return}
+  ramAddr+=8;
+  const cell={id:'c'+Date.now()+Math.random().toString(36).slice(2,6),name,t,addr:'0x'+ramAddr.toString(16).toUpperCase().padStart(4,'0'),v:undefined};
+  RAM.push(cell);ramSel=cell.id;
+  if(raw===''){
+    cell.v=undefined;
+    logJava(`${t} ${name};`);
+    ramFb(`Hai <b>solo dichiarato</b> <code>${esc(t)} ${esc(name)}</code>: riservata una cella da <b>${sizeOf(t)} byte</b> all'indirizzo ${cell.addr}. In un metodo <u>locale</u> non ha alcun valore utilizzabile finché non la inizializzi (come campo di classe varrebbe ${meta.def}).`,'warn');
+  }else{
+    const pv=parseVal(t,raw);
+    if(!pv.ok){RAM.pop();ramSel=null;ramFb('Valore non compatibile con il tipo <code>'+t+'</code>.','bad');renderRam();return}
+    if(t==='byte'&&(pv.v<-128||pv.v>127)){RAM.pop();ramSel=null;ramFb('Il valore '+pv.v+' non sta in un <code>byte</code> (−128 … 127): <i>incompatible types: possible lossy conversion</i>.','bad');renderRam();return}
+    cell.v=pv.v;
+    logJava(`${t} ${name} = ${litOf(t,pv.v)};`);
+    ramFb(`Hai <b>dichiarato e inizializzato</b> <code>${esc(t)} ${esc(name)}</code>: cella da <b>${sizeOf(t)} byte</b> all'indirizzo ${cell.addr}, valore <b>${esc(ramDisplay(pv.v,t))}</b>.`,'tip');
+  }
+  renderRam(name);
+});
 $('#ramAssign').addEventListener('click',()=>{
   const c=RAM.find(x=>x.id===ramSel);if(!c)return;
-  const raw=$('#ramNewVal').value.trim();if(!raw){fb('Scrivi un valore da assegnare.','warn');return}
-  const pv=parseVal(c.t,raw);if(!pv.ok){fb('Valore non compatibile con <code>'+c.t+'</code>.','bad');return}
+  const raw=$('#ramNewVal').value.trim();if(!raw){ramFb('Scrivi un valore da assegnare.','warn');return}
+  const pv=parseVal(c.t,raw);if(!pv.ok){ramFb('Valore non compatibile con <code>'+c.t+'</code>.','bad');return}
   const old=c.v;c.v=pv.v;logJava(`${c.name} = ${litOf(c.t,pv.v)};`);
-  fb(`Assegnamento: il valore <b>${esc(ramDisplay(old,c.t))}</b> è stato <u>sovrascritto</u> da <b>${esc(ramDisplay(pv.v,c.t))}</b>. Del vecchio valore non resta nulla: una variabile contiene <b>un solo</b> valore alla volta.`,'tip');
+  ramFb(`Assegnamento: <b>${esc(ramDisplay(old,c.t))}</b> è stato <u>sovrascritto</u> da <b>${esc(ramDisplay(pv.v,c.t))}</b>. Del vecchio valore non resta nulla: una variabile contiene <b>un solo</b> valore alla volta.`,'tip');
   $('#ramNewVal').value='';renderRam(c.name);
 });
 $('#ramInc').addEventListener('click',()=>{
   const c=RAM.find(x=>x.id===ramSel);if(!c)return;
-  if(c.t==='String'||c.t==='char'||c.t==='int[]'||c.t==='boolean'){fb('L\'operatore <code>++</code> funziona solo sui tipi numerici.','bad');return}
-  const old=c.v;c.v=(c.t==='int')?((Math.trunc(c.v)+1)|0):c.v+1;
+  if(c.v===undefined){ramFb(`<code>${esc(c.name)}</code> non è inizializzata: in Java <code>${esc(c.name)}++</code> <b>non compilerebbe</b> (<i>variable might not have been initialized</i>). Assegna prima un valore.`,'bad');return}
+  if(['String','char','int[]','boolean'].includes(c.t)){ramFb('L\'operatore <code>++</code> funziona solo sui tipi numerici.','bad');return}
+  const old=Number(c.v)||0;
+  c.v=(c.t==='int'||c.t==='byte')?((Math.trunc(old)+1)|0):(c.t==='long'?Math.trunc(old)+1:old+1);
   logJava(`${c.name}++;`);
   const ovf=(c.t==='int'&&old===2147483647);
-  fb(ovf?`⚠️ <b>Overflow!</b> <code>${c.name}</code> era al massimo valore di <code>int</code> (2147483647): aggiungendo 1 i 32 bit sono saturi e il valore «riparte» da <b>−2147483648</b>. Java non segnala l'errore.`
-        :`<code>${c.name}++</code> è la forma compatta di <code>${c.name} = ${c.name} + 1</code>: ${fmtVal(old)} → <b>${fmtVal(c.v)}</b>.`,ovf?'bad':'tip');
+  ramFb(ovf?`⚠️ <b>Overflow!</b> <code>${esc(c.name)}</code> era al massimo di <code>int</code> (2147483647): i 32 bit sono saturi e il valore «riparte» da <b>−2147483648</b>. Java non segnala nessun errore.`
+    :`<code>${c.name}++</code> è la forma compatta di <code>${c.name} = ${c.name} + 1</code>: ${fmtVal(old)} → <b>${fmtVal(c.v)}</b>.`,ovf?'bad':'tip');
   renderRam(c.name);
 });
 $('#ramZero').addEventListener('click',()=>{
   const c=RAM.find(x=>x.id===ramSel);if(!c)return;
-  c.v=(c.t==='String')?'""':(c.t==='char')?'?':(c.t==='boolean')?false:(c.t==='int[]')?'null':0;
-  logJava(`${c.name} = ${c.t==='String'?'""':c.t==='char'?"'?'":c.t==='boolean'?'false':c.t==='int[]'?'null':'0'};`);
-  fb(`Variabile riportata al <b>valore di default</b> del tipo <code>${c.t}</code>. Attenzione: nelle variabili <u>locali</u> Java non assegna default automatici, devi farlo tu.`,'warn');
+  const meta=ramMeta(c.t);
+  c.v=(c.t==='String'||c.t==='int[]')?'null':(c.t==='char'?'?':(c.t==='boolean'?false:0));
+  logJava(`${c.name} = ${c.t==='String'||c.t==='int[]'?'null':c.t==='char'?"'\\u0000'":c.t==='boolean'?'false':'0'};`);
+  ramFb(`Variabile riportata al <b>valore di default</b> del tipo <code>${c.t}</code> (${meta.def}). Ricorda: nelle variabili <u>locali</u> Java non assegna default automatici, devi farlo tu.`,'warn');
   renderRam(c.name);
 });
 $('#ramDel').addEventListener('click',()=>{
   const c=RAM.find(x=>x.id===ramSel);if(!c)return;
-  RAM=RAM.filter(x=>x.id!==ramSel);ramSel=null;logJava(`// ${c.t} ${c.name} esce dallo scope: la cella viene liberata`);
-  fb(`Alla chiusura della graffa la variabile <code>${esc(c.name)}</code> <b>esce dallo scope</b>: la sua cella di memoria viene liberata e il nome non è più utilizzabile.`,'warn');
+  RAM=RAM.filter(x=>x.id!==ramSel);ramSel=null;
+  logJava(`// ${c.t} ${c.name} esce dallo scope: la cella ${c.addr} viene liberata`);
+  ramFb(`Alla chiusura della graffa la variabile <code>${esc(c.name)}</code> <b>esce dallo scope</b>: la cella viene liberata e il nome non è più utilizzabile.`,'warn');
   renderRam();
 });
-$('#ramReset').addEventListener('click',()=>{RAM=[];ramSel=null;ramLog=[];ramAddr=0x100;renderRam();fb('Memoria azzerata.')});
-const JAVA_KEYWORDS=['abstract','assert','boolean','break','byte','case','catch','char','class','const','continue','default','do','double','else','enum','extends','final','finally','float','for','goto','if','implements','import','instanceof','int','interface','long','native','new','package','private','protected','public','return','short','static','strictfp','super','switch','synchronized','this','throw','throws','transient','try','void','volatile','while','true','false','null','var','record','yield'];
-/* validatore nomi */
+$('#ramReset').addEventListener('click',()=>{RAM=[];ramSel=null;ramLog=[];ramAddr=0x100;renderRam();ramFb('Memoria azzerata: puoi ripartire da capo.')});
 function checkName(n){
   const r=[];
   r.push({ok:n.length>0,t:'Il nome non è vuoto'});
@@ -1486,26 +1602,25 @@ function checkName(n){
   const camel=/^[a-z][a-zA-Z0-9]*$/.test(n);
   r.push({ok:camel,t:'Rispetta il camelCase (convenzione)',w:true,e:'Le variabili iniziano con la minuscola e ogni parola successiva con la maiuscola: <code>prezzoUnitario</code>.'});
   r.push({ok:n.length>=3&&n.length<=28,t:'Lunghezza ragionevole (3-28 caratteri)',w:true,e:'Nomi troppo corti non dicono nulla, troppo lunghi appesantiscono il codice.'});
-  r.push({ok:!/^[A-Z_]+$/.test(n)||n.includes('_'),t:'Non è scritto TUTTO MAIUSCOLO (riservato alle costanti)',w:true,e:'Le maiuscole con underscore si usano per le variabili <code>final</code>.'});
-  r.push({ok:!['x','y','z','a','b','c','p','q','tmp','temp','var','dato','val'].includes(n.toLowerCase()),t:'È un nome parlante (non generico)',w:true,e:'Meglio <code>contatore</code>, <code>prezzo</code>, <code>indice</code>: il nome deve spiegare il contenuto.'});
+  r.push({ok:!/^[A-Z][A-Z0-9]*$/.test(n),t:'Non è TUTTO MAIUSCOLO (riservato alle costanti)',w:true,e:'Maiuscole e underscore si usano per le variabili <code>final</code>, es. <code>IVA_ALIQUOTA</code>.'});
+  r.push({ok:!['x','y','z','a','b','c','p','q','tmp','temp','var','dato','val','n1','n2'].includes(n.toLowerCase()),t:'È un nome parlante (non generico)',w:true,e:'Meglio <code>contatore</code>, <code>prezzo</code>, <code>indice</code>: il nome deve spiegare il contenuto.'});
   return r;
 }
 $('#nmCheck').addEventListener('click',()=>{
   const n=$('#nmIn').value.trim(),res=checkName(n);
   const hard=res.filter(r=>!r.ok&&!r.w),soft=res.filter(r=>!r.ok&&r.w);
+  const valido=/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(n)&&!JAVA_KEYWORDS.includes(n);
   $('#nmOut').innerHTML=`
     <div class="verdict ${hard.length?'ko':soft.length?'warn':'ok'}" style="margin-bottom:10px">
-      ${hard.length?'⛔ <b>Non compila</b>':soft.length?'⚠️ <b>Lecito, ma sconsigliato</b>':'✅ <b>Nome perfetto</b>'}
-      ${hard.length||soft.length?'':` — <code>${esc(n)}</code> va benissimo.`}
+      ${hard.length?'⛔ <b>Non compila</b>':soft.length?'⚠️ <b>Lecito, ma sconsigliato</b>':'✅ <b>Nome perfetto</b>'}${hard.length||soft.length?'':` — <code>${esc(n)}</code> va benissimo.`}
     </div>
     ${res.map(r=>`<div class="small" style="margin-bottom:5px;display:flex;gap:8px">
       <span style="color:${r.ok?'var(--grn)':(r.w?'var(--amb)':'var(--red)')}">${r.ok?'✔':'✘'}</span>
       <span>${r.t}${!r.ok&&r.e?`<br><span class="tiny">${r.e}</span>`:''}</span></div>`).join('')}
     <div class="codewrap" style="margin:10px 0 0"><div class="codebar"><span class="lang">Java</span><span class="ttl">come lo useresti</span></div>
-      <pre class="code" style="padding:10px 14px;font-size:.78rem"><span class="cl">${hl(`int ${/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(n)&&!JAVA_KEYWORDS.includes(n)?n:'valore'} = 0;`)}</span></pre></div>`;
+      <pre class="code" style="padding:10px 14px;font-size:.78rem"><span class="cl">${hl(`int ${valido?n:'valore'} = 0;`)}</span></pre></div>`;
 });
-buildRamTypes();renderRam();
-$('#nmCheck').click();
+buildRamTypes();renderRam();$('#nmCheck').click();
 
 /* =====================================================================
    ANATOMIA
@@ -1519,8 +1634,8 @@ const ANA={
     parts:{
       ty:{h:'① Tipo — <code>int</code>, <code>String</code>, <code>boolean</code>',t:'Dice a Java <b>quanta memoria riservare</b> e <b>che genere di dati</b> può contenere la variabile. Si scrive <u>prima</u> del nome e una sola volta: dopo la dichiarazione il tipo non può più cambiare (tipizzazione statica).',ex:'<code>int</code> = 4 byte interi · <code>double</code> = 8 byte con virgola · <code>String</code> = riferimento a un testo.'},
       nm:{h:'② Nome — <code>eta</code>',t:'L\'<b>identificatore</b>: l\'etichetta con cui noi (e il compilatore) ci riferiamo a quella cella. Deve essere parlante, in camelCase, e unico all\'interno dello stesso scope.',ex:'Scegli <code>prezzoUnitario</code> invece di <code>p</code>: il codice si legge come un testo.'},
-      as:{h:'③ Operatore di assegnazione — <code>=</code>',t:'Non è l\'uguale matematico! Significa «<b>prendi il valore a destra e mettilo nella variabile a sinistra</b>». Il confronto si fa con <code>==</code>.',ex:'<code>x = x + 1</code> è lecito: si legge da destra, si scrive a sinistra.'},
-      vl:{h:'④ Valore — <code>18</code>, <code>"Ada"</code>, <code>eta >= 18</code>',t:'Può essere un <b>letterale</b> (valore scritto direttamente), un\'<b>espressione</b> (calcolata al momento) o il risultato di una <b>chiamata di funzione</b>. Deve essere compatibile con il tipo dichiarato.',ex:'<code>boolean maggiorenne = eta >= 18;</code> → l\'espressione produce <code>true</code> o <code>false</code>.'},
+      as:{h:'③ Operatore di assegnazione — <code>=</code>',t:'Non è l\'uguale matematico! Significa «<b>prendi il valore a destra e mettilo nella variabile a sinistra</b>». Il confronto si fa con <code>==</code>.',ex:'<code>x = x + 1</code> è lecito: si legge da destra e si scrive a sinistra.'},
+      vl:{h:'④ Valore — <code>18</code>, <code>"Ada"</code>, <code>eta &gt;= 18</code>',t:'Può essere un <b>letterale</b> (valore scritto direttamente), un\'<b>espressione</b> (calcolata al momento) o il risultato di una <b>chiamata di funzione</b>. Deve essere compatibile con il tipo dichiarato.',ex:'<code>boolean maggiorenne = eta &gt;= 18;</code> → l\'espressione produce <code>true</code> o <code>false</code>.'},
       sc:{h:'⑤ Punto e virgola e scope',t:'Ogni istruzione Java termina con <code>;</code>. Lo <b>scope</b> della variabile va dalla dichiarazione alla <b>graffa chiusa</b> del blocco che la contiene: fuori di lì il nome non esiste più.',ex:'Una variabile dichiarata dentro un <code>for</code> muore alla fine del <code>for</code>.'}
     }},
   medio:{ttl:'assegnamenti composti, costanti, più dichiarazioni',
@@ -1535,7 +1650,7 @@ const ANA={
       nm:{h:'② Nome — camelCase vs MAIUSCOLE',t:'Le <b>costanti</b> (<code>final</code>) si scrivono in MAIUSCOLO_CON_UNDERSCORE per segnalarle a colpo d\'occhio; le variabili in camelCase. Più dichiarazioni dello stesso tipo possono stare su una riga, ma è <u>sconsigliato</u>: riduce la leggibilità.',ex:'<code>int qta = 10, magazzino = 250;</code> è lecito ma poco chiaro.'},
       as:{h:'③ Assegnamento composto — <code>+=</code>, <code>*=</code>',t:'<code>x op= expr</code> equivale a <code>x = x op expr</code>, con una differenza sottile: la forma composta applica <b>automaticamente il cast</b> al tipo di <code>x</code>, quella estesa no.',ex:'<code>byte b = 1; b += 5;</code> compila; <code>b = b + 5;</code> <u>no</u> (b+5 è un int).'},
       vl:{h:'④ Valore ed espressioni',t:'A destra puoi mettere qualunque espressione del tipo giusto, incluse chiamate di metodo e confronti. L\'espressione viene <b>valutata completamente</b> prima dell\'assegnamento.',ex:'<code>prezzo *= (1 + IVA)</code>: prima si calcola 1.22, poi si moltiplica.'},
-      sc:{h:'⑤ <code>final</code>: la variabile diventa costante',t:'Con <code>final</code> l\'assegnamento è permesso <b>una sola volta</b> (anche in un secondo momento, ma una volta sola). Ogni tentativo successivo è un errore di compilazione: <i>cannot assign a value to final variable</i>.',ex:'Per i tipi riferimento <code>final</code> blocca il <b>riferimento</b>, non il contenuto: <code>final int[] v</code> può ancora essere modificato con <code>v[0] = 5</code>.'}
+      sc:{h:'⑤ <code>final</code>: la variabile diventa costante',t:'Con <code>final</code> l\'assegnamento è permesso <b>una sola volta</b>. Ogni tentativo successivo è un errore di compilazione: <i>cannot assign a value to final variable</i>.',ex:'Per i tipi riferimento <code>final</code> blocca il <b>riferimento</b>, non il contenuto: <code>final int[] v</code> può ancora essere modificato con <code>v[0] = 5</code>.'}
     }},
   difficile:{ttl:'scope, shadowing, variabili di classe',
     code:['public class Conto {',
@@ -1545,22 +1660,22 @@ const ANA={
           '    [[ty|void]] [[nm|versa]]([[ty|double]] [[nm|importo]]) {',
           '        [[ty|double]] [[nm|progressivo]] [[as|=]] [[vl|importo * 1.0]];  [[sc|// SHADOWING]]',
           '        [[nm|Conto.progressivo]] [[as|=]] [[nm|Conto.progressivo]] [[as|+]] [[vl|1]];  [[sc|// quella di classe]]',
-          '        [[sc|for (]][[ty|int]] [[nm|i]] [[as|=]] [[vl|0]]; [[nm|i]] [[vl|<]] [[sc|3;]] [[nm|i]][[as|++]][[sc|)]] [[sc|{]]',
+          '        [[sc|for (]][[ty|int]] [[nm|i]] [[as|=]] [[vl|0]]; [[nm|i]] [[vl|< 3]]; [[nm|i]][[as|++]][[sc|) {]]',
           '            [[ty|double]] [[nm|tot]] [[as|=]] [[vl|importo * i]];   [[sc|// vive solo nel for]]',
           '        [[sc|}]]',
           '    [[sc|}]]',
           '}'],
     parts:{
-      ty:{h:'① Tipo e qualifica <code>static</code>/<code>final</code>',t:'Il tipo si combina con i modificatori: <code>static</code> rende la variabile <b>di classe</b> (una sola copia condivisa da tutti gli oggetti), <code>final</code> la rende assegnabile una volta sola, <code>private</code> ne limita l\'accesso all\'interno della classe (incapsulamento).',ex:'<code>private final String iban;</code> va inizializzata nel costruttore: dopo è immutabile.'},
+      ty:{h:'① Tipo e qualificatori <code>static</code>/<code>final</code>',t:'Il tipo si combina con i modificatori: <code>static</code> rende la variabile <b>di classe</b> (una sola copia condivisa da tutti gli oggetti), <code>final</code> la rende assegnabile una volta sola, <code>private</code> ne limita l\'accesso all\'interno della classe (incapsulamento).',ex:'<code>private final String iban;</code> va inizializzata nel costruttore: dopo è immutabile.'},
       nm:{h:'② Nome e shadowing',t:'Una variabile locale può avere lo <b>stesso nome</b> di un campo di classe: dentro il metodo il nome si riferisce alla <u>locale</u>. Per raggiungere quella di classe serve qualificarla: <code>Conto.progressivo</code> (o <code>this.progressivo</code> per i campi di istanza).',ex:'Lo shadowing compila, ma è una delle fonti di bug più subdole.'},
       as:{h:'③ Assegnamento e qualificatori',t:'<code>Conto.progressivo = Conto.progressivo + 1;</code> modifica la variabile <b>condivisa</b>: l\'effetto resta visibile a tutte le chiamate successive e a tutti gli oggetti. È un <b>effetto collaterale</b> su stato globale.',ex:'Preferisci variabili locali e valori restituiti: lo stato globale rende i test difficili.'},
       vl:{h:'④ Valore: espressioni e tipi misti',t:'<code>importo * 1.0</code> è un trucco per forzare l\'aritmetica in virgola mobile. Ricorda: in un\'espressione mista il risultato ha il tipo <b>più largo</b> (<code>int * double → double</code>).',ex:'<code>int / int</code> resta intero: <code>7 / 2</code> = 3, non 3.5.'},
-      sc:{h:'⑤ Scope annidati e durata',t:'Lo scope è a <b>blocchi</b>: ogni coppia di graffe crea un livello. Una variabile dichiarata nel <code>for</code> esiste solo lì; il campo <code>static</code> esiste dal caricamento della classe alla fine del programma; il parametro <code>importo</code> esiste solo durante la chiamata.',ex:'Java vieta di dichiarare due variabili locali con lo stesso nome nello stesso blocco o in blocchi annidati.'}
+      sc:{h:'⑤ Scope annidati e durata',t:'Lo scope è a <b>blocchi</b>: ogni coppia di graffe crea un livello. Una variabile dichiarata nel <code>for</code> esiste solo lì; il campo <code>static</code> esiste dal caricamento della classe alla fine del programma; il parametro <code>importo</code> esiste solo durante la chiamata.',ex:'Java vieta di dichiarare due variabili locali con lo stesso nome in blocchi annidati: <code>variable i is already defined</code>.'}
     }}
 };
 function anaRender(line,active){
   return line.replace(/\[\[(\w+)\|([\s\S]*?)\]\]/g,(m,k,txt)=>{
-    const h=hl(txt.replace(/&gt;/g,'>').replace(/&lt;/g,'<'));
+    const h=hl(txt);
     return k===active?`<span class="hl-${k}">${h}</span>`:h;
   });
 }
@@ -1577,7 +1692,7 @@ $$('#anaBtns button').forEach(b=>{b.addEventListener('click',()=>showAna(b.datas
 buildAna();
 
 /* =====================================================================
-   TIPI PRIMITIVI + TYPE TESTER + OVERFLOW
+   TIPI · type tester · overflow
    ===================================================================== */
 const PRIM=[
   {t:'byte',bit:8,b:1,r:'−128 … 127',d:'0',ex:'byte b = 100;',u:'valori piccoli, dati binari, file'},
@@ -1593,42 +1708,55 @@ $('#primTable tbody').innerHTML=PRIM.map(p=>`<tr><td><code style="color:var(--cy
   <td class="mono" style="font-size:.76rem">${p.r}</td><td class="mono">${p.d}</td><td><code>${esc(p.ex)}</code></td><td class="small mut">${p.u}</td></tr>`).join('');
 
 const QUICK=['42','-7','3.14','2.5f','3000000000','9999999999L',"'A'",'true','"ciao"','0.1','127','128','2147483648'];
-$('#ttQuick').innerHTML=QUICK.map(q=>`<button class="mini-b" data-q="${esc(q)}">${esc(q)}</button>`).join('');
+$('#ttQuick').innerHTML=QUICK.map(q=>`<button class="mini-b" data-q="${escAttr(q)}">${esc(q)}</button>`).join('');
 $$('#ttQuick .mini-b').forEach(b=>b.addEventListener('click',()=>{$('#ttIn').value=b.dataset.q;classify()}));
 $('#ttGo').addEventListener('click',classify);
-$('#ttIn').addEventListener('keydown',e=>{if(e.key==='Enter')classify()});
+$('#ttIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();classify()}});
 function classify(){
   const raw=$('#ttIn').value.trim();
-  if(!raw){$('#ttOut').innerHTML='<div class="cal warn"><p class="small" style="margin:0">Scrivi un letterale.</p></div>';return}
-  let tipo=null,info='',ok=[],code='',val=null;
-  if(/^(true|false)$/i.test(raw)){tipo='boolean';info='1 bit logico (in pratica 1 byte nell\'hotspot JVM). Ammette solo <code>true</code> e <code>false</code>: in Java <b>non</b> esistono i valori truthy/falsy di JavaScript.';ok=['boolean'];code=`boolean b = ${raw.toLowerCase()};`}
-  else if(/^'(\\.|[^'])'$/.test(raw)){tipo='char';info='16 bit senza segno: contiene un <b>codice Unicode</b> (UTF-16). Con <code>char</code> si può fare aritmetica: <code>\'A\' + 1</code> → 66, perché viene promosso a <code>int</code>.';ok=['char','int','long','float','double'];code=`char c = ${raw};\nint codice = c;      // ${raw.charCodeAt(1)}`}
-  else if(/^"(.*)"$/.test(raw)){tipo='String';info='<b>Non è un primitivo</b>: è una classe. La variabile contiene un <b>riferimento</b> all\'oggetto nello heap. È <b>immutabile</b> e si confronta con <code>equals()</code>.';ok=['String','Object','CharSequence'];code=`String s = ${raw};\nint len = s.length();   // ${raw.length-2}`}
-  else{
-    const m=raw.match(/^([+-]?)(\d+)([lL])?$/);
-    const d=raw.match(/^([+-]?)(\d*)\.?(\d*)([eE][+-]?\d+)?([fFdD])?$/);
-    if(m){
-      val=Number(m[1]+m[2]);
-      if(m[3]){tipo='long';info='Il suffisso <b>L</b> forza il tipo <code>long</code> (64 bit). Senza L un letterale intero è <code>int</code> e, se troppo grande, dà errore <i>integer number too large</i>.';ok=['long','float','double'];}
-      else{
-        if(val>=-128&&val<=127){tipo='int (letterale)';ok=['byte','short','int','long','float','double'];}
-        else if(val>=-32768&&val<=32767){tipo='int (letterale)';ok=['short','int','long','float','double'];}
-        else if(val>=-2147483648&&val<=2147483647){tipo='int (letterale)';ok=['int','long','float','double'];}
-        else if(Math.abs(val)<=9.22e18){tipo='ERRORE senza L';ok=['long','double'];info='Il valore <b>non sta in un int</b>: scrivilo con il suffisso <code>L</code>, altrimenti il compilatore segnala <i>integer number too large</i>.';}
-        else{tipo='oltre long';ok=['double','BigInteger'];info='Fuori anche dal range di <code>long</code>: servono <code>double</code> (con perdita di precisione) o <code>BigInteger</code>.';}
-      }
-      code=(ok[0]==='byte'?`byte b = ${val};\n`:ok[0]==='short'?`short s = ${val};\n`:'')+`int i = ${val};${ok.includes('long')?`\nlong l = ${val}L;`:''}`;
-    }else if(d&&(d[3]||d[4]||d[5])){
-      val=Number(raw.replace(/[fFdD]$/,''));
-      const isFloat=/[fF]$/.test(raw);
-      tipo=isFloat?'float':'double';
-      info=isFloat?'Il suffisso <b>f</b> indica <code>float</code> (32 bit, ~7 cifre significative).':'Un letterale con la virgola è <b>double</b> per default (64 bit, ~15-16 cifre). Attenzione: molti decimali (come 0.1) <u>non sono rappresentabili esattamente</u> in binario.';
-      ok=isFloat?['float','double']:['double'];
-      code=`${isFloat?'float f = '+raw+';':'double d = '+raw+';'}\n// memoria: ${isFloat?4:8} byte`;
-    }else{tipo='non riconosciuto';info='Non è un letterale Java valido. Formati accettati: <code>42</code>, <code>3.14</code>, <code>2.5f</code>, <code>100L</code>, <code>\'A\'</code>, <code>true</code>, <code>"testo"</code>.';}
+  if(!raw){$('#ttOut').innerHTML='<div class="cal warn"><p class="small" style="margin:0">Scrivi un letterale da analizzare.</p></div>';return}
+  let tipo=null,info='',ok=[],code='';
+  if(/^(true|false)$/i.test(raw)){
+    tipo='boolean';ok=['boolean'];code=`boolean b = ${raw.toLowerCase()};`;
+    info='Un solo bit logico. Ammette <b>solo</b> <code>true</code> e <code>false</code>: in Java non esistono i valori truthy/falsy di JavaScript, quindi <code>if (1)</code> non compila.';
+  }else if(/^'(\\.|[^'])'$/.test(raw)){
+    tipo='char';ok=['char','int','long','float','double'];
+    code=`char c = ${raw};\nint codice = c;      // ${raw.charCodeAt(1)}`;
+    info='16 bit senza segno: contiene un <b>codice Unicode</b> (UTF-16). Con <code>char</code> si può fare aritmetica: <code>\'A\' + 1</code> → 66, perché il char viene promosso a <code>int</code>.';
+  }else if(/^"(.*)"$/.test(raw)){
+    tipo='String';ok=['String','CharSequence','Object'];
+    code=`String s = ${raw};\nint len = s.length();   // ${Math.max(0,raw.length-2)}`;
+    info='<b>Non è un primitivo</b>: è una classe. La variabile contiene un <b>riferimento</b> all\'oggetto nello heap. È <b>immutabile</b> e si confronta con <code>equals()</code>.';
+  }else{
+    const mi=raw.match(/^([+-]?)(\d+)([lL])?$/);
+    const md=raw.match(/^([+-]?)(\d*)\.(\d+)([eE][+-]?\d+)?([fFdD])?$/)||raw.match(/^([+-]?)(\d+)([eE][+-]?\d+)([fFdD])?$/)||raw.match(/^([+-]?)(\d*)\.(\d*)$/);
+    const isFloatLit=/[fF]$/.test(raw)||/[eE][+-]?\d+[fF]$/.test(raw);
+    if(mi){
+      const val=Number(mi[1]+mi[2]);
+      if(mi[3]){tipo='long';ok=['long','float','double'];
+        info='Il suffisso <b>L</b> forza il tipo <code>long</code> (64 bit). Senza L un letterale intero è <code>int</code>: se è troppo grande il compilatore dà <i>integer number too large</i>.';}
+      else if(val>=-128&&val<=127){tipo='int (letterale)';ok=['byte','short','int','long','float','double'];info='Sta in tutti i tipi interi: puoi assegnarlo anche a un <code>byte</code> senza cast, perché il compilatore conosce il valore.';}
+      else if(val>=-32768&&val<=32767){tipo='int (letterale)';ok=['short','int','long','float','double'];info='Troppo grande per un <code>byte</code> (−128…127), sta in uno <code>short</code>.';}
+      else if(val>=-2147483648&&val<=2147483647){tipo='int (letterale)';ok=['int','long','float','double'];info='È il caso più comune: gli interi letterali sono <code>int</code> per default.';}
+      else if(Math.abs(val)<=9.22e18){tipo='⛔ troppo grande per int';ok=['long','double'];
+        info='Serve il suffisso <b>L</b>: <code>'+esc(raw)+'L</code>. Senza, errore <i>integer number too large</i>. Attenzione: assegnarlo a un <code>double</code> perde precisione oltre 2⁵³.';}
+      else{tipo='⛔ oltre anche long';ok=['double','BigInteger'];info='Fuori dal range di <code>long</code>: servono <code>double</code> (con perdita di precisione) o <code>BigInteger</code>.';}
+      const base=ok.includes('byte')?`byte b = ${val};\n`:ok.includes('short')?`short s = ${val};\n`:'';
+      code=base+`${ok.includes('int')?'int i = ':'long l = '}${val}${ok.includes('int')?'':'L'};`+(ok.includes('long')&&ok.includes('int')?`\nlong l = ${val}L;`:'');
+    }else if(md){
+      const val=Number(raw.replace(/[fFdD]$/,''));
+      tipo=isFloatLit?'float':'double';
+      ok=isFloatLit?['float','double']:['double'];
+      code=(isFloatLit?`float f = ${raw};`:`double d = ${raw};`)+`\n// memoria: ${isFloatLit?4:8} byte`;
+      info=isFloatLit?'Il suffisso <b>f</b> indica <code>float</code> (32 bit, ~7 cifre significative): senza di esso il letterale decimale è <code>double</code> e non entra in un <code>float</code> senza cast.'
+        :'Un letterale con la virgola è <b>double</b> per default (64 bit, ~15-16 cifre). Attenzione: molti decimali (come 0.1) <u>non sono rappresentabili esattamente</u> in binario.';
+    }else{
+      tipo='⛔ non riconosciuto';
+      info='Non è un letterale Java valido. Formati accettati: <code>42</code>, <code>3.14</code>, <code>2.5f</code>, <code>100L</code>, <code>\'A\'</code>, <code>true</code>, <code>"testo"</code>.';
+    }
   }
   $('#ttOut').innerHTML=`
-    <div class="verdict ${tipo.startsWith('ERRORE')||tipo==='non riconosciuto'||tipo==='oltre long'?'ko':'ok'}" style="margin-bottom:10px">
+    <div class="verdict ${tipo.startsWith('⛔')?'ko':'ok'}" style="margin-bottom:10px">
       <b>${esc(raw)}</b> → tipo <code style="color:var(--amb)">${esc(tipo)}</code></div>
     ${info?`<p class="small mut">${info}</p>`:''}
     ${ok.length?`<div class="tiny" style="text-transform:uppercase;letter-spacing:.12em;margin:8px 0 5px">può essere assegnato a</div>
@@ -1637,16 +1765,15 @@ function classify(){
 }
 classify();
 
-/* overflow + bit */
 let ovV=2147483644;
 function drawOv(){
   const bits=(ovV>>>0).toString(2).padStart(32,'0');
   $('#ovBits').innerHTML=bits.split('').map((b,i)=>`<i class="${b==='1'?'on':''} ${i===0?'sign':''}">${b}</i>`).join('');
   $('#ovVal').textContent=ovV.toLocaleString('it-IT');
   $('#ovVal').style.color=ovV<0?'var(--red)':'var(--amb)';
-  $('#ovInfo').innerHTML=`decimale <b>${ovV}</b> · esadecimale <b>0x${(ovV>>>0).toString(16).toUpperCase().padStart(8,'0')}</b> · bit attivi <b>${bits.split('').filter(x=>x==='1').length}/32</b> · <span class="tiny" style="color:var(--red)">il bit a sinistra è il segno</span>`;
+  $('#ovInfo').innerHTML=`decimale <b>${ovV}</b> · esadecimale <b>0x${(ovV>>>0).toString(16).toUpperCase().padStart(8,'0')}</b> · bit a 1: <b>${bits.split('').filter(x=>x==='1').length}/32</b> · <span class="tiny" style="color:var(--red)">il bit a sinistra è il segno</span>`;
   $('#ovFb').innerHTML = ovV===-2147483648
-    ? `<div class="cal bad"><div class="h">💥 Overflow avvenuto</div><p class="small" style="margin:0">Sei a <code>Integer.MIN_VALUE</code>: tutti i bit a 1 tranne il segno. Sommando ancora 1 tornerai a −2147483647. <b>Java non genera nessuna eccezione</b>: il risultato è semplicemente sbagliato.</p></div>`
+    ? `<div class="cal bad"><div class="h">💥 Overflow avvenuto</div><p class="small" style="margin:0">Sei a <code>Integer.MIN_VALUE</code>: bit di segno a 1 e tutti gli altri a 0. Sommando ancora 1 tornerai a −2147483647. <b>Java non genera nessuna eccezione</b>: il risultato è semplicemente sbagliato.</p></div>`
     : ovV===2147483647
       ? `<div class="cal warn"><div class="h">⚠️ Al limite</div><p class="small" style="margin:0">Sei a <code>Integer.MAX_VALUE</code> = 2³¹−1: 31 bit a 1. Premi <b>+1</b> e guarda cosa succede.</p></div>`
       : '';
@@ -1660,75 +1787,57 @@ $('#ovZero').addEventListener('click',()=>setOv(0));
 drawOv();
 
 /* =====================================================================
-   MINI-LINGUAGGIO PER LA TRACCIA (S0)
-   ===================================================================== */
-const S0={
-  decl:(n,v,l,t='int')=>({type:'decl',name:n,value:v,line:l,vt:t}),
-  set:(n,v,l,disp)=>({type:'set',name:n,value:v,line:l,disp}),
-  setel:(n,i,v,l)=>({type:'setel',name:n,index:i,value:v,line:l}),
-  print:(v,l,nl=true)=>({type:'print',value:v,line:l,nl}),
-  call:(fn,a,l,st,ty)=>({type:'call',fn,args:a,line:l,store:st,storeType:ty}),
-  ret:(v,l)=>({type:'ret',value:v,line:l}),
-  retCall:(fn,a,l)=>({type:'retCall',fn,args:a,line:l}),
-  declU:(n,l,t='int')=>({type:'declU',name:n,line:l,vt:t}),
-  forSt:(init,c,ct,u,b,l)=>({type:'for',init,cond:c,condTxt:ct,update:u,body:b,line:l}),
-  whileSt:(c,ct,b,l)=>({type:'while',cond:c,condTxt:ct,body:b,line:l}),
-  ifSt:(c,ct,t,l,e=[])=>({type:'if',cond:c,condTxt:ct,thenB:t,elseB:e,line:l}),
-  brk:l=>({type:'break',line:l}),cont:l=>({type:'continue',line:l})
-};
-
-/* =====================================================================
    LAB 4 · indovina il valore finale
    ===================================================================== */
 const GUESS={
   facile:[
     {title:'Copia di valore',ask:'b',
      lines:['int a = 5;','int b = a;','a = 10;','System.out.println(b);'],
-     main:[S0.decl('a','5',0,'int'),S0.decl('b','a',1,'int'),S0.set('a','10',2),S0.print('b',3)],
+     main:[S.decl('a','5',0,'int'),S.decl('b','a',1,'int'),S.set('a','10',2),S.print('b',3)],
      why:'<code>b = a</code> copia il <b>valore</b> 5 in una cella separata. Modificare <code>a</code> dopo non tocca <code>b</code>: restano due variabili indipendenti.'},
     {title:'Riassegnamenti in catena',ask:'x',
      lines:['int x = 1;','x = x + 2;','x = x * 3;','x = x - 4;','System.out.println(x);'],
-     main:[S0.decl('x','1',0,'int'),S0.set('x','x + 2',1),S0.set('x','x * 3',2),S0.set('x','x - 4',3),S0.print('x',4)],
+     main:[S.decl('x','1',0,'int'),S.set('x','x + 2',1),S.set('x','x * 3',2),S.set('x','x - 4',3),S.print('x',4)],
      why:'Si procede dall\'alto: 1 → 1+2 = <b>3</b> → 3×3 = <b>9</b> → 9−4 = <b>5</b>. Ogni assegnamento sostituisce il valore precedente.'},
     {title:'Accumulatore in un ciclo',ask:'s',
      lines:['int s = 0;','for (int i = 1; i <= 4; i++) {','    s = s + i;','}','System.out.println(s);'],
-     main:[S0.decl('s','0',0,'int'),S0.forSt(S0.decl('i','1',1),'i <= 4','i <= 4',S0.set('i','i + 1',1),[S0.set('s','s + i',2)],1),S0.print('s',4)],
-     why:'s accumula 1 + 2 + 3 + 4 = <b>10</b>. La variabile <code>i</code> invece muore alla fine del <code>for</code>.'}
+     main:[S.decl('s','0',0,'int'),S.forSt(S.decl('i','1',1),'i <= 4','i <= 4',S.set('i','i + 1',1),[S.set('s','s + i',2)],1),S.print('s',4)],
+     why:'<code>s</code> accumula 1 + 2 + 3 + 4 = <b>10</b>. La variabile <code>i</code> invece muore alla fine del <code>for</code>.'}
   ],
   medio:[
     {title:'Divisione intera',ask:'d',
      lines:['int a = 7;','int b = 2;','double d = a / b;','System.out.println(d);'],
-     main:[S0.decl('a','7',0,'int'),S0.decl('b','2',1,'int'),S0.decl('d','Math.trunc(a / b)',2,'double'),S0.print('d',3)],
+     main:[S.decl('a','7',0,'int'),S.decl('b','2',1,'int'),S.decl('d','Math.trunc(a / b)',2,'double'),S.print('d',3)],
      why:'<code>a / b</code> è una divisione fra due <code>int</code> → risultato <b>intero</b> 3 (il resto si perde). Solo <u>dopo</u> il 3 viene convertito in <code>double</code>: <b>3.0</b>, non 3.5. Per ottenere 3.5 serviva <code>(double) a / b</code>.'},
     {title:'Operatori composti',ask:'n',
      lines:['int n = 5;','n += 3;','n *= 2;','n -= 4;','n /= 3;','System.out.println(n);'],
-     main:[S0.decl('n','5',0,'int'),S0.set('n','n + 3',1,'n += 3'),S0.set('n','n * 2',2,'n *= 2'),S0.set('n','n - 4',3,'n -= 4'),S0.set('n','Math.trunc(n / 3)',4,'n /= 3'),S0.print('n',5)],
-     why:'5 → +3 = 8 → ×2 = 16 → −4 = 12 → /3 = <b>4</b> (divisione intera esatta, per fortuna!).'},
+     main:[S.decl('n','5',0,'int'),S.set('n','n + 3',1,'n += 3'),S.set('n','n * 2',2,'n *= 2'),S.set('n','n - 4',3,'n -= 4'),S.set('n','Math.trunc(n / 3)',4,'n /= 3'),S.print('n',5)],
+     why:'5 → +3 = 8 → ×2 = 16 → −4 = 12 → /3 = <b>4</b>. Le forme composte <code>+=</code>, <code>*=</code>, <code>-=</code>, <code>/=</code> sono identiche alla forma estesa.'},
     {title:'Concatenazione di String',ask:'s',
      lines:['String s = "a";','s = s + "b";','s = s + s;','s = s + 1;','System.out.println(s);'],
-     main:[S0.decl('s','"a"',0,'String'),S0.set('s','s + "b"',1),S0.set('s','s + s',2),S0.set('s','s + "1"',3),S0.print('s',4)],
-     why:'"a" → "ab" → "abab" → <b>"abab1"</b>. Con le <code>String</code> il <code>+</code> concatena; se uno dei due operandi è una stringa, anche il numero diventa testo.'},
-    {title:'Array: due nomi, un solo oggetto',ask:'v',
-     lines:['int[] v = {1, 2, 3};','int[] w = v;','w[0] = 9;','System.out.println(v[0]);'],
-     main:[S0.decl('v','[1, 2, 3]',0,'int[]'),S0.decl('w','v',1,'int[]'),S0.setel('w','0','9',2),S0.print('v[0]',3)],
+     main:[S.decl('s','"a"',0,'String'),S.set('s','s + "b"',1),S.set('s','s + s',2),S.set('s','s + "1"',3,'s = s + 1'),S.print('s',4)],
+     why:'"a" → "ab" → "abab" → <b>"abab1"</b>. Con le <code>String</code> il <code>+</code> concatena: se uno dei due operandi è una stringa, anche il numero diventa testo.'},
+    {title:'Array: due nomi, un solo oggetto',ask:'primo',
+     lines:['int[] v = {1, 2, 3};','int[] w = v;','w[0] = 9;','int primo = v[0];','System.out.println(primo);'],
+     main:[S.decl('v','[1, 2, 3]',0,'int[]'),S.decl('w','v',1,'int[]'),S.setel('w','0','9',2),S.decl('primo','v[0]',3,'int'),S.print('primo',4)],
      why:'<code>w = v</code> copia il <b>riferimento</b>: <code>v</code> e <code>w</code> puntano allo stesso array. Modificare <code>w[0]</code> cambia anche <code>v[0]</code> → <b>9</b>.'}
   ],
   difficile:[
     {title:'Overflow di int',ask:'m',
      lines:['int m = 2147483647;','m = m + 1;','System.out.println(m);'],
-     main:[S0.decl('m','2147483647',0,'int'),S0.set('m','(m + 1) | 0',1,'m + 1'),S0.print('m',2)],
+     main:[S.decl('m','2147483647',0,'int'),S.set('m','(m + 1) | 0',1,'m + 1'),S.print('m',2)],
      why:'Il risultato corretto sarebbe 2 147 483 648, ma <code>int</code> ha 32 bit in complemento a due: il bit del segno diventa 1 e il valore «gira» a <b>−2147483648</b>. Nessun errore segnalato.'},
     {title:'Uguaglianza tra double',ask:'uguale',
      lines:['double d = 0.1 + 0.2;','boolean uguale = (d == 0.3);','System.out.println(d);','System.out.println(uguale);'],
-     main:[S0.decl('d','0.1 + 0.2',0,'double'),S0.decl('uguale','d === 0.3',1,'boolean'),S0.print('d',2),S0.print('uguale',3)],
+     main:[S.decl('d','0.1 + 0.2',0,'double'),S.decl('uguale','d === 0.3',1,'boolean'),S.print('d',2),S.print('uguale',3)],
      why:'0.1 e 0.2 non sono rappresentabili esattamente in binario: la somma vale <b>0.30000000000000004</b>, quindi il confronto <code>==</code> dà <b>false</b>. Si confronta con una tolleranza: <code>Math.abs(d - 0.3) &lt; 1e-9</code>.'},
     {title:'Divisione intera nascosta',ask:'y',
      lines:['int x = 10;','double y = x / 4;','y = y + 0.5;','System.out.println(y);'],
-     main:[S0.decl('x','10',0,'int'),S0.decl('y','Math.trunc(x / 4)',1,'double'),S0.set('y','y + 0.5',2),S0.print('y',3)],
+     main:[S.decl('x','10',0,'int'),S.decl('y','Math.trunc(x / 4)',1,'double'),S.set('y','y + 0.5',2),S.print('y',3)],
      why:'<code>x / 4</code> con entrambi <code>int</code> fa <b>2</b> (troncato), poi diventa 2.0; aggiungendo 0.5 si ottiene <b>2.5</b>. Se ti aspettavi 3.0, il colpevole è la divisione intera.'},
     {title:'Aritmetica sui char',ask:'k',
      lines:["char c = 'A';","int k = c + 1;","System.out.println(k);","System.out.println((char) k);"],
-     main:[S0.decl('c',"'A'.charCodeAt(0)",0,'char'),S0.decl('k','c + 1',1,'int'),S0.print('k',2),S0.print('String.fromCharCode(k)',3)],
+     main:[S.decl('c','"A".charCodeAt(0)',0,'char'),S.decl('k','c + 1',1,'int'),S.print('k',2),S.print('String.fromCharCode(k)',3)],
      why:'Un <code>char</code> è un intero senza segno a 16 bit: <code>\'A\'</code> vale <b>65</b>. Con <code>c + 1</code> il char viene promosso a <code>int</code> → <b>66</b>, che riconvertito con <code>(char)</code> dà <code>\'B\'</code>.'}
   ]
 };
@@ -1741,186 +1850,100 @@ function paintGuess(){
   $('#gsAsk').textContent=g.ask;
   paintCode($('#gsCode'),g.lines.join('\n'),'java');
   $('#gsIn').value='';$('#gsFb').innerHTML='';$('#gsTrace').classList.add('is-hidden');
-  $('#gsIn').onkeydown=e=>{if(e.key==='Enter')$('#gsCheck').click()};
 }
+$('#gsIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#gsCheck').click()}});
 $('#gsCheck').addEventListener('click',()=>{
   const g=GUESS[LEVEL][gsIdx%GUESS[LEVEL].length];
   const prog={lines:g.lines,main:g.main,funcs:{},mainLine:0,mainRange:[0,g.lines.length-1],fields:[]};
   const tr=traceProg(prog);
   const real=tr.finalVars[g.ask];
   const dato=$('#gsIn').value.trim();
-  const norm=s=>String(s).replace(/\s/g,'').replace(/"/g,'').replace(/,/g,'.').replace(/\[(.*)\]/,'$1');
+  const norm=s=>String(s).trim().replace(/\s+/g,'').replace(/"/g,'').replace(/'/g,'').replace(/,/g,'.').replace(/^\[(.*)\]$/,'$1');
   const ok=norm(dato)===norm(fmtVal(real));
   $('#gsFb').innerHTML=`<div class="cal ${ok?'tip':'bad'}"><div class="h">${ok?'✅ Corretto!':'❌ Non ci siamo'}</div>
     <p class="small" style="margin:0">Il valore finale di <code>${esc(g.ask)}</code> è <b>${esc(fmtVal(real))}</b>. ${g.why}</p></div>`;
   const names=[...new Set(tr.steps.flatMap(s=>Object.keys(s.vars)))];
   $('#gsTable').innerHTML=`<thead><tr><th>passo</th><th>riga</th>${names.map(n=>`<th>${esc(n)}</th>`).join('')}<th>output</th></tr></thead><tbody>`+
-    tr.steps.map((s,i)=>`<tr><td>${i+1}</td><td>${s.line>=0?s.line+1:'—'}</td>${names.map(n=>`<td class="vv">${esc(fmtVal(s.vars[n]))}</td>`).join('')}<td>${esc(s.out[s.out.length-1]||'')}</td></tr>`).join('')+'</tbody>';
+    tr.steps.map((s,i)=>`<tr><td>${i+1}</td><td>${s.line>=0?s.line+1:'—'}</td>${names.map(n=>`<td class="vv">${esc(fmtVal(s.vars[n]))}</td>`).join('')}<td>${esc(s.out.length?s.out[s.out.length-1]:'')}</td></tr>`).join('')+'</tbody>';
   $('#gsTrace').classList.remove('is-hidden');
 });
-$('#gsNext').addEventListener('click',()=>{gsIdx++;paintGuess()});
+$('#gsNext').addEventListener('click',()=>{gsIdx=(gsIdx+1)%GUESS[LEVEL].length;paintGuess()});
 $('#gsPrev').addEventListener('click',()=>{gsIdx=(gsIdx-1+GUESS[LEVEL].length)%GUESS[LEVEL].length;paintGuess()});
 
 /* =====================================================================
-   TRACER CON STACK + VARIABILI DI CLASSE
+   PROGRAMMI PER LO STEPPER
    ===================================================================== */
-function traceProg(prog){
-  const steps=[],out=[];const globals={};let stack=[],seq=0,guard=0,overflow=false,finalVars={};
-  (prog.fields||[]).forEach(f=>{try{globals[f.name]=new Function('"use strict";return ('+f.value+')')()}catch(e){globals[f.name]=0}});
-  function scopeVars(){const o={};for(const k in globals)o[k]=globals[k];const t=stack[stack.length-1];if(t)for(const k in t.vars)o[k]=t.vars[k];return o}
-  function ev(e){
-    if(e===undefined)return undefined;
-    const v=scopeVars(),keys=Object.keys(v);
-    try{return new Function(...keys,'"use strict";return ('+e+');')(...keys.map(k=>v[k]))}catch(err){return undefined}
-  }
-  function assign(name,val){const t=stack[stack.length-1];
-    if(t&&Object.prototype.hasOwnProperty.call(t.vars,name))t.vars[name]=val;
-    else if(Object.prototype.hasOwnProperty.call(globals,name))globals[name]=val;
-    else if(t)t.vars[name]=val;else globals[name]=val;}
-  function snapV(){const t=stack[stack.length-1];const o={};if(t)for(const k in t.vars)o[k]=Array.isArray(t.vars[k])?t.vars[k].slice():t.vars[k];return o}
-  function snapG(){const o={};for(const k in globals)o[k]=Array.isArray(globals[k])?globals[k].slice():globals[k];return o}
-  function snapS(){return stack.map(f=>({id:f.id,name:f.name,args:f.args.slice(),vars:Object.assign({},f.vars),main:f.main}))}
-  function typesOf(){const t=stack[stack.length-1];const o={};if(t)for(const k in t.types)o[k]=t.types[k];return o}
-  function push(o){if(steps.length>1300){overflow=true;throw new Error('cap')}
-    steps.push(Object.assign({vars:snapV(),globals:snapG(),types:typesOf(),stack:snapS(),out:out.slice(),depth:stack.length},o))}
-  const BRK={},CONT={};const RET=v=>({ret:v});
-  function invoke(fn,argVals,callLine){
-    const f=(prog.funcs||{})[fn];if(!f)throw new Error('fn '+fn);
-    if(stack.length>80){overflow=true;throw new Error('depth')}
-    const frame={id:++seq,name:fn,args:argVals,vars:{},types:{},main:false};
-    f.params.forEach((p,i)=>{frame.vars[p.n]=argVals[i];frame.types[p.n]=p.t});
-    stack.push(frame);
-    push({type:'push',fid:frame.id,line:f.defLine,icon:'⤵️',msg:`<b>Chiamata di <code>${fn}(${argVals.map(fmtVal).join(', ')})</code></b>: nuovo frame sullo stack, gli argomenti diventano variabili locali.`});
-    const r=block(f.ast);const val=(r&&r.ret!==undefined)?r.ret:undefined;
-    stack.pop();
-    push({type:'pop',fid:frame.id,line:callLine,icon:'⤴️',msg:`<b>${fn}</b> termina${f.void?' (void)':` e restituisce <b>${fmtVal(val)}</b>`}: il frame viene distrutto, le sue variabili locali <u>cessano di esistere</u>.`});
-    return val;
-  }
-  function block(sts){for(const st of sts){const r=stmt(st);if(r)return r}return null}
-  function stmt(st){
-    if(++guard>90000){overflow=true;throw new Error('guard')}
-    const t=stack[stack.length-1];
-    switch(st.type){
-      case 'decl':{const v=ev(st.value);if(t){t.vars[st.name]=v;t.types[st.name]=st.vt}else globals[st.name]=v;
-        push({line:st.line,icon:'📦',msg:`Dichiaro <code>${st.vt} ${st.name}</code> e riservo <b>${sizeOf(st.vt.replace('[]',''))} byte</b>: valore iniziale <b>${fmtVal(v)}</b>`});return null;}
-      case 'declU':{if(t){t.vars[st.name]=undefined;t.types[st.name]=st.vt}else globals[st.name]=undefined;
-        push({line:st.line,icon:'📦',msg:`Dichiaro <code>${st.vt} ${st.name}</code> <b>senza inizializzarla</b>: lo spazio è riservato ma il contenuto non è utilizzabile (errore se provi a leggerla).`});return null;}
-      case 'set':{const v=ev(st.value);assign(st.name,v);
-        push({line:st.line,icon:'✏️',msg:`<code>${st.name} = ${esc(st.disp||st.value)}</code> → la cella ora contiene <b>${fmtVal(v)}</b>`});return null;}
-      case 'setel':{const a=ev(st.name),i=ev(st.index),v=ev(st.value);a[i]=v;
-        push({line:st.line,icon:'✏️',msg:`<code>${st.name}[${i}] = ${fmtVal(v)}</code> → <b>${fmtVal(a)}</b> <span class="tiny">(l'array è condiviso: la modifica è visibile a chi ha lo stesso riferimento)</span>`});return null;}
-      case 'print':{const v=ev(st.value);const s=(typeof v==='string')?v:fmtVal(v);
-        if(st.nl)out.push(s);else{out.length?out[out.length-1]+=s:out.push(s)}
-        push({line:st.line,icon:'🖨️',msg:`Stampo: <b>${esc(s)}</b>`});return null;}
-      case 'call':{const vals=st.args.map(a=>ev(a));const val=invoke(st.fn,vals,st.line);
-        if(st.store){assign(st.store,val);if(t)t.types[st.store]=st.storeType;
-          push({line:st.line,icon:'📥',msg:`Il valore restituito (<b>${fmtVal(val)}</b>) viene memorizzato in <code>${st.storeType} ${st.store}</code>.`});}
-        return null;}
-      case 'retCall':{const vals=st.args.map(a=>ev(a));const val=invoke(st.fn,vals,st.line);
-        push({line:st.line,icon:'↩️',msg:`<code>return</code> propaga il risultato <b>${fmtVal(val)}</b>.`});return RET(val);}
-      case 'ret':{const v=ev(st.value);push({line:st.line,icon:'↩️',msg:`<code>return</code> → <b>${fmtVal(v)}</b>, la funzione si chiude.`});return RET(v);}
-      case 'for':{if(st.init)stmt(st.init);
-        for(;;){const c=ev(st.cond);
-          push({line:st.line,icon:'🔍',msg:`Test <code>${esc(st.condTxt)}</code> → <b style="color:${c?'var(--lime)':'var(--red)'}">${c?'VERO':'FALSO'}</b>`});
-          if(!c)break;const r=block(st.body);if(r===BRK)break;if(r&&r.ret!==undefined)return r;if(st.update)stmt(st.update);}
-        return null;}
-      case 'while':{for(;;){const c=ev(st.cond);
-          push({line:st.line,icon:'🔍',msg:`Test <code>${esc(st.condTxt)}</code> → <b style="color:${c?'var(--lime)':'var(--red)'}">${c?'VERO':'FALSO'}</b>`});
-          if(!c)break;const r=block(st.body);if(r===BRK)break;if(r&&r.ret!==undefined)return r;}
-        return null;}
-      case 'if':{const c=ev(st.cond);
-        push({line:st.line,icon:'🔀',msg:`<code>if (${esc(st.condTxt)})</code> → <b style="color:${c?'var(--lime)':'var(--amb)'}">${c?'VERO':'FALSO'}</b>`});
-        const r=block(c?st.thenB:st.elseB);return r||null;}
-      case 'break':push({line:st.line,icon:'⛔',msg:`<b style="color:var(--red)">break</b>: esco dal ciclo`});return BRK;
-      case 'continue':push({line:st.line,icon:'⏭️',msg:`<b style="color:var(--amb)">continue</b>: passo al giro successivo`});return CONT;
-    }
-    return null;
-  }
-  try{
-    stack.push({id:++seq,name:'main',args:[],vars:{},types:{},main:true});
-    push({type:'push',fid:seq,line:prog.mainLine,icon:'🚀',msg:`La JVM avvia <b>main()</b>: si apre il primo frame dello stack.`});
-    block(prog.main);
-    finalVars=Object.assign({},globals,snapV());
-    stack.pop();
-    push({type:'pop',fid:seq,line:prog.mainLine,icon:'🏁',msg:`<b>main</b> termina: stack vuoto, tutte le variabili locali sono state distrutte. ${out.length?`Output prodotto: ${out.length} righe.`:''}`});
-  }catch(e){if(!overflow)console.warn(e)}
-  return {steps,overflow,finalVars,maxDepth:steps.reduce((m,s)=>Math.max(m,s.depth||0),0)};
-}
-
-/* ---------- programmi stepper ---------- */
 const PROGRAMS={
   facile:[
     {name:'① Dichiarare, inizializzare, assegnare',desc:'Le tre operazioni fondamentali su una variabile, nell\'ordine giusto.',
      lines:['public class Variabili {','    public static void main(String[] args) {','        int eta;               // sola dichiarazione','        eta = 18;              // prima assegnazione','        int anno = 2024;       // dichiarazione + inizializzazione','        eta = eta + 1;         // riassegnazione','        System.out.println(eta);','        System.out.println(anno);','    }','}'],
      mainLine:1,mainRange:[1,8],fields:[],funcs:{},
-     main:[S0.declU('eta',2,'int'),S0.set('eta','18',3),S0.decl('anno','2024',4,'int'),S0.set('eta','eta + 1',5),S0.print('eta',6),S0.print('anno',7)]},
+     main:[S.declU('eta',2,'int'),S.set('eta','18',3),S.decl('anno','2024',4,'int'),S.set('eta','eta + 1',5),S.print('eta',6),S.print('anno',7)]},
     {name:'② Lo scambio con la variabile d\'appoggio',desc:'Per scambiare due valori serve una terza variabile: guarda perché.',
      lines:['public class Scambio {','    public static void main(String[] args) {','        int a = 3;','        int b = 7;','        int tmp = a;','        a = b;','        b = tmp;','        System.out.println("a = " + a + ", b = " + b);','    }','}'],
      mainLine:1,mainRange:[1,8],fields:[],funcs:{},
-     main:[S0.decl('a','3',2,'int'),S0.decl('b','7',3,'int'),S0.decl('tmp','a',4,'int'),S0.set('a','b',5),S0.set('b','tmp',6),S0.print('"a = " + a + ", b = " + b',7)]},
+     main:[S.decl('a','3',2,'int'),S.decl('b','7',3,'int'),S.decl('tmp','a',4,'int'),S.set('a','b',5),S.set('b','tmp',6),S.print('"a = " + a + ", b = " + b',7)]},
     {name:'③ Contatore e accumulatore',desc:'Due variabili con ruoli diversi nello stesso ciclo.',
      lines:['public class Contatori {','    public static void main(String[] args) {','        int somma = 0;','        int conteggio = 0;','        for (int i = 1; i <= 5; i++) {','            somma = somma + i;','            conteggio = conteggio + 1;','        }','        System.out.println("somma = " + somma);','        System.out.println("conteggio = " + conteggio);','    }','}'],
      mainLine:1,mainRange:[1,10],fields:[],funcs:{},
-     main:[S0.decl('somma','0',2,'int'),S0.decl('conteggio','0',3,'int'),
-       S0.forSt(S0.decl('i','1',4),'i <= 5','i <= 5',S0.set('i','i + 1',4),[S0.set('somma','somma + i',5),S0.set('conteggio','conteggio + 1',6)],4),
-       S0.print('"somma = " + somma',8),S0.print('"conteggio = " + conteggio',9)]}
+     main:[S.decl('somma','0',2,'int'),S.decl('conteggio','0',3,'int'),
+       S.forSt(S.decl('i','1',4),'i <= 5','i <= 5',S.set('i','i + 1',4),[S.set('somma','somma + i',5),S.set('conteggio','conteggio + 1',6)],4),
+       S.print('"somma = " + somma',8),S.print('"conteggio = " + conteggio',9)]}
   ],
   medio:[
     {name:'① Un tipo per ogni dato',desc:'Cinque tipi diversi nello stesso programma: osserva i valori e i loro formati.',
-     lines:['public class Tipi {','    public static void main(String[] args) {','        int quantita = 12;','        double prezzo = 4.75;','        char iniziale = \'A\';','        boolean disponibile = true;','        String nome = "Quaderno";','        double totale = prezzo * quantita;','        System.out.println(nome + " (" + iniziale + ")");','        System.out.println(quantita + " x " + prezzo + " = " + totale);','        System.out.println("Disponibile: " + disponibile);','    }','}'],
+     lines:['public class Tipi {','    public static void main(String[] args) {','        int quantita = 12;','        double prezzo = 4.75;',"        char iniziale = 'A';",'        boolean disponibile = true;','        String nome = "Quaderno";','        double totale = prezzo * quantita;','        System.out.println(nome + " (" + iniziale + ")");','        System.out.println(quantita + " x " + prezzo + " = " + totale);','        System.out.println("Disponibile: " + disponibile);','    }','}'],
      mainLine:1,mainRange:[1,11],fields:[],funcs:{},
-     main:[S0.decl('quantita','12',2,'int'),S0.decl('prezzo','4.75',3,'double'),
-       S0.decl('iniziale','"A".charCodeAt(0)',4,'char'),S0.decl('disponibile','true',5,'boolean'),S0.decl('nome','"Quaderno"',6,'String'),
-       S0.decl('totale','prezzo * quantita',7,'double'),
-       S0.print('nome + " (" + String.fromCharCode(iniziale) + ")"',8),
-       S0.print('quantita + " x " + prezzo + " = " + totale',9),
-       S0.print('"Disponibile: " + disponibile',10)]},
+     main:[S.decl('quantita','12',2,'int'),S.decl('prezzo','4.75',3,'double'),
+       S.decl('iniziale','"A".charCodeAt(0)',4,'char'),S.decl('disponibile','true',5,'boolean'),S.decl('nome','"Quaderno"',6,'String'),
+       S.decl('totale','prezzo * quantita',7,'double'),
+       S.print('nome + " (" + String.fromCharCode(iniziale) + ")"',8),
+       S.print('quantita + " x " + prezzo + " = " + totale',9),
+       S.print('"Disponibile: " + disponibile',10)]},
     {name:'② Divisione intera, resto e cast',desc:'Lo stesso calcolo fatto in due modi: dove sta la differenza?',
      lines:['public class Divisioni {','    public static void main(String[] args) {','        int a = 7;','        int b = 2;','        int quoziente = a / b;','        int resto = a % b;','        double reale = (double) a / b;','        System.out.println(quoziente + " resto " + resto);','        System.out.println(reale);','        double x = 9.99;','        int troncato = (int) x;','        System.out.println(troncato);','    }','}'],
      mainLine:1,mainRange:[1,12],fields:[],funcs:{},
-     main:[S0.decl('a','7',2,'int'),S0.decl('b','2',3,'int'),S0.decl('quoziente','Math.trunc(a / b)',4,'int'),
-       S0.decl('resto','a % b',5,'int'),S0.decl('reale','a / b',6,'double'),
-       S0.print('quoziente + " resto " + resto',7),S0.print('reale',8),
-       S0.decl('x','9.99',9,'double'),S0.decl('troncato','Math.trunc(x)',10,'int'),S0.print('troncato',11)]},
+     main:[S.decl('a','7',2,'int'),S.decl('b','2',3,'int'),S.decl('quoziente','Math.trunc(a / b)',4,'int'),
+       S.decl('resto','a % b',5,'int'),S.decl('reale','a / b',6,'double'),
+       S.print('quoziente + " resto " + resto',7),S.print('reale',8),
+       S.decl('x','9.99',9,'double'),S.decl('troncato','Math.trunc(x)',10,'int'),S.print('troncato',11)]},
     {name:'③ Array: default e copia di riferimento',desc:'new int[4] azzera le celle; due variabili possono puntare allo stesso array.',
      lines:['public class ArrayVar {','    public static void main(String[] args) {','        int[] voti = new int[4];','        System.out.println("default: " + voti[0]);','        voti[0] = 6;','        voti[1] = 7;','        int[] copia = voti;','        copia[0] = 10;','        System.out.println("voti[0] = " + voti[0]);','        voti = new int[]{1, 2, 3};','        System.out.println("copia[0] = " + copia[0]);','    }','}'],
      mainLine:1,mainRange:[1,11],fields:[],funcs:{},
-     main:[S0.decl('voti','[0, 0, 0, 0]',2,'int[]'),S0.print('"default: " + voti[0]',3),
-       S0.setel('voti','0','6',4),S0.setel('voti','1','7',5),S0.decl('copia','voti',6,'int[]'),
-       S0.setel('copia','0','10',7),S0.print('"voti[0] = " + voti[0]',8),
-       S0.set('voti','[1, 2, 3]',9,'voti = new int[]{1, 2, 3}'),S0.print('"copia[0] = " + copia[0]',10)]}
+     main:[S.decl('voti','[0, 0, 0, 0]',2,'int[]'),S.print('"default: " + voti[0]',3),
+       S.setel('voti','0','6',4),S.setel('voti','1','7',5),S.decl('copia','voti',6,'int[]'),
+       S.setel('copia','0','10',7),S.print('"voti[0] = " + voti[0]',8),
+       S.set('voti','[1, 2, 3]',9,'voti = new int[]{1, 2, 3}'),S.print('"copia[0] = " + copia[0]',10)]}
   ],
   difficile:[
     {name:'① Overflow di int in azione',desc:'Cosa succede quando il risultato non sta in 32 bit.',
      lines:['public class Overflow {','    public static void main(String[] args) {','        int max = 2147483646;','        max = max + 1;','        System.out.println(max);','        max = max + 1;','        System.out.println(max);','        int prodotto = 100000 * 100000;','        System.out.println(prodotto);','        long giusto = 100000L * 100000L;','        System.out.println(giusto);','    }','}'],
      mainLine:1,mainRange:[1,11],fields:[],funcs:{},
-     main:[S0.decl('max','2147483646',2,'int'),S0.set('max','(max + 1) | 0',3,'max + 1'),S0.print('max',4),
-       S0.set('max','(max + 1) | 0',5,'max + 1'),S0.print('max',6),
-       S0.decl('prodotto','(100000 * 100000) | 0',7,'int'),S0.print('prodotto',8),
-       S0.decl('giusto','100000 * 100000',9,'long'),S0.print('giusto',10)]},
+     main:[S.decl('max','2147483646',2,'int'),S.set('max','(max + 1) | 0',3,'max + 1'),S.print('max',4),
+       S.set('max','(max + 1) | 0',5,'max + 1'),S.print('max',6),
+       S.decl('prodotto','(100000 * 100000) | 0',7,'int'),S.print('prodotto',8),
+       S.decl('giusto','100000 * 100000',9,'long'),S.print('giusto',10)]},
     {name:'② Precisione dei double',desc:'L\'aritmetica in virgola mobile non è aritmetica decimale.',
      lines:['public class Precisione {','    public static void main(String[] args) {','        double a = 0.1;','        double b = 0.2;','        double somma = a + b;','        System.out.println(somma);','        System.out.println(somma == 0.3);','        double acc = 0.0;','        for (int i = 0; i < 10; i++) {','            acc = acc + 0.1;','        }','        System.out.println(acc);','        System.out.println(acc == 1.0);','        int centesimi = 10 + 20;','        System.out.println(centesimi / 100.0);','    }','}'],
      mainLine:1,mainRange:[1,15],fields:[],funcs:{},
-     main:[S0.decl('a','0.1',2,'double'),S0.decl('b','0.2',3,'double'),S0.decl('somma','a + b',4,'double'),
-       S0.print('somma',5),S0.print('somma == 0.3',6),S0.decl('acc','0.0',7,'double'),
-       S0.forSt(S0.decl('i','0',8),'i < 10','i < 10',S0.set('i','i + 1',8),[S0.set('acc','acc + 0.1',9)],8),
-       S0.print('acc',11),S0.print('acc == 1.0',12),
-       S0.decl('centesimi','10 + 20',13,'int'),S0.print('centesimi / 100.0',14)]},
+     main:[S.decl('a','0.1',2,'double'),S.decl('b','0.2',3,'double'),S.decl('somma','a + b',4,'double'),
+       S.print('somma',5),S.print('somma == 0.3',6),S.decl('acc','0.0',7,'double'),
+       S.forSt(S.decl('i','0',8),'i < 10','i < 10',S.set('i','i + 1',8),[S.set('acc','acc + 0.1',9)],8),
+       S.print('acc',11),S.print('acc == 1.0',12),
+       S.decl('centesimi','10 + 20',13,'int'),S.print('centesimi / 100.0',14)]},
     {name:'③ Variabile di classe vs variabile locale',desc:'Una variabile static vive fra le chiamate; una locale no.',
      lines:['public class Contatore {','    static int totale = 0;             // variabile di classe','',
             '    static void aggiungi(int q) {','        int parziale = q * 2;          // locale del metodo','        totale = totale + parziale;    // modifica lo stato globale','        System.out.println("parziale = " + parziale);','    }','',
             '    public static void main(String[] args) {','        aggiungi(3);','        aggiungi(4);','        System.out.println("totale = " + totale);','    }','}'],
      mainLine:9,mainRange:[9,13],fields:[{name:'totale',value:'0',vt:'int'}],
      funcs:{aggiungi:{params:[{t:'int',n:'q'}],defLine:3,range:[3,7],void:true,ast:[
-        S0.decl('parziale','q * 2',4,'int'),S0.set('totale','totale + parziale',5),S0.print('"parziale = " + parziale',6)]}},
-     main:[S0.call('aggiungi',['3'],10),S0.call('aggiungi',['4'],11),S0.print('"totale = " + totale',12)]}
+        S.decl('parziale','q * 2',4,'int'),S.set('totale','totale + parziale',5),S.print('"parziale = " + parziale',6)]}},
+     main:[S.call('aggiungi',['3'],10),S.call('aggiungi',['4'],11),S.print('"totale = " + totale',12)]}
   ]
 };
-
-/* ---------- stepper UI ---------- */
 let STP={steps:[],i:-1,timer:null,prog:null,timeline:[]};
 function buildStepperSelect(){
-  $('#stpProg').innerHTML=PROGRAMS[LEVEL].map((p,i)=>`<option value="${i}">${p.name}</option>`).join('');
+  $('#stpProg').innerHTML=PROGRAMS[LEVEL].map((p,i)=>`<option value="${i}">${escAttr(p.name)}</option>`).join('');
   loadProgram(0);
 }
 function buildTimeline(){
@@ -1928,9 +1951,9 @@ function buildTimeline(){
   STP.steps.forEach((s,idx)=>{
     const all=Object.assign({},s.globals,s.vars);
     Object.keys(all).forEach(k=>{
-      const gv=Object.prototype.hasOwnProperty.call(s.globals,k)&&!Object.prototype.hasOwnProperty.call(s.vars,k);
-      if(!names.has(k))names.set(k,{global:gv,changes:[]});
-      const rec=names.get(k),val=fmtVal(all[k]),last=rec.changes[rec.changes.length-1];
+      const gv=Object.prototype.hasOwnProperty.call(s.globals||{},k)&&!Object.prototype.hasOwnProperty.call(s.vars,k);
+      if(!names.has(k))names.set(k,{global:gv,type:(s.types&&s.types[k])||(s.gtypes&&s.gtypes[k])||'',changes:[]});
+      const rec=names.get(k),val=fmtT(all[k],rec.type),last=rec.changes[rec.changes.length-1];
       if(!last||last.val!==val)rec.changes.push({step:idx,val});
     });
   });
@@ -1947,13 +1970,13 @@ function renderTimeline(){
 }
 function loadProgram(idx){
   stopPlay();
-  STP.prog=PROGRAMS[LEVEL][idx];
+  STP.prog=PROGRAMS[LEVEL][idx]||PROGRAMS[LEVEL][0];
   $('#stpDesc').textContent=STP.prog.desc;
   paintCode($('#stpCode'),STP.prog.lines.join('\n'),'java');
   const r=traceProg(STP.prog);
   STP.steps=r.steps;STP.i=-1;
   $('#stpTot').textContent=r.steps.length;$('#stpNow').textContent='0';$('#stpBar').style.width='0%';
-  $('#stpStackWrap').classList.toggle('is-hidden',Object.keys(STP.prog.funcs).length===0);
+  $('#stpStackWrap').classList.toggle('is-hidden',Object.keys(STP.prog.funcs||{}).length===0);
   buildTimeline();renderStep(-1);buildFullTable();
   if(r.overflow)toast('Traccia troncata: troppi passi','⚠');
 }
@@ -1962,12 +1985,12 @@ function renderStep(i){
   $$('#stpCode .cl').forEach(c=>c.classList.remove('active','region'));
   if(s){
     const top=s.stack[s.stack.length-1];
-    const rng=top?(top.main?STP.prog.mainRange:(STP.prog.funcs[top.name]?.range||null)):null;
-    if(rng)for(let k=rng[0];k<=rng[1];k++)$$('#stpCode .cl')[k]?.classList.add('region');
+    const rng=top?(top.main?STP.prog.mainRange:((STP.prog.funcs[top.name]||{}).range||null)):null;
+    if(rng)for(let k=rng[0];k<=rng[1];k++){const el=$$('#stpCode .cl')[k];if(el)el.classList.add('region')}
     if(s.line>=0){const cl=$$('#stpCode .cl')[s.line];if(cl){cl.classList.add('active');cl.scrollIntoView({block:'nearest'})}}
   }
   $('#stpNow').textContent=Math.max(0,i+1);
-  $('#stpBar').style.width=((i+1)/STP.steps.length*100)+'%';
+  $('#stpBar').style.width=((i+1)/(STP.steps.length||1)*100)+'%';
   if(!s){
     $('#stpMsg').innerHTML='<span class="em">👀</span><span>Premi <b>Play</b> o <b>Avanti</b> per iniziare.</span>';
     $('#stpVars tbody').innerHTML='<tr><td colspan="3" class="mut">—</td></tr>';
@@ -1976,11 +1999,11 @@ function renderStep(i){
   }
   $('#stpMsg').innerHTML=`<span class="em">${s.icon||'▸'}</span><span>${s.msg}</span>`;
   const tb=$('#stpVars tbody'),keys=Object.keys(s.vars);
-  tb.innerHTML=keys.length?keys.map(k=>`<tr><td class="vn">${esc(k)}</td><td class="vv">${esc(fmtVal(s.vars[k]))}</td><td class="tiny">${esc(s.types[k]||'?')}</td></tr>`).join(''):'<tr><td colspan="3" class="mut">— nessuna variabile locale —</td></tr>';
+  tb.innerHTML=keys.length?keys.map(k=>`<tr><td class="vn">${esc(k)}</td><td class="vv">${esc(fmtT(s.vars[k],s.types[k]))}</td><td class="tiny">${esc(s.types[k]||'?')}</td></tr>`).join(''):'<tr><td colspan="3" class="mut">— nessuna variabile locale —</td></tr>';
   if(s.icon==='✏️'||s.icon==='📦'||s.icon==='📥')$$('tr',tb).forEach(r=>{r.classList.add('flash');setTimeout(()=>r.classList.remove('flash'),700)});
   const gk=Object.keys(s.globals||{});
   $('#stpGlobalsWrap').classList.toggle('is-hidden',gk.length===0);
-  if(gk.length)$('#stpGlobals tbody').innerHTML=gk.map(k=>`<tr><td class="vn">◆ ${esc(k)}</td><td class="vv">${esc(fmtVal(s.globals[k]))}</td></tr>`).join('');
+  if(gk.length)$('#stpGlobals tbody').innerHTML=gk.map(k=>`<tr><td class="vn">◆ ${esc(k)}</td><td class="vv">${esc(fmtT(s.globals[k],s.gtypes[k]))}</td></tr>`).join('');
   $('#stpStack').innerHTML=[...s.stack].reverse().map((f,k)=>`<div class="frame ${k===0?'top':''} ${f.main?'main':''}">
       <b>${f.main?'main()':f.name+'('+f.args.map(fmtVal).join(', ')+')'}</b>
       <span class="lv">${Object.keys(f.vars).length?Object.entries(f.vars).map(([a,b])=>a+'='+fmtVal(b)).join(' · '):'—'}</span></div>`).join('');
@@ -1999,7 +2022,7 @@ $('#stpPlay').addEventListener('click',()=>{
   if(STP.i>=STP.steps.length-1){STP.i=-1;renderStep(-1)}
   $('#stpPlay').textContent='⏸ Pausa';
   const tick=()=>{stepBy(1);if(STP.i>=STP.steps.length-1)stopPlay()};
-  tick();STP.timer=setInterval(tick,1600-(+$('#stpSpeed').value));
+  tick();STP.timer=setInterval(tick,1620-(+$('#stpSpeed').value));
 });
 $('#stpSpeed').addEventListener('input',()=>{if(STP.timer){stopPlay();$('#stpPlay').click()}});
 $('#stpProg').addEventListener('change',e=>loadProgram(+e.target.value));
@@ -2010,12 +2033,14 @@ function buildFullTable(){
     const all=Object.assign({},s.globals,s.vars);
     return `<tr><td>${i+1}</td><td>${s.line>=0?s.line+1:'—'}</td><td>${top?(top.main?'main':top.name):'—'}</td>
       <td>${esc(Object.keys(all).map(k=>k+'='+fmtVal(all[k])).join(' · ')||'—')}</td>
-      <td>${esc(s.out.join(' | '))}</td><td style="font-family:'Space Grotesk',sans-serif">${esc(s.msg.replace(/<[^>]+>/g,''))}</td></tr>`;
+      <td>${esc(s.out.join(' | '))}</td><td style="font-family:'Space Grotesk',sans-serif">${esc(String(s.msg).replace(/<[^>]+>/g,''))}</td></tr>`;
   }).join('');
 }
 document.addEventListener('keydown',e=>{
-  if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
-  const r=$('#stepper').getBoundingClientRect();
+  const ae=document.activeElement;
+  if(ae&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;
+  const sec=$('#stepper');if(!sec)return;
+  const r=sec.getBoundingClientRect();
   if(r.top<innerHeight*.75&&r.bottom>innerHeight*.25){
     if(e.key==='ArrowRight'){e.preventDefault();stopPlay();stepBy(1)}
     if(e.key==='ArrowLeft'){e.preventDefault();stopPlay();stepBy(-1)}
@@ -2024,38 +2049,38 @@ document.addEventListener('keydown',e=>{
 buildStepperSelect();buildGuess();
 
 /* =====================================================================
-   LAB 5 · memoria: valore vs riferimento
+   LAB 5 · memoria in diretta
    ===================================================================== */
 const BOX=(l,v,cls='')=>`<div class="mem-box ${cls}"><span>${esc(l)}</span><b>${esc(v)}</b></div>`;
-const FRAME=(n,inner,top=false)=>`<div class="mem-frame ${top?'top':''}"><span class="fn">${n}</span>${inner}</div>`;
-const HEAP=(t,inner)=>`<div class="mem-heap"><span class="fn">${t}</span>${inner}</div>`;
+const FRAME=(n,inner,top=false)=>`<div class="mem-frame ${top?'top':''}"><span class="fn">${esc(n)}</span>${inner}</div>`;
+const HEAP=(t,inner)=>`<div class="mem-heap"><span class="fn">${esc(t)}</span>${inner}</div>`;
 const MEM={
   facile:[
     {name:'Primitivi: b = a copia il valore',ttl:'int a, int b',
      code:['int a = 5;','int b = a;','b = 9;','System.out.println(a);'],
      steps:[
        {line:0,msg:'Dichiaro <code>int a = 5</code>: nello stack di <code>main</code> viene riservata una cella da <b>4 byte</b> con dentro il valore 5.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack di main</h5>${FRAME('main()',BOX('a','5','hit'),true)}</div></div>`,out:[]},
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('a','5','hit'),true)}</div></div>`,out:[]},
        {line:1,msg:'<code>b = a</code> <b>legge</b> il valore di <code>a</code> e ne scrive una <b>copia</b> in una nuova cella. Da qui in poi sono due scatole <u>indipendenti</u>.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack di main</h5>${FRAME('main()',BOX('a','5')+BOX('b','5','hit'),true)}</div></div>`,out:[]},
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('a','5')+BOX('b','5','hit'),true)}</div></div>`,out:[]},
        {line:2,msg:'<code>b = 9</code> cambia solo la cella di <code>b</code>. <code>a</code> non viene nemmeno letta.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack di main</h5>${FRAME('main()',BOX('a','5')+BOX('b','9','hit'),true)}</div></div>`,out:[]},
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('a','5')+BOX('b','9','hit'),true)}</div></div>`,out:[]},
        {line:3,msg:'Stampa <b>5</b>: assegnare un primitivo <b>non crea collegamenti</b>, crea copie.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack di main</h5>${FRAME('main()',BOX('a','5','hit')+BOX('b','9'),true)}</div></div>`,out:['5']}
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('a','5','hit')+BOX('b','9'),true)}</div></div>`,out:['5']}
      ]},
     {name:'char e boolean: celle piccolissime',ttl:'char c, boolean ok',
      code:["char c = 'A';",'boolean ok = true;','int codice = c;','System.out.println(codice);','ok = false;','System.out.println(ok);'],
      steps:[
        {line:0,msg:'<code>char</code> occupa <b>2 byte</b> e contiene un codice Unicode. <code>\'A\'</code> = 65.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack di main</h5>${FRAME('main()',BOX('c',"'A'  (65)",'hit'),true)}</div></div>`,out:[]},
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('c',"'A'  (65)",'hit'),true)}</div></div>`,out:[]},
        {line:1,msg:'<code>boolean</code> ammette <b>solo</b> due valori: <code>true</code> e <code>false</code>. Niente 0 e 1 come in C!',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack di main</h5>${FRAME('main()',BOX('c',"'A'")+BOX('ok','true','hit'),true)}</div></div>`,out:[]},
-       {line:2,msg:'Un <code>char</code> si può assegnare a un <code>int</code> senza cast (<b>widening</b>): viene copiato il codice numerico.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack di main</h5>${FRAME('main()',BOX('c',"'A'")+BOX('ok','true')+BOX('codice','65','hit'),true)}</div></div>`,out:[]},
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('c',"'A'")+BOX('ok','true','hit'),true)}</div></div>`,out:[]},
+       {line:2,msg:'Un <code>char</code> si assegna a un <code>int</code> senza cast (<b>widening</b>): viene copiato il codice numerico.',
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('c',"'A'")+BOX('ok','true')+BOX('codice','65','hit'),true)}</div></div>`,out:[]},
        {line:3,msg:'Stampa 65. Con <code>(char) codice</code> torneremmo alla lettera.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack di main</h5>${FRAME('main()',BOX('c',"'A'")+BOX('ok','true')+BOX('codice','65'),true)}</div></div>`,out:['65']},
-       {line:4,msg:'Riassegnare un <code>boolean</code> è come per gli altri tipi: il valore vecchio sparisce.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack di main</h5>${FRAME('main()',BOX('c',"'A'")+BOX('ok','false','hit')+BOX('codice','65'),true)}</div></div>`,out:['65']}
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('c',"'A'")+BOX('ok','true')+BOX('codice','65'),true)}</div></div>`,out:['65']},
+       {line:4,msg:'Riassegnare un <code>boolean</code> funziona come per gli altri tipi: il valore vecchio sparisce.',
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('c',"'A'")+BOX('ok','false','hit')+BOX('codice','65'),true)}</div></div>`,out:['65']}
      ]}
   ],
   medio:[
@@ -2063,10 +2088,10 @@ const MEM={
      code:['String s = "casa";','String t = s;','t = t + "!";','System.out.println(s);','System.out.println(t);'],
      steps:[
        {line:0,msg:'<code>s</code> non contiene il testo: contiene un <b>riferimento</b> (@900) all\'oggetto <code>"casa"</code> che sta nell\'<b>heap</b>.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('s','@900','ref hit'),true)}</div><div class="mem-ar">⟶</div>
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('s','@900','ref hit'),true)}</div><div class="mem-ar">⟶<em>riferimento</em></div>
           <div class="mem-col"><h5>Heap</h5>${HEAP('@900 · String',BOX('valore','"casa"','hit'))}</div></div>`,out:[]},
        {line:1,msg:'<code>t = s</code> copia il <b>riferimento</b>: due variabili, <b>un solo</b> oggetto.',
-        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('s','@900','ref')+BOX('t','@900','ref hit'),true)}</div><div class="mem-ar">⟶</div>
+        diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('s','@900','ref')+BOX('t','@900','ref hit'),true)}</div><div class="mem-ar">⟶<em>due telecomandi</em></div>
           <div class="mem-col"><h5>Heap</h5>${HEAP('@900 · String',BOX('valore','"casa"'))}</div></div>`,out:[]},
        {line:2,msg:'Le <code>String</code> sono <b>immutabili</b>: <code>t + "!"</code> non modifica l\'oggetto @900 ma <u>ne crea uno nuovo</u> @950, e <code>t</code> viene riassegnata a quello.',
         diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('s','@900','ref')+BOX('t','@950','ref hit'),true)}</div><div class="mem-ar">⟶</div>
@@ -2081,7 +2106,7 @@ const MEM={
     {name:'Array: modifica condivisa vs riassegnazione',ttl:'int[] v, int[] w',
      code:['int[] v = {1, 2, 3};','int[] w = v;','w[0] = 9;','System.out.println(v[0]);','w = new int[]{7, 8};','System.out.println(v[0]);'],
      steps:[
-       {line:0,msg:'<code>v</code> è un riferimento all\'array <b>@200</b> nell\'heap. La variabile occupa 4/8 byte, l\'array altri 12+ byte.',
+       {line:0,msg:'<code>v</code> è un riferimento all\'array <b>@200</b> nell\'heap. La variabile occupa 4/8 byte, l\'array altri byte per gli elementi.',
         diag:()=>`<div class="mem"><div class="mem-col"><h5>Stack</h5>${FRAME('main()',BOX('v','@200','ref hit'),true)}</div><div class="mem-ar">⟶</div>
           <div class="mem-col"><h5>Heap</h5>${HEAP('@200 · int[3]',BOX('[0]','1','hit')+BOX('[1]','2')+BOX('[2]','3'))}</div></div>`,out:[]},
        {line:1,msg:'<code>w = v</code> copia il riferimento: <b>non</b> viene duplicato l\'array.',
@@ -2126,21 +2151,23 @@ const MEM={
      ]}
   ]
 };
-let memCur=null,memStep=-1,memTimer=null,memList=[];
+let memList=[],memCur=null,memStep=-1,memTimer=null;
 function buildMemScenarios(){
-  memList=[].concat(MEM.facile,LEVEL!=='facile'?MEM.medio:[],LEVEL==='difficile'?MEM.difficile:[]);
+  memList=MEM.facile.concat(LEVEL!=='facile'?MEM.medio:[],LEVEL==='difficile'?MEM.difficile:[]);
   memCur=memList[0];memStep=-1;
-  $('#memSel').innerHTML=memList.map((s,i)=>`<option value="${i}">${i+1}. ${s.name}</option>`).join('');
+  $('#memSel').innerHTML=memList.map((s,i)=>`<option value="${i}">${i+1}. ${escAttr(s.name)}</option>`).join('');
+  $('#memSel').value='0';
   memRender();
-  $('#memSel').onchange=e=>{memCur=memList[+e.target.value];memStep=-1;stopMem();memRender()};
 }
+$('#memSel').addEventListener('change',e=>{memCur=memList[+e.target.value]||memList[0];memStep=-1;stopMem();memRender()});
 function stopMem(){clearInterval(memTimer);memTimer=null;$('#memPlay').textContent='▶ Play'}
 function memRender(){
+  if(!memCur)return;
   paintCode($('#memCode'),memCur.code.join('\n'),'java');
   $('#memTtl').textContent=memCur.ttl;
   $$('#memCode .cl').forEach(c=>c.classList.remove('active'));
   const s=memStep>=0?memCur.steps[memStep]:null;
-  if(s)$$('#memCode .cl')[s.line]?.classList.add('active');
+  if(s){const cl=$$('#memCode .cl')[s.line];if(cl)cl.classList.add('active')}
   if(!s){
     $('#memMsg').innerHTML='<span class="em">🔍</span><span>Premi <b>Play</b>: vedrai le celle di memoria riempirsi, copiarsi e liberarsi.</span>';
     $('#memDiag').innerHTML='<div class="empty-state"><span class="em">🧠</span>Modello della memoria</div>';
@@ -2150,13 +2177,13 @@ function memRender(){
   $('#memDiag').innerHTML=s.diag();
   $('#memOut').innerHTML=s.out.length?s.out.map(o=>`<div class="co-line">${esc(o)}</div>`).join(''):'<span class="empty">// output</span>';
 }
-function memGo(d){const n=memCur.steps.length;memStep=Math.max(-1,Math.min(n-1,memStep+d));memRender();if(memStep>=n-1)stopMem()}
+function memGo(d){if(!memCur)return;const n=memCur.steps.length;memStep=Math.max(-1,Math.min(n-1,memStep+d));memRender();if(memStep>=n-1)stopMem()}
 $('#memNext').addEventListener('click',()=>{stopMem();memGo(1)});
 $('#memPrev').addEventListener('click',()=>{stopMem();memGo(-1)});
 $('#memPlay').addEventListener('click',()=>{
   if(memTimer){stopMem();return}
   if(memStep>=memCur.steps.length-1)memStep=-1;
-  $('#memPlay').textContent='⏸ Pausa';memTimer=setInterval(()=>memGo(1),2000);memGo(1);
+  $('#memPlay').textContent='⏸ Pausa';memTimer=setInterval(()=>memGo(1),2100);memGo(1);
 });
 buildMemScenarios();
 
@@ -2169,49 +2196,48 @@ const SCOPES={
            '        for (int i = 1; i <= 3; i++) {','            int doppio = i * 2;      // locale del for','            totale = totale + doppio;','        }','',
            '        System.out.println(totale);','        // System.out.println(i);      ERRORE','    }','}'],
     vars:[
-      {id:'totale',n:'totale',kind:'locale',from:2,to:11,decl:2,info:'Dichiarata nel blocco del <code>main</code>: visibile dalla riga 3 fino alla graffa che chiude il metodo. Sopravvive a tutto il ciclo <code>for</code>, quindi accumula correttamente.'},
-      {id:'i',n:'i',kind:'locale',from:4,to:7,decl:4,info:'Variabile di controllo del <code>for</code>: il suo scope è <b>l\'intero ciclo</b> (intestazione compresa). Alla riga 10 <code>i</code> non esiste più → <code>cannot find symbol</code>.'},
+      {id:'totale',n:'totale',kind:'locale',from:2,to:11,decl:2,info:'Dichiarata nel blocco del <code>main</code>: visibile dalla riga 3 fino alla graffa che chiude il metodo. Sopravvive a tutto il ciclo <code>for</code>, quindi accumula correttamente (1·2 + 2·2 + 3·2 = <b>12</b>).'},
+      {id:'i',n:'i',kind:'locale',from:4,to:7,decl:4,info:'Variabile di controllo del <code>for</code>: il suo scope è <b>l\'intero ciclo</b>, intestazione compresa. Alla riga 10 <code>i</code> non esiste più → <code>cannot find symbol</code>.'},
       {id:'doppio',n:'doppio',kind:'locale',from:5,to:6,decl:5,info:'Dichiarata <b>dentro</b> il corpo del ciclo: viene creata e distrutta a <u>ogni iterazione</u>. Fuori dal ciclo non esiste.'}
     ]},
   medio:{ttl:'parametri, blocchi if e campo static',
     lines:['public class Scope2 {','    static int contatore = 0;          // variabile di classe','',
-           '    static double lordo(double netto, double ala) {   // parametri','        double risultato = netto;','        if (ala > 0) {','            double imposta = netto * ala;   // locale dell\'if','            risultato = risultato + imposta;','        }','        contatore = contatore + 1;','        return risultato;','    }','',
+           '    static double lordo(double netto, double ala) {','        double risultato = netto;','        if (ala > 0) {','            double imposta = netto * ala;   // locale dell\'if','            risultato = risultato + imposta;','        }','        contatore = contatore + 1;','        return risultato;','    }','',
            '    public static void main(String[] args) {','        double a = lordo(100, 0.22);','        double b = lordo(50, 0.0);','        System.out.println(a + " " + b + " " + contatore);','    }','}'],
     vars:[
-      {id:'contatore',n:'contatore',kind:'classe',from:1,to:18,decl:1,info:'Variabile <b>di classe</b> (<code>static</code>): una sola cella condivisa da tutte le chiamate e da tutti i metodi. Alla fine vale <b>2</b>. È <b>stato persistente</b>: attenzione agli effetti collaterali.'},
-      {id:'netto',n:'netto',kind:'parametro',from:3,to:11,decl:3,info:'Parametro formale: è una variabile <b>locale del metodo</b>, inizializzata con l\'argomento della chiamata. Con <code>lordo(100, 0.22)</code> vale 100, con <code>lordo(50, 0.0)</code> vale 50: due celle diverse in due frame diversi.'},
-      {id:'ala',n:'ala',kind:'parametro',from:3,to:11,decl:3,info:'Secondo parametro, stesso ciclo di vita di <code>netto</code>. Il nome è scelto dal programmatore: nella chiamata si passano solo i <b>valori</b>, nell\'ordine.'},
-      {id:'risultato',n:'risultato',kind:'locale',from:4,to:11,decl:4,info:'Locale del metodo: dalla dichiarazione fino al <code>return</code>. È visibile anche dentro l\'<code>if</code> (scope annidato verso l\'interno sempre permesso).'},
-      {id:'imposta',n:'imposta',kind:'locale',from:6,to:7,decl:6,info:'Dichiarata nel blocco <code>if</code>: esiste <b>solo</b> lì e solo quando il blocco viene eseguito. Alla riga 10 (<code>return</code>) non esiste più.'},
-      {id:'a',n:'a',kind:'locale',from:14,to:17,decl:14,info:'Locale del <code>main</code>: riceve il <b>valore di ritorno</b> della prima chiamata (122.0).'},
-      {id:'b',n:'b',kind:'locale',from:15,to:17,decl:15,info:'Locale del <code>main</code>: vale 50.0 perché l\'aliquota è 0 e il blocco <code>if</code> non viene eseguito.'}
+      {id:'contatore',n:'contatore',kind:'classe',from:1,to:17,decl:1,info:'Variabile <b>di classe</b> (<code>static</code>): una sola cella condivisa da tutte le chiamate e da tutti i metodi. Alla fine vale <b>2</b>. È <b>stato persistente</b>: attenzione agli effetti collaterali.'},
+      {id:'netto',n:'netto',kind:'parametro',from:3,to:10,decl:3,info:'Parametro formale: è una variabile <b>locale del metodo</b>, inizializzata con l\'argomento della chiamata. Con <code>lordo(100, 0.22)</code> vale 100, con <code>lordo(50, 0.0)</code> vale 50: due celle diverse in due frame diversi.'},
+      {id:'ala',n:'ala',kind:'parametro',from:3,to:10,decl:3,info:'Secondo parametro, stesso ciclo di vita di <code>netto</code>. Il nome è scelto dal programmatore: nella chiamata si passano solo i <b>valori</b>, nell\'ordine.'},
+      {id:'risultato',n:'risultato',kind:'locale',from:4,to:10,decl:4,info:'Locale del metodo: dalla dichiarazione fino al <code>return</code>. È visibile anche dentro l\'<code>if</code> (lo scope va sempre dall\'esterno verso l\'interno).'},
+      {id:'imposta',n:'imposta',kind:'locale',from:6,to:7,decl:6,info:'Dichiarata nel blocco <code>if</code>: esiste <b>solo</b> lì e solo quando il blocco viene eseguito. Alla riga del <code>return</code> non esiste più.'},
+      {id:'a',n:'a',kind:'locale',from:14,to:16,decl:14,info:'Locale del <code>main</code>: riceve il <b>valore di ritorno</b> della prima chiamata (122.0).'},
+      {id:'b',n:'b',kind:'locale',from:15,to:16,decl:15,info:'Locale del <code>main</code>: vale 50.0 perché l\'aliquota è 0 e il blocco <code>if</code> non viene eseguito.'}
     ]},
   difficile:{ttl:'shadowing, variabili di istanza e blocchi fratelli',
     lines:['public class Scope3 {','    static int n = 5;                    // variabile di classe','    private int saldo = 0;               // variabile di ISTANZA','',
-           '    static int elabora(int n) {          // il parametro NASCONDE la n di classe','        int somma = 0;','        for (int i = 0; i < n; i++) {','            int n = i * 2;               // OK: blocco diverso, shadowing','            somma = somma + n;','        }','        return somma;','    }','',
+           '    static int elabora(int n) {          // il parametro NASCONDE la n di classe','        int somma = 0;','        for (int i = 0; i < n; i++) {','            int n2 = i * 2;              // blocco diverso: nessun conflitto','            somma = somma + n2;','        }','        return somma;','    }','',
            '    void versa(int importo) {','        this.saldo = this.saldo + importo;   // distingue campo e parametro','    }','',
            '    public static void main(String[] args) {','        System.out.println(elabora(4));','        System.out.println(n);','    }','}'],
     vars:[
-      {id:'nc',n:'n (di classe)',kind:'classe',from:1,to:20,decl:1,info:'Variabile <code>static</code>: una sola cella per tutta la classe, creata al caricamento. Dentro <code>elabora</code> il nome <code>n</code> si riferisce al <b>parametro</b> (shadowing): per raggiungere questa servirebbe <code>Scope3.n</code>.'},
-      {id:'saldo',n:'saldo (di istanza)',kind:'istanza',from:2,to:15,decl:2,info:'Campo <b>non static</b>: ne esiste <b>una copia per ogni oggetto</b> creato con <code>new</code>. Si accede con <code>this.saldo</code> dai metodi di istanza. Durata = vita dell\'oggetto (gestita dal garbage collector).'},
-      {id:'np',n:'n (parametro)',kind:'parametro',from:4,to:11,decl:4,info:'Parametro di <code>elabora</code>: <b>nasconde</b> la <code>n</code> di classe per tutta la durata del metodo. Con <code>elabora(4)</code> vale 4.'},
-      {id:'somma',n:'somma',kind:'locale',from:5,to:11,decl:5,info:'Accumulatore locale: 0+2+4+6 = <b>12</b>. Muore al <code>return</code>.'},
-      {id:'i',n:'i',kind:'locale',from:6,to:9,decl:6,info:'Variabile di controllo del <code>for</code>: scope limitato al ciclo.'},
-      {id:'nb',n:'n (locale nel for)',kind:'locale',from:7,to:8,decl:7,info:'Dichiarata nel corpo del <code>for</code>: è un <b>blocco diverso</b> da quello del parametro, quindi Java lo permette e qui <code>n</code> indica questa. Tre variabili con lo stesso nome in tre scope diversi: vince sempre la <b>più vicina</b>.'},
-      {id:'importo',n:'importo',kind:'parametro',from:13,to:15,decl:13,info:'Parametro del metodo di istanza. <code>this.saldo</code> indica il campo dell\'oggetto, <code>importo</code> il parametro: senza <code>this</code> un nome omonimo creerebbe ambiguità.'}
+      {id:'nc',n:'n (di classe)',kind:'classe',from:1,to:19,decl:1,info:'Variabile <code>static</code>: una sola cella per tutta la classe, creata al caricamento. Dentro <code>elabora</code> il nome <code>n</code> si riferisce al <b>parametro</b> (shadowing): per raggiungere questa servirebbe <code>Scope3.n</code>. Alla fine vale ancora <b>5</b>.'},
+      {id:'saldo',n:'saldo (di istanza)',kind:'istanza',from:2,to:14,decl:2,info:'Campo <b>non static</b>: ne esiste <b>una copia per ogni oggetto</b> creato con <code>new</code>. Si accede con <code>this.saldo</code> dai metodi di istanza. Durata = vita dell\'oggetto (gestita dal garbage collector).'},
+      {id:'np',n:'n (parametro)',kind:'parametro',from:4,to:10,decl:4,info:'Parametro di <code>elabora</code>: <b>nasconde</b> la <code>n</code> di classe per tutta la durata del metodo. Con <code>elabora(4)</code> vale 4.'},
+      {id:'somma',n:'somma',kind:'locale',from:5,to:10,decl:5,info:'Accumulatore locale: 0+2+4+6 = <b>12</b>. Muore al <code>return</code>.'},
+      {id:'i',n:'i',kind:'locale',from:6,to:9,decl:6,info:'Variabile di controllo del <code>for</code>: scope limitato al ciclo, ricreata a ogni esecuzione del ciclo.'},
+      {id:'n2',n:'n2',kind:'locale',from:7,to:8,decl:7,info:'Dichiarata nel corpo del <code>for</code>. Se si fosse chiamata <code>n</code>, Java avrebbe dato errore: <i>variable n is already defined</i> (una locale non può shadowarne un\'altra locale di un blocco contenente).'},
+      {id:'importo',n:'importo',kind:'parametro',from:12,to:14,decl:12,info:'Parametro del metodo di istanza. <code>this.saldo</code> indica il campo dell\'oggetto, <code>importo</code> il parametro: senza <code>this</code> un nome omonimo creerebbe ambiguità.'}
     ]}
 };
 function buildScope(){
   const d=SCOPES[LEVEL];
   $('#scopeTtl').textContent=d.ttl;
   paintCode($('#scopeCode'),d.lines.join('\n'),'java');
-  $('#scopeChips').innerHTML=d.vars.map(v=>`<button data-v="${v.id}"><span>${esc(v.n)}</span><span class="k">${v.kind}</span></button>`).join('');
+  $('#scopeChips').innerHTML=d.vars.map(v=>`<button data-v="${escAttr(v.id)}"><span>${esc(v.n)}</span><span class="k">${esc(v.kind)}</span></button>`).join('');
   $$('#scopeChips button').forEach(b=>b.addEventListener('click',()=>selScope(b.dataset.v)));
   $('#scopeInfo').innerHTML=`<p class="small mut" style="margin:0">👆 Seleziona una variabile per vederne la zona di visibilità.</p>`;
 }
 function selScope(id){
-  const d=SCOPES[LEVEL],v=d.vars.find(x=>x.id===id);
-  if(!v)return;
+  const d=SCOPES[LEVEL],v=d.vars.find(x=>x.id===id);if(!v)return;
   $$('#scopeChips button').forEach(b=>b.classList.toggle('on',b.dataset.v===id));
   $$('#scopeCode .cl').forEach((c,i)=>{
     c.classList.remove('scope-in','scope-out','scope-decl');
@@ -2221,9 +2247,9 @@ function selScope(id){
   });
   const nome=v.n.split(' ')[0];
   $('#scopeInfo').innerHTML=`
-    <div style="font-weight:700;margin-bottom:6px"><code style="color:var(--amb)">${esc(v.n)}</code> · <span class="tiny" style="text-transform:uppercase;letter-spacing:.12em">${v.kind}</span></div>
+    <div style="font-weight:700;margin-bottom:6px"><code style="color:var(--amb)">${esc(v.n)}</code> · <span class="tiny" style="text-transform:uppercase;letter-spacing:.12em">${esc(v.kind)}</span></div>
     <p class="small mut">${v.info}</p>
-    <div class="cal" style="margin:10px 0 0"><div class="h">📍 Visibilità</div><p class="small" style="margin:0">Dichiarata alla riga <b>${v.decl+1}</b>, utilizzabile dalle righe <b>${v.from+1}</b> a <b>${v.to+1}</b>. ${v.to-v.from+1} righe di scope su ${d.lines.length} totali.</p></div>
+    <div class="cal" style="margin:10px 0 0"><div class="h">📍 Visibilità</div><p class="small" style="margin:0">Dichiarata alla riga <b>${v.decl+1}</b>, utilizzabile dalle righe <b>${v.from+1}</b> a <b>${v.to+1}</b>: ${v.to-v.from+1} righe su ${d.lines.length}.</p></div>
     <div class="cal bad" style="margin:10px 0 0"><div class="h">✖ Fuori dallo scope</div>
       <p class="small mono" style="margin:0 0 4px">System.out.println(${esc(nome)});</p>
       <p class="small" style="margin:0">error: <b>cannot find symbol</b> — symbol: variable ${esc(nome)}</p></div>`;
@@ -2231,76 +2257,83 @@ function selScope(id){
 buildScope();
 
 /* =====================================================================
-   LAB 7 · cast   |   LAB 8 · precisione   |   final
+   LAB 7 · cast | LAB 8 · precisione | final
    ===================================================================== */
 const CTYPES=['byte','short','char','int','long','float','double','boolean','String'];
 const RANK={byte:1,short:2,char:2,int:3,long:4,float:5,double:6};
 $('#cFrom').innerHTML=CTYPES.map(t=>`<option ${t==='int'?'selected':''}>${t}</option>`).join('');
 $('#cTo').innerHTML=CTYPES.map(t=>`<option ${t==='byte'?'selected':''}>${t}</option>`).join('');
-['cFrom','cTo','cVal'].forEach(id=>$('#'+id).addEventListener('input',castCheck));
-['cFrom','cTo'].forEach(id=>$('#'+id).addEventListener('change',castCheck));
-function castCheck(){
-  const f=$('#cFrom').value,t=$('#cTo').value,raw=$('#cVal').value.trim();
-  const num=Number(raw);
-  let verdict,cls,code='',res='';
-  if(f===t){
-    cls='ok';verdict=`✅ <b>Nessuna conversione</b>: i tipi coincidono. Assegnamento diretto.`;
-    code=`${t} x = ${raw||'0'};\n${t} y = x;`;res=raw;
-  }else if(f==='boolean'||t==='boolean'){
-    cls='ko';verdict=`⛔ <b>Impossibile</b>: <code>boolean</code> non si converte in nessun altro tipo (e viceversa). In Java non esistono i valori truthy/falsy: <code>if (1)</code> <u>non compila</u>.`;
-    code=`// ${f} → ${t}: ERRORE\n// incompatible types`;res='—';
-  }else if(f==='String'||t==='String'){
-    cls='warn';verdict=`⚠️ <b>Non è un cast</b>: <code>String</code> è una classe. Per passare da testo a numero si usa il <b>parsing</b> (<code>Integer.parseInt</code>, <code>Double.parseDouble</code>); da numero a testo la <b>concatenazione</b> o <code>String.valueOf</code>.`;
-    code=t==='String'?`String s = String.valueOf(${f==='char'?"'A'":num||0});\nString s2 = (${num||0}) + "";`
-      :`${f} v = ${t==='String'?'Integer.parseInt("42")':'…'};`;
-    res=t==='String'?String(num||0):(isNaN(num)?'42':num);
-  }else{
-    const rf=RANK[f],rt=RANK[t];
-    if(rt>rf){
-      cls='ok';verdict=`✅ <b>Conversione implicita</b> (widening): il tipo di destinazione è più capiente, non serve il cast e non si perde informazione.${(f==='long'&&t==='float')?' ⚠️ Eccezione: <code>long → float</code> ha solo 24 bit di mantissa, gli interi grandi perdono cifre!':''}`;
-      code=`${f} x = ${num||0};\n${t} y = x;      // nessun cast necessario`;
-    }else{
-      cls='warn';verdict=`⚠️ <b>Cast esplicito obbligatorio</b> (narrowing): si passa a un tipo più piccolo, quindi <u>si può perdere informazione</u> (troncamento dei decimali o wrapping dei bit).`;
-      code=`${f} x = ${num||0};\n${t} y = (${t}) x;   // senza (${t}) non compila`;
-    }
-    res=narrow(num||0,t);
-  }
-  $('#cVerdict').innerHTML=`<div class="verdict ${cls}">${verdict}
-    ${res!==''&&res!=='—'?`<div style="margin-top:9px" class="small">Risultato con il valore <b>${esc(raw)}</b>: <code style="color:var(--amb);font-size:1rem">${esc(String(res))}</code>${String(res)!==String(num)&&!isNaN(num)&&cls!=='ko'?' <span class="tiny">(informazione persa!)</span>':''}</div>`:''}</div>`;
-  $('#cCode').innerHTML=code.split('\n').map(l=>`<span class="cl">${hl(l)}</span>`).join('\n');
-}
+['cFrom','cTo','cVal'].forEach(id=>{
+  $('#'+id).addEventListener('input',castCheck);
+  $('#'+id).addEventListener('change',castCheck);
+});
 function narrow(v,t){
   if(t==='double'||t==='float')return Math.round(v*1e7)/1e7;
   if(t==='long')return Math.trunc(v);
   if(t==='int')return Math.trunc(v)|0;
-  if(t==='short'){const x=Math.trunc(v)|0;return ((x<<16)>>16)}
-  if(t==='byte'){const x=Math.trunc(v)|0;return ((x<<24)>>24)}
+  if(t==='short'){const x=Math.trunc(v)|0;return (x<<16)>>16}
+  if(t==='byte'){const x=Math.trunc(v)|0;return (x<<24)>>24}
   if(t==='char')return String.fromCharCode(Math.trunc(v)&0xFFFF);
   return v;
 }
+function castCheck(){
+  const f=$('#cFrom').value,t=$('#cTo').value,raw=$('#cVal').value.trim();
+  const num=Number(raw)||0;
+  let verdict,cls,code='',res='';
+  if(f===t){
+    cls='ok';verdict=`✅ <b>Nessuna conversione</b>: i tipi coincidono, assegnamento diretto.`;
+    code=`${t} x = ${raw||'0'};\n${t} y = x;`;res=raw||'0';
+  }else if(f==='boolean'||t==='boolean'){
+    cls='ko';verdict=`⛔ <b>Impossibile</b>: <code>boolean</code> non si converte in nessun altro tipo (e viceversa). In Java non esistono valori truthy/falsy: <code>if (1)</code> <u>non compila</u>.`;
+    code=`// ${f} -> ${t}: ERRORE\n// incompatible types`;res='—';
+  }else if(f==='String'||t==='String'){
+    cls='warn';verdict=`⚠️ <b>Non è un cast</b>: <code>String</code> è una classe. Da testo a numero si usa il <b>parsing</b> (<code>Integer.parseInt</code>, <code>Double.parseDouble</code>); da numero a testo la <b>concatenazione</b> o <code>String.valueOf</code>.`;
+    code=t==='String'
+      ? `String s = String.valueOf(${num});   // "${num}"\nString s2 = ${num} + "";             // identico`
+      : `${f} v = Integer.parseInt("42");      // da String a ${f}`;
+    res=t==='String'?String(num):'42';
+  }else{
+    const rf=RANK[f],rt=RANK[t];
+    if(rt>rf){
+      cls='ok';verdict=`✅ <b>Conversione implicita</b> (widening): il tipo di destinazione è più capiente, non serve il cast.${(f==='long'&&t==='float')?' ⚠️ Eccezione: <code>long → float</code> ha solo 24 bit di mantissa, gli interi grandi perdono cifre!':''}`;
+      code=`${f} x = ${num};\n${t} y = x;      // nessun cast necessario`;
+    }else{
+      cls='warn';verdict=`⚠️ <b>Cast esplicito obbligatorio</b> (narrowing): si passa a un tipo più piccolo, quindi <u>si può perdere informazione</u> (troncamento dei decimali o wrapping dei bit).`;
+      code=`${f} x = ${num};\n${t} y = (${t}) x;   // senza (${t}) non compila`;
+    }
+    res=narrow(num,t);
+  }
+  const perso=(res!=='—'&&String(res)!==String(num)&&!isNaN(num)&&cls!=='ko');
+  $('#cVerdict').innerHTML=`<div class="verdict ${cls}">${verdict}
+    ${res!==''&&res!=='—'?`<div style="margin-top:9px" class="small">Con il valore <b>${esc(raw||'0')}</b> ottieni: <code style="color:var(--amb);font-size:1rem">${esc(String(res))}</code>${perso?' <span class="tiny" style="color:var(--red)">(informazione persa!)</span>':''}</div>`:''}</div>`;
+  $('#cCode').innerHTML=code.split('\n').map(l=>`<span class="cl">${hl(l)}</span>`).join('\n');
+}
 castCheck();
-/* floating point */
+
 const FPS={
-  a:{code:['double d = 0.1 + 0.2;','System.out.println(d);','System.out.println(d == 0.3);'],run:()=>{const d=0.1+0.2;return [`d = ${d}`,`d == 0.3 → ${d===0.3}`]},
+  a:{code:['double d = 0.1 + 0.2;','System.out.println(d);','System.out.println(d == 0.3);'],
+     run:()=>{const d=0.1+0.2;return [`d = ${d}`,`d == 0.3 → ${d===0.3}`]},
      note:'0.1 e 0.2 in binario sono frazioni <b>periodiche</b> (come 1/3 in decimale): vengono arrotondate alla mantissa a 52 bit. La somma accumula l\'errore e il confronto esatto fallisce.'},
-  b:{code:['double acc = 0.0;','for (int i = 0; i < 10; i++) {','    acc = acc + 0.1;','}','System.out.println(acc);','System.out.println(acc == 1.0);'],run:()=>{let a=0;for(let i=0;i<10;i++)a+=0.1;return [`acc = ${a}`,`acc == 1.0 → ${a===1.0}`,`(10 * 0.1) = ${10*0.1}`]},
-     note:'Sommando 0.1 dieci volte l\'errore si <b>accumula</b>: 0.9999999999999999. Invece <code>10 * 0.1</code> dà esattamente 1.0: l\'ordine delle operazioni cambia il risultato!'},
-  c:{code:['int a = 7, b = 2;','System.out.println(a / b);','System.out.println((double) a / b);','System.out.println(a % b);'],run:()=>[`7 / 2 = ${Math.trunc(7/2)}   (int / int → int)`,`(double) 7 / 2 = ${7/2}`,`7 % 2 = ${7%2}   (resto)`],
+  b:{code:['double acc = 0.0;','for (int i = 0; i < 10; i++) {','    acc = acc + 0.1;','}','System.out.println(acc);','System.out.println(acc == 1.0);'],
+     run:()=>{let a=0;for(let i=0;i<10;i++)a+=0.1;return [`acc = ${a}`,`acc == 1.0 → ${a===1.0}`,`invece 10 * 0.1 = ${10*0.1}`]},
+     note:'Sommando 0.1 dieci volte l\'errore si <b>accumula</b>: 0.9999999999999999. Invece <code>10 * 0.1</code> dà esattamente 1.0: <b>l\'ordine delle operazioni cambia il risultato</b>!'},
+  c:{code:['int a = 7, b = 2;','System.out.println(a / b);','System.out.println((double) a / b);','System.out.println(a % b);'],
+     run:()=>[`7 / 2 = ${Math.trunc(7/2)}   (int / int → int)`,`(double) 7 / 2 = ${7/2}`,`7 % 2 = ${7%2}   (resto)`],
      note:'La <b>divisione intera</b> scarta il resto: per ottenere il valore reale basta che <u>uno</u> dei due operandi sia <code>double</code>. Il cast si applica <b>prima</b> della divisione.'},
-  d:{code:['double d = 1.0 - 0.9;','System.out.println(d);'],run:()=>[`1.0 - 0.9 = ${1.0-0.9}`],
+  d:{code:['double d = 1.0 - 0.9;','System.out.println(d);'],
+     run:()=>[`1.0 - 0.9 = ${1.0-0.9}`],
      note:'Anche la sottrazione tradisce: il risultato "ovvio" 0.1 diventa 0.09999999999999998. Per questo i confronti fra <code>double</code> si fanno con una <b>tolleranza</b>.'},
-  e:{code:['double prezzo = 19.99;','int qta = 3;','double totale = prezzo * qta;','System.out.println(totale);','System.out.println(totale == 59.97);','System.out.println(Math.abs(totale - 59.97) < 1e-9);'],
-     run:()=>{const t=19.99*3;return [`totale = ${t}`,`totale == 59.97 → ${t===59.97}`,`con tolleranza → ${Math.abs(t-59.97)<1e-9}`,`in centesimi: ${1999*3} = ${(1999*3/100).toFixed(2)} €`]},
+  e:{code:['double prezzo = 19.99;','int qta = 3;','double totale = prezzo * qta;','System.out.println(totale);','System.out.println(totale == 59.97);','System.out.println(Math.abs(totale - 59.97) < 1e-9);','int centesimi = 1999 * 3;','System.out.println(centesimi / 100.0);'],
+     run:()=>{const t=19.99*3;return [`totale = ${t}`,`totale == 59.97 → ${t===59.97}`,`con tolleranza → ${Math.abs(t-59.97)<1e-9}`,`in centesimi: ${1999*3} → ${(1999*3/100).toFixed(2)} EUR`]},
      note:'La soluzione professionale: lavorare in <b>centesimi interi</b> (<code>int</code>) o con <code>BigDecimal</code>, e convertire in euro solo per la visualizzazione.'}
 };
 $$('[data-fp]').forEach(b=>b.addEventListener('click',()=>{
-  const f=FPS[b.dataset.fp];
+  const f=FPS[b.dataset.fp];if(!f)return;
   const res=f.run();
   $('#fpOut').innerHTML=f.code.map(l=>`<div class="co-line" style="color:#95a5c5;border-left-color:rgba(129,140,248,.4)">${esc(l)}</div>`).join('')+
     '<div class="co-line ok">── output ──</div>'+res.map(r=>`<div class="co-line">${esc(r)}</div>`).join('');
   $('#fpNote').innerHTML=`<div class="cal warn"><div class="h">🔬 Perché</div><p class="small" style="margin:0">${f.note}</p></div>`;
 }));
-/* final */
 function finPaint(){
   const n=$('#finName').value.trim()||'IVA',v=$('#finVal').value.trim()||'0',on=$('#finOn').checked;
   $('#finCode').innerHTML=[
@@ -2310,9 +2343,8 @@ function finPaint(){
   ].map(l=>`<span class="cl">${hl(l)}</span>`).join('\n');
   $('#finFb').innerHTML=on
     ? `<div class="cal bad"><div class="h">⛔ Errore di compilazione</div><p class="small mono" style="margin:0">error: cannot assign a value to final variable ${esc(n)}</p>
-       <p class="small" style="margin:6px 0 0">Con <code>final</code> la cella accetta <b>un solo</b> valore. Ottimo per aliquote, costanti matematiche, configurazioni: il compilatore impedisce modifiche accidentali.</p></div>`
-    : `<div class="cal tip"><div class="h">✅ Compila</div><p class="small" style="margin:0">Senza <code>final</code> la riassegnazione è permessa: il valore precedente (<code>${esc(v)}</code>) viene <b>sovrascritto</b> e perso. Usa <code>final</code> ogni volta che il valore non deve cambiare.</p></div>`;
-  $('#finChk').classList.toggle('on',on);
+       <p class="small" style="margin:6px 0 0">Con <code>final</code> la cella accetta <b>un solo</b> valore. Ottimo per aliquote, costanti matematiche e configurazioni: il compilatore impedisce modifiche accidentali.</p></div>`
+    : `<div class="cal tip"><div class="h">✅ Compila</div><p class="small" style="margin:0">Senza <code>final</code> la riassegnazione è permessa: il valore precedente viene <b>sovrascritto</b> e perso. Usa <code>final</code> ogni volta che il valore non deve cambiare.</p></div>`;
 }
 ['finName','finVal'].forEach(id=>$('#'+id).addEventListener('input',finPaint));
 $('#finOn').addEventListener('change',e=>{$('#finChk').classList.toggle('on',e.target.checked);finPaint()});
@@ -2332,7 +2364,7 @@ const BUGS={
     {title:'Dovrebbe stampare il valore di x',
      lines:['public class Bug {','    public static void main(String[] args) {','        int x;','        System.out.println(x);','    }','}'],
      bug:3,hint:'Le variabili locali hanno un valore di default?',
-     why:'Le variabili <b>locali</b> non vengono inizializzate automaticamente: il compilatore blocca il programma con <code>variable x might not have been initialized</code>. (Solo i <u>campi</u> di classe ricevono il default 0.)',
+     why:'Le variabili <b>locali</b> non vengono inizializzate automaticamente: il compilatore blocca il programma con <code>variable x might not have been initialized</code>. Solo i <u>campi</u> di classe ricevono il default 0.',
      fix:'        int x = 0;'},
     {title:'Il prezzo deve contenere i decimali',
      lines:['public class Bug {','    public static void main(String[] args) {','        int prezzo = 4.75;','        System.out.println(prezzo);','    }','}'],
@@ -2347,9 +2379,9 @@ const BUGS={
      why:'<code>somma / n</code> è una divisione fra due <code>int</code> → risultato <b>intero</b> 6. Solo dopo viene convertito in <code>double</code>: stampa 6.0. La conversione va fatta <u>prima</u>: <code>(double) somma / n</code>.',
      fix:'        double media = (double) somma / n;'},
     {title:'Dovrebbe riconoscere la password giusta',
-     lines:['public class Bug {','    public static void main(String[] args) {','        String pwd = "segreta";','        if (pwd == "segreta") {','            System.out.println("OK");','        } else {','            System.out.println("NO");','        }','    }','}'],
+     lines:['public class Bug {','    public static void main(String[] args) {','        String pwd = new String("segreta");','        if (pwd == "segreta") {','            System.out.println("OK");','        } else {','            System.out.println("NO");','        }','    }','}'],
      bug:3,hint:'Cosa confronta davvero l\'operatore == su due String?',
-     why:'<code>==</code> confronta i <b>riferimenti</b> (sono lo stesso oggetto?), non il contenuto. Funziona solo per coincidenza, grazie al <i>pool delle stringhe letterali</i>. Con una <code>String</code> letta da tastiera fallirebbe sempre. Si usa <code>equals()</code>.',
+     why:'<code>==</code> confronta i <b>riferimenti</b> (sono lo stesso oggetto?), non il contenuto. Con <code>new String(...)</code> gli oggetti sono diversi, quindi stampa "NO" anche se il testo è identico. Si usa <code>equals()</code>.',
      fix:'        if (pwd.equals("segreta")) {'},
     {title:'Dovrebbe stampare la somma finale',
      lines:['public class Bug {','    public static void main(String[] args) {','        int totale = 0;','        for (int i = 1; i <= 3; i++) {','            int totale2 = totale + i;','        }','        System.out.println(totale);','    }','}'],
@@ -2373,10 +2405,10 @@ const BUGS={
      bug:1,hint:'Riassegnare il parametro e modificare gli elementi sono due cose diverse.',
      why:'<code>v = new int[...]</code> cambia solo la <b>copia locale del riferimento</b>: l\'array originale resta intatto (stampa 1). Per azzerare gli elementi serve un ciclo (<code>v[i] = 0</code>) oppure <code>Arrays.fill(v, 0)</code>.',
      fix:'    for (int i = 0; i < v.length; i++) { v[i] = 0; }'},
-    {title:'Due variabili con lo stesso nome',
+    {title:'Due variabili locali con lo stesso nome',
      lines:['public class Bug {','    public static void main(String[] args) {','        int totale = 0;','        for (int i = 0; i < 3; i++) {','            int totale = i * 10;','            System.out.println(totale);','        }','    }','}'],
      bug:4,hint:'Lo shadowing è permesso fra una locale e un campo di classe… e fra due locali annidate?',
-     why:'Java <b>vieta</b> di dichiarare una variabile locale con lo stesso nome di una locale di un blocco <u>contenente</u>: <code>variable totale is already defined in method main</code>. Lo shadowing vale solo per i <b>campi</b> di classe, non fra locali annidate.',
+     why:'Java <b>vieta</b> di dichiarare una variabile locale con lo stesso nome di una locale di un blocco <u>contenente</u>: <code>variable totale is already defined in method main</code>. Lo shadowing vale solo per i <b>campi</b> di classe.',
      fix:'            int parziale = i * 10;'}
   ]
 };
@@ -2392,7 +2424,7 @@ function paintBug(){
     cl.onclick=()=>{
       const i=+cl.dataset.ln;
       if(i===b.bug){
-        cl.classList.add('right');$$('#bugCode .cl').forEach(c=>c.onclick=null);
+        cl.classList.add('right');$$('#bugCode .cl').forEach(c=>{c.onclick=null});
         $('#bugFb').innerHTML=`<div class="cal tip"><div class="h">✅ Esatto! ${bugTries?`(al ${bugTries+1}° tentativo)`:'Al primo colpo!'}</div>
           <p class="small">${b.why}</p>
           <div class="codewrap" style="margin:10px 0 0"><div class="codebar"><span class="lang">Java</span><span class="ttl">correzione</span></div>
@@ -2408,180 +2440,42 @@ $('#bugHint').addEventListener('click',()=>{
   const b=BUGS[LEVEL][bugIdx%BUGS[LEVEL].length];
   $('#bugFb').insertAdjacentHTML('beforeend',`<div class="cal warn"><div class="h">💡 Suggerimento</div><p class="small" style="margin:0">${b.hint}</p></div>`);
 });
-$('#bugNext').addEventListener('click',()=>{bugIdx++;paintBug()});
+$('#bugNext').addEventListener('click',()=>{bugIdx=(bugIdx+1)%BUGS[LEVEL].length;paintBug()});
 buildBug();
 
 /* =====================================================================
-   PALESTRA
+   PALESTRA DI CODICE
    ===================================================================== */
 const PRESETS={
   facile:[
     {name:'Dichiarare e stampare',code:
-`let nome = "Ada";
-let eta = 18;
-let altezza = 1.67;
-let studente = true;
-
-console.log(nome, eta, altezza, studente);
-console.log("tipo di eta:", typeof eta);
-console.log("tipo di nome:", typeof nome);
-
-eta = eta + 1;          // riassegnazione
-console.log("compleanno:", eta);`},
+'let nome = "Ada";\nlet eta = 18;\nlet altezza = 1.67;\nlet studente = true;\n\nconsole.log(nome, eta, altezza, studente);\nconsole.log("tipo di eta:", typeof eta);\nconsole.log("tipo di nome:", typeof nome);\n\neta = eta + 1;          // riassegnazione\nconsole.log("compleanno:", eta);'},
     {name:'Scambio di due variabili',code:
-`let a = 3;
-let b = 7;
-console.log("prima:", a, b);
-
-const tmp = a;   // serve una terza variabile!
-a = b;
-b = tmp;
-console.log("dopo :", a, b);`},
+'let a = 3;\nlet b = 7;\nconsole.log("prima:", a, b);\n\nconst tmp = a;   // serve una terza variabile!\na = b;\nb = tmp;\nconsole.log("dopo :", a, b);'},
     {name:'Contatori e accumulatori',code:
-`let somma = 0;
-let conteggio = 0;
-
-for (let i = 1; i <= 5; i++) {
-  somma = somma + i;
-  conteggio = conteggio + 1;
-}
-console.log("somma =", somma);
-console.log("conteggio =", conteggio);
-console.log("media =", somma / conteggio);`},
+'let somma = 0;\nlet conteggio = 0;\n\nfor (let i = 1; i <= 5; i++) {\n  somma = somma + i;\n  conteggio = conteggio + 1;\n}\nconsole.log("somma =", somma);\nconsole.log("conteggio =", conteggio);\nconsole.log("media =", somma / conteggio);'},
     {name:'let vs const',code:
-`const IVA = 0.22;        // costante: non si può riassegnare
-let prezzo = 100;
-
-prezzo = prezzo * (1 + IVA);
-console.log("prezzo ivato:", prezzo);
-
-try {
-  IVA = 0.10;            // prova a modificare la costante
-} catch (e) {
-  console.log("ERRORE:", e.message);
-}`}
+'const IVA = 0.22;        // costante: non si puo riassegnare\nlet prezzo = 100;\n\nprezzo = prezzo * (1 + IVA);\nconsole.log("prezzo ivato:", prezzo);\n\ntry {\n  IVA = 0.10;            // prova a modificare la costante\n} catch (e) {\n  console.log("ERRORE:", e.message);\n}'}
   ],
   medio:[
     {name:'Primitivi vs oggetti (riferimenti)',code:
-`// valore: copia indipendente
-let a = 5;
-let b = a;
-b = 9;
-console.log("a =", a, "| b =", b);
-
-// riferimento: stesso oggetto
-const v1 = [1, 2, 3];
-const v2 = v1;
-v2[0] = 99;
-console.log("v1 =", v1, "| v2 =", v2);
-
-// riassegnare il riferimento non tocca l'originale
-let v3 = [7, 8];
-v3 = [0];
-console.log("v1 resta =", v1);`},
+'// valore: copia indipendente\nlet a = 5;\nlet b = a;\nb = 9;\nconsole.log("a =", a, "| b =", b);\n\n// riferimento: stesso oggetto\nconst v1 = [1, 2, 3];\nconst v2 = v1;\nv2[0] = 99;\nconsole.log("v1 =", v1, "| v2 =", v2);\n\n// riassegnare il riferimento non tocca l\'originale\nlet v3 = [7, 8];\nv3 = [0];\nconsole.log("v1 resta =", v1);'},
     {name:'Divisione intera e resto',code:
-`const a = 7, b = 2;
-console.log("a / b        =", a / b);
-console.log("Math.floor   =", Math.floor(a / b));
-console.log("resto (a % b)=", a % b);
-console.log("pari?        =", a % 2 === 0);
-
-// troncamento come in Java con (int)
-const d = 9.99;
-console.log("(int) 9.99   =", Math.trunc(d));
-console.log("arrotondato  =", Math.round(d));`},
+'const a = 7, b = 2;\nconsole.log("a / b         =", a / b);\nconsole.log("Math.floor    =", Math.floor(a / b));\nconsole.log("resto (a % b) =", a % b);\nconsole.log("pari?         =", a % 2 === 0);\n\n// troncamento come in Java con (int)\nconst d = 9.99;\nconsole.log("(int) 9.99    =", Math.trunc(d));\nconsole.log("arrotondato   =", Math.round(d));'},
     {name:'Tipi e conversioni',code:
-`let x = "42";            // stringa
-console.log(typeof x, x);
-
-let n = Number(x);       // conversione esplicita
-console.log(typeof n, n, n + 1);
-
-let s = String(n);       // numero -> testo
-console.log(typeof s, s + "!");
-
-console.log("5 + '3' =", 5 + "3");      // concatenazione!
-console.log("'5' - 3 =", "5" - 3);      // aritmetica
-console.log("parseInt('12px') =", parseInt("12px"));`},
+'let x = "42";            // stringa\nconsole.log(typeof x, x);\n\nlet n = Number(x);       // conversione esplicita\nconsole.log(typeof n, n, n + 1);\n\nlet s = String(n);       // numero -> testo\nconsole.log(typeof s, s + "!");\n\nconsole.log("5 + \'3\' =", 5 + "3");      // concatenazione!\nconsole.log("\'5\' - 3 =", "5" - 3);      // aritmetica\nconsole.log("parseInt(\'12px\') =", parseInt("12px"));'},
     {name:'Scope: let, const e blocchi',code:
-`let globale = 1;
-
-function prova() {
-  let locale = 10;
-  if (locale > 5) {
-    let interna = 100;
-    console.log("dentro if:", globale, locale, interna);
-  }
-  // console.log(interna);  // ERRORE: fuori scope
-  console.log("fuori if:", globale, locale);
-}
-
-prova();
-// console.log(locale);     // ERRORE: fuori scope
-console.log("main:", globale);`}
+'let globale = 1;\n\nfunction prova() {\n  let locale = 10;\n  if (locale > 5) {\n    let interna = 100;\n    console.log("dentro if:", globale, locale, interna);\n  }\n  // console.log(interna);  // ERRORE: fuori scope\n  console.log("fuori if:", globale, locale);\n}\n\nprova();\n// console.log(locale);     // ERRORE: fuori scope\nconsole.log("main:", globale);'}
   ],
   difficile:[
     {name:'Precisione dei number',code:
-`console.log("0.1 + 0.2      =", 0.1 + 0.2);
-console.log("== 0.3 ?       =", 0.1 + 0.2 === 0.3);
-
-let acc = 0;
-for (let i = 0; i < 10; i++) acc += 0.1;
-console.log("somma di 0.1   =", acc);
-
-// confronto con tolleranza
-const toll = 1e-9;
-console.log("con tolleranza =", Math.abs(acc - 1) < toll);
-
-// la soluzione giusta per il denaro: centesimi interi
-const cent = 1999 * 3;
-console.log("centesimi      =", cent, "->", (cent / 100).toFixed(2), "EUR");`},
+'console.log("0.1 + 0.2      =", 0.1 + 0.2);\nconsole.log("== 0.3 ?       =", 0.1 + 0.2 === 0.3);\n\nlet acc = 0;\nfor (let i = 0; i < 10; i++) acc += 0.1;\nconsole.log("somma di 0.1   =", acc);\n\nconst toll = 1e-9;\nconsole.log("con tolleranza =", Math.abs(acc - 1) < toll);\n\n// la soluzione giusta per il denaro: centesimi interi\nconst cent = 1999 * 3;\nconsole.log("centesimi      =", cent, "->", (cent / 100).toFixed(2), "EUR");'},
     {name:'Bit, overflow e BigInt',code:
-`const MAX_INT = 2147483647;      // Integer.MAX_VALUE di Java
-console.log("MAX_INT        =", MAX_INT);
-console.log("MAX_INT + 1    =", MAX_INT + 1, "(JS usa i double: niente overflow)");
-console.log("simulazione int32 =", (MAX_INT + 1) | 0);
-
-let n = 1;
-for (let i = 0; i < 40; i++) n = (n * 2) | 0;
-console.log("raddoppi 40x (int32) =", n);
-
-// oltre Number.MAX_SAFE_INTEGER serve BigInt
-const big = 2n ** 100n;
-console.log("2^100 (BigInt) =", big);
-console.log("MAX_SAFE_INTEGER =", Number.MAX_SAFE_INTEGER);`},
+'const MAX_INT = 2147483647;      // Integer.MAX_VALUE di Java\nconsole.log("MAX_INT        =", MAX_INT);\nconsole.log("MAX_INT + 1    =", MAX_INT + 1, "(JS usa i double)");\nconsole.log("simulazione int32 =", (MAX_INT + 1) | 0);\n\nlet n = 1;\nfor (let i = 0; i < 40; i++) n = (n * 2) | 0;\nconsole.log("raddoppi 40x (int32) =", n);\n\nconst big = 2n ** 100n;\nconsole.log("2^100 (BigInt) =", big);\nconsole.log("MAX_SAFE_INTEGER =", Number.MAX_SAFE_INTEGER);'},
     {name:'Immutabilità delle stringhe',code:
-`let s = "casa";
-let t = s;
-t = t + "!";
-console.log("s =", s, "| t =", t);   // s non cambia
-
-// ogni operazione crea una nuova stringa
-let r = "";
-for (let i = 0; i < 5; i++) r = r + i;
-console.log("r =", r);
-
-// confronto: contenuto vs riferimento
-const a1 = "hello", a2 = "hel" + "lo";
-console.log("a1 === a2     :", a1 === a2);
-const o1 = {v:1}, o2 = {v:1};
-console.log("oggetti uguali:", o1 === o2, "(confronto di riferimento!)");
-console.log("stesso valore :", o1.v === o2.v);`},
+'let s = "casa";\nlet t = s;\nt = t + "!";\nconsole.log("s =", s, "| t =", t);   // s non cambia\n\nlet r = "";\nfor (let i = 0; i < 5; i++) r = r + i;\nconsole.log("r =", r);\n\nconst a1 = "hello", a2 = "hel" + "lo";\nconsole.log("a1 === a2     :", a1 === a2);\nconst o1 = {v:1}, o2 = {v:1};\nconsole.log("oggetti uguali:", o1 === o2, "(confronto di riferimento!)");\nconsole.log("stesso valore :", o1.v === o2.v);'},
     {name:'Copia superficiale e profonda',code:
-`const originale = { nome: "Ada", voti: [6, 7, 8] };
-
-const rif = originale;                 // stesso oggetto
-const shallow = { ...originale };      // copia superficiale
-const deep = JSON.parse(JSON.stringify(originale));  // copia profonda
-
-rif.nome = "MODIFICATO";
-console.log("originale.nome =", originale.nome);
-
-shallow.voti.push(9);                  // l'array e' condiviso!
-console.log("originale.voti =", originale.voti);
-
-deep.voti.push(10);
-console.log("dopo deep      =", originale.voti, "|", deep.voti);`}
+'const originale = { nome: "Ada", voti: [6, 7, 8] };\n\nconst rif = originale;                 // stesso oggetto\nconst shallow = Object.assign({}, originale);\nconst deep = JSON.parse(JSON.stringify(originale));\n\nrif.nome = "MODIFICATO";\nconsole.log("originale.nome =", originale.nome);\n\nshallow.voti.push(9);                  // l\'array e\' condiviso!\nconsole.log("originale.voti =", originale.voti);\n\ndeep.voti.push(10);\nconsole.log("dopo deep      =", originale.voti, "|", deep.voti);'}
   ]
 };
 const CHALLENGES={
@@ -2618,9 +2512,10 @@ function buildChallenges(){
     <p class="small mut" style="margin:0">${c.d}</p></div>`).join('');
 }
 function buildPresets(){
-  $('#plPreset').innerHTML=PRESETS[LEVEL].map((p,i)=>`<option value="${i}">${p.name}</option>`).join('');
-  $('#plCode').value=PRESETS[LEVEL][0].code;
+  $('#plPreset').innerHTML=PRESETS[LEVEL].map((p,i)=>`<option value="${i}">${escAttr(p.name)}</option>`).join('');
+  $('#plCode').value=localStorage.getItem(LS.pl)||PRESETS[LEVEL][0].code;
 }
+buildPresets();buildChallenges();
 $('#plLoad').addEventListener('click',()=>{$('#plCode').value=PRESETS[LEVEL][+$('#plPreset').value].code;toast('Esempio caricato','↧')});
 $('#plClear').addEventListener('click',()=>{$('#plCode').value='';$('#plOut').innerHTML='<span class="empty">// console vuota</span>'});
 $('#plCode').addEventListener('input',e=>localStorage.setItem(LS.pl,e.target.value));
@@ -2633,7 +2528,8 @@ function splitTop(s,ch){const out=[];let d=0,cur='',q=null;
   for(let i=0;i<s.length;i++){const c=s[i];
     if(q){cur+=c;if(c===q&&s[i-1]!=='\\')q=null;continue}
     if(c==='"'||c==="'"||c==='`'){q=c;cur+=c;continue}
-    if('([{'.includes(c))d++;if(')]}'.includes(c))d--;
+    if('([{'.includes(c))d++;
+    if(')]}'.includes(c))d--;
     if(c===ch&&d===0){out.push(cur);cur='';continue}
     cur+=c}
   out.push(cur);return out}
@@ -2648,31 +2544,29 @@ function instrument(src){
     if(neu)edits.push([open+1,close,neu]);
   }
   let out=src;
-  for(let i=edits.length-1;i>=0;i--){const [a,b,t]=edits[i];out=out.slice(0,a)+t+out.slice(b)}
+  for(let i=edits.length-1;i>=0;i--){const e=edits[i];out=out.slice(0,e[0])+e[2]+out.slice(e[1])}
   return out;
 }
-const WORKER_SRC=`
-self.onmessage=function(e){
-  var src=e.data,count=0;
-  function __chk(){ if(++count>200000){ throw new Error('__LOOP__'); } return true; }
-  function fmt(v){ if(Array.isArray(v)) return '['+v.map(fmt).join(', ')+']';
-    if(v&&typeof v==='object'){try{return JSON.stringify(v)}catch(x){return String(v)}} return String(v); }
-  var c={log:function(){self.postMessage({t:'log',d:Array.prototype.map.call(arguments,fmt).join(' ')})},
-         error:function(){self.postMessage({t:'err',d:Array.prototype.map.call(arguments,fmt).join(' ')})}};
-  self.postMessage({t:'start'});
-  var t0=Date.now();
-  try{ new Function('console','__chk','print','"use strict";\\n'+src)(c,__chk,function(){c.log.apply(null,arguments)});
-       self.postMessage({t:'done',ms:Date.now()-t0,iter:count}); }
-  catch(err){ if(err&&err.message==='__LOOP__') self.postMessage({t:'loop',iter:count});
-    else if(err instanceof RangeError) self.postMessage({t:'stack',d:err.message});
-    else self.postMessage({t:'error',d:err.message}); }
-};`;
+const WORKER_SRC='self.onmessage=function(e){'+
+'var src=e.data,count=0;'+
+'function __chk(){ if(++count>200000){ throw new Error("__LOOP__"); } return true; }'+
+'function fmt(v){ if(Array.isArray(v)) return "["+v.map(fmt).join(", ")+"]";'+
+' if(v&&typeof v==="object"){try{return JSON.stringify(v)}catch(x){return String(v)}} return String(v); }'+
+'var c={log:function(){self.postMessage({t:"log",d:Array.prototype.map.call(arguments,fmt).join(" ")})},'+
+'error:function(){self.postMessage({t:"err",d:Array.prototype.map.call(arguments,fmt).join(" ")})}};'+
+'self.postMessage({t:"start"});var t0=Date.now();'+
+'try{ new Function("console","__chk","print","\\"use strict\\";\\n"+src)(c,__chk,function(){c.log.apply(null,arguments)});'+
+' self.postMessage({t:"done",ms:Date.now()-t0,iter:count}); }'+
+'catch(err){ if(err&&err.message==="__LOOP__") self.postMessage({t:"loop",iter:count});'+
+' else if(err instanceof RangeError) self.postMessage({t:"stack",d:err.message});'+
+' else self.postMessage({t:"error",d:err.message}); }'+
+'};';
 let PL={worker:null,url:null,timer:null};
 function plPrint(t,c){const o=$('#plOut');if(o.querySelector('.empty'))o.innerHTML='';
   const d=document.createElement('div');d.className='co-line'+(c?' '+c:'');d.textContent=t;o.appendChild(d);
   while(o.children.length>700)o.removeChild(o.firstChild);o.scrollTop=o.scrollHeight}
 function fmtAny(v){if(Array.isArray(v))return '['+v.map(fmtAny).join(', ')+']';if(v&&typeof v==='object'){try{return JSON.stringify(v)}catch(e){return String(v)}}return String(v)}
-function plStop(){if(PL.timer){clearTimeout(PL.timer);PL.timer=null}if(PL.worker){PL.worker.terminate();PL.worker=null}
+function plStop(){if(PL.timer){clearTimeout(PL.timer);PL.timer=null}if(PL.worker){try{PL.worker.terminate()}catch(e){}PL.worker=null}
   if(PL.url){URL.revokeObjectURL(PL.url);PL.url=null}$('#plStop').disabled=true;$('#plRun').disabled=false}
 function plRun(){
   plStop();
@@ -2688,11 +2582,11 @@ function plRun(){
       else if(m.t==='err')plPrint(m.d,'err');
       else if(m.t==='done'){plStop();$('#plInfo').innerHTML=`✅ completato in <b>${m.ms} ms</b> · controlli anti-loop: <b>${m.iter.toLocaleString('it-IT')}</b>`;toast('Codice eseguito','✅')}
       else if(m.t==='loop'){plStop();$('#plOut').innerHTML='';plPrint('⚠ CICLO INFINITO bloccato dopo '+m.iter.toLocaleString('it-IT')+' controlli','err');toast('Ciclo infinito bloccato','☠️')}
-      else if(m.t==='stack'){plStop();$('#plOut').innerHTML='';plPrint('💥 STACK OVERFLOW: ricorsione senza caso base','err');plPrint(m.d,'err');toast('Stack overflow','💥')}
+      else if(m.t==='stack'){plStop();$('#plOut').innerHTML='';plPrint('💥 STACK OVERFLOW: ricorsione senza caso base','err');plPrint(String(m.d),'err');toast('Stack overflow','💥')}
       else if(m.t==='error'){plStop();plPrint('✖ Errore: '+m.d,'err');toast('Errore nel codice','✖')}};
     PL.worker.onerror=e=>{plStop();plPrint('✖ Errore: '+(e.message||'sconosciuto'),'err')};
-    PL.worker.postMessage(instrument(src));
-    PL.timer=setTimeout(()=>{plStop();$('#plOut').innerHTML='';plPrint('⏱ Timeout (3 s): probabile ciclo infinito.','err')},3000);
+    try{PL.worker.postMessage(instrument(src))}catch(err){plStop();plPrint('✖ '+err.message,'err')}
+    PL.timer=setTimeout(()=>{plStop();$('#plOut').innerHTML='';plPrint('⏱ Timeout (3 s): probabile ciclo infinito.','err');toast('Timeout','⏱')},3000);
   }else{
     $('#plOut').innerHTML='';
     let count=0;const __chk=()=>{if(++count>200000)throw new Error('__LOOP__');return true};
@@ -2724,14 +2618,14 @@ const QUIZ={
     {q:'Dopo <code>int a = 5; int b = a; a = 10;</code> quanto vale <code>b</code>?',o:['5','10','15','Errore'],a:0,
      why:'<code>b = a</code> copia il <b>valore</b>: le due variabili sono indipendenti. Cambiare <code>a</code> dopo non influisce su <code>b</code>.'},
     {q:'Quale tipo useresti per memorizzare un prezzo con i centesimi?',o:['<code>int</code>','<code>boolean</code>','<code>double</code> (o <code>BigDecimal</code>)','<code>char</code>'],a:2,
-     why:'Servono i decimali: <code>double</code> è la scelta comune, <code>BigDecimal</code> quella <b>corretta</b> per il denaro (niente errori di arrotondamento).'},
+     why:'Servono i decimali: <code>double</code> è la scelta comune, <code>BigDecimal</code> quella <b>corretta</b> per il denaro (nessun errore di arrotondamento).'},
     {q:'Quale nome di variabile è <b>valido</b>?',o:['<code>2valore</code>','<code>totale-fattura</code>','<code>prezzoUnitario</code>','<code>int</code>'],a:2,
      why:'Deve iniziare con una lettera (o <code>_</code>, <code>$</code>), contenere solo lettere/cifre/<code>_</code>/<code>$</code> e non essere una parola chiave. Il camelCase è la convenzione.'},
     {q:'Cosa stampa <code>System.out.println("5" + 3)</code>?',o:['8','53','"53"','Errore'],a:1,
      why:'Con una <code>String</code> l\'operatore <code>+</code> <b>concatena</b>: il numero viene convertito in testo → <code>53</code>. Invece <code>3 + 5 + "x"</code> darebbe <code>8x</code>.'}
   ],
   medio:[
-    {q:'Quanto vale <code>x</code>?',code:'int x = 7 / 2;\ndouble y = x;',o:['3.5','3.0','4.0','Errore di compilazione'],a:1,
+    {q:'Quanto vale <code>y</code>?',code:'int x = 7 / 2;\ndouble y = x;',o:['3.5','3.0','4.0','Errore di compilazione'],a:1,
      why:'<code>7 / 2</code> è divisione fra <code>int</code> → <b>3</b> (resto scartato). Solo dopo il 3 viene convertito in <code>double</code>: <code>y</code> vale 3.0.'},
     {q:'Quale tipo contiene il valore <code>3 000 000 000</code>?',o:['<code>int</code>','<code>long</code>','<code>short</code>','<code>char</code>'],a:1,
      why:'Il massimo di <code>int</code> è 2 147 483 647: serve <code>long</code> (64 bit), scrivendo il letterale con il suffisso <b>L</b>.'},
@@ -2739,8 +2633,8 @@ const QUIZ={
      why:'Java impone l\'<b>inizializzazione definita</b> per le locali: <code>variable x might not have been initialized</code>. Solo i <b>campi</b> di classe ricevono il default.'},
     {q:'Dopo <code>int[] v = {1,2}; int[] w = v; w[0] = 9;</code> quanto vale <code>v[0]</code>?',o:['1','9','0','null'],a:1,
      why:'<code>w = v</code> copia il <b>riferimento</b>: entrambe le variabili puntano allo stesso array nell\'heap, quindi la modifica è condivisa.'},
-    {q:'Quale operatore confronta il <b>contenuto</b> di due String?',o:['<code>==</code>','<code>equals()</code>','<code>=</code>','<code>compareTo() == 0</code> ma solo per i numeri'],a:1,
-     why:'<code>==</code> confronta i riferimenti; <code>equals()</code> confronta i caratteri. (<code>compareTo() == 0</code> funziona, ma la risposta standard è <code>equals</code>.)'},
+    {q:'Quale operatore confronta il <b>contenuto</b> di due String?',o:['<code>==</code>','<code>equals()</code>','<code>=</code>','<code>contains()</code>'],a:1,
+     why:'<code>==</code> confronta i riferimenti; <code>equals()</code> confronta i caratteri. <code>contains()</code> verifica solo una sottostringa.'},
     {q:'Cosa produce <code>(int) 9.99</code>?',o:['10','9','9.99','Errore'],a:1,
      why:'Il cast di narrowing <b>tronca</b> la parte decimale, non arrotonda. Per arrotondare: <code>(int) Math.round(9.99)</code> → 10.'},
     {q:'Lo <b>scope</b> di una variabile dichiarata in un blocco <code>if</code> è…',o:['tutto il metodo','solo quel blocco, fino alla graffa chiusa','tutto il programma','il file sorgente'],a:1,
@@ -2753,14 +2647,14 @@ const QUIZ={
      why:'Overflow in <b>complemento a due</b>: il riporto finisce nel bit del segno e il valore «gira» a <code>Integer.MIN_VALUE</code>. Java <b>non</b> solleva eccezioni per l\'overflow aritmetico.'},
     {q:'Quanti bit ha un <code>int</code> e qual è il suo intervallo?',o:['16 bit, −32768…32767','32 bit, −2³¹…2³¹−1','32 bit, 0…2³²−1','64 bit'],a:1,
      why:'32 bit in complemento a due: il bit più significativo è il segno, quindi l\'intervallo è asimmetrico (c\'è un negativo in più).'},
-    {q:'Perché <code>long → float</code> è implicita ma <b>pericolosa</b>?',o:['Perché float è più piccolo in byte','Perché la mantissa di float ha solo 24 bit: gli interi grandi perdono cifre','Perché long è con segno','Non è pericolosa'],a:1,
-     why:'<code>float</code> ha 32 bit ma solo <b>24 di mantissa</b>: gli interi oltre ~16,7 milioni vengono arrotondati. <code>long</code> ne ha 63 di valore: la conversione è a rischio di precisione.'},
+    {q:'Perché <code>long → float</code> è implicita ma <b>pericolosa</b>?',o:['Perché float occupa meno byte','Perché la mantissa di float ha solo 24 bit: gli interi grandi perdono cifre','Perché long è con segno','Non è pericolosa'],a:1,
+     why:'<code>float</code> ha 32 bit ma solo <b>24 di mantissa</b>: gli interi oltre ~16,7 milioni vengono arrotondati. <code>long</code> ha 63 bit di valore: la conversione è a rischio di precisione.'},
     {q:'Cosa stampa?',code:'static int n = 5;\nstatic int elabora(int n) {\n    n = n * 10;\n    return n;\n}\n\nSystem.out.println(elabora(2) + " " + n);',
      o:['20 5','20 20','50 5','2 5'],a:0,
      why:'Il parametro <b>nasconde</b> (shadowing) la variabile di classe dentro il metodo: restituisce 20, mentre la <code>n</code> statica non viene toccata e resta <b>5</b>.'},
     {q:'Con <code>final int[] v = {1,2,3}</code>, quale istruzione è lecita?',o:['<code>v = new int[3];</code>','<code>v[0] = 9;</code>','entrambe','nessuna delle due'],a:1,
-     why:'<code>final</code> blocca il <b>riferimento</b>, non il contenuto: non puoi riassegnare <code>v</code>, ma puoi modificare gli elementi. Per l\'immutabilità completa serve <code>Collections.unmodifiableList</code> o una copia difensiva.'},
-    {q:'Dichiarare <code>int totale</code> nel <code>main</code> e di nuovo dentro un <code>for</code> annidato…',o:['è shadowing valido','dà errore: variable totale is already defined','crea una variabile di classe','compila ma con warning'],a:1,
+     why:'<code>final</code> blocca il <b>riferimento</b>, non il contenuto: non puoi riassegnare <code>v</code>, ma puoi modificare gli elementi. Per l\'immutabilità completa servono copie difensive o viste non modificabili.'},
+    {q:'Dichiarare <code>int totale</code> nel <code>main</code> e di nuovo dentro un <code>for</code> annidato…',o:['è shadowing valido','dà errore: variable totale is already defined','crea una variabile di classe','compila con un warning'],a:1,
      why:'Java vieta a una <b>variabile locale</b> di shadowarne un\'altra locale di un blocco contenente. Lo shadowing è ammesso solo fra locale e <b>campo</b> di classe.'},
     {q:'Come memorizzi in modo affidabile 19,99 €?',o:['<code>double euro = 19.99;</code>','<code>float euro = 19.99f;</code>','<code>int centesimi = 1999;</code> oppure <code>BigDecimal</code>','<code>String euro = "19.99";</code> e ci fai i conti'],a:2,
      why:'Con interi in <b>centesimi</b> o <code>BigDecimal</code> l\'aritmetica è esatta. <code>double</code>/<code>float</code> accumulano errori; con <code>String</code> non puoi fare calcoli.'}
@@ -2785,7 +2679,7 @@ function buildQuiz(){
       const oi=+op.dataset.oi,ok=oi===QUIZ[LEVEL][qi].a;
       qState.ans[qi]=oi;$$('.opt',box).forEach(o=>o.classList.add('lock'));
       op.classList.add(ok?'ok':'no');
-      if(!ok)$(`.opt[data-oi="${QUIZ[LEVEL][qi].a}"]`,box)?.classList.add('ok');
+      if(!ok){const gi=$(`.opt[data-oi="${QUIZ[LEVEL][qi].a}"]`,box);if(gi)gi.classList.add('ok')}
       if(ok)qState.score++;
       const done=qState.ans.filter(a=>a!==null).length;
       $('#qScore').textContent=qState.score+'/'+QUIZ[LEVEL].length;
@@ -2803,12 +2697,15 @@ function buildQuiz(){
   });
 }
 $('#qReset').addEventListener('click',()=>{buildQuiz();toast('Quiz azzerato','↺')});
+buildQuiz();
 
 /* =====================================================================
    NOTE (localStorage)
    ===================================================================== */
-let notes=JSON.parse(localStorage.getItem(LS.notes)||'[]'),noteFilter='all',editingId=null;
-function saveNotes(){localStorage.setItem(LS.notes,JSON.stringify(notes))}
+let notes=[];
+try{notes=JSON.parse(localStorage.getItem(LS.notes)||'[]');if(!Array.isArray(notes))notes=[]}catch(e){notes=[]}
+let noteFilter='all',editingId=null;
+function saveNotes(){try{localStorage.setItem(LS.notes,JSON.stringify(notes))}catch(e){toast('Salvataggio non riuscito (spazio pieno?)','⚠')}}
 function fmtDate(ts){const d=new Date(ts);return d.toLocaleDateString('it-IT',{day:'2-digit',month:'short'})+' · '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}
 function renderNotes(){
   const q=$('#noteSearch').value.toLowerCase().trim();
@@ -2824,9 +2721,9 @@ function renderNotes(){
       <div class="nh"><b>${esc(n.title||'(senza titolo)')}</b><span class="tag">${esc(n.section)}</span><span class="tag lvl">${esc(n.level)}</span></div>
       <p>${esc(n.text)}</p>
       <div class="na"><span>🕑 ${fmtDate(n.ts)}</span><div class="sp"></div>
-        <button class="mini-b" data-toggle="${n.id}">${n.res?'↩ Riapri':'✓ Chiarito'}</button>
-        <button class="mini-b" data-edit="${n.id}">✎ Modifica</button>
-        <button class="mini-b" data-del="${n.id}">🗑</button></div>
+        <button class="mini-b" data-toggle="${escAttr(n.id)}">${n.res?'↩ Riapri':'✓ Chiarito'}</button>
+        <button class="mini-b" data-edit="${escAttr(n.id)}">✎ Modifica</button>
+        <button class="mini-b" data-del="${escAttr(n.id)}">🗑</button></div>
     </div>`).join(''):
     `<div class="empty-state"><span class="em">🗒️</span>Nessuna nota.<br><span class="tiny">Usa il modulo qui sopra o il pulsante «＋ Nota» accanto a ogni sezione.</span></div>`;
 }
@@ -2835,15 +2732,15 @@ $('#noteList').addEventListener('click',e=>{
   if(d.del){notes=notes.filter(n=>n.id!==d.del);saveNotes();renderNotes();toast('Nota eliminata','🗑')}
   if(d.toggle){const n=notes.find(x=>x.id===d.toggle);if(n){n.res=!n.res;saveNotes();renderNotes()}}
   if(d.edit){const n=notes.find(x=>x.id===d.edit);if(!n)return;
-    editingId=n.id;$('#noteTitle').value=n.title;$('#noteText').value=n.text;$('#noteSection').value=n.section;
-    $('#noteResolved').checked=n.res;$('#noteResChk').classList.toggle('on',n.res);openDrawer();}
+    editingId=n.id;$('#noteTitle').value=n.title||'';$('#noteText').value=n.text||'';$('#noteSection').value=n.section;
+    $('#noteResolved').checked=!!n.res;$('#noteResChk').classList.toggle('on',!!n.res);openDrawer();}
 });
 $('#noteForm').addEventListener('submit',e=>{
   e.preventDefault();
   const text=$('#noteText').value.trim();
   if(!text){toast('Scrivi almeno una riga','✍');$('#noteText').focus();return}
   const obj={title:$('#noteTitle').value.trim(),text,section:$('#noteSection').value,res:$('#noteResolved').checked,level:LEVEL,ts:Date.now()};
-  if(editingId){Object.assign(notes.find(x=>x.id===editingId),obj);toast('Nota aggiornata','✎')}
+  if(editingId){const n=notes.find(x=>x.id===editingId);if(n)Object.assign(n,obj);toast('Nota aggiornata','✎')}
   else{obj.id='n'+Date.now()+Math.random().toString(36).slice(2,6);notes.push(obj);toast('Nota salvata nel browser','💾')}
   editingId=null;resetForm();renderNotes();
 });
@@ -2857,24 +2754,25 @@ let curSec='Generale';
 SECTIONS.forEach(s=>{const el=document.getElementById(s.id);if(!el)return;
   new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)curSec=s.t}),{rootMargin:'-40% 0px -55% 0px'}).observe(el)});
 function openDrawer(sec){$('#drawer').classList.add('on');$('#backdrop').classList.add('on');$('#drawer').setAttribute('aria-hidden','false');
-  if(sec&&$$('#noteSection option').some(o=>o.value===sec))$('#noteSection').value=sec;setTimeout(()=>$('#noteText').focus(),320)}
+  if(sec&&$$('#noteSection option').some(o=>o.value===sec))$('#noteSection').value=sec;
+  setTimeout(()=>{const ta=$('#noteText');if(ta)ta.focus()},320)}
 function closeDrawer(){$('#drawer').classList.remove('on');$('#backdrop').classList.remove('on');$('#drawer').setAttribute('aria-hidden','true')}
 $('#openNotes').addEventListener('click',()=>openDrawer(curSec));
 $('#fabNote').addEventListener('click',()=>openDrawer(curSec));
 $('#drClose').addEventListener('click',closeDrawer);
 $('#backdrop').addEventListener('click',closeDrawer);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
-$$('[data-note]').forEach(b=>b.addEventListener('click',()=>openDrawer(SECTIONS.find(s=>s.id===b.dataset.note)?.t)));
+$$('[data-note]').forEach(b=>b.addEventListener('click',()=>{const s=SECTIONS.find(x=>x.id===b.dataset.note);openDrawer(s?s.t:curSec)}));
 $('#exportNotes').addEventListener('click',()=>{
   if(!notes.length){toast('Nessuna nota da esportare','⚠');return}
   const md=`# Note — VARIABILI//LAB (${new Date().toLocaleString('it-IT')})\n\n`+
     notes.slice().sort((a,b)=>a.ts-b.ts).map(n=>`## ${n.title||'(senza titolo)'}\n- **Sezione:** ${n.section}\n- **Livello:** ${n.level}\n- **Stato:** ${n.res?'chiarito':'da chiarire'}\n- **Data:** ${fmtDate(n.ts)}\n\n${n.text}\n`).join('\n---\n\n');
   const url=URL.createObjectURL(new Blob([md],{type:'text/markdown'}));
-  const a=document.createElement('a');a.href=url;a.download='note-variabili.md';a.click();URL.revokeObjectURL(url);
+  const a=document.createElement('a');a.href=url;a.download='note-variabili.md';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
   toast('Note esportate in Markdown','⬇');
 });
 $('#clearNotes').addEventListener('click',()=>{
-  if(!notes.length)return;
+  if(!notes.length){toast('Nessuna nota da eliminare','⚠');return}
   if(confirm('Eliminare definitivamente tutte le '+notes.length+' note?')){notes=[];saveNotes();renderNotes();toast('Note eliminate','🗑')}
 });
 renderNotes();buildSkills();
