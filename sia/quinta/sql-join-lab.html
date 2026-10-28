@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL JOIN Lab — Sistemi Informativi Aziendali</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/800.css">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#070b16;
+  --card:rgba(16,24,48,.62);
+  --card-solid:#101830;
+  --ink:#e8eefc;
+  --muted:#8fa1c0;
+  --line:rgba(125,150,205,.16);
+  --cyan:#22d3ee;   --cyan-soft:rgba(34,211,238,.12);
+  --violet:#a78bfa; --violet-soft:rgba(167,139,250,.14);
+  --amber:#fbbf24;  --amber-soft:rgba(251,191,36,.12);
+  --green:#34d399;  --green-soft:rgba(52,211,153,.13);
+  --red:#fb7185;    --red-soft:rgba(251,113,133,.13);
+  --radius:16px;
+  --shadow:0 12px 34px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;color:var(--ink);line-height:1.6;
+  background:
+    radial-gradient(1100px 520px at 85% -10%, rgba(124,58,237,.16), transparent 60%),
+    radial-gradient(900px 520px at 5% 5%, rgba(34,211,238,.10), transparent 55%),
+    radial-gradient(800px 600px at 50% 110%, rgba(251,191,36,.05), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  min-height:100vh;
+}
+code,.mono,pre{font-family:'JetBrains Mono',monospace}
+h1,h2,h3{line-height:1.25}
+section{padding:64px 20px;max-width:1140px;margin:0 auto}
+h2.sec-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:12px;text-shadow:0 0 30px rgba(34,211,238,.15)}
+.sec-sub{color:var(--muted);max-width:760px;margin-bottom:32px}
+.sec-sub b{color:var(--ink)}
+.sec-sub code,.callout code,.hint code,.qtxt code,.venn-desc code,.challenge code{background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.2);color:#7dd3fc;padding:1px 7px;border-radius:6px;font-size:.85em}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--cyan-soft);border:1px solid rgba(34,211,238,.3);color:var(--cyan);font-weight:700;font-size:.78rem;padding:4px 12px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em}
+::selection{background:rgba(34,211,238,.3)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.03)}
+::-webkit-scrollbar-thumb{background:rgba(125,150,205,.25);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:rgba(34,211,238,.4)}
+
+/* ---------- NAV ---------- */
+nav{position:sticky;top:0;z-index:50;background:rgba(7,11,22,.8);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1140px;margin:0 auto;display:flex;align-items:center;gap:8px;padding:10px 20px;overflow-x:auto}
+.nav-logo{font-weight:800;white-space:nowrap;margin-right:12px;color:var(--cyan);font-size:1.05rem;text-shadow:0 0 20px rgba(34,211,238,.5)}
+.nav-logo span{color:var(--amber);text-shadow:0 0 20px rgba(251,191,36,.5)}
+nav a.nl{color:var(--muted);text-decoration:none;font-size:.88rem;font-weight:600;padding:6px 12px;border-radius:999px;white-space:nowrap;transition:.2s;border:1px solid transparent}
+nav a.nl:hover{color:var(--cyan);background:var(--cyan-soft)}
+nav a.nl.active{color:#04121a;background:linear-gradient(90deg,var(--cyan),#38bdf8);font-weight:800;box-shadow:0 0 18px rgba(34,211,238,.45)}
+
+/* ---------- HERO ---------- */
+header.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#050816 0%,#0b1f4d 55%,#1e1b4b 100%)}
+header.hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(148,180,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(148,180,255,.06) 1px,transparent 1px);
+  background-size:34px 34px;
+  mask-image:radial-gradient(ellipse at 50% 40%,#000 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 40%,#000 30%,transparent 75%);}
+.hero-inner{max-width:1140px;margin:0 auto;padding:74px 20px 64px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;position:relative;z-index:1}
+.hero h1{font-size:clamp(2rem,4.6vw,3.2rem);font-weight:800;margin:14px 0 14px}
+.hero h1 em{font-style:normal;color:var(--amber);text-shadow:0 0 34px rgba(251,191,36,.55)}
+.hero p.lead{color:#b9c9ec;font-size:1.06rem;max-width:520px;margin-bottom:26px}
+.hero p.lead b{color:#fff}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:12px;font-weight:700;font-size:.95rem;text-decoration:none;border:none;cursor:pointer;transition:.2s;font-family:inherit}
+.btn-primary{background:linear-gradient(90deg,var(--amber),#f59e0b);color:#221503;box-shadow:0 0 24px rgba(251,191,36,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(251,191,36,.5)}
+.btn-ghost{background:rgba(148,180,255,.08);color:#dbe7ff;border:1px solid rgba(148,180,255,.28)}
+.btn-ghost:hover{background:rgba(148,180,255,.18);border-color:var(--cyan)}
+.btn-soft{background:rgba(148,180,255,.07);color:var(--ink);border:1px solid var(--line);padding:8px 16px;border-radius:10px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit;transition:.2s}
+.btn-soft:hover{border-color:var(--cyan);color:var(--cyan)}
+.hero-svg{width:100%;height:auto}
+.hero-svg .dash{stroke-dasharray:7 7;animation:march 1.2s linear infinite}
+@keyframes march{to{stroke-dashoffset:-28}}
+.hero-badges{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.hbadge{background:rgba(148,180,255,.07);border:1px solid rgba(148,180,255,.2);border-radius:10px;padding:8px 14px;font-size:.82rem;color:#b9c9ec;backdrop-filter:blur(6px)}
+.hbadge b{color:var(--cyan)}
+
+/* ---------- CARDS ---------- */
+.grid{display:grid;gap:20px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:.25s}
+.card:hover{border-color:rgba(34,211,238,.35);transform:translateY(-3px)}
+.card .ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:14px;border:1px solid var(--line)}
+.card h3{font-size:1.05rem;margin-bottom:8px}
+.card p{color:var(--muted);font-size:.92rem}
+.card p b{color:var(--ink)}
+
+/* ---------- ACCORDION ---------- */
+details.acc{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+details.acc summary{cursor:pointer;padding:18px 22px;font-weight:700;display:flex;align-items:center;gap:12px;list-style:none;color:var(--ink)}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary .num{background:linear-gradient(135deg,var(--cyan),#3b82f6);color:#04121a;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;font-weight:800;box-shadow:0 0 14px rgba(34,211,238,.4)}
+details.acc summary .chev{margin-left:auto;transition:.25s;color:var(--cyan)}
+details.acc[open] summary .chev{transform:rotate(90deg)}
+details.acc .acc-body{padding:0 22px 20px 62px;color:var(--muted);font-size:.94rem}
+details.acc .acc-body strong{color:var(--ink)}
+details.acc .acc-body code{background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.22);color:#7dd3fc;padding:1px 6px;border-radius:6px;font-size:.85em}
+
+/* ---------- TABLES ---------- */
+.tbl-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--line);background:rgba(10,16,34,.7);box-shadow:var(--shadow);backdrop-filter:blur(8px)}
+table.data{border-collapse:collapse;width:100%;font-size:.88rem;min-width:420px}
+table.data caption{caption-side:top;text-align:left;padding:12px 16px;font-weight:800;font-size:.95rem}
+table.data caption.cy{background:linear-gradient(90deg,rgba(34,211,238,.16),transparent);color:var(--cyan);border-bottom:1px solid rgba(34,211,238,.25)}
+table.data caption.am{background:linear-gradient(90deg,rgba(251,191,36,.16),transparent);color:var(--amber);border-bottom:1px solid rgba(251,191,36,.25)}
+table.data th{background:rgba(148,180,255,.06);text-align:left;padding:10px 14px;font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap}
+table.data td{padding:10px 14px;border-bottom:1px solid rgba(125,150,205,.09);white-space:nowrap;color:var(--ink)}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr{transition:background .15s}
+table.data tbody tr:hover{background:rgba(148,180,255,.05)}
+.kbadge{font-size:.64rem;font-weight:800;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.kbadge.pk{background:var(--cyan);color:#04121a;box-shadow:0 0 10px rgba(34,211,238,.5)}
+.kbadge.fk{background:var(--amber);color:#221503;box-shadow:0 0 10px rgba(251,191,36,.5)}
+.nullbadge{background:var(--red-soft);color:var(--red);border:1px solid rgba(251,113,133,.35);font-weight:800;font-size:.72rem;padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace}
+tr.hl-src{background:var(--violet-soft)!important;box-shadow:inset 3px 0 0 var(--violet),0 0 18px rgba(167,139,250,.2)}
+tr.hl-src td{color:#ddd6fe}
+tr.hl-res{background:var(--green-soft)!important;box-shadow:inset 3px 0 0 var(--green),0 0 18px rgba(52,211,153,.18)}
+tr.esclusa{opacity:.45;background:repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(251,113,133,.1) 8px,rgba(251,113,133,.1) 16px)}
+tr.esclusa td{text-decoration:line-through;text-decoration-color:rgba(251,113,133,.6)}
+tr.con-null td{background:rgba(251,191,36,.045)}
+.callout{border-radius:14px;padding:16px 20px;font-size:.92rem;display:flex;gap:12px;align-items:flex-start;margin-top:16px}
+.callout.warn{background:var(--amber-soft);border:1px solid rgba(251,191,36,.3);color:#fde68a}
+.callout.info{background:var(--cyan-soft);border:1px solid rgba(34,211,238,.28);color:#a5f3fc}
+.callout.ok{background:var(--green-soft);border:1px solid rgba(52,211,153,.3);color:#a7f3d0}
+.callout b{color:#fff}
+.callout code{background:rgba(0,0,0,.25);padding:1px 6px;border-radius:6px;font-size:.85em}
+td.dirty{background:rgba(251,113,133,.1);box-shadow:inset 0 0 0 1px rgba(251,113,133,.25)}
+
+/* ---------- LAB ---------- */
+.lab-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.lab-tabs button{padding:10px 18px;border-radius:12px;border:1px solid var(--line);background:rgba(16,24,48,.6);font-weight:700;font-size:.88rem;cursor:pointer;color:var(--muted);transition:.2s;font-family:'JetBrains Mono',monospace}
+.lab-tabs button:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 14px rgba(34,211,238,.25)}
+.lab-tabs button.active{background:linear-gradient(135deg,rgba(34,211,238,.9),rgba(59,130,246,.9));border-color:transparent;color:#04121a;box-shadow:0 0 22px rgba(34,211,238,.45)}
+.lab-grid{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+.venn-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);text-align:center;backdrop-filter:blur(10px)}
+.venn-labels{display:flex;justify-content:space-between;padding:0 18px;font-weight:800;font-size:.85rem;margin-bottom:4px}
+.venn-labels .lc{color:var(--cyan);text-shadow:0 0 14px rgba(34,211,238,.5)}
+.venn-labels .rc{color:var(--amber);text-shadow:0 0 14px rgba(251,191,36,.5)}
+svg.venn{width:100%;max-width:300px;height:auto}
+svg.venn .c-left{fill:var(--cyan);fill-opacity:.12;stroke:var(--cyan);stroke-width:2.5;transition:.4s;filter:drop-shadow(0 0 8px rgba(34,211,238,.35))}
+svg.venn .c-right{fill:var(--amber);fill-opacity:.12;stroke:var(--amber);stroke-width:2.5;transition:.4s;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
+svg.venn .c-lens{fill:var(--violet);fill-opacity:0;transition:.4s}
+svg.venn .vbadge{font-weight:800;fill:#fff;font-size:17px;text-anchor:middle;font-family:'Inter',sans-serif;transition:.3s}
+svg.venn .vsub{fill:var(--muted);font-size:8.5px;text-anchor:middle;font-family:'Inter',sans-serif;transition:.3s}
+svg.venn .cross-label{opacity:0;fill:var(--violet);font-weight:800;font-size:15px;text-anchor:middle;font-family:'JetBrains Mono',monospace;transition:.3s}
+svg.venn .g-left,svg.venn .g-right{transition:transform .5s cubic-bezier(.6,-0.2,.3,1.4)}
+svg.venn[data-state="inner"] .c-lens{fill-opacity:.85;filter:drop-shadow(0 0 12px rgba(167,139,250,.6))}
+svg.venn[data-state="left"] .c-left{fill-opacity:.5}
+svg.venn[data-state="left"] .c-lens{fill-opacity:.85;filter:drop-shadow(0 0 12px rgba(167,139,250,.6))}
+svg.venn[data-state="right"] .c-right{fill-opacity:.5}
+svg.venn[data-state="right"] .c-lens{fill-opacity:.85;filter:drop-shadow(0 0 12px rgba(167,139,250,.6))}
+svg.venn[data-state="full"] .c-left{fill-opacity:.45}
+svg.venn[data-state="full"] .c-right{fill-opacity:.45}
+svg.venn[data-state="full"] .c-lens{fill-opacity:.9;filter:drop-shadow(0 0 12px rgba(167,139,250,.6))}
+svg.venn[data-state="cross"] .g-left{transform:translateX(-42px)}
+svg.venn[data-state="cross"] .g-right{transform:translateX(42px)}
+svg.venn[data-state="cross"] .c-lens,svg.venn[data-state="cross"] .vbadge,svg.venn[data-state="cross"] .vsub{opacity:0}
+svg.venn[data-state="cross"] .cross-label{opacity:1;text-shadow:0 0 16px rgba(167,139,250,.7)}
+.venn-desc{margin-top:14px;font-size:.9rem;color:var(--muted);text-align:left}
+.venn-desc b{color:var(--ink)}
+.sql-card{background:#0a1122;border:1px solid rgba(34,211,238,.18);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow),0 0 30px rgba(34,211,238,.06);margin-bottom:20px;position:relative}
+.sql-card::before{content:"";position:absolute;top:14px;left:-1px;width:3px;height:26px;background:var(--cyan);border-radius:99px;box-shadow:0 0 12px var(--cyan)}
+.sql-card .sql-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sql-card .sql-title{color:#5f739c;font-size:.75rem;text-transform:uppercase;letter-spacing:.09em;font-weight:700}
+.sql-card pre{color:#c8d6f5;font-size:.86rem;line-height:1.8;overflow-x:auto;white-space:pre}
+.sql-card .k{color:#67e8f9;font-weight:700;text-shadow:0 0 12px rgba(34,211,238,.4)}
+.sql-card .t{color:var(--amber)}
+.copy-btn{background:rgba(148,180,255,.08);border:1px solid rgba(148,180,255,.25);color:#b9c9ec;font-size:.75rem;padding:5px 12px;border-radius:8px;cursor:pointer;font-weight:700;transition:.2s;font-family:inherit}
+.copy-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.res-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.res-head h3{font-size:1rem}
+.count-badge{background:var(--green-soft);color:var(--green);border:1px solid rgba(52,211,153,.35);font-weight:800;font-size:.8rem;padding:5px 14px;border-radius:999px;box-shadow:0 0 14px rgba(52,211,153,.2)}
+.count-badge.zero{background:var(--red-soft);color:var(--red);border-color:rgba(251,113,133,.35);box-shadow:0 0 14px rgba(251,113,133,.2)}
+.src-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.res-scroll{max-height:380px;overflow:auto;border-radius:14px;border:1px solid var(--line);background:rgba(10,16,34,.7);box-shadow:var(--shadow)}
+.res-scroll table.data th{position:sticky;top:0;z-index:2;background:#101a36}
+.hint{font-size:.8rem;color:var(--muted);margin-top:8px}
+.hint b{color:var(--violet)}
+
+/* ---------- BUILDER ---------- */
+.builder{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.ctrl{margin-bottom:20px}
+.ctrl label.cl{display:block;font-weight:800;font-size:.82rem;margin-bottom:8px;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:rgba(148,180,255,.05);font-size:.78rem;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s;font-family:'JetBrains Mono',monospace}
+.chip:hover{border-color:var(--cyan);color:var(--cyan)}
+.chip[aria-pressed="true"]{background:linear-gradient(135deg,rgba(34,211,238,.9),rgba(59,130,246,.9));border-color:transparent;color:#04121a;font-weight:800;box-shadow:0 0 14px rgba(34,211,238,.4)}
+select.sel{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--line);font-size:.86rem;font-family:'JetBrains Mono',monospace;background:#0d1530;color:var(--ink);cursor:pointer;transition:.2s}
+select.sel:hover{border-color:rgba(34,211,238,.5)}
+select.sel:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.15)}
+.challenge{border:1px solid rgba(167,139,250,.3);border-left:4px solid var(--violet);background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(16,24,48,.5));border-radius:12px;padding:16px 18px;font-size:.88rem;color:var(--muted);backdrop-filter:blur(8px)}
+.challenge b.tit{display:block;margin-bottom:6px;color:var(--violet);font-size:.95rem}
+.challenge u{color:var(--ink);text-decoration-color:rgba(167,139,250,.5)}
+.challenge button{margin-top:10px;background:linear-gradient(135deg,var(--violet),#7c3aed);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:700;font-size:.78rem;cursor:pointer;transition:.2s;font-family:inherit;box-shadow:0 0 16px rgba(167,139,250,.35)}
+.challenge button:hover{transform:translateY(-1px);box-shadow:0 0 24px rgba(167,139,250,.55)}
+.challenge .sol{display:none;margin-top:12px;color:#c4b5fd;font-size:.83rem;background:rgba(0,0,0,.3);border:1px solid rgba(167,139,250,.25);border-radius:10px;padding:10px 12px}
+.challenge.open .sol{display:block}
+.challenge .sol b{color:#fff}
+
+/* ---------- QUIZ ---------- */
+.quiz-bar{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 20px;margin-bottom:24px;box-shadow:var(--shadow);flex-wrap:wrap;backdrop-filter:blur(10px)}
+.quiz-score{font-weight:800;font-size:1.05rem}
+.quiz-score span{color:var(--cyan);text-shadow:0 0 14px rgba(34,211,238,.5)}
+.prog{flex:1;min-width:140px;height:10px;background:rgba(148,180,255,.1);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));border-radius:99px;transition:width .4s;box-shadow:0 0 12px rgba(34,211,238,.6)}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:16px;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+.qcard .qnum{font-size:.72rem;font-weight:800;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em}
+.qcard .qtxt{font-weight:700;margin:6px 0 14px;font-size:1rem}
+.qopts{display:grid;gap:8px}
+.qopt{text-align:left;padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:rgba(148,180,255,.04);font-size:.9rem;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink)}
+.qopt:hover:not(:disabled){border-color:var(--cyan);background:var(--cyan-soft);box-shadow:0 0 12px rgba(34,211,238,.2)}
+.qopt:disabled{cursor:default;opacity:.6}
+.qopt.correct{border-color:var(--green);background:var(--green-soft);opacity:1!important;font-weight:700;color:#a7f3d0;box-shadow:0 0 14px rgba(52,211,153,.25)}
+.qopt.wrong{border-color:var(--red);background:var(--red-soft);opacity:1!important;color:#fecdd3;box-shadow:0 0 14px rgba(251,113,133,.25)}
+.qwhy{display:none;margin-top:12px;font-size:.87rem;border-radius:10px;padding:12px 16px}
+.qwhy.show{display:block}
+.qwhy.ok{background:var(--green-soft);border:1px solid rgba(52,211,153,.3);color:#a7f3d0}
+.qwhy.no{background:var(--red-soft);border:1px solid rgba(251,113,133,.3);color:#fecdd3}
+.qwhy b{color:#fff}
+.quiz-final{display:none;background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(124,58,237,.25));border:1px solid rgba(34,211,238,.35);color:#fff;border-radius:var(--radius);padding:28px;text-align:center;margin-top:8px;box-shadow:0 0 40px rgba(34,211,238,.15)}
+.quiz-final.show{display:block}
+.quiz-final h3{font-size:1.3rem;margin-bottom:6px;text-shadow:0 0 20px rgba(34,211,238,.5)}
+.quiz-final p{color:#c7d6f7}
+.quiz-final .btn{margin-top:14px}
+
+/* ---------- CHEATSHEET ---------- */
+table.sheet{width:100%;border-collapse:collapse;background:rgba(10,16,34,.7);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);font-size:.9rem}
+table.sheet th{background:#0d1530;color:var(--cyan);text-align:left;padding:13px 16px;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(34,211,238,.25)}
+table.sheet td{padding:13px 16px;border-bottom:1px solid rgba(125,150,205,.09);vertical-align:top;color:var(--muted)}
+table.sheet tr:last-child td{border-bottom:none}
+table.sheet tr:hover td{background:rgba(148,180,255,.04)}
+table.sheet td:first-child{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--amber);white-space:nowrap;text-shadow:0 0 14px rgba(251,191,36,.35)}
+table.sheet td b{color:var(--ink)}
+table.sheet code{background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.2);padding:1px 6px;border-radius:6px;font-size:.83em;color:#7dd3fc}
+
+footer{background:#04070f;border-top:1px solid var(--line);color:var(--muted);text-align:center;padding:34px 20px;font-size:.85rem;margin-top:40px}
+footer b{color:var(--cyan)}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;padding-top:48px}
+  .hero-svg{max-width:460px;margin:0 auto}
+  .g3{grid-template-columns:1fr}
+  .g2,.lab-grid,.builder,.src-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">&gt;_ SQL<span>JOIN</span> Lab</div>
+    <a class="nl" href="#perche">Teoria</a>
+    <a class="nl" href="#database">Il Database</a>
+    <a class="nl" href="#lab">Laboratorio</a>
+    <a class="nl" href="#costruisci">Costruisci la Query</a>
+    <a class="nl" href="#quiz">Quiz</a>
+    <a class="nl" href="#schema">Schema Riassuntivo</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <div>
+      <span class="pill" style="background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.35);color:var(--amber)">Sistemi Informativi Aziendali · Classe 5ª</span>
+      <h1>Impara le <em>JOIN</em>… unendo le tabelle con le tue mani</h1>
+      <p class="lead">Niente paginoni da leggere: un laboratorio interattivo dove vedi <b>cosa succede davvero</b> quando colleghi due tabelle di un database. Scegli il tipo di JOIN, osserva il risultato riga per riga, costruisci le query e mettiti alla prova.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#lab">🔬 Vai al laboratorio</a>
+        <a class="btn btn-ghost" href="#perche">📖 Prima la teoria</a>
+      </div>
+      <div class="hero-badges">
+        <div class="hbadge"><b>5</b> tipi di JOIN da esplorare</div>
+        <div class="hbadge"><b>3</b> sfide di query building</div>
+        <div class="hbadge"><b>7</b> domande di quiz</div>
+      </div>
+    </div>
+    <svg class="hero-svg" viewBox="0 0 560 300" aria-hidden="true">
+      <defs>
+        <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="6" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.55"/>
+        </filter>
+      </defs>
+      <!-- tabella sinistra -->
+      <g filter="url(#sh)">
+        <rect x="24" y="52" width="168" height="196" rx="16" fill="#0f1730" stroke="rgba(34,211,238,.35)" stroke-width="1.5"/>
+        <path d="M24 68 a16 16 0 0 1 16 -16 h136 a16 16 0 0 1 16 16 v22 h-168 Z" fill="#0891b2"/>
+        <text x="108" y="76" text-anchor="middle" fill="#ecfeff" font-size="14" font-weight="800" font-family="Inter">Clienti</text>
+        <g stroke="rgba(125,150,205,.18)" stroke-width="2">
+          <line x1="40" y1="122" x2="176" y2="122"/><line x1="40" y1="152" x2="176" y2="152"/>
+          <line x1="40" y1="182" x2="176" y2="182"/><line x1="40" y1="212" x2="176" y2="212"/>
+        </g>
+        <g><circle cx="52" cy="107" r="5" fill="#22d3ee"/><circle cx="52" cy="137" r="5" fill="#22d3ee"/><circle cx="52" cy="167" r="5" fill="#22d3ee"/><circle cx="52" cy="197" r="5" fill="#fb7185"/><circle cx="52" cy="227" r="5" fill="#22d3ee"/></g>
+        <g fill="#33415e"><rect x="66" y="102" width="96" height="9" rx="4"/><rect x="66" y="132" width="80" height="9" rx="4"/><rect x="66" y="162" width="100" height="9" rx="4"/><rect x="66" y="192" width="70" height="9" rx="4"/><rect x="66" y="222" width="88" height="9" rx="4"/></g>
+      </g>
+      <!-- tabella destra -->
+      <g filter="url(#sh)">
+        <rect x="368" y="52" width="168" height="196" rx="16" fill="#0f1730" stroke="rgba(251,191,36,.35)" stroke-width="1.5"/>
+        <path d="M368 68 a16 16 0 0 1 16 -16 h136 a16 16 0 0 1 16 16 v22 h-168 Z" fill="#b45309"/>
+        <text x="452" y="76" text-anchor="middle" fill="#fffbeb" font-size="14" font-weight="800" font-family="Inter">Ordini</text>
+        <g stroke="rgba(125,150,205,.18)" stroke-width="2">
+          <line x1="384" y1="122" x2="520" y2="122"/><line x1="384" y1="152" x2="520" y2="152"/>
+          <line x1="384" y1="182" x2="520" y2="182"/><line x1="384" y1="212" x2="520" y2="212"/>
+        </g>
+        <g><circle cx="396" cy="107" r="5" fill="#fbbf24"/><circle cx="396" cy="137" r="5" fill="#fbbf24"/><circle cx="396" cy="167" r="5" fill="#fbbf24"/><circle cx="396" cy="197" r="5" fill="#fbbf24"/><circle cx="396" cy="227" r="5" fill="#fb7185"/></g>
+        <g fill="#33415e"><rect x="410" y="102" width="96" height="9" rx="4"/><rect x="410" y="132" width="70" height="9" rx="4"/><rect x="410" y="162" width="100" height="9" rx="4"/><rect x="410" y="192" width="82" height="9" rx="4"/><rect x="410" y="222" width="66" height="9" rx="4"/></g>
+      </g>
+      <!-- collegamento -->
+      <line class="dash" x1="192" y1="150" x2="248" y2="150" stroke="#22d3ee" stroke-width="3"/>
+      <line class="dash" x1="312" y1="150" x2="368" y2="150" stroke="#22d3ee" stroke-width="3"/>
+      <g filter="url(#glow)">
+        <circle cx="280" cy="150" r="34" fill="#7c3aed" stroke="#a78bfa" stroke-width="2"/>
+        <text x="280" y="147" text-anchor="middle" fill="#fff" font-size="16" font-weight="800" font-family="JetBrains Mono">⋈</text>
+        <text x="280" y="165" text-anchor="middle" fill="#ddd6fe" font-size="10" font-weight="700" font-family="Inter">JOIN</text>
+      </g>
+      <text x="280" y="276" text-anchor="middle" fill="#8fa1c0" font-size="11" font-family="JetBrains Mono">ON Clienti.IDCliente = Ordini.IDCliente</text>
+    </svg>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= TEORIA ================= -->
+<section id="perche" class="reveal">
+  <h2 class="sec-title"><span class="pill">1 · Teoria essenziale</span></h2>
+  <h2 class="sec-title">Perché esistono le JOIN?</h2>
+  <p class="sec-sub">Un database relazionale <b>spezza</b> le informazioni in tante tabelle collegate. La JOIN è l'operazione che le <b>ricuce</b> al momento della query. Prima di giocare, servono 4 concetti chiave: apri le schede.</p>
+
+  <div class="grid g3" style="margin-bottom:28px">
+    <div class="card"><div class="ico" style="background:var(--cyan-soft)">🧩</div><h3>Dati separati, zero duplicati</h3><p>Se salvassimo nome e città del cliente dentro ogni ordine, ripeteremmo gli stessi dati mille volte (ridondanza) con rischio di errori e anomalie nell'aggiornamento. Per questo si <b>normalizza</b>.</p></div>
+    <div class="card"><div class="ico" style="background:var(--amber-soft)">🔑</div><h3>PK e FK: il ponte</h3><p>La <b>chiave primaria</b> (PK) identifica ogni riga in modo univoco. La <b>chiave esterna</b> (FK) in un'altra tabella punta a quella PK: è il filo che la JOIN percorre.</p></div>
+    <div class="card"><div class="ico" style="background:var(--violet-soft)">⋈</div><h3>La JOIN ricuce</h3><p><code style="background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.2);color:#7dd3fc;padding:2px 6px;border-radius:6px">FROM A JOIN B ON A.k = B.k</code> confronta le righe delle due tabelle e produce una nuova tabella "virtuale" con le colonne di entrambe.</p></div>
+  </div>
+
+  <details class="acc" open>
+    <summary><span class="num">1</span> Anatomia di una JOIN <span class="chev">▶</span></summary>
+    <div class="acc-body">
+      <p>Ogni JOIN ha tre ingredienti:</p>
+      <p style="margin-top:8px">• <code>FROM Clienti</code> → la <strong>tabella di partenza</strong> (sinistra);<br>
+      • <code>INNER / LEFT / RIGHT / FULL OUTER / CROSS JOIN Ordini</code> → il <strong>tipo di collegamento</strong> e la seconda tabella (destra);<br>
+      • <code>ON Clienti.IDCliente = Ordini.IDCliente</code> → la <strong>condizione di join</strong>, quasi sempre un'uguaglianza tra PK e FK.</p>
+      <p style="margin-top:8px">Senza <code>ON</code> (o con una condizione sempre vera) ottieni un <strong>prodotto cartesiano</strong>: ogni riga con ogni riga. Di solito è un errore, non una feature!</p>
+    </div>
+  </details>
+  <details class="acc">
+    <summary><span class="num">2</span> Le 5 famiglie di JOIN in un sorso <span class="chev">▶</span></summary>
+    <div class="acc-body">
+      <p>• <code>INNER JOIN</code>: solo le righe che <strong>combaciano</strong> da entrambe le parti.<br>
+      • <code>LEFT JOIN</code>: <strong>tutte</strong> le righe della tabella di sinistra + le corrispondenti di destra (NULL se manca).<br>
+      • <code>RIGHT JOIN</code>: speculare, tutte quelle di destra.<br>
+      • <code>FULL OUTER JOIN</code>: tutte le righe di entrambe (in MySQL si simula con <code>UNION</code> di LEFT e RIGHT).<br>
+      • <code>CROSS JOIN</code>: prodotto cartesiano, m × n righe.</p>
+      <p style="margin-top:8px">Nel laboratorio qui sotto puoi vederle <strong>una per una</strong> sugli stessi dati.</p>
+    </div>
+  </details>
+  <details class="acc">
+    <summary><span class="num">3</span> ON ≠ WHERE: differenza sottile ma decisiva <span class="chev">▶</span></summary>
+    <div class="acc-body">
+      <p><code>ON</code> stabilisce <strong>come collegare</strong> le tabelle e viene valutato <em>mentre</em> si costruisce la join. <code>WHERE</code> filtra il risultato <strong>dopo</strong> che la join è stata fatta.</p>
+      <p style="margin-top:8px">Con una <code>LEFT JOIN</code>, filtrare <code>WHERE Ordini.IDOrdine IS NOT NULL</code> la trasforma di fatto in una INNER JOIN. Invece <code>WHERE Ordini.IDCliente IS NULL</code> è il trucco classico per trovare… <strong>chi non ha mai ordinato!</strong> (Lo proverai nelle sfide.)</p>
+    </div>
+  </details>
+  <details class="acc">
+    <summary><span class="num">4</span> E la SELF JOIN? <span class="chev">▶</span></summary>
+    <div class="acc-body">
+      <p>A volte una tabella va collegata <strong>con se stessa</strong>: es. <code>Dipendenti(ID, Nome, IDCapo)</code> dove <code>IDCapo</code> è FK verso la stessa tabella. Si usa un <strong>alias</strong>:</p>
+      <p style="margin-top:8px"><code>SELECT d.Nome, c.Nome AS Capo FROM Dipendenti d INNER JOIN Dipendenti c ON d.IDCapo = c.ID;</code></p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= DATABASE ================= -->
+<section id="database" class="reveal">
+  <h2 class="sec-title"><span class="pill">2 · I dati del laboratorio</span></h2>
+  <h2 class="sec-title">Il nostro mini-database aziendale</h2>
+  <p class="sec-sub">Due tabelle collegate dalla FK <code>Ordini.IDCliente → Clienti.IDCliente</code>. Occhio ai due "casi strani" (evidenziati): sono proprio quelli che rendono interessanti le JOIN!</p>
+
+  <div class="src-grid">
+    <div>
+      <div class="tbl-wrap">
+        <table class="data">
+          <caption class="cy">👥 Clienti</caption>
+          <thead><tr><th>IDCliente <span class="kbadge pk">PK 🔑</span></th><th>Nome</th><th>Città</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Mario Rossi</td><td>Milano</td></tr>
+            <tr><td>2</td><td>Anna Bianchi</td><td>Roma</td></tr>
+            <tr><td>3</td><td>Luca Verdi</td><td>Torino</td></tr>
+            <tr><td class="dirty">4</td><td class="dirty">Sara Neri ⚠️</td><td class="dirty">Napoli</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn">⚠️ <div><b>Sara Neri (ID 4)</b> non ha <b>nessun ordine</b>. Con una INNER JOIN… sparirebbe dal risultato!</div></div>
+    </div>
+    <div>
+      <div class="tbl-wrap">
+        <table class="data">
+          <caption class="am">📦 Ordini</caption>
+          <thead><tr><th>IDOrdine <span class="kbadge pk">PK 🔑</span></th><th>IDCliente <span class="kbadge fk">FK 🔗</span></th><th>Prodotto</th><th>Importo</th></tr></thead>
+          <tbody>
+            <tr><td>101</td><td>1</td><td>Laptop</td><td>850,00 €</td></tr>
+            <tr><td>102</td><td>1</td><td>Mouse</td><td>25,50 €</td></tr>
+            <tr><td>103</td><td>2</td><td>Monitor</td><td>220,00 €</td></tr>
+            <tr><td>104</td><td class="dirty">7 ⚠️</td><td>Tastiera</td><td>45,00 €</td></tr>
+            <tr><td>105</td><td>3</td><td>Webcam</td><td>59,90 €</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn">⚠️ <div>L'ordine <b>104</b> fa riferimento al cliente <b>ID 7</b>, che <b>non esiste</b> in Clienti: è un "dato sporco" (orfano). Le OUTER JOIN servono anche a stanarlo!</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LAB ================= -->
+<section id="lab" class="reveal">
+  <h2 class="sec-title"><span class="pill">3 · Laboratorio interattivo</span></h2>
+  <h2 class="sec-title">Scegli una JOIN e guarda cosa succede</h2>
+  <p class="sec-sub">Clicca un tipo di JOIN: il diagramma di Venn, la query SQL e la tabella risultato si aggiornano all'istante. <b style="color:var(--violet)">Passa il mouse sulle righe del risultato</b> per illuminare le righe di origine nelle due tabelle. Le righe "escluse" dalla JOIN compaiono sbarrate in rosso.</p>
+
+  <div class="lab-tabs" id="labTabs">
+    <button data-type="inner" class="active">INNER JOIN</button>
+    <button data-type="left">LEFT JOIN</button>
+    <button data-type="right">RIGHT JOIN</button>
+    <button data-type="full">FULL OUTER</button>
+    <button data-type="cross">CROSS JOIN</button>
+  </div>
+
+  <div class="lab-grid">
+    <div>
+      <div class="venn-card">
+        <div class="venn-labels"><span class="lc">Clienti</span><span class="rc">Ordini</span></div>
+        <svg class="venn" id="venn" data-state="inner" viewBox="0 0 260 215">
+          <g class="g-left"><circle class="c-left" cx="98" cy="110" r="66"/></g>
+          <g class="g-right"><circle class="c-right" cx="162" cy="110" r="66"/></g>
+          <path class="c-lens" d="M130,52.28 A66,66 0 0 1 130,167.72 A66,66 0 0 1 130,52.28 Z"/>
+          <g class="g-left">
+            <text class="vbadge" x="58" y="106">1</text>
+            <text class="vsub" x="58" y="120">solo cliente</text>
+          </g>
+          <text class="vbadge" x="130" y="106">4</text>
+          <text class="vsub" x="130" y="120">coppie</text>
+          <g class="g-right">
+            <text class="vbadge" x="202" y="106">1</text>
+            <text class="vsub" x="202" y="120">solo ordine</text>
+          </g>
+          <text class="cross-label" x="130" y="105">4 × 5 = 20</text>
+          <text class="cross-label" x="130" y="124" style="font-size:10px">righe, senza ON!</text>
+        </svg>
+        <div class="venn-desc" id="vennDesc"></div>
+      </div>
+      <div class="callout info" id="labNote" style="margin-top:16px"></div>
+    </div>
+
+    <div>
+      <div class="sql-card">
+        <div class="sql-head">
+          <span class="sql-title">Query generata</span>
+          <button class="copy-btn" id="copyBtn">📋 Copia SQL</button>
+        </div>
+        <pre id="labSql"></pre>
+      </div>
+
+      <div class="src-grid" style="margin-bottom:16px">
+        <div class="tbl-wrap" style="box-shadow:none">
+          <table class="data" id="labClienti"></table>
+        </div>
+        <div class="tbl-wrap" style="box-shadow:none">
+          <table class="data" id="labOrdini"></table>
+        </div>
+      </div>
+
+      <div class="res-head">
+        <h3>🧾 Tabella risultato</h3>
+        <span class="count-badge" id="labCount"></span>
+      </div>
+      <div class="res-scroll">
+        <table class="data" id="labResult"></table>
+      </div>
+      <p class="hint">💡 <b>Suggerimento:</b> le celle <span class="nullbadge">NULL</span> compaiono quando una riga "sopravvive" alla OUTER JOIN ma non ha corrispondenza nell'altra tabella. Nei compiti e alle interrogazioni, il NULL è la parola magica da citare!</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BUILDER ================= -->
+<section id="costruisci" class="reveal">
+  <h2 class="sec-title"><span class="pill">4 · Query builder</span></h2>
+  <h2 class="sec-title">Costruisci la tua query (dal vivo)</h2>
+  <p class="sec-sub">Scegli colonne, tipo di JOIN, condizione ON e filtro WHERE: la query SQL e il risultato si aggiornano mentre clicchi. Poi prova le tre sfide in basso e verifica se la tua soluzione funziona.</p>
+
+  <div class="builder">
+    <div class="card" style="cursor:default">
+      <div class="ctrl">
+        <label class="cl">1️⃣ Colonne nella SELECT <span style="font-weight:400;color:var(--muted)">(nessuna selezione = SELECT *)</span></label>
+        <div class="chips" id="bCols"></div>
+      </div>
+      <div class="ctrl">
+        <label class="cl">2️⃣ Tipo di JOIN — <span class="mono" style="color:var(--cyan)">FROM Clienti … JOIN Ordini</span></label>
+        <select class="sel" id="bType">
+          <option value="inner" selected>INNER JOIN</option>
+          <option value="left">LEFT JOIN</option>
+          <option value="right">RIGHT JOIN</option>
+          <option value="full">FULL OUTER JOIN</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label class="cl">3️⃣ Condizione ON</label>
+        <select class="sel" id="bOn">
+          <option value="IDCliente|IDCliente" selected>ON Clienti.IDCliente = Ordini.IDCliente</option>
+          <option value="IDCliente|IDOrdine">ON Clienti.IDCliente = Ordini.IDOrdine</option>
+          <option value="Città|Prodotto">ON Clienti.Città = Ordini.Prodotto</option>
+        </select>
+      </div>
+      <div class="ctrl" style="margin-bottom:0">
+        <label class="cl">4️⃣ Filtro WHERE (opzionale)</label>
+        <select class="sel" id="bWhere">
+          <option value="none" selected>— nessun filtro —</option>
+          <option value="importo">WHERE Ordini.Importo &gt; 100</option>
+          <option value="citta">WHERE Clienti.Città = 'Milano'</option>
+          <option value="isnull">WHERE Ordini.IDCliente IS NULL</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <div class="sql-card">
+        <div class="sql-head"><span class="sql-title">La tua query</span><button class="copy-btn" id="copyBtn2">📋 Copia SQL</button></div>
+        <pre id="bSql"></pre>
+      </div>
+      <div class="res-head">
+        <h3>Risultato</h3>
+        <span class="count-badge" id="bCount"></span>
+      </div>
+      <div class="res-scroll" style="max-height:300px">
+        <table class="data" id="bResult"></table>
+      </div>
+      <div id="bMsg"></div>
+    </div>
+  </div>
+
+  <h3 style="margin:34px 0 14px;font-size:1.15rem">🎯 Le tre sfide</h3>
+  <div class="grid g3">
+    <div class="challenge">
+      <b class="tit">Sfida 1 — Clienti "VIP"</b>
+      Elenca <u>nome e città</u> dei clienti insieme a <u>prodotto e importo</u> dei soli ordini <b style="color:var(--ink)">sopra i 100 €</b>.
+      <button onclick="risolviSfida(1,this)">💡 Mostrami la soluzione</button>
+      <div class="sol">Serve una <b>INNER JOIN</b> (solo righe combacianti) + <b>WHERE Ordini.Importo &gt; 100</b>. Risultato atteso: <b>2 righe</b> (Laptop e Monitor; il Mouse costa troppo poco).</div>
+    </div>
+    <div class="challenge">
+      <b class="tit">Sfida 2 — Chi non compra mai?</b>
+      Trova il <u>nome</u> dei clienti che <b style="color:var(--ink)">non hanno mai effettuato ordini</b>.
+      <button onclick="risolviSfida(2,this)">💡 Mostrami la soluzione</button>
+      <div class="sol"><b>LEFT JOIN</b> + <b>WHERE Ordini.IDCliente IS NULL</b>: è il trucco classico! La LEFT JOIN tiene Sara Neri con i campi ordine a NULL, il WHERE seleziona proprio quelle righe. Risultato atteso: <b>1 riga</b> (Sara Neri).</div>
+    </div>
+    <div class="challenge">
+      <b class="tit">Sfida 3 — Audit dei dati sporchi</b>
+      Mostra <u>tutti gli ordini</u> con i dati del cliente quando esiste, per <b style="color:var(--ink)">stanare l'ordine orfano</b>.
+      <button onclick="risolviSfida(3,this)">💡 Mostrami la soluzione</button>
+      <div class="sol"><b>RIGHT JOIN</b> (tutte le righe di Ordini): l'ordine 104 compare con <b>NULL</b> nei campi cliente → dato incoerente da segnalare! Risultato atteso: <b>5 righe</b>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section id="quiz" class="reveal">
+  <h2 class="sec-title"><span class="pill">5 · Mettiti alla prova</span></h2>
+  <h2 class="sec-title">Quiz: quanto ne sai ora di JOIN?</h2>
+  <p class="sec-sub">7 domande, una sola risposta corretta. Dopo ogni risposta leggi la spiegazione: vale più del punteggio!</p>
+
+  <div class="quiz-bar">
+    <div class="quiz-score">Punteggio: <span id="qScore">0</span> / <span id="qTot">7</span></div>
+    <div class="prog"><div class="prog-fill" id="qProg"></div></div>
+    <button class="btn-soft" onclick="resetQuiz()">↻ Ricomincia</button>
+  </div>
+  <div id="quizBox"></div>
+  <div class="quiz-final" id="quizFinal">
+    <h3 id="qfTitle"></h3>
+    <p id="qfMsg"></p>
+  </div>
+</section>
+
+<!-- ================= CHEATSHEET ================= -->
+<section id="schema" class="reveal">
+  <h2 class="sec-title"><span class="pill">6 · Da portare all'interrogazione</span></h2>
+  <h2 class="sec-title">Schema riassuntivo</h2>
+  <p class="sec-sub">Una riga per ogni JOIN: cosa resta nel risultato e come si scrive.</p>
+
+  <div class="tbl-wrap" style="margin-bottom:24px">
+    <table class="sheet">
+      <thead><tr><th>JOIN</th><th>Cosa restituisce</th><th>Quando si usa (esempio aziendale)</th></tr></thead>
+      <tbody>
+        <tr><td>INNER JOIN</td><td>Solo le righe che soddisfano la condizione <b>da entrambe</b> le tabelle.</td><td>"Clienti <i>che hanno</i> ordini" — elenchi puliti, la JOIN più usata.</td></tr>
+        <tr><td>LEFT JOIN</td><td>Tutte le righe della tabella di <b>sinistra</b>; <code>NULL</code> a destra se non c'è match.</td><td>"Tutti i clienti, <i>anche senza</i> ordini" — report completi.</td></tr>
+        <tr><td>RIGHT JOIN</td><td>Tutte le righe della tabella di <b>destra</b>; <code>NULL</code> a sinistra se non c'è match.</td><td>"Tutti gli ordini, anche orfani" — controllo qualità dei dati.</td></tr>
+        <tr><td>FULL OUTER JOIN</td><td>Tutte le righe di <b>entrambe</b> le tabelle, con NULL dove manca il match.</td><td>Riconciliazione completa. <b>MySQL non la supporta</b>: si simula con UNION.</td></tr>
+        <tr><td>CROSS JOIN</td><td>Prodotto cartesiano: <b>m × n</b> righe, nessuna condizione.</td><td>Combinatorie (taglie × colori); da sola quasi mai utile.</td></tr>
+        <tr><td>SELF JOIN</td><td>Una tabella unita a se stessa tramite <b>alias</b>.</td><td>Gerarchie: dipendente → capo, categoria → categoria padre.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid g2">
+    <div class="sql-card">
+      <div class="sql-head"><span class="sql-title">Sintassi base</span></div>
+      <pre id="sheetSql1"></pre>
+    </div>
+    <div class="sql-card">
+      <div class="sql-head"><span class="sql-title">FULL OUTER simulata in MySQL</span></div>
+      <pre id="sheetSql2"></pre>
+    </div>
+  </div>
+
+  <div class="callout ok" style="margin-top:24px">✅ <div><b>Regola d'oro:</b> in una JOIN l'uguaglianza nella <code>ON</code> è quasi sempre <b>PK della tabella "uno" = FK della tabella "molti"</b>. Se il risultato ha più righe del previsto o zero righe, controlla prima di tutto la condizione ON!</div></div>
+</section>
+
+</main>
+
+<footer>
+  <b>&gt;_ SQL JOIN Lab</b> · Pagina didattica interattiva per Sistemi Informativi Aziendali — Classe 5ª<br>
+  Database di esempio: Clienti &amp; Ordini · Realizzata per imparare facendo 🔬
+</footer>
+
+<script>
+/* ============================================================
+   DATI DEL LABORATORIO
+============================================================ */
+const DB = {
+  clienti: [
+    {IDCliente:1, Nome:"Mario Rossi",  Città:"Milano"},
+    {IDCliente:2, Nome:"Anna Bianchi", Città:"Roma"},
+    {IDCliente:3, Nome:"Luca Verdi",   Città:"Torino"},
+    {IDCliente:4, Nome:"Sara Neri",    Città:"Napoli"}
+  ],
+  ordini: [
+    {IDOrdine:101, IDCliente:1, Prodotto:"Laptop",   Importo:850.00},
+    {IDOrdine:102, IDCliente:1, Prodotto:"Mouse",    Importo:25.50},
+    {IDOrdine:103, IDCliente:2, Prodotto:"Monitor",  Importo:220.00},
+    {IDOrdine:104, IDCliente:7, Prodotto:"Tastiera", Importo:45.00},
+    {IDOrdine:105, IDCliente:3, Prodotto:"Webcam",   Importo:59.90}
+  ]
+};
+const fmtEuro = n => n.toFixed(2).replace('.', ',') + ' €';
+const defaultMatch = (c,o) => c.IDCliente === o.IDCliente;
+
+/* ============================================================
+   MOTORE JOIN  →  array di {ci, oi} (indici o null)
+============================================================ */
+function computeJoin(type, matchFn){
+  const C = DB.clienti, O = DB.ordini, rows = [], pairs = [];
+  const cHas = [], oHas = [];
+  C.forEach((c,ci)=>{
+    O.forEach((o,oi)=>{
+      if(matchFn(c,o)){ pairs.push([ci,oi]); cHas[ci]=true; oHas[oi]=true; }
+    });
+  });
+  if(type==='inner'){
+    pairs.forEach(p=>rows.push({ci:p[0], oi:p[1]}));
+  } else if(type==='left'){
+    C.forEach((c,ci)=>{
+      const ps = pairs.filter(p=>p[0]===ci);
+      if(ps.length) ps.forEach(p=>rows.push({ci:p[0], oi:p[1]}));
+      else rows.push({ci, oi:null});
+    });
+  } else if(type==='right'){
+    O.forEach((o,oi)=>{
+      const ps = pairs.filter(p=>p[1]===oi);
+      if(ps.length) ps.forEach(p=>rows.push({ci:p[0], oi:p[1]}));
+      else rows.push({ci:null, oi});
+    });
+  } else if(type==='full'){
+    C.forEach((c,ci)=>{
+      const ps = pairs.filter(p=>p[0]===ci);
+      if(ps.length) ps.forEach(p=>rows.push({ci:p[0], oi:p[1]}));
+      else rows.push({ci, oi:null});
+    });
+    O.forEach((o,oi)=>{ if(!oHas[oi]) rows.push({ci:null, oi}); });
+  } else if(type==='cross'){
+    C.forEach((c,ci)=>O.forEach((o,oi)=>rows.push({ci,oi})));
+  }
+  return {rows, matchCount: pairs.length};
+}
+
+/* ============================================================
+   SYNTAX HIGHLIGHTING SQL
+============================================================ */
+function hl(sql){
+  let s = sql.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s = s.replace(/\b(INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL OUTER JOIN|CROSS JOIN|UNION)\b/g,'<span class="k">$1</span>');
+  s = s.replace(/\b(SELECT|FROM|WHERE|ON|AS|AND|OR|IS|NOT|NULL|DISTINCT)\b/g,'<span class="k">$1</span>');
+  s = s.replace(/\b(Clienti|Ordini)\b/g,'<span class="t">$1</span>');
+  return s;
+}
+
+/* ============================================================
+   LABORATORIO
+============================================================ */
+const JOIN_META = {
+  inner:{
+    venn:'inner',
+    sql:`SELECT Clienti.*, Ordini.*
+FROM Clienti
+INNER JOIN Ordini
+  ON Clienti.IDCliente = Ordini.IDCliente;`,
+    desc:'<b>INNER JOIN</b>: nella "lente" centrale finiscono solo le righe che combaciano sulla condizione ON. Tutto il resto viene scartato.',
+    note:'🔍 <b>Osserva:</b> Sara Neri (nessun ordine) e l\'ordine 104 (cliente 7 inesistente) sono <b>esclusi</b> — le loro righe di origine appaiono sbarrate. Il risultato ha 4 righe: Mario Rossi compare due volte perché ha due ordini (relazione 1:N!).'
+  },
+  left:{
+    venn:'left',
+    sql:`SELECT Clienti.*, Ordini.*
+FROM Clienti
+LEFT JOIN Ordini
+  ON Clienti.IDCliente = Ordini.IDCliente;`,
+    desc:'<b>LEFT JOIN</b>: tutto il cerchio sinistro è incluso. Dove non c\'è corrispondenza a destra, le colonne di Ordini diventano NULL.',
+    note:'🔍 <b>Osserva:</b> Sara Neri ora <b>compare</b>, con celle <span class="nullbadge">NULL</span> lato ordini. L\'ordine orfano 104 invece resta escluso (è "solo destra"). 5 righe totali.'
+  },
+  right:{
+    venn:'right',
+    sql:`SELECT Clienti.*, Ordini.*
+FROM Clienti
+RIGHT JOIN Ordini
+  ON Clienti.IDCliente = Ordini.IDCliente;`,
+    desc:'<b>RIGHT JOIN</b>: tutto il cerchio destro è incluso; NULL nelle colonne di Clienti quando l\'ordine non ha un cliente corrispondente.',
+    note:'🔍 <b>Osserva:</b> l\'ordine 104 compare con NULL nei campi cliente → così si <b>stanano i dati sporchi</b>! Sara Neri invece sparisce. 5 righe totali.'
+  },
+  full:{
+    venn:'full',
+    sql:`SELECT Clienti.*, Ordini.*
+FROM Clienti
+FULL OUTER JOIN Ordini
+  ON Clienti.IDCliente = Ordini.IDCliente;`,
+    desc:'<b>FULL OUTER JOIN</b>: entrambi i cerchi sono inclusi. Nessuna riga va persa, da nessuna delle due parti.',
+    note:'🔍 <b>Osserva:</b> compaiono <b>sia</b> Sara Neri (NULL lato ordini) <b>sia</b> l\'ordine 104 (NULL lato cliente): 6 righe. ⚠️ MySQL non supporta questa sintassi: si simula con LEFT JOIN <code>UNION</code> RIGHT JOIN (vedi schema finale).'
+  },
+  cross:{
+    venn:'cross',
+    sql:`SELECT Clienti.*, Ordini.*
+FROM Clienti
+CROSS JOIN Ordini;`,
+    desc:'<b>CROSS JOIN</b>: nessun collegamento, nessun cerchio sovrapposto. Ogni riga di Clienti viene abbinata a <b>tutte</b> le righe di Ordini.',
+    note:'🔍 <b>Osserva:</b> 4 × 5 = <b>20 righe</b>, quasi tutte senza senso (Anna Bianchi con la Webcam di Luca…). Senza ON la JOIN degenera in prodotto cartesiano: negli esercizi è quasi sempre un errore!'
+  }
+};
+let labType = 'inner';
+
+function nullCell(){ return '<td><span class="nullbadge">NULL</span></td>'; }
+
+function renderLab(){
+  const meta = JOIN_META[labType];
+  document.querySelectorAll('#labTabs button').forEach(b=>b.classList.toggle('active', b.dataset.type===labType));
+  document.getElementById('venn').dataset.state = meta.venn;
+  document.getElementById('vennDesc').innerHTML = meta.desc;
+  document.getElementById('labNote').innerHTML = meta.note;
+  document.getElementById('labSql').innerHTML = hl(meta.sql);
+
+  const {rows} = computeJoin(labType, defaultMatch);
+  const usedC = new Set(rows.map(r=>r.ci).filter(i=>i!==null));
+  const usedO = new Set(rows.map(r=>r.oi).filter(i=>i!==null));
+
+  // tabelle sorgente interattive
+  let hc = '<caption class="cy">👥 Clienti</caption><thead><tr><th>ID</th><th>Nome</th><th>Città</th></tr></thead><tbody>';
+  DB.clienti.forEach((c,i)=>{
+    const ex = usedC.has(i) ? '' : ' esclusa';
+    hc += `<tr class="src-c${ex}" data-src="c" data-i="${i}"><td>${c.IDCliente}</td><td>${c.Nome}</td><td>${c.Città}</td></tr>`;
+  });
+  document.getElementById('labClienti').innerHTML = hc + '</tbody>';
+
+  let ho = '<caption class="am">📦 Ordini</caption><thead><tr><th>ID</th><th>IDCl.</th><th>Prodotto</th><th>Importo</th></tr></thead><tbody>';
+  DB.ordini.forEach((o,i)=>{
+    const ex = usedO.has(i) ? '' : ' esclusa';
+    ho += `<tr class="src-o${ex}" data-src="o" data-i="${i}"><td>${o.IDOrdine}</td><td>${o.IDCliente}</td><td>${o.Prodotto}</td><td>${fmtEuro(o.Importo)}</td></tr>`;
+  });
+  document.getElementById('labOrdini').innerHTML = ho + '</tbody>';
+
+  // tabella risultato
+  const head = `<thead><tr>
+    <th>IDCliente</th><th>Nome</th><th>Città</th>
+    <th>IDOrdine</th><th>IDCliente (FK)</th><th>Prodotto</th><th>Importo</th></tr></thead>`;
+  let hr = '<tbody>';
+  rows.forEach(r=>{
+    const c = r.ci!==null ? DB.clienti[r.ci] : null;
+    const o = r.oi!==null ? DB.ordini[r.oi] : null;
+    const hasNull = !c || !o;
+    hr += `<tr data-ci="${r.ci}" data-oi="${r.oi}" class="res-row${hasNull?' con-null':''}">`;
+    hr += c ? `<td>${c.IDCliente}</td><td>${c.Nome}</td><td>${c.Città}</td>` : nullCell()+nullCell()+nullCell();
+    hr += o ? `<td>${o.IDOrdine}</td><td>${o.IDCliente}</td><td>${o.Prodotto}</td><td>${fmtEuro(o.Importo)}</td>` : nullCell()+nullCell()+nullCell()+nullCell();
+    hr += '</tr>';
+  });
+  document.getElementById('labResult').innerHTML = head + hr + '</tbody>';
+  const cb = document.getElementById('labCount');
+  cb.textContent = rows.length + (rows.length===1 ? ' riga nel risultato' : ' righe nel risultato');
+  cb.classList.toggle('zero', rows.length===0);
+}
+
+document.getElementById('labTabs').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-type]');
+  if(!b) return;
+  labType = b.dataset.type;
+  renderLab();
+});
+
+/* ---- hover incrociato (delega) ---- */
+function clearHl(){
+  document.querySelectorAll('.hl-src,.hl-res').forEach(el=>el.classList.remove('hl-src','hl-res'));
+}
+document.addEventListener('mouseover', e=>{
+  const res = e.target.closest('#labResult tr.res-row');
+  if(res){
+    clearHl();
+    res.classList.add('hl-res');
+    const ci = res.dataset.ci, oi = res.dataset.oi;
+    if(ci!=='null') document.querySelectorAll(`#labClienti tr[data-i="${ci}"]`).forEach(t=>t.classList.add('hl-src'));
+    if(oi!=='null') document.querySelectorAll(`#labOrdini tr[data-i="${oi}"]`).forEach(t=>t.classList.add('hl-src'));
+    return;
+  }
+  const src = e.target.closest('tr[data-src]');
+  if(src && src.closest('#lab')){
+    clearHl();
+    src.classList.add('hl-src');
+    const s = src.dataset.src, i = src.dataset.i;
+    document.querySelectorAll('#labResult tr.res-row').forEach(tr=>{
+      if((s==='c' && tr.dataset.ci===i) || (s==='o' && tr.dataset.oi===i)) tr.classList.add('hl-res');
+    });
+  }
+});
+document.getElementById('lab').addEventListener('mouseleave', clearHl);
+
+/* ---- copia SQL ---- */
+function bindCopy(btnId, sqlId){
+  document.getElementById(btnId).addEventListener('click', ()=>{
+    const txt = document.getElementById(sqlId).innerText;
+    navigator.clipboard.writeText(txt).then(()=>{
+      const b = document.getElementById(btnId);
+      const old = b.textContent; b.textContent = '✅ Copiato!';
+      setTimeout(()=>b.textContent = old, 1500);
+    });
+  });
+}
+bindCopy('copyBtn','labSql');
+bindCopy('copyBtn2','bSql');
+
+/* ============================================================
+   QUERY BUILDER
+============================================================ */
+const COLS = [
+  {key:'c.IDCliente', label:'Clienti.IDCliente', get:(c,o)=>c && c.IDCliente},
+  {key:'c.Nome',      label:'Clienti.Nome',      get:(c,o)=>c && c.Nome},
+  {key:'c.Città',     label:'Clienti.Città',     get:(c,o)=>c && c.Città},
+  {key:'o.IDOrdine',  label:'Ordini.IDOrdine',   get:(c,o)=>o && o.IDOrdine},
+  {key:'o.IDCliente', label:'Ordini.IDCliente',  get:(c,o)=>o && o.IDCliente},
+  {key:'o.Prodotto',  label:'Ordini.Prodotto',   get:(c,o)=>o && o.Prodotto},
+  {key:'o.Importo',   label:'Ordini.Importo',    get:(c,o)=>o && fmtEuro(o.Importo)}
+];
+let selectedCols = new Set(COLS.map(x=>x.key));
+
+const WHERE_DEFS = {
+  none:   {label:'— nessun filtro —', sql:'', test:()=>true},
+  importo:{label:"WHERE Ordini.Importo > 100", sql:"WHERE Ordini.Importo > 100", test:(c,o)=>o && o.Importo>100},
+  citta:  {label:"WHERE Clienti.Città = 'Milano'", sql:"WHERE Clienti.Città = 'Milano'", test:(c,o)=>c && c.Città==='Milano'},
+  isnull: {label:'WHERE Ordini.IDCliente IS NULL', sql:'WHERE Ordini.IDCliente IS NULL', test:(c,o)=>!o}
+};
+const TYPE_SQL = {inner:'INNER JOIN', left:'LEFT JOIN', right:'RIGHT JOIN', full:'FULL OUTER JOIN'};
+
+function renderColChips(){
+  const box = document.getElementById('bCols');
+  box.innerHTML = '';
+  COLS.forEach(col=>{
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.textContent = col.label;
+    b.setAttribute('aria-pressed', selectedCols.has(col.key));
+    b.addEventListener('click', ()=>{
+      if(selectedCols.has(col.key)) selectedCols.delete(col.key); else selectedCols.add(col.key);
+      b.setAttribute('aria-pressed', selectedCols.has(col.key));
+      renderBuilder();
+    });
+    box.appendChild(b);
+  });
+}
+
+function renderBuilder(){
+  const type = document.getElementById('bType').value;
+  const [lc, rc] = document.getElementById('bOn').value.split('|');
+  const wk = document.getElementById('bWhere').value;
+  const matchFn = (c,o)=> c[lc] === o[rc];
+  const wDef = WHERE_DEFS[wk];
+
+  const {rows, matchCount} = computeJoin(type, matchFn);
+  const filtered = rows.filter(r=>{
+    const c = r.ci!==null ? DB.clienti[r.ci] : null;
+    const o = r.oi!==null ? DB.ordini[r.oi] : null;
+    return wDef.test(c,o);
+  });
+
+  // SQL
+  const cols = COLS.filter(x=>selectedCols.has(x.key));
+  const selList = cols.length ? cols.map(x=>x.label).join(',\n       ') : '*';
+  let sql = `SELECT ${selList}\nFROM Clienti\n${TYPE_SQL[type]} Ordini\n  ON Clienti.${lc} = Ordini.${rc}`;
+  if(wDef.sql) sql += `\n${wDef.sql}`;
+  sql += ';';
+  document.getElementById('bSql').innerHTML = hl(sql);
+
+  // risultato
+  const useCols = cols.length ? cols : COLS;
+  let h = '<thead><tr>' + useCols.map(x=>`<th>${x.label}</th>`).join('') + '</tr></thead><tbody>';
+  if(filtered.length===0){
+    h += `<tr><td colspan="${useCols.length}" style="text-align:center;color:var(--red);font-weight:700;padding:26px">∅ 0 righe restituite</td></tr>`;
+  } else {
+    filtered.forEach(r=>{
+      const c = r.ci!==null ? DB.clienti[r.ci] : null;
+      const o = r.oi!==null ? DB.ordini[r.oi] : null;
+      h += '<tr>' + useCols.map(x=>{
+        const v = x.get(c,o);
+        return v===null || v===undefined ? nullCell() : `<td>${v}</td>`;
+      }).join('') + '</tr>';
+    });
+  }
+  document.getElementById('bResult').innerHTML = h + '</tbody>';
+  const cb = document.getElementById('bCount');
+  cb.textContent = filtered.length + (filtered.length===1 ? ' riga' : ' righe');
+  cb.classList.toggle('zero', filtered.length===0);
+
+  // messaggi didattici
+  let msg = '';
+  if(matchCount===0){
+    msg = `<div class="callout warn">⚠️ <div><b>0 corrispondenze sulla ON!</b> Stai confrontando campi che non c'entrano nulla tra loro (<code>Clienti.${lc}</code> con <code>Ordini.${rc}</code>). Con una INNER JOIN il risultato è vuoto; con le OUTER JOIN ottieni solo NULL. La condizione giusta è <b>IDCliente = IDCliente</b> (PK = FK).</div></div>`;
+  } else if(wk==='isnull' && type==='inner'){
+    msg = `<div class="callout info">🤔 <div>Con una <b>INNER JOIN</b> il filtro <code>IS NULL</code> restituisce sempre 0 righe: le righe senza corrispondenza sono già state eliminate dalla JOIN. Prova con <b>LEFT JOIN</b>!</div></div>`;
+  } else if(wk==='isnull' && type==='left'){
+    msg = `<div class="callout ok">✅ <div>Complimenti: hai appena realizzato il pattern <b>"trova chi non ha corrispondenze"</b>, uno dei trucchi SQL più utili nella vita reale.</div></div>`;
+  } else if(wk==='isnull' && type==='right'){
+    msg = `<div class="callout info">🤔 <div>Con la RIGHT JOIN <code>Ordini.IDCliente IS NULL</code> non può mai essere vero (tutti gli ordini sono presenti). Il NULL che cerchi è quello dei <b>clienti</b>: prova la sfida 3!</div></div>`;
+  }
+  document.getElementById('bMsg').innerHTML = msg;
+}
+
+['bType','bOn','bWhere'].forEach(id=>document.getElementById(id).addEventListener('change', renderBuilder));
+
+function setCols(keys){
+  selectedCols = new Set(keys);
+  renderColChips();
+}
+function risolviSfida(n, btn){
+  const card = btn.closest('.challenge');
+  card.classList.toggle('open');
+  if(!card.classList.contains('open')) return;
+  if(n===1){
+    setCols(['c.Nome','c.Città','o.Prodotto','o.Importo']);
+    document.getElementById('bType').value='inner';
+    document.getElementById('bOn').value='IDCliente|IDCliente';
+    document.getElementById('bWhere').value='importo';
+  } else if(n===2){
+    setCols(['c.Nome']);
+    document.getElementById('bType').value='left';
+    document.getElementById('bOn').value='IDCliente|IDCliente';
+    document.getElementById('bWhere').value='isnull';
+  } else {
+    setCols(COLS.map(x=>x.key));
+    document.getElementById('bType').value='right';
+    document.getElementById('bOn').value='IDCliente|IDCliente';
+    document.getElementById('bWhere').value='none';
+  }
+  renderBuilder();
+  document.getElementById('costruisci').scrollIntoView({behavior:'smooth'});
+}
+
+/* ============================================================
+   QUIZ
+============================================================ */
+const QUIZ = [
+  {q:"Vuoi l'elenco di <b>tutti i clienti</b>, anche di quelli che non hanno mai ordinato, con i loro eventuali ordini. Quale JOIN usi?",
+   opts:["INNER JOIN","LEFT JOIN","CROSS JOIN","SELF JOIN"], a:1,
+   why:"La LEFT JOIN conserva tutte le righe della tabella di sinistra (Clienti): chi non ha ordini compare con NULL nei campi di Ordini."},
+  {q:"Che ruolo ha la clausola <code>ON</code> in una JOIN?",
+   opts:["Ordina le righe del risultato in modo crescente","Specifica la condizione di collegamento tra le tabelle","Sostituisce la SELECT","Rinomina le colonne delle tabelle"], a:1,
+   why:"ON definisce la condizione di join, tipicamente PK = FK: ad esempio Clienti.IDCliente = Ordini.IDCliente."},
+  {q:"Quante righe produce una <code>CROSS JOIN</code> tra una tabella da 4 righe e una da 5?",
+   opts:["9 righe","Al massimo 5 righe","20 righe","Dipende dalla condizione ON"], a:2,
+   why:"Il prodotto cartesiano genera m × n = 4 × 5 = 20 righe, e la CROSS JOIN non ha alcuna condizione ON."},
+  {q:"L'ordine 104 ha <code>IDCliente = 7</code>, ma il cliente 7 non esiste. Quale JOIN (con FROM Clienti) lo fa comparire nel risultato?",
+   opts:["INNER JOIN","LEFT JOIN","RIGHT JOIN","Nessuna JOIN può farlo"], a:2,
+   why:"La RIGHT JOIN conserva tutte le righe di Ordini: il 104 comparirà con NULL nei campi cliente. Così si individuano le incoerenze del database!"},
+  {q:"Nella query <code>SELECT * FROM Clienti LEFT JOIN Ordini ON Clienti.IDCliente = Ordini.IDCliente</code>, cosa contiene la riga di Sara Neri (nessun ordine)?",
+   opts:["Non compare mai nel risultato","I dati dell'ordine più recente","NULL in tutte le colonne di Ordini","Un errore di sintassi"], a:2,
+   why:"Nelle OUTER JOIN, quando manca la corrispondenza, le colonne dell'altra tabella sono riempite con NULL."},
+  {q:"Dopo una LEFT JOIN vuoi tenere <b>solo</b> i clienti senza ordini. Quale filtro WHERE usi?",
+   opts:["WHERE Ordini.IDCliente IS NULL","WHERE Ordini.IDCliente = 0","WHERE Clienti.IDCliente IS NULL","Non serve alcun filtro"], a:0,
+   why:"IS NULL sulle colonne della tabella destra 'cattura' proprio le righe senza corrispondenza: è il pattern classico per trovare chi non ha match."},
+  {q:"Cosa significa che <code>Ordini.IDCliente</code> è una <b>chiave esterna</b> (foreign key)?",
+   opts:["È la chiave primaria della tabella Ordini","È un campo che si riferisce alla chiave primaria di Clienti","È un campo generato automaticamente","È un campo che non può essere NULL"], a:1,
+   why:"La FK è il 'ponte' logico tra le tabelle: contiene valori presi dalla PK dell'altra tabella, ed è proprio il campo usato nella condizione ON della JOIN."}
+];
+let qScore = 0, qAnswered = 0;
+
+function renderQuiz(){
+  const box = document.getElementById('quizBox');
+  box.innerHTML = '';
+  QUIZ.forEach((item,qi)=>{
+    const card = document.createElement('div');
+    card.className = 'qcard';
+    card.innerHTML = `<div class="qnum">Domanda ${qi+1} di ${QUIZ.length}</div><div class="qtxt">${item.q}</div><div class="qopts"></div><div class="qwhy"></div>`;
+    const optsBox = card.querySelector('.qopts');
+    const whyBox = card.querySelector('.qwhy');
+    item.opts.forEach((opt,oi)=>{
+      const b = document.createElement('button');
+      b.className = 'qopt';
+      b.type = 'button';
+      b.textContent = opt;
+      b.addEventListener('click', ()=>{
+        if(card.dataset.done) return;
+        card.dataset.done = '1';
+        qAnswered++;
+        const correct = oi === item.a;
+        if(correct) qScore++;
+        optsBox.querySelectorAll('.qopt').forEach((btn,bi)=>{
+          btn.disabled = true;
+          if(bi === item.a) btn.classList.add('correct');
+          else if(bi === oi && !correct) btn.classList.add('wrong');
+        });
+        whyBox.className = 'qwhy show ' + (correct ? 'ok' : 'no');
+        whyBox.innerHTML = (correct ? '✅ <b>Corretto!</b> ' : '❌ <b>Non esattamente.</b> ') + item.why;
+        updateQuizBar();
+      });
+      optsBox.appendChild(b);
+    });
+    box.appendChild(card);
+  });
+  updateQuizBar();
+}
+function updateQuizBar(){
+  document.getElementById('qScore').textContent = qScore;
+  document.getElementById('qTot').textContent = QUIZ.length;
+  document.getElementById('qProg').style.width = (qAnswered/QUIZ.length*100) + '%';
+  const fin = document.getElementById('quizFinal');
+  if(qAnswered === QUIZ.length){
+    fin.classList.add('show');
+    const t = document.getElementById('qfTitle'), m = document.getElementById('qfMsg');
+    if(qScore === QUIZ.length){ t.textContent = `🏆 Perfetto: ${qScore}/${QUIZ.length}!`; m.textContent = "Padroneggi le JOIN: sei pronto per il database aziendale (e per l'interrogazione)."; }
+    else if(qScore >= 5){ t.textContent = `🎉 Ottimo: ${qScore}/${QUIZ.length}!`; m.textContent = "Ci sei quasi: rileggi le spiegazioni delle risposte sbagliate e riprova."; }
+    else if(qScore >= 3){ t.textContent = `👍 Buon inizio: ${qScore}/${QUIZ.length}`; m.textContent = "Torna al laboratorio e osserva di nuovo LEFT e RIGHT JOIN: i NULL sono la chiave!"; }
+    else { t.textContent = `📚 ${qScore}/${QUIZ.length} — serve un altro giro`; m.textContent = "Riparti dalla teoria e dal laboratorio: confronta INNER, LEFT e RIGHT sulle stesse righe, poi riprova il quiz."; }
+    fin.scrollIntoView({behavior:'smooth', block:'nearest'});
+  } else fin.classList.remove('show');
+}
+function resetQuiz(){
+  qScore = 0; qAnswered = 0;
+  renderQuiz();
+  document.getElementById('quiz').scrollIntoView({behavior:'smooth'});
+}
+
+/* ============================================================
+   SCHEMI FINALI
+============================================================ */
+document.getElementById('sheetSql1').innerHTML = hl(`SELECT c.Nome, o.Prodotto, o.Importo
+FROM Clienti AS c
+INNER JOIN Ordini AS o
+  ON c.IDCliente = o.IDCliente
+WHERE o.Importo > 100
+ORDER BY o.Importo DESC;`);
+document.getElementById('sheetSql2').innerHTML = hl(`SELECT * FROM Clienti
+LEFT JOIN Ordini
+  ON Clienti.IDCliente = Ordini.IDCliente
+UNION
+SELECT * FROM Clienti
+RIGHT JOIN Ordini
+  ON Clienti.IDCliente = Ordini.IDCliente;`);
+
+/* ============================================================
+   NAV: scrollspy + reveal
+============================================================ */
+const sections = [...document.querySelectorAll('main section')];
+const navLinks = [...document.querySelectorAll('nav a.nl')];
+const spy = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      navLinks.forEach(a=>a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id));
+    }
+  });
+},{rootMargin:'-40% 0px -55% 0px'});
+sections.forEach(s=>spy.observe(s));
+
+const rev = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); rev.unobserve(en.target);} });
+},{threshold:.06});
+document.querySelectorAll('.reveal').forEach(el=>rev.observe(el));
+
+/* ============================================================
+   INIT
+============================================================ */
+renderColChips();
+renderBuilder();
+renderLab();
+renderQuiz();
+</script>
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;right:16px;bottom:44px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:#0b1020;color:#fff;font:600 14px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;text-decoration:none;border:1px solid rgba(255,255,255,.25);box-shadow:0 6px 20px rgba(0,0,0,.35);">← Home</a>
+</body>
+</html>
