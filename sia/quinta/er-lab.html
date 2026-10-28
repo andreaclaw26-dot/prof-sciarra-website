@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ER·LAB — Diagrammi Entity-Relationship | 5ª SIA</title>
+<meta name="description" content="Percorso interattivo sui diagrammi ER (notazione di Chen) per la classe quinta di Sistemi Informativi Aziendali.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg0:#0a0f1e; --bg1:#0d1428; --panel:#111a33; --panel2:#0c1226;
+  --ink:#e9eef9; --mut:#a7b3cf; --dim:#66748f;
+  --line:rgba(126,155,224,.16); --line2:#26355c;
+  --cy:#3fd2ff; --am:#ffb454; --ro:#ff5d8f; --vi:#a88bfa; --gr:#3ddc97;
+  --dsp:'Chakra Petch',sans-serif; --body:'IBM Plex Sans',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body); color:var(--ink); background:var(--bg0);
+  background-image:
+    radial-gradient(900px 500px at 85% -5%, rgba(63,210,255,.10), transparent 60%),
+    radial-gradient(800px 600px at -10% 45%, rgba(255,180,84,.07), transparent 60%),
+    radial-gradient(700px 500px at 60% 110%, rgba(168,139,250,.08), transparent 60%);
+  overflow-x:hidden; line-height:1.6;
+}
+body::before{ /* griglia tecnica */
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(120,150,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120,150,255,.045) 1px, transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(ellipse at 50% 30%, #000 40%, transparent 90%);
+}
+#bgnet{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.8}
+::selection{background:var(--cy); color:#06121f}
+a{color:inherit}
+.wrap{max-width:1220px; margin:0 auto; padding:0 24px; position:relative; z-index:2}
+h1,h2,h3{font-family:var(--dsp)}
+p{color:#c4cee6}
+b,strong{color:#fff}
+u{text-decoration-color:var(--am); text-underline-offset:3px}
+
+/* ============ NAV ============ */
+nav{position:fixed; top:0; left:0; right:0; z-index:50; background:rgba(10,15,30,.9); backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
+.navin{max-width:1220px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:22px; height:58px}
+.brand{display:flex; align-items:center; gap:10px; font-family:var(--dsp); font-weight:700; letter-spacing:.06em; text-decoration:none; font-size:1.05rem}
+.brand svg{display:block; width:30px; height:30px; flex:0 0 auto}
+footer .brand svg{width:26px; height:26px}
+.brand small{font-family:var(--mono); font-size:.58rem; color:var(--dim); letter-spacing:.2em; display:block; font-weight:400}
+.navlinks{display:flex; gap:4px; margin-left:auto; overflow-x:auto; scrollbar-width:none}
+.navlinks::-webkit-scrollbar{display:none}
+.navlinks a{font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); text-decoration:none; padding:8px 11px; border:1px solid transparent; border-radius:4px; white-space:nowrap; transition:.25s}
+.navlinks a:hover{color:#fff; border-color:var(--line2)}
+.navlinks a.on{color:var(--cy); border-color:rgba(63,210,255,.4); background:rgba(63,210,255,.07)}
+#pbar{position:fixed; top:58px; left:0; height:2px; width:0; z-index:51; background:linear-gradient(90deg,var(--cy),var(--am),var(--ro))}
+
+/* ============ HERO ============ */
+.hero{padding:118px 0 60px; position:relative}
+.herogrid{display:grid; grid-template-columns:minmax(0,7fr) minmax(0,4fr); gap:40px; align-items:start; margin-bottom:34px}
+.kick{font-family:var(--mono); font-size:.7rem; letter-spacing:.22em; text-transform:uppercase; color:var(--ac,var(--cy)); display:flex; align-items:center; gap:10px}
+.kick::before{content:""; width:26px; height:2px; background:var(--ac,var(--cy))}
+h1{font-size:clamp(2.5rem,6.2vw,4.5rem); line-height:1.02; letter-spacing:.01em; margin:14px 0 18px; text-transform:uppercase}
+h1 .stroke{color:transparent; -webkit-text-stroke:1.6px var(--cy)}
+.hero p.lead{max-width:56ch; font-size:1.03rem; color:var(--mut)}
+.herometa{display:flex; flex-wrap:wrap; gap:10px; margin-top:20px}
+.tag{font-family:var(--mono); font-size:.64rem; letter-spacing:.1em; border:1px solid var(--line2); padding:5px 10px; color:var(--mut); border-radius:3px}
+.tag b{color:var(--am); font-weight:600}
+.herobtns{display:flex; gap:14px; margin-top:26px; flex-wrap:wrap}
+.btn{font-family:var(--dsp); text-transform:uppercase; letter-spacing:.1em; font-size:.76rem; font-weight:600; padding:.8em 1.3em; border:1px solid var(--ac,var(--cy)); color:var(--ac,var(--cy)); background:transparent; cursor:pointer; border-radius:4px; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:.25s}
+.btn:hover{transform:translateY(-2px); box-shadow:0 8px 24px -8px var(--ac,var(--cy))}
+.btn.pri{background:var(--ac,var(--cy)); color:#071120}
+.btn:disabled{opacity:.35; pointer-events:none}
+.indexcard{border:1px solid var(--line2); background:linear-gradient(180deg,#121b37,#0d1428); border-radius:8px; padding:20px; position:relative}
+.indexcard::before,.indexcard::after{content:""; position:absolute; width:14px; height:14px; border-color:var(--cy); border-style:solid}
+.indexcard::before{top:-1px; left:-1px; border-width:2px 0 0 2px}
+.indexcard::after{bottom:-1px; right:-1px; border-width:0 2px 2px 0}
+.indexcard h3{font-size:.72rem; font-family:var(--mono); letter-spacing:.2em; color:var(--cy); font-weight:600; margin-bottom:14px}
+.indexcard ol{list-style:none}
+.indexcard a{display:flex; gap:12px; align-items:baseline; padding:9px 6px; text-decoration:none; border-bottom:1px dashed var(--line); transition:.2s; border-radius:4px}
+.indexcard a:last-child{border-bottom:none}
+.indexcard a:hover{background:rgba(63,210,255,.06); transform:translateX(4px)}
+.indexcard .n{font-family:var(--mono); font-size:.65rem; color:var(--dim)}
+.indexcard .t{font-size:.86rem; color:#d5ddf0}
+.indexcard .d{margin-left:auto; color:var(--dim); font-size:.75rem}
+
+/* ============ DIAGRAM PANELS / SVG ============ */
+.panel{border:1px solid var(--line2); background:linear-gradient(180deg,#131c38 0%,#0e152b 100%); border-radius:10px; position:relative; box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.panel .labhead{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px dashed var(--line); font-family:var(--mono); font-size:.66rem; letter-spacing:.18em; color:var(--ac,var(--cy)); text-transform:uppercase}
+.led{width:7px; height:7px; border-radius:50%; background:var(--gr); box-shadow:0 0 8px var(--gr); animation:blink 2.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.labhead .hh{margin-left:auto; color:var(--dim); letter-spacing:.05em; text-transform:none}
+.panel .labbody{padding:18px}
+svg{width:100%; height:auto; display:block}
+svg text{font-family:var(--mono); fill:#e9eef9; user-select:none}
+svg .lbl{font-size:13px; font-weight:600}
+svg .lbls{font-size:12px}
+svg .sm{font-size:11px; fill:#93a1c2}
+svg .lk{stroke:#54648c; stroke-width:1.6}
+svg .ent{fill:#0f2138; stroke:var(--cy); stroke-width:2}
+svg .attr{fill:#241d0b; stroke:var(--am); stroke-width:2}
+svg .ass{fill:#2a1120; stroke:var(--ro); stroke-width:2}
+svg .isa{fill:#1c1533; stroke:var(--vi); stroke-width:2}
+svg .der{stroke-dasharray:6 5}
+svg .part{stroke-dasharray:4 4}
+svg .weak{stroke-width:2}
+[data-info]{cursor:help; transition:filter .2s}
+[data-info]:hover{filter:drop-shadow(0 0 8px rgba(63,210,255,.8))}
+.legendchips{display:flex; flex-wrap:wrap; gap:8px; padding:12px 16px; border-top:1px dashed var(--line)}
+.legendchips span{font-family:var(--mono); font-size:.62rem; letter-spacing:.06em; color:var(--mut); border:1px solid var(--line2); padding:4px 9px; border-radius:3px}
+.legendchips i{font-style:normal; margin-right:5px}
+.hero .anim .pop{animation:pop .6s both}
+@keyframes pop{from{opacity:0; transform:translateY(10px) scale(.94)} to{opacity:1; transform:none}}
+
+/* ============ SEZIONI ============ */
+.sec{padding:96px 0; position:relative}
+.sec .ghost{position:absolute; top:22px; right:2vw; font:700 clamp(5.5rem,13vw,10rem)/1 var(--dsp); color:transparent; -webkit-text-stroke:1px rgba(140,170,255,.09); user-select:none; pointer-events:none; z-index:0}
+.cols{display:grid; grid-template-columns:minmax(300px,5fr) minmax(0,7fr); gap:52px; align-items:start; position:relative; z-index:1}
+.cols.rev .labwrap{order:-1}
+h2{font-size:clamp(1.65rem,3vw,2.35rem); text-transform:uppercase; letter-spacing:.02em; margin:12px 0 6px; line-height:1.15}
+h2::after{content:""; display:block; width:64px; height:3px; background:var(--ac); margin-top:12px}
+.sub{font-family:var(--mono); font-size:.7rem; color:var(--dim); letter-spacing:.14em; margin-bottom:20px; text-transform:uppercase}
+.prose p{margin-bottom:14px; max-width:62ch}
+.prose p.small, .note p{font-size:.9rem}
+.note{border-left:3px solid var(--ac); background:color-mix(in srgb, var(--ac) 8%, transparent); padding:12px 16px; margin:18px 0; border-radius:0 6px 6px 0}
+.note .nt{font-family:var(--mono); font-size:.62rem; letter-spacing:.2em; color:var(--ac); display:block; margin-bottom:6px}
+.defs{display:grid; gap:10px; margin:18px 0}
+.def{border:1px solid var(--line2); background:rgba(13,20,40,.6); padding:11px 14px; border-radius:6px; display:flex; gap:14px; align-items:baseline}
+.def dt{font-family:var(--dsp); font-weight:600; font-size:.85rem; color:var(--ac); white-space:nowrap}
+.def dd{font-size:.86rem; color:var(--mut)}
+ol.rules{margin:14px 0 14px 4px; counter-reset:r; list-style:none}
+ol.rules li{counter-increment:r; position:relative; padding:8px 0 8px 44px; font-size:.9rem; color:#c4cee6; border-bottom:1px dashed var(--line)}
+ol.rules li::before{content:"R" counter(r); position:absolute; left:0; top:10px; font-family:var(--mono); font-size:.62rem; color:#08121f; background:var(--ac); padding:3px 6px; border-radius:3px; font-weight:600}
+
+/* lab generici */
+.lab{border:1px solid var(--line2); background:linear-gradient(180deg,#131c38,#0e152b); border-radius:10px; position:relative; box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.lab::before,.lab::after{content:""; position:absolute; width:16px; height:16px; border-color:var(--ac); border-style:solid; z-index:2}
+.lab::before{top:-1px; left:-1px; border-width:2px 0 0 2px}
+.lab::after{bottom:-1px; right:-1px; border-width:0 2px 2px 0}
+.lab .labhead{color:var(--ac)}
+.labbody{padding:18px}
+.seg{display:flex; gap:6px; flex-wrap:wrap}
+.seg button{font-family:var(--mono); font-size:.68rem; letter-spacing:.06em; padding:7px 12px; border:1px solid var(--line2); background:#0e1730; color:var(--mut); cursor:pointer; border-radius:4px; transition:.2s}
+.seg button:hover{border-color:var(--ac); color:#fff}
+.seg button.on{background:var(--ac); color:#081226; border-color:var(--ac); font-weight:600}
+.chip{font-family:var(--mono); font-size:.72rem; border:1px dashed #4a5a86; padding:7px 13px; border-radius:999px; cursor:pointer; background:#0e1730; color:#cdd7ee; transition:.2s; display:inline-flex; gap:8px; align-items:center}
+.chip em{font-style:normal; color:var(--dim); font-size:.62rem}
+.chip:hover{border-color:var(--am); transform:translateY(-2px)}
+.chip.sel{border:1px solid var(--am); box-shadow:0 0 0 3px rgba(255,180,84,.18); color:#fff}
+.chip.used{opacity:.3; pointer-events:none}
+.micro{font-family:var(--mono); font-size:.64rem; color:var(--dim); letter-spacing:.06em}
+.hint{font-size:.82rem; color:var(--mut)}
+.rowlbl{font-family:var(--mono); font-size:.62rem; letter-spacing:.18em; color:var(--dim); text-transform:uppercase; margin:14px 0 8px}
+
+/* ============ S1 PIPELINE ============ */
+.pipebox{border:1px solid var(--line); background:#0c1428; border-radius:8px; padding:18px; min-height:270px}
+.pipetag{display:inline-block; font-family:var(--mono); font-size:.6rem; letter-spacing:.2em; background:var(--cy); color:#06121f; padding:4px 9px; border-radius:3px; font-weight:600; margin-bottom:10px}
+.pipebox h4{font-family:var(--dsp); font-size:1.05rem; margin-bottom:8px}
+.pipebox .pipe-sub{font-size:.8rem; color:var(--dim); margin-top:10px}
+.pipebox pre{font-family:var(--mono); font-size:.76rem; line-height:1.8; background:#080e1e; border:1px solid var(--line); padding:14px; border-radius:6px; overflow-x:auto; color:#cfe4ff}
+.pipebox pre u{text-decoration-color:var(--am)}
+.pipebox .fk{color:var(--cy)}
+.pipenav{display:flex; align-items:center; gap:14px; margin-top:16px}
+.pipedots{display:flex; gap:8px; margin-left:auto}
+.pipedots i{width:26px; height:4px; background:var(--line2); border-radius:2px; transition:.3s}
+.pipedots i.on{background:var(--cy); box-shadow:0 0 8px rgba(63,210,255,.6)}
+
+/* ============ S2 CLASSIFICATORE ============ */
+.cats{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+.cats button{display:flex; flex-direction:column; align-items:center; gap:5px; font-family:var(--mono); font-size:.58rem; letter-spacing:.1em; padding:9px 11px; border:1px solid var(--line2); background:#0e1730; color:var(--mut); cursor:pointer; border-radius:6px; transition:.2s}
+.cats button:hover{border-color:var(--am); color:#fff; transform:translateY(-2px)}
+.cats svg{width:34px; height:20px}
+#pool{display:flex; flex-wrap:wrap; gap:9px}
+.d2acts{display:flex; gap:10px; margin-top:16px; align-items:center; flex-wrap:wrap}
+#d2msg{font-family:var(--mono); font-size:.7rem; margin-left:auto}
+svg .ok .main, svg .ok ellipse.main{stroke:var(--gr) !important}
+svg .bad .main{stroke:var(--ro) !important; stroke-width:3}
+
+/* ============ S3 CARDINALITÀ ============ */
+.l3grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.l3side{border:1px solid var(--line); border-radius:8px; padding:12px; background:#0c1428}
+.l3side h5{font-family:var(--dsp); font-size:.8rem; color:var(--ro); letter-spacing:.06em; margin-bottom:8px}
+.badge{font-family:var(--mono); font-size:.66rem; letter-spacing:.14em; padding:5px 10px; border-radius:3px; background:rgba(255,93,143,.12); border:1px solid rgba(255,93,143,.5); color:var(--ro)}
+.wire{stroke:rgba(63,210,255,.55); stroke-width:1.5; stroke-dasharray:5 7; animation:flow 1.1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-12}}
+.inst{fill:#0f2138; stroke:var(--cy); stroke-width:1.8}
+.inst2{fill:#241d0b; stroke:var(--am); stroke-width:1.8}
+.ghosti{fill:none; stroke:var(--dim); stroke-dasharray:3 3}
+.readout{display:grid; gap:8px; margin-top:14px}
+.readout div{font-size:.85rem; border:1px dashed var(--line2); padding:9px 12px; border-radius:6px; color:#c4cee6}
+.readout b{color:var(--ro); font-family:var(--mono); font-size:.72rem; letter-spacing:.1em}
+
+/* ============ S4 ============ */
+.tabs{display:flex; gap:8px; margin-bottom:16px}
+.tabs button{font-family:var(--dsp); font-size:.74rem; letter-spacing:.1em; text-transform:uppercase; padding:9px 16px; border:1px solid var(--line2); background:#0e1730; color:var(--mut); cursor:pointer; border-radius:4px; transition:.2s}
+.tabs button.on{background:var(--vi); border-color:var(--vi); color:#140b2e; font-weight:600}
+.hidden{display:none !important}
+.tgl{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0}
+#isaTxt,#weakTxt{font-size:.88rem; border-left:3px solid var(--vi); padding:8px 14px; background:rgba(168,139,250,.07); border-radius:0 6px 6px 0}
+.tester{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px}
+.tester .btn{font-size:.66rem}
+#testOut{font-size:.85rem; margin-top:12px; min-height:2.4em}
+
+/* ============ S5 CONVERSIONE ============ */
+.stephead{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
+.stephead .cnt{font-family:var(--mono); font-size:.66rem; color:var(--dim); letter-spacing:.14em}
+#stepTitle{font-family:var(--dsp); font-size:1rem; color:var(--gr)}
+#stepText{font-size:.88rem; color:var(--mut); min-height:5.2em; margin:8px 0 14px}
+.stepnav{display:flex; gap:10px}
+.tables{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; margin-top:16px}
+.tcard{border:1px solid #2a3a63; background:#0d152c; border-radius:6px; overflow:hidden; animation:pop .5s both}
+.tcard h6{font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; background:#182449; color:var(--gr); padding:7px 10px; border-bottom:1px solid #2a3a63}
+.tcard .fr{display:flex; justify-content:space-between; padding:5px 10px; font-family:var(--mono); font-size:.72rem; border-bottom:1px dashed rgba(126,155,224,.12); color:#cfd9ef}
+.tcard .fr.flash{background:rgba(61,220,151,.14); animation:flash 1.2s 2}
+@keyframes flash{50%{background:rgba(61,220,151,.35)}}
+.bdg{font-size:.55rem; padding:1px 6px; border-radius:2px; letter-spacing:.08em}
+.bdg.pk{background:var(--am); color:#241a05}
+.bdg.fk{background:var(--cy); color:#062130}
+#sqlPre{font-family:var(--mono); font-size:.72rem; line-height:1.7; background:#070d1c; border:1px solid #22335c; border-radius:6px; padding:14px; color:#bfe3ff; min-height:120px; overflow-x:auto; white-space:pre}
+.strat{margin-top:26px}
+.strat h4{font-family:var(--dsp); font-size:.95rem; letter-spacing:.04em; margin-bottom:4px}
+.stratcards{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:12px 0}
+.stratcards button{border:1px solid var(--line2); background:#0e1730; color:var(--mut); font-family:var(--mono); font-size:.64rem; letter-spacing:.08em; padding:10px; cursor:pointer; border-radius:6px; transition:.2s}
+.stratcards button.on{border-color:var(--vi); color:#fff; background:rgba(168,139,250,.12)}
+#stratBody{border:1px dashed var(--line2); border-radius:8px; padding:14px; font-size:.85rem}
+#stratBody pre{font-family:var(--mono); font-size:.72rem; line-height:1.8; background:#080e1e; padding:12px; border-radius:6px; margin:10px 0; overflow-x:auto; color:#cfe4ff}
+#stratBody .pc{display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:.78rem}
+#stratBody .pc b{display:block; font-family:var(--mono); font-size:.6rem; letter-spacing:.14em; margin-bottom:4px}
+#stratBody .pro b{color:var(--gr)} #stratBody .con b{color:var(--ro)}
+#stratBody li{margin-left:16px; color:var(--mut)}
+
+/* ============ QUIZ ============ */
+#quiz .labbody{min-height:420px}
+.qhead{display:flex; align-items:center; gap:14px; margin-bottom:16px}
+.qbar{flex:1; height:5px; background:var(--line2); border-radius:3px; overflow:hidden}
+.qbar i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--cy),var(--gr)); transition:.4s}
+.qcnt{font-family:var(--mono); font-size:.68rem; color:var(--dim); letter-spacing:.12em}
+.qtag{font-family:var(--mono); font-size:.56rem; letter-spacing:.18em; color:var(--cy); border:1px solid rgba(63,210,255,.4); padding:3px 8px; border-radius:3px}
+.qq{font-family:var(--dsp); font-size:1.2rem; line-height:1.4; margin:14px 0 18px}
+.opt{display:block; width:100%; text-align:left; padding:12px 15px; margin-bottom:9px; border:1px solid #2a3a63; background:#101a36; color:var(--ink); font-family:var(--body); font-size:.92rem; cursor:pointer; border-radius:6px; transition:.2s}
+.opt:hover{border-color:var(--cy); transform:translateX(4px)}
+.opt.ok{border-color:var(--gr); background:rgba(61,220,151,.13)}
+.opt.ko{border-color:var(--ro); background:rgba(255,93,143,.1)}
+.opt:disabled{cursor:default; transform:none}
+#qWhy{border-left:3px solid var(--gr); background:rgba(61,220,151,.08); padding:10px 14px; font-size:.86rem; border-radius:0 6px 6px 0; margin:12px 0}
+.qend{text-align:center; padding:20px 0}
+.ring{transform:rotate(-90deg); width:140px; height:140px; margin:0 auto}
+.ring .bgc{stroke:#1d2a4e; fill:none; stroke-width:8}
+.ring .fgc{stroke:var(--gr); fill:none; stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset 1.4s ease}
+.qend h4{font-size:1.5rem; margin-top:14px}
+.qend p{color:var(--mut); margin:8px 0 18px}
+
+/* ============ VARIE ============ */
+#tip{position:fixed; z-index:99; max-width:250px; background:#13244d; border:1px solid rgba(63,210,255,.55); color:#dce8ff; font-family:var(--mono); font-size:.68rem; line-height:1.5; padding:9px 12px; border-radius:6px; opacity:0; pointer-events:none; transition:opacity .15s; box-shadow:0 12px 30px rgba(0,0,0,.5)}
+#tip.on{opacity:1}
+#toast{position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px); background:#13244d; border:1px solid var(--cy); color:#fff; font-family:var(--mono); font-size:.72rem; padding:11px 18px; border-radius:6px; opacity:0; transition:.3s; z-index:98; pointer-events:none}
+#toast.show{opacity:1; transform:translateX(-50%)}
+#lgBtn{position:fixed; right:20px; bottom:20px; z-index:60; background:#122043; border:1px solid var(--am); color:var(--am); font-family:var(--dsp); font-size:.7rem; letter-spacing:.12em; padding:10px 15px; border-radius:6px; cursor:pointer; box-shadow:0 10px 26px rgba(0,0,0,.5); transition:.25s}
+#lgBtn:hover{transform:translateY(-3px)}
+#lgBack{position:fixed; inset:0; background:rgba(4,8,18,.75); z-index:70; opacity:0; pointer-events:none; transition:.3s}
+#lgBack.open{opacity:1; pointer-events:auto}
+#lgPanel{position:fixed; right:20px; bottom:70px; z-index:80; width:min(480px,92vw); max-height:72vh; overflow:auto; background:#101a37; border:1px solid var(--line2); border-radius:10px; padding:20px; transform:translateY(16px); opacity:0; pointer-events:none; transition:.3s}
+#lgPanel.open{transform:none; opacity:1; pointer-events:auto}
+#lgPanel h3{font-size:.8rem; font-family:var(--mono); letter-spacing:.2em; color:var(--am); margin-bottom:14px}
+.lgitem{display:flex; gap:14px; align-items:center; padding:7px 0; border-bottom:1px dashed var(--line)}
+.lgitem svg{width:56px; height:34px; flex:0 0 56px}
+.lgitem b{font-size:.82rem; display:block}
+.lgitem span{font-size:.74rem; color:var(--mut)}
+footer{border-top:1px solid var(--line); margin-top:40px; padding:44px 0 60px; position:relative; z-index:2}
+.foot{display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; align-items:flex-start}
+.foot p{font-size:.82rem; color:var(--dim); max-width:52ch}
+.foot .brand{margin-bottom:10px}
+.rv{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease}
+.rv.in{opacity:1; transform:none}
+
+@media (max-width:1020px){
+  .cols{grid-template-columns:1fr; gap:34px}
+  .cols.rev .labwrap{order:0}
+  .herogrid{grid-template-columns:1fr}
+  .l3grid{grid-template-columns:1fr}
+  .stratcards{grid-template-columns:1fr}
+  #stratBody .pc{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important; transition:none !important}
+  html{scroll-behavior:auto}
+  .rv{opacity:1; transform:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgnet"></canvas>
+
+<!-- ================= NAV ================= -->
+<nav>
+  <div class="navin">
+    <a class="brand" href="#top">
+      <svg width="30" height="30" viewBox="0 0 30 30"><rect x="2" y="17" width="11" height="9" fill="none" stroke="#3fd2ff" stroke-width="2"/><polygon points="21,3 28,10 21,17 14,10" fill="none" stroke="#ff5d8f" stroke-width="2"/><line x1="13" y1="21" x2="16" y2="13" stroke="#54648c" stroke-width="1.5"/></svg>
+      <span>ER·LAB<small>NOTAZIONE DI CHEN</small></span>
+    </a>
+    <div class="navlinks">
+      <a href="#s1">Modelli</a><a href="#s2">Entità</a><a href="#s3">Associazioni</a><a href="#s4">Deboli &amp; ISA</a><a href="#s5">Logico</a><a href="#quiz">Quiz</a>
+    </div>
+  </div>
+</nav>
+<div id="pbar"></div>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="herogrid">
+      <div class="rv in">
+        <p class="kick">U.d.A. BASI DI DATI · CLASSE 5ª · SISTEMI INFORMATIVI AZIENDALI</p>
+        <h1>Diagrammi<br><span class="stroke">Entity–Relationship</span></h1>
+        <p class="lead">Prima di scrivere una sola riga di SQL, il progettista <b>modella la realtà</b>. In questo laboratorio costruiamo passo passo il modello concettuale di una scuola — <b>studenti</b>, <b>corsi</b>, <b>docenti</b> — con la notazione di Chen, per poi tradurlo in tabelle relazionali.</p>
+        <div class="herometa">
+          <span class="tag">6 SEZIONI</span><span class="tag">6 DEMO INTERATTIVE</span><span class="tag">QUIZ FINALE · <b>8 DOMANDE</b></span><span class="tag">P. CHEN, 1976</span>
+        </div>
+        <div class="herobtns">
+          <a class="btn pri" href="#s1">▶ Inizia il percorso</a>
+          <a class="btn" href="#quiz">Salta al quiz</a>
+        </div>
+      </div>
+      <aside class="indexcard rv in" style="transition-delay:.15s">
+        <h3>// INDICE DEL PERCORSO</h3>
+        <ol>
+          <li><a href="#s1"><span class="n">01</span><span class="t">Il modello concettuale</span><span class="d">→</span></a></li>
+          <li><a href="#s2"><span class="n">02</span><span class="t">Entità e attributi</span><span class="d">→</span></a></li>
+          <li><a href="#s3"><span class="n">03</span><span class="t">Associazioni e cardinalità</span><span class="d">→</span></a></li>
+          <li><a href="#s4"><span class="n">04</span><span class="t">Entità deboli e generalizzazioni</span><span class="d">→</span></a></li>
+          <li><a href="#s5"><span class="n">05</span><span class="t">Dal concettuale al logico</span><span class="d">→</span></a></li>
+          <li><a href="#quiz"><span class="n">06</span><span class="t">Quiz di verifica</span><span class="d">8 q.</span></a></li>
+        </ol>
+      </aside>
+    </div>
+
+    <!-- Diagramma guida -->
+    <div class="panel rv in" style="transition-delay:.25s">
+      <div class="labhead"><span class="led"></span> DIAGRAMMA GUIDA // LA NOSTRA SCUOLA <span class="hh">passa il mouse sulle forme per la legenda</span></div>
+      <div class="labbody">
+        <svg viewBox="0 0 960 330" class="anim" role="img" aria-label="Diagramma ER della scuola">
+          <g class="lkwrap">
+            <line class="lk" x1="130" y1="220" x2="330" y2="220"/>
+            <line class="lk" x1="330" y1="220" x2="530" y2="220"/>
+            <line class="lk" x1="530" y1="220" x2="720" y2="220"/>
+            <line class="lk" x1="720" y1="220" x2="880" y2="220"/>
+            <line class="lk" x1="130" y1="196" x2="74" y2="104"/><line class="lk" x1="146" y1="196" x2="206" y2="112"/>
+            <line class="lk" x1="330" y1="178" x2="330" y2="110"/>
+            <line class="lk" x1="516" y1="196" x2="480" y2="108"/><line class="lk" x1="548" y1="196" x2="600" y2="116"/>
+            <line class="lk" x1="880" y1="196" x2="880" y2="110"/>
+          </g>
+          <g class="pop" style="animation-delay:.1s"><ellipse class="attr" cx="74" cy="84" rx="56" ry="24" data-info="matricola è l'attributo chiave di STUDENTE: identifica ogni studente. La sottolineatura indica la chiave."/><text class="lbls" x="74" y="89" text-anchor="middle">matricola</text><line x1="46" y1="98" x2="102" y2="98" stroke="#ffb454" stroke-width="1.6"/></g>
+          <g class="pop" style="animation-delay:.18s"><ellipse class="attr" cx="208" cy="92" rx="46" ry="23" data-info="Attributo semplice: descrive una proprietà elementare dell'entità."/><text class="lbls" x="208" y="97" text-anchor="middle">nome</text></g>
+          <g class="pop" style="animation-delay:.26s"><ellipse class="attr" cx="330" cy="86" rx="42" ry="24" data-info="Gli attributi possono appartenere alle ASSOCIAZIONI: il voto non è dello studente né del corso, ma della coppia (studente, corso)."/><text class="lbls" x="330" y="91" text-anchor="middle">voto</text></g>
+          <g class="pop" style="animation-delay:.34s"><ellipse class="attr" cx="474" cy="86" rx="56" ry="24" data-info="idCorso è la chiave di CORSO."/><text class="lbls" x="474" y="91" text-anchor="middle">idCorso</text><line x1="450" y1="100" x2="498" y2="100" stroke="#ffb454" stroke-width="1.6"/></g>
+          <g class="pop" style="animation-delay:.42s"><ellipse class="attr" cx="604" cy="94" rx="46" ry="23" data-info="Attributo semplice di CORSO."/><text class="lbls" x="604" y="99" text-anchor="middle">titolo</text></g>
+          <g class="pop" style="animation-delay:.5s"><ellipse class="attr" cx="880" cy="86" rx="40" ry="24" data-info="Il codice fiscale è la chiave di DOCENTE: un esempio di chiave 'naturale'."/><text class="lbls" x="880" y="91" text-anchor="middle">cf</text><line x1="863" y1="100" x2="897" y2="100" stroke="#ffb454" stroke-width="1.6"/></g>
+          <g class="pop" style="animation-delay:.05s"><rect class="ent" x="62" y="196" width="136" height="48" rx="3" data-info="RETTANGOLO = ENTITÀ: una classe di oggetti della realtà che vogliamo rappresentare (studenti, corsi, docenti…)."/><text class="lbl" x="130" y="226" text-anchor="middle">STUDENTE</text></g>
+          <g class="pop" style="animation-delay:.2s"><polygon class="ass" points="330,178 392,220 330,262 268,220" data-info="ROMBO = ASSOCIAZIONE: lega le istanze di due o più entità. Qui collega studenti e corsi."/><text class="lbls" x="330" y="225" text-anchor="middle">FREQUENTA</text></g>
+          <g class="pop" style="animation-delay:.3s"><rect class="ent" x="470" y="196" width="120" height="48" rx="3" data-info="Altra entità: i corsi attivati dalla scuola."/><text class="lbl" x="530" y="226" text-anchor="middle">CORSO</text></g>
+          <g class="pop" style="animation-delay:.4s"><polygon class="ass" points="720,178 782,220 720,262 658,220" data-info="Un'altra associazione: l'affidamento di un corso a un docente."/><text class="lbls" x="720" y="225" text-anchor="middle">INSEGNA</text></g>
+          <g class="pop" style="animation-delay:.5s"><rect class="ent" x="820" y="196" width="120" height="48" rx="3" data-info="Terza entità del nostro esempio-guida: i docenti."/><text class="lbl" x="880" y="226" text-anchor="middle">DOCENTE</text></g>
+          <g class="pop" style="animation-delay:.6s">
+            <text class="sm" x="215" y="205" text-anchor="middle" data-info="Cardinalità (min, max) lato STUDENTE: ogni studente frequenta da 1 a N corsi.">(1,N)</text>
+            <text class="sm" x="452" y="205" text-anchor="middle" data-info="Lato CORSO: un corso può avere da 0 a N studenti iscritti.">(0,N)</text>
+            <text class="sm" x="628" y="205" text-anchor="middle" data-info="Lato CORSO in INSEGNA: ogni corso ha esattamente 1 docente → (1,1).">(1,1)</text>
+            <text class="sm" x="808" y="205" text-anchor="middle" data-info="Lato DOCENTE: un docente può insegnare in 0…N corsi.">(0,N)</text>
+          </g>
+        </svg>
+      </div>
+      <div class="legendchips">
+        <span><i style="color:var(--cy)">▭</i>ENTITÀ</span><span><i style="color:var(--am)">⬭</i>ATTRIBUTO</span><span><i style="color:var(--ro)">◇</i>ASSOCIAZIONE</span><span><i style="color:var(--am)">a̲</i>CHIAVE</span><span><i style="color:var(--mut)">(min,max)</i>CARDINALITÀ</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ================= S1 ================= -->
+<section class="sec" id="s1" style="--ac:var(--cy)">
+  <span class="ghost">01</span>
+  <div class="cols">
+    <div class="prose rv">
+      <p class="kick">SEZIONE 01 // FONDAMENTI</p>
+      <h2>Il modello concettuale</h2>
+      <p class="sub">Dalla realtà all'informazione, senza pensare al DBMS</p>
+      <p>Un <b>dato</b> è un fatto grezzo (<code style="color:var(--am)">"7,5"</code>); un'<b>informazione</b> è un dato interpretato nel suo contesto (<code style="color:var(--am)">"7,5 è il voto di Maria in Informatica"</code>). Il compito del <b>Sistema Informativo Aziendale</b> è organizzare i dati perché diventino informazioni utili alle decisioni.</p>
+      <p>Il <b>modello concettuale</b> rappresenta la realtà di interesse tramite costrutti generali — <b>entità</b>, <b>associazioni</b>, <b>attributi</b> — ed è <b>indipendente dal DBMS</b>: si progetta prima di sapere se useremo MySQL, PostgreSQL o altro. Il modello ER (<i>Entity-Relationship</i>) fu proposto da <b>Peter Chen nel 1976</b> ed è ancora oggi lo standard didattico e professionale per la progettazione concettuale.</p>
+      <dl class="defs">
+        <div class="def"><dt>Dato</dt><dd>fatto elementare non interpretato</dd></div>
+        <div class="def"><dt>Informazione</dt><dd>dato + contesto + significato</dd></div>
+        <div class="def"><dt>Modello concettuale</dt><dd>rappresentazione della realtà secondo concetti, indipendente dalla tecnologia</dd></div>
+      </dl>
+      <div class="note"><span class="nt">// ARCHITETTURA ANSI-SPARC</span><p style="margin:0">La progettazione procede su tre livelli: <b>concettuale</b> (cosa rappresenta il mondo), <b>logico</b> (tabelle, chiavi, vincoli), <b>fisico</b> (indici, memorizzazione). Il diagramma ER vive al primo; il modello relazionale al secondo.</p></div>
+    </div>
+    <div class="labwrap rv" style="transition-delay:.12s">
+      <div class="lab">
+        <div class="labhead"><span class="led"></span> DEMO 01 · LA PIPELINE DI PROGETTAZIONE</div>
+        <div class="labbody">
+          <p class="hint">Attraversa i quattro livelli: dalla frase del dirigente scolastico fino al codice SQL. Usa i tasti <b>◀ ▶</b>.</p>
+          <div class="pipebox" id="pipeBody" style="margin-top:14px"></div>
+          <div class="pipenav">
+            <button class="btn" id="pipePrev">◀ Indietro</button>
+            <button class="btn pri" id="pipeNext">Avanti ▶</button>
+            <div class="pipedots" id="pipeDots"></div>
+          </div>
+          <p class="micro" id="pipeCount" style="margin-top:10px"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S2 ================= -->
+<section class="sec" id="s2" style="--ac:var(--am)">
+  <span class="ghost">02</span>
+  <div class="cols rev">
+    <div class="prose rv">
+      <p class="kick">SEZIONE 02 // I MATTONI</p>
+      <h2>Entità e attributi</h2>
+      <p class="sub">Rettangoli, ellissi e cinque modi di essere attributo</p>
+      <p>Un'<b>entità</b> è una classe di oggetti della realtà che ci interessa rappresentare e che possiede una propria identità: <b>STUDENTE</b>, <b>CORSO</b>, <b>DOCENTE</b>. Attenzione al lessico: l'entità è la <i>classe</i> (il concetto "studente"), mentre ogni singolo studente — Maria Rossi, matricola S001 — è un'<b>occorrenza</b> (o istanza).</p>
+      <p>Un <b>attributo</b> è una proprietà che associa a ogni occorrenza un valore preso in un <b>dominio</b> (l'insieme dei valori ammissibili: stringhe, date, numeri…). Gli attributi si classificano in:</p>
+      <dl class="defs">
+        <div class="def"><dt>Semplice</dt><dd>atomico, non ulteriormente scomponibile (nome)</dd></div>
+        <div class="def"><dt>Composto</dt><dd>scomponibile in componenti (indirizzo → via, CAP, città)</dd></div>
+        <div class="def"><dt>Multivalore</dt><dd>può assumere più valori per la stessa occorrenza (telefoni) → doppia ellissi</dd></div>
+        <div class="def"><dt>Derivato</dt><dd>calcolabile da altri attributi (età da dataNascita) → ellissi tratteggiata</dd></div>
+        <div class="def"><dt>Chiave</dt><dd>identifica univocamente ogni occorrenza → testo sottolineato</dd></div>
+      </dl>
+      <div class="note"><span class="nt">// REGOLA D'ORO</span><p style="margin:0">Un attributo <b>non è mai un'entità</b> finché non ha una propria identità, una storia da ricordare o relazioni proprie. "Telefono" è attributo; "Aula" — che va prenotata, ha una capienza, un piano — è entità.</p></div>
+    </div>
+    <div class="labwrap rv" style="transition-delay:.12s">
+      <div class="lab">
+        <div class="labhead"><span class="led"></span> DEMO 02 · CLASSIFICATORE DI ATTRIBUTI</div>
+        <div class="labbody">
+          <p class="hint"><b>Missione:</b> completa il ritratto ER di STUDENTE. Seleziona un attributo dal magazzino, poi scegli la categoria corretta: il diagramma si aggiornerà con la notazione giusta.</p>
+          <div id="pool" style="margin-top:12px"></div>
+          <div class="cats" id="cats">
+            <button data-cat="key"><svg viewBox="0 0 34 20"><ellipse cx="17" cy="10" rx="14" ry="7.5" fill="none" stroke="#ffb454" stroke-width="1.6"/><line x1="9" y1="13.5" x2="25" y2="13.5" stroke="#ffb454" stroke-width="1.4"/></svg>CHIAVE</button>
+            <button data-cat="simple"><svg viewBox="0 0 34 20"><ellipse cx="17" cy="10" rx="14" ry="7.5" fill="none" stroke="#ffb454" stroke-width="1.6"/></svg>SEMPLICE</button>
+            <button data-cat="multi"><svg viewBox="0 0 34 20"><ellipse cx="17" cy="10" rx="14" ry="7.5" fill="none" stroke="#ffb454" stroke-width="1.4"/><ellipse cx="17" cy="10" rx="10.5" ry="5" fill="none" stroke="#ffb454" stroke-width="1.4"/></svg>MULTIVALORE</button>
+            <button data-cat="derived"><svg viewBox="0 0 34 20"><ellipse cx="17" cy="10" rx="14" ry="7.5" fill="none" stroke="#ffb454" stroke-width="1.6" stroke-dasharray="4 3"/></svg>DERIVATO</button>
+            <button data-cat="comp"><svg viewBox="0 0 34 20"><ellipse cx="17" cy="7" rx="13" ry="6" fill="none" stroke="#ffb454" stroke-width="1.4"/><circle cx="10" cy="16.5" r="2.4" fill="none" stroke="#ffb454"/><circle cx="17" cy="17" r="2.4" fill="none" stroke="#ffb454"/><circle cx="24" cy="16.5" r="2.4" fill="none" stroke="#ffb454"/></svg>COMPOSTO</button>
+          </div>
+          <svg id="d2svg" viewBox="0 0 640 452" style="margin-top:10px">
+            <g id="d2lines"></g>
+            <g id="d2shapes">
+              <rect class="ent" x="245" y="196" width="150" height="52" rx="3" data-info="L'entità da completare: STUDENTE."/>
+              <text class="lbl" x="320" y="228" text-anchor="middle">STUDENTE</text>
+            </g>
+            <g id="d2attrs"></g>
+          </svg>
+          <div class="d2acts">
+            <button class="btn" id="d2Reset">↺ Reset</button>
+            <button class="btn pri" id="d2Check">Verifica ✔</button>
+            <span id="d2msg"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S3 ================= -->
+<section class="sec" id="s3" style="--ac:var(--ro)">
+  <span class="ghost">03</span>
+  <div class="cols">
+    <div class="prose rv">
+      <p class="kick">SEZIONE 03 // I LEGAMI</p>
+      <h2>Associazioni e cardinalità</h2>
+      <p class="sub">Il rombo che tiene insieme il mondo</p>
+      <p>Un'<b>associazione</b> (o relazione) è un legame logico tra due o più entità, rappresentato dal <b>rombo</b>. Ha un <b>grado</b>: binaria (STUDENTE–CORSO), ternaria… e può essere <b>ricorsiva</b> (un DIPENDENTE che "supervisiona" un altro DIPENDENTE). Anche le associazioni possono avere <b>attributi propri</b>: il <b>voto</b> non appartiene né a STUDENTE né a CORSO, ma alla coppia (studente, corso) che frequenta.</p>
+      <p>La <b>cardinalità</b> esprime, per ciascun lato dell'associazione, il numero <b>minimo</b> e <b>massimo</b> di occorrenze dell'altra entità associate a una occorrenza di questa. Si annota con la coppia <b>(min, max)</b>:</p>
+      <dl class="defs">
+        <div class="def"><dt>(1,1)</dt><dd>partecipazione obbligatoria ed esclusiva: esattamente una</dd></div>
+        <div class="def"><dt>(0,1)</dt><dd>partecipazione opzionale: al massimo una</dd></div>
+        <div class="def"><dt>(0,N) / (1,N)</dt><dd>una occorrenza si lega a molte: lato "molti"</dd></div>
+      </dl>
+      <p>Combinando i due massimi si ottiene la tipologia classica: <b>1:1</b> (CLASSE–AULA), <b>1:N</b> (DOCENTE–CORSO), <b>N:M</b> (STUDENTE–CORSO). Anticipazione preziosa: <b>il massimo = 1 da un lato è ciò che decide dove migreranno le chiavi esterne</b> nel modello logico.</p>
+      <div class="note"><span class="nt">// COME SI LEGGE</span><p style="margin:0">Sempre <b>nei due versi</b>: «ogni corso è insegnato da esattamente 1 docente» <i>e</i> «ogni docente insegna da 0 a N corsi». Se sai leggere la cardinalità in entrambi i versi, sai progettare.</p></div>
+    </div>
+    <div class="labwrap rv" style="transition-delay:.12s">
+      <div class="lab">
+        <div class="labhead"><span class="led"></span> DEMO 03 · LABORATORIO DI CARDINALITÀ</div>
+        <div class="labbody">
+          <p class="hint">Scegli uno scenario reale oppure regola <b>min</b> e <b>max</b> sui due lati: il diagramma e le istanze animate cambiano in tempo reale.</p>
+          <div class="seg" style="margin-top:12px">
+            <button data-p="nm" class="on">FREQUENTA · N:M</button>
+            <button data-p="1n">INSEGNA · 1:N</button>
+            <button data-p="11">OCCUPA · 1:1</button>
+          </div>
+          <svg id="d3svg" viewBox="0 0 640 372" style="margin-top:8px">
+            <line class="lk" x1="175" y1="150" x2="248" y2="150"/>
+            <line class="lk" x1="392" y1="150" x2="465" y2="150"/>
+            <g id="d3attrG"><line class="lk" x1="320" y1="108" x2="320" y2="118"/><ellipse class="attr" cx="320" cy="70" rx="40" ry="22"/><text class="lbls" x="320" y="75" text-anchor="middle">voto</text></g>
+            <rect class="ent" x="45" y="126" width="130" height="48" rx="3"/><text class="lbl" id="d3e1" x="110" y="156" text-anchor="middle">STUDENTE</text>
+            <rect class="ent" x="465" y="126" width="130" height="48" rx="3"/><text class="lbl" id="d3e2" x="530" y="156" text-anchor="middle">CORSO</text>
+            <polygon class="ass" points="320,108 392,150 320,192 248,150"/><text class="lbls" id="d3name" x="320" y="155" text-anchor="middle">FREQUENTA</text>
+            <text class="sm" id="d3lb1" x="206" y="136" text-anchor="middle">(1,N)</text>
+            <text class="sm" id="d3lb2" x="434" y="136" text-anchor="middle">(0,N)</text>
+            <text class="sm" x="110" y="240" text-anchor="middle">istanze di <tspan id="d3i1">STUDENTE</tspan></text>
+            <text class="sm" x="517" y="240" text-anchor="middle">istanze di <tspan id="d3i2">CORSO</tspan></text>
+            <g id="d3wires"></g>
+            <g id="d3inst"></g>
+          </svg>
+          <div class="l3grid">
+            <div class="l3side"><h5 id="d3h1">LATO STUDENTE</h5>
+              <div class="rowlbl" style="margin-top:0">min</div><div class="seg" id="seg1min"></div>
+              <div class="rowlbl">max</div><div class="seg" id="seg1max"></div>
+            </div>
+            <div class="l3side"><h5 id="d3h2">LATO CORSO</h5>
+              <div class="rowlbl" style="margin-top:0">min</div><div class="seg" id="seg2min"></div>
+              <div class="rowlbl">max</div><div class="seg" id="seg2max"></div>
+            </div>
+          </div>
+          <div class="readout">
+            <div><b>VERSO 1 →</b> <span id="d3r1"></span></div>
+            <div><b>VERSO 2 →</b> <span id="d3r2"></span></div>
+            <div style="display:flex; gap:12px; align-items:center; border:none; padding:4px 0"><span class="badge" id="d3cls"></span><span class="micro" id="d3note"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S4 ================= -->
+<section class="sec" id="s4" style="--ac:var(--vi)">
+  <span class="ghost">04</span>
+  <div class="cols rev">
+    <div class="prose rv">
+      <p class="kick">SEZIONE 04 // CASI SPECIALI</p>
+      <h2>Entità deboli e generalizzazioni</h2>
+      <p class="sub">Quando un'entità non basta a sé stessa — e quando invece conviene raggruppare</p>
+      <p>Un'<b>entità debole</b> non possiede una chiave propria sufficiente a identificarne le occorrenze: esiste solo <b>in dipendenza</b> da un'<b>entità forte</b> (o dominante). Si disegna con il <b>doppio rettangolo</b>; l'<b>associazione identificante</b> ha il <b>doppio rombo</b>; la <b>chiave parziale</b> (discriminante) si sottolinea con linea <b>tratteggiata</b>.</p>
+      <p><b>Esempio:</b> LEZIONE — la "lezione n. 3" di per sé non dice nulla: esiste una lezione 3 di Informatica <i>e</i> una di Matematica. Serve la coppia <b>(idCorso, numero)</b>.</p>
+      <p>La <b>generalizzazione</b> è il meccanismo inverso: fattura proprietà comuni in una <b>superclasse</b> (PERSONA) lasciando alle <b>sottoclassi</b> (STUDENTE, DOCENTE) quelle specifiche. Le sottoclassi <b>ereditano</b> attributi e partecipazioni della superclasse. Due vincoli la governano:</p>
+      <dl class="defs">
+        <div class="def"><dt>Totale / Parziale</dt><dd>ogni istanza della madre appartiene ad almeno una figlia / oppure no</dd></div>
+        <div class="def"><dt>Esclusiva / Sovrapposta</dt><dd>appartiene al massimo a una figlia / può appartenere a più figlie</dd></div>
+      </dl>
+      <div class="note"><span class="nt">// SOVRAPPOSIZIONE REALISTICA</span><p style="margin:0">Uno <b>studente con una supplenza</b> è contemporaneamente STUDENTE e DOCENTE: per questo i vincoli vanno dichiarati esplicitamente, non improvvisati.</p></div>
+    </div>
+    <div class="labwrap rv" style="transition-delay:.12s">
+      <div class="lab">
+        <div class="labhead"><span class="led"></span> DEMO 04 · ESPLORATORE DEBOLI / ISA</div>
+        <div class="labbody">
+          <div class="tabs">
+            <button id="tabWeak" class="on">◈ Entità debole</button>
+            <button id="tabIsa">△ Generalizzazione</button>
+          </div>
+
+          <div id="weakWrap">
+            <svg viewBox="0 0 720 320">
+              <line class="lk" x1="110" y1="150" x2="300" y2="150"/><line class="lk" x1="380" y1="150" x2="480" y2="150"/>
+              <line class="lk" x1="110" y1="128" x2="110" y2="88"/><line class="lk" x1="545" y1="128" x2="545" y2="92"/>
+              <line class="lk" x1="585" y1="140" x2="646" y2="96"/><line class="lk" x1="592" y1="160" x2="650" y2="212"/>
+              <ellipse class="attr" cx="110" cy="66" rx="52" ry="22" data-info="Chiave (sottolineata) dell'entità forte CORSO."/><text class="lbls" x="110" y="71" text-anchor="middle">idCorso</text><line x1="86" y1="80" x2="134" y2="80" stroke="#ffb454" stroke-width="1.6"/>
+              <rect class="ent" x="50" y="128" width="120" height="44" rx="3" data-info="Entità FORTE: ha una chiave propria."/><text class="lbl" x="110" y="156" text-anchor="middle">CORSO</text>
+              <polygon class="ass" points="340,108 402,150 340,192 278,150" data-info="Associazione IDENTIFICANTE: doppio rombo."/><polygon class="ass" points="340,116 390,150 340,184 290,150" fill="none"/><text class="lbls" x="340" y="155" text-anchor="middle">HA</text>
+              <rect class="ent weak" x="480" y="128" width="130" height="44" rx="3" data-info="Entità DEBOLE: doppio rettangolo. Senza CORSO non è identificabile."/><rect class="ent weak" x="486" y="134" width="118" height="32" rx="2" fill="none"/><text class="lbl" x="545" y="156" text-anchor="middle">LEZIONE</text>
+              <ellipse class="attr" cx="545" cy="70" rx="50" ry="22" data-info="Chiave PARZIALE: identifica la lezione solo DENTRO un corso. Sottolineatura tratteggiata."/><text class="lbls" x="545" y="75" text-anchor="middle">numero</text><line x1="522" y1="84" x2="568" y2="84" stroke="#ffb454" stroke-width="1.6" stroke-dasharray="4 3"/>
+              <ellipse class="attr" cx="662" cy="80" rx="38" ry="20"/><text class="lbls" x="662" y="85" text-anchor="middle">data</text>
+              <ellipse class="attr" cx="666" cy="226" rx="34" ry="20"/><text class="lbls" x="666" y="231" text-anchor="middle">ora</text>
+              <text class="sm" x="428" y="136" text-anchor="middle">(1,1)</text>
+              <text class="sm" x="222" y="136" text-anchor="middle">(1,N)</text>
+            </svg>
+            <p id="weakTxt">Ogni LEZIONE appartiene a <b>esattamente un</b> CORSO (1,1); ogni corso ha <b>da 1 a N</b> lezioni.</p>
+            <div class="rowlbl">Prova l'identità — due corsi hanno entrambi la lezione n. 3:</div>
+            <div class="tester">
+              <button class="btn" id="tSolo">Cerca con solo numero = 3</button>
+              <button class="btn pri" id="tPair">Cerca con (corso + numero)</button>
+              <button class="btn" id="tReset" style="border-color:var(--line2); color:var(--mut)">↺</button>
+            </div>
+            <p id="testOut" class="micro"></p>
+          </div>
+
+          <div id="isaWrap" class="hidden">
+            <svg viewBox="0 0 720 330">
+              <line id="isaLine" class="lk" x1="360" y1="92" x2="360" y2="128"/>
+              <line id="isaLine2" class="lk" x1="366" y1="92" x2="366" y2="128" style="display:none"/>
+              <line class="lk" x1="320" y1="192" x2="238" y2="238"/>
+              <line class="lk" x1="400" y1="192" x2="482" y2="238"/>
+              <rect class="ent" x="290" y="48" width="140" height="44" rx="3" data-info="SUPERCLASSE (madre): PERSONA."/><text class="lbl" x="360" y="76" text-anchor="middle">PERSONA</text>
+              <polygon class="isa" points="360,128 424,192 296,192" data-info="Triangolo ISA: la generalizzazione. Le figlie ereditano tutto dalla madre."/><text class="lbl" x="360" y="182" text-anchor="middle" style="fill:var(--vi)">ISA</text>
+              <rect class="ent" x="150" y="238" width="150" height="44" rx="3" data-info="SOTTOCLASSE: eredita gli attributi di PERSONA e aggiunge matricola, classe…"/><text class="lbl" x="225" y="266" text-anchor="middle">STUDENTE</text>
+              <rect class="ent" x="420" y="238" width="150" height="44" rx="3" data-info="SOTTOCLASSE: eredita da PERSONA e aggiunge materia, cattedra…"/><text class="lbl" x="495" y="266" text-anchor="middle">DOCENTE</text>
+              <text class="sm" x="205" y="316" text-anchor="middle" fill="#7f8db0">+ matricola, classe…</text>
+              <text class="sm" x="505" y="316" text-anchor="middle" fill="#7f8db0">+ materia, cattedra…</text>
+            </svg>
+            <div class="tgl">
+              <div class="seg" id="isaCov"><button data-v="tot" class="on">TOTALIZZANTE</button><button data-v="par">PARZIALE</button></div>
+              <div class="seg" id="isaExc"><button data-v="exc" class="on">ESCLUSIVA</button><button data-v="ovr">SOVRAPPOSTA</button></div>
+            </div>
+            <p class="micro" style="margin-bottom:8px">⬤ linea doppia madre→triangolo = totalizzante · linea singola = parziale</p>
+            <p id="isaTxt"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S5 ================= -->
+<section class="sec" id="s5" style="--ac:var(--gr)">
+  <span class="ghost">05</span>
+  <div class="cols">
+    <div class="prose rv">
+      <p class="kick">SEZIONE 05 // IL TRAGHETTO</p>
+      <h2>Dal concettuale al logico</h2>
+      <p class="sub">Le regole di conversione al modello relazionale</p>
+      <p>Il modello concettuale non si esegue: va <b>tradotto</b> nel <b>modello logico relazionale</b>, dove tutto è <b>tabella</b> (relazione), colonna (attributo), riga (occorrenza). La traduzione segue regole precise che garantiscono di non perdere informazione e di rispettare i <b>vincoli di integrità</b> (chiave, riferimento).</p>
+      <ol class="rules">
+        <li><b>Entità → tabella.</b> Ogni attributo diventa colonna; la chiave diventa <b>PRIMARY KEY</b>.</li>
+        <li><b>Associazione 1:N → foreign key.</b> La chiave della parte "1" migra nella tabella che partecipa con <b>massimo = 1</b>. Niente nuova tabella.</li>
+        <li><b>Associazione N:M → nuova tabella.</b> Le chiavi delle due entità diventano FK e, insieme, la <b>PK composta</b>; gli attributi dell'associazione (voto!) migrano qui.</li>
+        <li><b>Entità debole → fusione o PK composta.</b> La chiave parziale si unisce alla chiave della dominante.</li>
+        <li><b>Generalizzazione → tre strategie</b> (accentramento, madre+figlie, solo figlie), da scegliere in base alle interrogazioni previste.</li>
+      </ol>
+      <p>Perché la N:M <b>esige</b> una tabella propria? Prova a mettere il voto in STUDENTE: Maria frequenta 4 corsi, quale voto scrivi? E in CORSO: Informatica ha 25 studenti… Il voto appartiene alla <b>coppia</b>, e una coppia si rappresenta con una tabella che ha le due chiavi.</p>
+    </div>
+    <div class="labwrap rv" style="transition-delay:.12s">
+      <div class="lab">
+        <div class="labhead"><span class="led"></span> DEMO 05 · MACCHINA DI CONVERSIONE ER → RELAZIONALE</div>
+        <div class="labbody">
+          <svg id="d5svg" viewBox="0 0 780 250">
+            <line class="lk" x1="160" y1="150" x2="198" y2="150"/><line class="lk" x1="312" y1="150" x2="355" y2="150"/>
+            <line class="lk" x1="465" y1="150" x2="488" y2="150"/><line class="lk" x1="602" y1="150" x2="640" y2="150"/>
+            <line class="lk" x1="255" y1="112" x2="255" y2="86"/>
+            <g id="gStud"><rect class="ent" x="40" y="128" width="120" height="44" rx="3"/><text class="lbl" x="100" y="156" text-anchor="middle">STUDENTE</text></g>
+            <g id="gFreq"><ellipse class="attr" cx="255" cy="64" rx="38" ry="20"/><text class="lbls" x="255" y="69" text-anchor="middle">voto</text><polygon class="ass" points="255,112 312,150 255,188 198,150"/><text class="lbls" x="255" y="155" text-anchor="middle">FREQUENTA</text></g>
+            <g id="gCorso"><rect class="ent" x="355" y="128" width="110" height="44" rx="3"/><text class="lbl" x="410" y="156" text-anchor="middle">CORSO</text></g>
+            <g id="gIns"><polygon class="ass" points="545,112 602,150 545,188 488,150"/><text class="lbls" x="545" y="155" text-anchor="middle">INSEGNA</text></g>
+            <g id="gDoc"><rect class="ent" x="640" y="128" width="120" height="44" rx="3"/><text class="lbl" x="700" y="156" text-anchor="middle">DOCENTE</text></g>
+            <text class="sm" x="180" y="136" text-anchor="middle">(1,N)</text>
+            <text class="sm" x="336" y="136" text-anchor="middle">(0,N)</text>
+            <text class="sm" x="478" y="136" text-anchor="middle">(1,1)</text>
+            <text class="sm" x="622" y="136" text-anchor="middle">(0,N)</text>
+          </svg>
+          <div class="stephead"><span id="stepTitle">—</span><span class="cnt" id="stepCnt"></span></div>
+          <p id="stepText"></p>
+          <div class="stepnav"><button class="btn" id="stPrev">◀</button><button class="btn pri" id="stNext">Avanti ▶</button></div>
+          <div class="tables" id="tablesWrap"></div>
+          <div id="sqlBox" class="hidden" style="margin-top:16px">
+            <div class="rowlbl">Output fisico — CREATE TABLE</div>
+            <pre id="sqlPre"></pre>
+            <button class="btn" id="btnCopy" style="margin-top:10px">⧉ Copia SQL</button>
+          </div>
+
+          <div class="strat">
+            <h4 style="color:var(--vi)">△ E la generalizzazione? Tre strategie di conversione</h4>
+            <div class="stratcards">
+              <button data-s="0" class="on">A · ACCENTRAMENTO</button>
+              <button data-s="1">B · MADRE + FIGLIE</button>
+              <button data-s="2">C · SOLO FIGLIE</button>
+            </div>
+            <div id="stratBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="sec" id="quiz" style="--ac:var(--cy)">
+  <span class="ghost">06</span>
+  <div class="cols">
+    <div class="prose rv">
+      <p class="kick">SEZIONE 06 // VERIFICA</p>
+      <h2>Quiz finale</h2>
+      <p class="sub">8 domande · feedback immediato · spiegazione inclusa</p>
+      <p>Otto domande su tutto il percorso: notazione, cardinalità, entità deboli, generalizzazioni e regole di conversione. Ogni risposta sbagliata viene <b>spiegata</b>, perché l'errore è il punto migliore da cui ripartire.</p>
+      <div class="note"><span class="nt">// OBIETTIVO</span><p style="margin:0">Punteggio pieno = <b>10 e lode</b>. Sotto le 6 risposte esatte, il sistema ti suggerirà cosa ripassare. Niente ansia: si può ripetere all'infinito (è solo una tabella… <i>senza vincoli di unicità</i>).</p></div>
+    </div>
+    <div class="labwrap rv" style="transition-delay:.12s">
+      <div class="lab">
+        <div class="labhead"><span class="led"></span> VERIFICA // QUIZ-ER v1.0</div>
+        <div class="labbody" id="quizBody"></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <a class="brand" href="#top"><svg width="26" height="26" viewBox="0 0 30 30"><rect x="2" y="17" width="11" height="9" fill="none" stroke="#3fd2ff" stroke-width="2"/><polygon points="21,3 28,10 21,17 14,10" fill="none" stroke="#ff5d8f" stroke-width="2"/></svg><span>ER·LAB</span></a>
+      <p>Percorso didattico sul <b>modello concettuale Entity-Relationship</b> (notazione di Chen) per la classe quinta — Sistemi Informativi Aziendali. Esempio guida: studenti, corsi e docenti della nostra scuola.</p>
+    </div>
+    <div>
+      <p class="micro" style="margin-bottom:8px">SIMBOLI USATI</p>
+      <p class="micro">▭ entità · ⬭ attributo · a̲ chiave · ⬮ multivalore · ◌ der. · ◇ associazione · ◈ debole · △ ISA · (min,max) cardinalità</p>
+      <p class="micro" style="margin-top:14px">A.S. 2026/27 · File unico HTML+CSS+JS, senza librerie.</p>
+    </div>
+  </div>
+</footer>
+
+<button id="lgBtn">◆ LEGENDA</button>
+<div id="lgBack"></div>
+<div id="lgPanel">
+  <h3>▚ LEGENDA DI CHEN</h3>
+  <div id="lgList"></div>
+</div>
+<div id="tip"></div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const NS="http://www.w3.org/2000/svg";
+const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- sfondo: rete di nodi ---------- */
+(function(){
+  const cv=$("#bgnet"),ctx=cv.getContext("2d");let W,H,P=[];
+  function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;
+    const n=Math.min(70,Math.floor(W*H/26000));P=[];
+    for(let i=0;i<n;i++)P.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.6+.6});
+  }
+  rs();addEventListener("resize",rs);
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of P){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;}
+    for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){
+      const a=P[i],b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<140){ctx.strokeStyle=`rgba(96,150,255,${.14*(1-d/140)})`;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+    }
+    for(const p of P){ctx.fillStyle="rgba(120,180,255,.5)";ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();}
+    if(!REDUCED)requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ---------- progress + reveal + nav ---------- */
+addEventListener("scroll",()=>{
+  const h=document.documentElement;
+  $("#pbar").style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+"%";
+},{passive:true});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}}),{threshold:.14});
+$$(".rv").forEach(el=>io.observe(el));
+const navA=$$(".navlinks a");
+const ioNav=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){navA.forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+e.target.id));}
+}),{rootMargin:"-38% 0px -55% 0px"});
+["s1","s2","s3","s4","s5","quiz"].forEach(id=>ioNav.observe(document.getElementById(id)));
+
+/* ---------- tooltip ---------- */
+const tip=$("#tip");
+document.addEventListener("pointerover",e=>{const t=e.target.closest("[data-info]");if(t){tip.textContent=t.dataset.info;tip.classList.add("on");}});
+document.addEventListener("pointermove",e=>{if(tip.classList.contains("on")){tip.style.left=Math.min(e.clientX+16,innerWidth-270)+"px";tip.style.top=(e.clientY+18)+"px";}});
+document.addEventListener("pointerout",e=>{if(e.target.closest("[data-info]"))tip.classList.remove("on");});
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove("show"),2600);}
+
+/* ---------- LEGENDA ---------- */
+(function(){
+  const items=[
+    ["#3fd2ff","rect","ENTITÀ","classe di oggetti con identità propria"],
+    ["#ffb454","ell","ATTRIBUTO","proprietà di un'entità o associazione"],
+    ["#ffb454","key","ATTR. CHIAVE","identifica univocamente: sottolineato"],
+    ["#ffb454","dbl","MULTIVALORE","più valori per occorrenza"],
+    ["#ffb454","dash","DERIVATO","calcolato da altri attributi"],
+    ["#ff5d8f","dia","ASSOCIAZIONE","legame tra entità (rombo)"],
+    ["#3fd2ff","drect","ENTITÀ DEBOLE","identificata solo tramite la dominante"],
+    ["#ff5d8f","ddia","ASSOC. IDENTIFICANTE","doppio rombo delle entità deboli"],
+    ["#a88bfa","tri","GENERALIZZAZIONE","triangolo ISA: madre → figlie"],
+    ["#93a1c2","txt","CARDINALITÀ (min,max)","min e max di partecipazioni"]
+  ];
+  const svgFor=t=>{
+    const o=(s)=>`<svg viewBox="0 0 56 34">${s}</svg>`;
+    switch(t){
+      case "rect":return o('<rect x="10" y="7" width="36" height="20" fill="none" stroke="#3fd2ff" stroke-width="2"/>');
+      case "ell":return o('<ellipse cx="28" cy="17" rx="22" ry="12" fill="none" stroke="#ffb454" stroke-width="2"/>');
+      case "key":return o('<ellipse cx="28" cy="15" rx="22" ry="11" fill="none" stroke="#ffb454" stroke-width="2"/><line x1="16" y1="21" x2="40" y2="21" stroke="#ffb454" stroke-width="1.6"/>');
+      case "dbl":return o('<ellipse cx="28" cy="17" rx="22" ry="12" fill="none" stroke="#ffb454" stroke-width="1.6"/><ellipse cx="28" cy="17" rx="17" ry="8.5" fill="none" stroke="#ffb454" stroke-width="1.6"/>');
+      case "dash":return o('<ellipse cx="28" cy="17" rx="22" ry="12" fill="none" stroke="#ffb454" stroke-width="2" stroke-dasharray="5 4"/>');
+      case "dia":return o('<polygon points="28,3 52,17 28,31 4,17" fill="none" stroke="#ff5d8f" stroke-width="2"/>');
+      case "drect":return o('<rect x="8" y="6" width="40" height="22" fill="none" stroke="#3fd2ff" stroke-width="2"/><rect x="12" y="10" width="32" height="14" fill="none" stroke="#3fd2ff" stroke-width="1.6"/>');
+      case "ddia":return o('<polygon points="28,3 52,17 28,31 4,17" fill="none" stroke="#ff5d8f" stroke-width="1.6"/><polygon points="28,8 45,17 28,26 11,17" fill="none" stroke="#ff5d8f" stroke-width="1.6"/>');
+      case "tri":return o('<polygon points="28,3 48,29 8,29" fill="none" stroke="#a88bfa" stroke-width="2"/>');
+      default:return o('<text x="28" y="22" text-anchor="middle" font-size="11" fill="#93a1c2" font-family="monospace">(0,N)</text>');
+    }
+  };
+  $("#lgList").innerHTML=items.map(([c,t,n,d])=>`<div class="lgitem">${svgFor(t)}<div><b>${n}</b><span>${d}</span></div></div>`).join("");
+  const open=()=>{$("#lgPanel").classList.add("open");$("#lgBack").classList.add("open");};
+  const close=()=>{$("#lgPanel").classList.remove("open");$("#lgBack").classList.remove("open");};
+  $("#lgBtn").onclick=open;$("#lgBack").onclick=close;
+  addEventListener("keydown",e=>{if(e.key==="Escape")close();});
+})();
+
+/* ================= DEMO 1 · PIPELINE ================= */
+(function(){
+  const mini=`<svg viewBox="0 0 300 120" style="max-width:340px">
+    <line x1="62" y1="70" x2="132" y2="46" stroke="#54648c" stroke-width="1.5"/><line x1="238" y1="70" x2="168" y2="46" stroke="#54648c" stroke-width="1.5"/>
+    <polygon points="150,18 186,38 150,58 114,38" fill="#2a1120" stroke="#ff5d8f" stroke-width="1.6"/>
+    <text x="150" y="42" text-anchor="middle" font-size="8" fill="#e9eef9" font-family="monospace">FREQUENTA</text>
+    <rect x="14" y="70" width="96" height="34" fill="#0f2138" stroke="#3fd2ff" stroke-width="1.6"/><text x="62" y="91" text-anchor="middle" font-size="9" fill="#e9eef9" font-family="monospace">STUDENTE</text>
+    <rect x="190" y="70" width="96" height="34" fill="#0f2138" stroke="#3fd2ff" stroke-width="1.6"/><text x="238" y="91" text-anchor="middle" font-size="9" fill="#e9eef9" font-family="monospace">CORSO</text>
+    <text x="94" y="60" font-size="8" fill="#93a1c2" font-family="monospace">(1,N)</text><text x="188" y="60" font-size="8" fill="#93a1c2" font-family="monospace">(0,N)</text></svg>`;
+  const S=[
+    {tag:"LIVELLO 0 · MONDO REALE",t:"I requisiti (linguaggio naturale)",h:`<p style="font-size:.95rem">«La scuola gestisce <b>studenti</b>, <b>corsi</b> e <b>docenti</b>: ogni studente frequenta più corsi con un voto; ogni corso è affidato a un solo docente.»</p><p class="pipe-sub">⚠ Ambiguo, ridondante, dipendente da chi parla: non è ancora un modello.</p>`},
+    {tag:"LIVELLO 1 · CONCETTUALE",t:"Il diagramma ER",h:`${mini}<p class="pipe-sub">✔ Indipendente dal DBMS: descrive <b>che cosa</b> esiste e come si lega.</p>`},
+    {tag:"LIVELLO 2 · LOGICO",t:"Lo schema relazionale",h:`<pre>STUDENTE(<u>matricola</u>, nome, cf)
+CORSO(<u>idCorso</u>, titolo, <span class="fk">cfDocente</span>)
+DOCENTE(<u>cf</u>, nome)
+FREQUENTA(<u><span class="fk">matricola</span></u>, <u><span class="fk">idCorso</span></u>, voto)</pre><p class="pipe-sub">PK sottolineate · FK in azzurro. Struttura verificabile, ancora indipendente dal prodotto.</p>`},
+    {tag:"LIVELLO 3 · FISICO",t:"SQL sul DBMS",h:`<pre>CREATE TABLE FREQUENTA(
+  matricola VARCHAR(6),
+  idCorso   INT,
+  voto      DECIMAL(3,1),
+  PRIMARY KEY (matricola, idCorso),
+  FOREIGN KEY (matricola) REFERENCES STUDENTE(matricola),
+  FOREIGN KEY (idCorso)   REFERENCES CORSO(idCorso)
+);</pre><p class="pipe-sub">Ora dipende dal prodotto (MySQL, PostgreSQL…): tipi concreti, vincoli eseguiti.</p>`}
+  ];
+  let i=0;
+  const body=$("#pipeBody"),dots=$("#pipeDots");
+  dots.innerHTML=S.map(()=> "<i></i>").join("");
+  function r(){
+    body.innerHTML=`<span class="pipetag">${S[i].tag}</span><h4>${S[i].t}</h4>${S[i].h}`;
+    [...dots.children].forEach((d,k)=>d.classList.toggle("on",k===i));
+    $("#pipeCount").textContent=`FASE ${i+1} / ${S.length} — dall'intervista al byte`;
+    $("#pipePrev").disabled=i===0;$("#pipeNext").disabled=i===S.length-1;
+  }
+  $("#pipePrev").onclick=()=>{if(i>0){i--;r();}};
+  $("#pipeNext").onclick=()=>{if(i<S.length-1){i++;r();}};
+  r();
+})();
+
+/* ================= DEMO 2 · CLASSIFICATORE ================= */
+(function(){
+  const CHIPS=[
+    {id:"cf",lbl:"cf",hint:"PK?",exp:"key"},
+    {id:"nome",lbl:"nome",hint:"testo",exp:"simple"},
+    {id:"telefoni",lbl:"telefoni",hint:"347… · 02…",exp:"multi"},
+    {id:"dataNascita",lbl:"dataNascita",hint:"data",exp:"simple"},
+    {id:"eta",lbl:"età",hint:"si ricava…",exp:"derived"},
+    {id:"email",lbl:"email",hint:"testo",exp:"simple"},
+    {id:"indirizzo",lbl:"indirizzo",hint:"via · CAP · città",exp:"comp"}
+  ];
+  const CATN={key:"CHIAVE",simple:"SEMPLICE",multi:"MULTIVALORE",derived:"DERIVATO",comp:"COMPOSTO"};
+  const SLOTS=[[140,88],[320,64],[500,88],[100,232],[540,232],[170,362],[470,362]];
+  const C=[320,222];
+  let sel=null; const assigned={}, slotUsed={};
+  const pool=$("#pool"),gL=$("#d2lines"),gA=$("#d2attrs"),msg=$("#d2msg");
+  function mk(t,at){const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);return e;}
+  function buildPool(){
+    pool.innerHTML="";
+    CHIPS.forEach(c=>{
+      const b=document.createElement("button");b.className="chip";b.dataset.id=c.id;
+      b.innerHTML=`${c.lbl} <em>${c.hint}</em>`;
+      b.onclick=()=>{if(assigned[c.id])return;sel=(sel===c.id)?null:c.id;$$("#pool .chip").forEach(x=>x.classList.toggle("sel",x.dataset.id===sel));};
+      pool.appendChild(b);
+      if(assigned[c.id])b.classList.add("used");
+    });
+  }
+  function nextSlot(){for(let i=0;i<SLOTS.length;i++)if(!slotUsed[i])return i;return -1;}
+  function drawAttr(chip,slot,cat){
+    const [x,y]=SLOTS[slot];
+    gL.appendChild(mk("line",{x1:C[0],y1:C[1],x2:x,y2:y,class:"lk"}));
+    const g=mk("g",{});g.dataset.chip=chip;g.dataset.cat=cat;
+    if(cat==="multi")g.appendChild(mk("ellipse",{cx:x,cy:y,rx:70,ry:30,fill:"none",stroke:"#ffb454","stroke-width":1.4,opacity:.7}));
+    const main=mk("ellipse",{cx:x,cy:y,rx:64,ry:26,class:"attr main"+(cat==="derived"?" der":"")});
+    g.appendChild(main);
+    const tx=mk("text",{x:x,y:y+5,"text-anchor":"middle","font-size":"13"});tx.textContent=chip;g.appendChild(tx);
+    g.style.cursor="pointer";
+    g.addEventListener("click",()=>removeChip(chip));
+    gA.appendChild(g);
+    if(cat==="key"){const w=tx.getComputedTextLength();g.appendChild(mk("line",{x1:x-w/2,x2:x+w/2,y1:y+13,y2:y+13,stroke:"#ffb454","stroke-width":1.8}));}
+    if(cat==="comp"){
+      const dx=C[0]-x,dy=C[1]-y,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,px=-uy,py=ux;
+      const bx=x+ux*L*.46,by=y+uy*L*.46;
+      ["via","CAP","città"].forEach((s,k)=>{
+        const off=(k-1)*30;
+        const sx=bx+px*off,sy=by+py*off;
+        g.appendChild(mk("line",{x1:x,y1:y,x2:sx,y2:sy,class:"lk",opacity:.6}));
+        g.appendChild(mk("ellipse",{cx:sx,cy:sy,rx:26,ry:12,class:"attr","stroke-width":1.4}));
+        const st=mk("text",{x:sx,y:sy+3.5,"text-anchor":"middle","font-size":"9.5"});st.textContent=s;g.appendChild(st);
+      });
+    }
+  }
+  function removeChip(chip){
+    if(!assigned[chip])return;
+    slotUsed[assigned[chip].slot]=false;delete assigned[chip];
+    gL.innerHTML="";gA.innerHTML="";
+    Object.entries(assigned).forEach(([c,a])=>drawAttr(c,a.slot,a.cat));
+    buildPool();
+  }
+  $$("#cats button").forEach(b=>b.onclick=()=>{
+    const cat=b.dataset.cat;
+    if(!sel){toast("Prima seleziona un attributo dal magazzino");return;}
+    const slot=nextSlot();if(slot<0)return;
+    assigned[sel]={slot,cat};slotUsed[slot]=true;
+    drawAttr(sel,slot,cat);sel=null;buildPool();
+  });
+  $("#d2Reset").onclick=()=>{for(const k in assigned)delete assigned[k];for(const k in slotUsed)delete slotUsed[k];sel=null;gL.innerHTML="";gA.innerHTML="";msg.textContent="";buildPool();};
+  $("#d2Check").onclick=()=>{
+    const tot=Object.keys(assigned).length;
+    if(tot<CHIPS.length){toast(`Mancano ${CHIPS.length-tot} attributi: classifica tutto prima di verificare`);return;}
+    let ok=0;
+    [...gA.children].forEach(g=>{
+      const chip=CHIPS.find(c=>c.id===g.dataset.chip);
+      const good=g.dataset.cat===chip.exp;
+      g.classList.add(good?"ok":"bad");ok+=good?1:0;
+    });
+    msg.style.color=ok===CHIPS.length?"var(--gr)":"var(--ro)";
+    msg.textContent=`${ok}/${CHIPS.length} corretti`+(ok===CHIPS.length?" ✔ DBA approvato":"");
+    if(ok<CHIPS.length)toast("Gli attributi sbagliati sono evidenziati in rosso: cliccali per riprovare");
+  };
+  buildPool();
+})();
+
+/* ================= DEMO 3 · CARDINALITÀ ================= */
+(function(){
+  const PRE={
+    nm:{name:"FREQUENTA",attr:true,e1:"STUDENTE",e2:"CORSO",s1:[1,"N"],s2:[0,"N"],note:"Molti-a-molti: nel logico servirà una tabella dedicata (FREQUENTA)."},
+    "1n":{name:"INSEGNA",attr:false,e1:"DOCENTE",e2:"CORSO",s1:[0,"N"],s2:[1,"1"],note:"Molti-a-uno: la FK migrerà nella tabella che partecipa (1,1), cioè CORSO."},
+    "11":{name:"OCCUPA",attr:false,e1:"CLASSE",e2:"AULA",s1:[1,"1"],s2:[0,"1"],note:"Uno-a-uno: FK su un lato; qui l'aula può restare libera, quindi la FK sta in CLASSE."}
+  };
+  let st=null,cur="nm";
+  const LX=[70,110,150],RX=[437,490,543,596],LY=282,RY=336;
+  function fmt(m,M){return `(${m},${M})`;}
+  function segValue(el){const b=el.querySelector("button.on");return b?b.textContent:null;}
+  function segFill(el,vals,on){
+    el.innerHTML="";
+    vals.forEach(v=>{const b=document.createElement("button");b.textContent=v;
+      if(String(on)===String(v))b.classList.add("on");
+      b.onclick=()=>{el.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));render();};el.appendChild(b);});
+  }
+  function wires(){
+    const a=st.s1,b=st.s2,arr=[];
+    if(a[1]==="N"&&b[1]==="N"){for(let i=0;i<3;i++)for(let j=0;j<4;j++)arr.push([i,j]);}
+    else if(a[1]==="1"&&b[1]==="1"){arr.push([0,0],[1,1],[2,2]);}
+    else if(a[1]==="1"){arr.push([0,0],[0,1],[1,2]); if(st.s1[0]===0)arr.ghost=1;}
+    else {arr.push([0,0],[1,0],[2,1]);}
+    return arr;
+  }
+  function render(){
+    const p=PRE[cur];
+    // legge dai controlli
+    const m1=segValue($("#seg1min"))??st.s1[0];
+    const M1=segValue($("#seg1max"))??st.s1[1];
+    const m2=segValue($("#seg2min"))??st.s2[0];
+    const M2=segValue($("#seg2max"))??st.s2[1];
+    st.s1=[+m1,M1];st.s2=[+m2,M2];
+    $("#d3e1").textContent=st.e1;$("#d3e2").textContent=st.e2;
+    $("#d3i1").textContent=st.e1;$("#d3i2").textContent=st.e2;
+    $("#d3h1").textContent="LATO "+st.e1;$("#d3h2").textContent="LATO "+st.e2;
+    $("#d3name").textContent=st.name;
+    $("#d3attrG").style.display=st.attr?"":"none";
+    $("#d3lb1").textContent=fmt(st.s1[0],st.s1[1]);
+    $("#d3lb2").textContent=fmt(st.s2[0],st.s2[1]);
+    // istanze
+    const g=$("#d3inst");g.innerHTML="";
+    LX.forEach(x=>g.appendChild(Object.assign(document.createElementNS(NS,"circle"),{getAttribute:()=>""})));
+    g.innerHTML="";
+    LX.forEach(x=>{const c=document.createElementNS(NS,"circle");c.setAttribute("cx",x);c.setAttribute("cy",LY);c.setAttribute("r",9);c.setAttribute("class","inst");g.appendChild(c);});
+    RX.forEach(x=>{const c=document.createElementNS(NS,"circle");c.setAttribute("cx",x);c.setAttribute("cy",RY);c.setAttribute("r",9);c.setAttribute("class","inst2");g.appendChild(c);});
+    if(st.s1[0]===0){const c=document.createElementNS(NS,"circle");c.setAttribute("cx",LX[0]-40);c.setAttribute("cy",LY);c.setAttribute("r",9);c.setAttribute("class","ghosti");g.appendChild(c);
+      const t=document.createElementNS(NS,"text");t.setAttribute("x",LX[0]-40);t.setAttribute("y",LY+4);t.setAttribute("text-anchor","middle");t.setAttribute("font-size","9");t.setAttribute("fill","#66748f");t.textContent="Ø";g.appendChild(t);}
+    if(st.s2[0]===0){const c=document.createElementNS(NS,"circle");c.setAttribute("cx",RX[3]+34);c.setAttribute("cy",RY);c.setAttribute("r",9);c.setAttribute("class","ghosti");g.appendChild(c);
+      const t=document.createElementNS(NS,"text");t.setAttribute("x",RX[3]+34);t.setAttribute("y",RY+4);t.setAttribute("text-anchor","middle");t.setAttribute("font-size","9");t.setAttribute("fill","#66748f");t.textContent="Ø";g.appendChild(t);}
+    // fili
+    const w=$("#d3wires");w.innerHTML="";
+    const list=wires();
+    list.forEach(([i,j])=>{
+      const l=document.createElementNS(NS,"line");
+      l.setAttribute("x1",LX[i]);l.setAttribute("y1",LY+9);l.setAttribute("x2",RX[j]);l.setAttribute("y2",RY-9);
+      l.setAttribute("class","wire");w.appendChild(l);
+    });
+    // letture
+    const mx=m=>m==="N"?"N":m;
+    $("#d3r1").textContent=`Ogni ${st.e1.toLowerCase()} partecipa a ${st.name} con da ${st.s1[0]} a ${mx(st.s1[1])} ${st.e2.toLowerCase()}${st.s1[1]==="N"?"":""}.`;
+    $("#d3r2").textContent=`Ogni ${st.e2.toLowerCase()} partecipa a ${st.name} con da ${st.s2[0]} a ${mx(st.s2[1])} ${st.e1.toLowerCase()}.`;
+    const cls=(st.s1[1]==="N"?st.s2[1]==="N"?"N:M":"N:1":st.s2[1]==="N"?"1:N":"1:1");
+    $("#d3cls").textContent="TIPO "+cls;
+    const NOTES={
+      "N:M":"Molti-a-molti: nel logico servirà una tabella dedicata con le due chiavi.",
+      "1:N":"Uno-a-molti: la FK migra nella tabella che partecipa con massimo = 1.",
+      "N:1":"Molti-a-uno: la FK migra nella tabella che partecipa con massimo = 1.",
+      "1:1":"Uno-a-uno: FK su un lato, scelta guidata dalle cardinalità minime."
+    };
+    const same=st.s1[0]===p.s1[0]&&String(st.s1[1])===String(p.s1[1])&&st.s2[0]===p.s2[0]&&String(st.s2[1])===String(p.s2[1]);
+    $("#d3note").textContent=same?st.note:NOTES[cls];
+  }
+  function setSegs(){
+    segFill($("#seg1min"),[0,1],st.s1[0]);segFill($("#seg1max"),[1,"N"],st.s1[1]);
+    segFill($("#seg2min"),[0,1],st.s2[0]);segFill($("#seg2max"),[1,"N"],st.s2[1]);
+  }
+  $$("[data-p]").forEach(b=>b.onclick=()=>{
+    cur=b.dataset.p;$$("[data-p]").forEach(x=>x.classList.toggle("on",x===b));
+    const p=PRE[cur];
+    st={name:p.name,attr:p.attr,e1:p.e1,e2:p.e2,s1:[...p.s1],s2:[...p.s2]};
+    setSegs();render();
+  });
+  // avvio
+  const p=PRE.nm;st={name:p.name,attr:p.attr,e1:p.e1,e2:p.e2,s1:[...p.s1],s2:[...p.s2]};
+  setSegs();render();
+})();
+
+/* ================= DEMO 4 · DEBOLI / ISA ================= */
+(function(){
+  $("#tabWeak").onclick=()=>{$("#tabWeak").classList.add("on");$("#tabIsa").classList.remove("on");$("#weakWrap").classList.remove("hidden");$("#isaWrap").classList.add("hidden");};
+  $("#tabIsa").onclick=()=>{$("#tabIsa").classList.add("on");$("#tabWeak").classList.remove("on");$("#isaWrap").classList.remove("hidden");$("#weakWrap").classList.add("hidden");};
+  // tester identità
+  const out=$("#testOut");
+  $("#tSolo").onclick=()=>{out.innerHTML=`<span style="color:var(--ro)">✗ 2 risultati:</span> Lezione n.3 → <b>Informatica (5ªA)</b> <i>e</i> <b>Matematica (4ªB)</b>. Con il solo numero l'occorrenza è <b>ambigua</b>: LEZIONE è debole.`;};
+  $("#tPair").onclick=()=>{out.innerHTML=`<span style="color:var(--gr)">✓ 1 risultato:</span> (Informatica, n.3) → Lezione del 27/10, aula 12. La coppia <b>(idCorso, numero)</b> identifica: chiave parziale + chiave della dominante.`;};
+  $("#tReset").onclick=()=>{out.textContent="";};
+  // ISA
+  let cov="tot",exc="exc";
+  function isa(){
+    $("#isaLine2").style.display=cov==="tot"?"":"none";
+    const T={
+      "tot-exc":"<b>Totale + esclusiva:</b> ogni PERSONA è <u>esattamente una</u> tra STUDENTE e DOCENTE. Esempio: il registro di una scuola che censisce solo queste due categorie.",
+      "tot-ovr":"<b>Totale + sovrapposta:</b> ogni PERSONA appartiene ad <u>almeno una</u> figlia, possibilmente entrambe: è il caso dello <b>studente con supplenza</b>, che è insieme STUDENTE e DOCENTE.",
+      "par-exc":"<b>Parziale + esclusiva:</b> una persona è <u>al massimo una</u> delle due; esistono persone fuori dalla generalizzazione (es. un genitore nell'anagrafica).",
+      "par-ovr":"<b>Parziale + sovrapposta:</b> ammesse entrambe le situazioni: si può non essere né l'uno né l'altro, o essere entrambi."
+    };
+    $("#isaTxt").innerHTML=T[cov+"-"+exc];
+  }
+  $$("#isaCov button").forEach(b=>b.onclick=()=>{cov=b.dataset.v;$$("#isaCov button").forEach(x=>x.classList.toggle("on",x===b));isa();});
+  $$("#isaExc button").forEach(b=>b.onclick=()=>{exc=b.dataset.v;$$("#isaExc button").forEach(x=>x.classList.toggle("on",x===b));isa();});
+  isa();
+})();
+
+/* ================= DEMO 5 · CONVERSIONE ================= */
+(function(){
+  const f=(n,pk,fk)=>({n,pk:!!pk,fk:!!fk});
+  const SNAPS=[
+    {},
+    {STUDENTE:[f("matricola",1),f("nome"),f("cf")]},
+    {STUDENTE:[f("matricola",1),f("nome"),f("cf")],CORSO:[f("idCorso",1),f("titolo")]},
+    {STUDENTE:[f("matricola",1),f("nome"),f("cf")],CORSO:[f("idCorso",1),f("titolo")],DOCENTE:[f("cf",1),f("nome")]},
+    {STUDENTE:[f("matricola",1),f("nome"),f("cf")],CORSO:[f("idCorso",1),f("titolo"),f("cfDocente",0,1)],DOCENTE:[f("cf",1),f("nome")]},
+    {STUDENTE:[f("matricola",1),f("nome"),f("cf")],CORSO:[f("idCorso",1),f("titolo"),f("cfDocente",0,1)],DOCENTE:[f("cf",1),f("nome")],FREQUENTA:[f("matricola",1,1),f("idCorso",1,1),f("voto")]}
+  ];
+  const STEPS=[
+    {hl:null,t:"Punto di partenza",x:"Il diagramma completo del caso scuola. Useremo tre regole: entità→tabella, 1:N→foreign key, N:M→nuova tabella. Avanza con ▶ per vedere la magia."},
+    {hl:["gStud"],t:"R1 · STUDENTE → tabella",x:"Ogni entità diventa una tabella; ogni attributo una colonna. La chiave matricola diventa PRIMARY KEY: garantirà l'unicità di ogni riga."},
+    {hl:["gCorso"],t:"R1 · CORSO → tabella",x:"Stessa regola: CORSO(idCorso, titolo). idCorso è una chiave artificiale (surrogata): scelta apposta, stabile nel tempo."},
+    {hl:["gDoc"],t:"R1 · DOCENTE → tabella",x:"Il codice fiscale è una chiave naturale: funziona, ma attenzione ai refusi! In azienda spesso si preferisce una matricola interna."},
+    {hl:["gIns","gCorso"],t:"R2 · INSEGNA (1:N) → foreign key",x:"Il lato CORSO partecipa con (1,1): la chiave di DOCENTE migra lì come cfDocente. Nessuna nuova tabella: la 1:N 'si appiattisce'."},
+    {hl:["gFreq"],t:"R3 · FREQUENTA (N:M) → nuova tabella",x:"Impossibile appiattire: il voto appartiene alla coppia. Nuova tabella con PK composta (matricola, idCorso) e l'attributo dell'associazione che migra con essa."},
+    {hl:"all",t:"Schema relazionale completo ✔",x:"Quattro tabelle, chiavi, foreign key e vincoli: il modello logico è pronto per diventare SQL. Qui sotto la generazione fisica."}
+  ];
+  let si=0;
+  const groups=["gStud","gFreq","gCorso","gIns","gDoc"];
+  function hi(step){
+    groups.forEach(id=>{const g=document.getElementById(id);g.style.opacity="1";g.style.filter="";});
+    if(step.hl==="all")return;
+    if(!step.hl){return;}
+    groups.forEach(id=>{const g=document.getElementById(id);
+      if(step.hl.includes(id)){g.style.filter="drop-shadow(0 0 9px rgba(61,220,151,.9))";}
+      else g.style.opacity=".25";});
+  }
+  function renderTables(snap,prev){
+    const w=$("#tablesWrap");w.innerHTML="";
+    Object.entries(snap).forEach(([name,cols])=>{
+      const isNew=prev&&!prev[name];
+      const c=document.createElement("div");c.className="tcard";if(isNew)c.style.animationDelay=".05s";
+      c.innerHTML=`<h6>${name}${isNew?" ✚":""}</h6>`+cols.map(col=>{
+        const flash=prev&&prev[name]&&!prev[name].find(p=>p.n===col.n);
+        return `<div class="fr${flash?" flash":""}"><span>${col.pk||col.fk?"<u>"+col.n+"</u>":col.n}</span><span>${col.pk?'<span class="bdg pk">PK</span> ':''}${col.fk?'<span class="bdg fk">FK</span>':''}</span></div>`;
+      }).join("");
+      w.appendChild(c);
+    });
+  }
+  function apply(){
+    const s=STEPS[si];
+    $("#stepTitle").textContent=s.t;
+    $("#stepCnt").textContent=`PASSO ${si+1} / ${STEPS.length}`;
+    $("#stepText").textContent=s.x;
+    $("#stPrev").disabled=si===0;$("#stNext").disabled=si===STEPS.length-1;
+    hi(s);
+    const idx=Math.min(si,SNAPS.length-1);
+    renderTables(SNAPS[idx],si>0?SNAPS[Math.min(si-1,SNAPS.length-1)]:null);
+    const box=$("#sqlBox");
+    if(si===STEPS.length-1){box.classList.remove("hidden");typeSql();}
+    else{box.classList.add("hidden");$("#sqlPre").textContent="";}
+  }
+  const SQL=`CREATE TABLE STUDENTE(
+  matricola VARCHAR(6) PRIMARY KEY,
+  nome      VARCHAR(40) NOT NULL,
+  cf        CHAR(16)    NOT NULL UNIQUE
+);
+CREATE TABLE DOCENTE(
+  cf   CHAR(16) PRIMARY KEY,
+  nome VARCHAR(40) NOT NULL
+);
+CREATE TABLE CORSO(
+  idCorso   INT PRIMARY KEY,
+  titolo    VARCHAR(60) NOT NULL,
+  cfDocente CHAR(16) NOT NULL,
+  FOREIGN KEY (cfDocente) REFERENCES DOCENTE(cf)
+);
+CREATE TABLE FREQUENTA(
+  matricola VARCHAR(6),
+  idCorso   INT,
+  voto      DECIMAL(3,1),
+  PRIMARY KEY (matricola, idCorso),
+  FOREIGN KEY (matricola) REFERENCES STUDENTE(matricola),
+  FOREIGN KEY (idCorso)   REFERENCES CORSO(idCorso)
+);`;
+  let typer=null;
+  function typeSql(){
+    const pre=$("#sqlPre");clearInterval(typer);
+    if(REDUCED){pre.textContent=SQL;return;}
+    let i=0;pre.textContent="";
+    typer=setInterval(()=>{i+=8;pre.textContent=SQL.slice(0,i);if(i>=SQL.length)clearInterval(typer);},12);
+  }
+  $("#stPrev").onclick=()=>{if(si>0){si--;apply();}};
+  $("#stNext").onclick=()=>{if(si<STEPS.length-1){si++;apply();}};
+  $("#btnCopy").onclick=()=>{
+    (navigator.clipboard?navigator.clipboard.writeText(SQL):Promise.reject()).then(()=>toast("SQL copiato negli appunti ✔")).catch(()=>toast("Copia manuale dal riquadro"));
+  };
+  apply();
+  // strategie generalizzazione
+  const STRAT=[
+    {t:"A · Accentramento: una sola tabella",d:"Si conserva solo la superclasse, con un attributo <b>tipo</b> e le colonne delle figlie (ammissibili valori NULL).",
+     s:`PERSONA(<u>matricola</u>, nome, tipo, media NULL, materia NULL)`,
+     pro:["Una tabella sola, niente JOIN","Query aggregate semplici"],con:["Attributi NULL sprecano spazio","Logiche di STUDENTE e DOCENTE mescolate"]},
+    {t:"B · Madre + figlie (consigliata di norma)",d:"La madre tiene gli attributi comuni; ogni figlia ha una tabella la cui chiave è anche foreign key verso la madre.",
+     s:`PERSONA(<u>matricola</u>, nome)\nSTUDENTE(<u>matricola</u> FK, media)\nDOCENTE(<u>matricola</u> FK, materia)`,
+     pro:["Niente NULL, vincoli rispettati","Schema pulito ed estendibile"],con:["Per la persona completa serve un JOIN"]},
+    {t:"C · Solo figlie (classi concrete)",d:"La superclasse viene eliminata: ogni figlia replica gli attributi comuni.",
+     s:`STUDENTE(<u>matricola</u>, nome, media)\nDOCENTE(<u>matricola</u>, nome, materia)`,
+     pro:["Letture dirette, nessun JOIN"],con:["Attributi duplicati","Se totalizzante, 'tutte le persone' richiede una UNION"]}
+  ];
+  function strat(i){
+    const s=STRAT[i];
+    $("#stratBody").innerHTML=`<b style="font-family:var(--dsp)">${s.t}</b><p style="font-size:.82rem;color:var(--mut);margin:6px 0">${s.d}</p><pre>${s.s.replace(/<u>/g,'<u>')}</pre>
+    <div class="pc"><div class="pro"><b>✔ PRO</b><ul>${s.pro.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+    <div class="con"><b>✗ CONTRO</b><ul>${s.con.map(x=>`<li>${x}</li>`).join("")}</ul></div></div>`;
+    $$(".stratcards button").forEach((b,k)=>b.classList.toggle("on",k===i));
+  }
+  $$(".stratcards button").forEach(b=>b.onclick=()=>strat(+b.dataset.s));
+  strat(0);
+})();
+
+/* ================= QUIZ ================= */
+(function(){
+  const Q=[
+    {tag:"NOTAZIONE",q:"Nella notazione di Chen il rettangolo rappresenta…",o:["un attributo","un'associazione","un'entità","una tabella"],a:2,w:"Il rettangolo è l'entità (classe di oggetti). L'attributo è un'ellisse, l'associazione un rombo; la tabella appartiene al modello logico, non al concettuale."},
+    {tag:"ATTRIBUTI",q:"Un attributo con il testo sottolineato, come «matricola», indica…",o:["un attributo multivalore","l'attributo chiave (identificatore)","un attributo derivato","un attributo opzionale"],a:1,w:"La sottolineatura marca l'attributo chiave, quello che identifica univocamente ogni occorrenza dell'entità."},
+    {tag:"ATTRIBUTI",q:"Un'ellisse disegnata con doppio contorno rappresenta…",o:["un attributo chiave","un attributo composto","un attributo multivalore","un'entità debole"],a:2,w:"Doppia ellissi = più valori per la stessa occorrenza (es. i telefoni di uno studente). L'entità debole usa invece il doppio rettangolo."},
+    {tag:"CARDINALITÀ",q:"Su INSEGNA: il lato CORSO partecipa con (1,1), il lato DOCENTE con (0,N). L'associazione è…",o:["uno-a-uno (1:1)","uno-a-molti (1:N)","molti-a-molti (N:M)","non determinabile"],a:1,w:"I massimi sono 1 (CORSO) e N (DOCENTE): ogni corso ha un solo docente, ogni docente più corsi → 1:N."},
+    {tag:"ENTITÀ DEBOLI",q:"LEZIONE è un'entità debole rispetto a CORSO perché…",o:["non ha attributi propri","è disegnata col doppio rettangolo per convenzione","non è identificabile da sola: serve la coppia (idCorso, numero)","dipende dal DBMS scelto"],a:2,w:"La debolezza è semantica, non grafica: la chiave parziale «numero» identifica la lezione solo dentro un corso. Il doppio rettangolo ne è la conseguenza notazionale."},
+    {tag:"GENERALIZZAZIONI",q:"In una generalizzazione totale ed esclusiva, ogni istanza della superclasse…",o:["può non appartenere ad alcuna sottoclasse","appartiene a esattamente una sottoclasse","appartiene ad almeno due sottoclassi","perde i propri attributi"],a:1,w:"Totale = almeno una figlia; esclusiva = al massimo una. Insieme: esattamente una."},
+    {tag:"CONVERSIONE",q:"L'associazione N:M FREQUENTA, con attributo VOTO, diventa nel modello logico…",o:["un attributo aggiunto a STUDENTE","un attributo aggiunto a CORSO","una nuova tabella con PK composta dalle due FK","nulla: le associazioni spariscono sempre"],a:2,w:"Il voto appartiene alla coppia (studente, corso): serve la tabella FREQUENTA(matricola, idCorso, voto) con chiave primaria composta."},
+    {tag:"CONVERSIONE",q:"Convertendo una 1:N, la foreign key va inserita…",o:["nella tabella dell'entità che partecipa con massimo = 1","nella tabella dell'entità che partecipa con massimo = N","in entrambe le tabelle","sempre in una tabella nuova"],a:0,w:"Regola d'oro: la FK migra dove il massimo è 1. Per INSEGNA finisce in CORSO (che infatti partecipa (1,1))."}
+  ];
+  let qi=0,score=0,locked=false;
+  const body=$("#quizBody");
+  function render(){
+    locked=false;
+    const q=Q[qi];
+    body.innerHTML=`
+      <div class="qhead"><span class="qcnt">DOMANDA ${qi+1}/8</span><div class="qbar"><i style="width:${qi/8*100}%"></i></div><span class="qtag">${q.tag}</span></div>
+      <p class="qq">${q.q}</p>
+      <div id="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)} · ${o}</button>`).join("")}</div>
+      <div id="qWhy" class="hidden"></div>
+      <div style="margin-top:10px"><button class="btn pri hidden" id="qNext">${qi===7?"Vedi il risultato ▶":"Prossima domanda ▶"}</button></div>`;
+    requestAnimationFrame(()=>{const bar=body.querySelector(".qbar i"); if(bar) bar.style.width=((qi)/8*100)+"%";});
+    $$("#opts .opt").forEach(b=>b.onclick=()=>{
+      if(locked)return;locked=true;
+      const i=+b.dataset.i;
+      $$("#opts .opt").forEach(x=>x.disabled=true);
+      const ok=i===q.a;
+      if(ok){b.classList.add("ok");score++;}
+      else{b.classList.add("ko");$$("#opts .opt")[q.a].classList.add("ok");}
+      const why=$("#qWhy");why.classList.remove("hidden");
+      why.innerHTML=`<b style="color:${ok?"var(--gr)":"var(--ro)"}">${ok?"✔ Esatto.":"✗ Non proprio."}</b> ${q.w}`;
+      $("#qNext").classList.remove("hidden");
+      $("#qNext").onclick=()=>{qi++;qi<Q.length?render():result();};
+    });
+  }
+  function result(){
+    const C=2*Math.PI*52;
+    const pct=score/8;
+    const msg8=score===8?"10 e lode: sei pronto per progettare il gestionale della scuola.":score===7?"9 pieno: Chen sarebbe fiero di te.":score===6?"8: modello solido, qualche rifinitura.":score===5?"7: buono, ma rileggi la sezione sulle cardinalità.":score===4?"6: sufficienza raggiunta per un soffio — ripassa le regole di conversione.":"Query rifiutata: torna alle sezioni 02–05 e riprova. Il quiz è ripetibile all'infinito.";
+    body.innerHTML=`<div class="qend">
+      <svg class="ring" width="140" height="140" viewBox="0 0 120 120">
+        <circle class="bgc" cx="60" cy="60" r="52"/>
+        <circle class="fgc" id="ringFg" cx="60" cy="60" r="52" stroke-dasharray="${C}" stroke-dashoffset="${C}"/>
+        <text x="60" y="66" text-anchor="middle" font-size="26" fill="#e9eef9" font-family="Chakra Petch" transform="rotate(90 60 60)">${score}/8</text>
+      </svg>
+      <h4>${msg8.split(":")[0]}</h4><p>${msg8.split(":").slice(1).join(":")||""}</p>
+      <button class="btn pri" id="qRe">↺ Rigioca il quiz</button></div>`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      const fg=$("#ringFg");if(!fg)return;
+      fg.style.strokeDashoffset=C*(1-pct);
+      fg.style.stroke=score>=6?"var(--gr)":"var(--ro)";
+    }));
+    $("#qRe").onclick=()=>{qi=0;score=0;render();};
+  }
+  render();
+})();
+</script>
+<a href="../../index.html" aria-label="Torna alla home" style="position:fixed;left:20px;bottom:20px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:6px;background:#122043;color:#ffb454;font:600 13px/1 'Chakra Petch',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;letter-spacing:.08em;text-decoration:none;border:1px solid #ffb454;box-shadow:0 10px 26px rgba(0,0,0,.5);">← HOME</a>
+</body>
+</html>
