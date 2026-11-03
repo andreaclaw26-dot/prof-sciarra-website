@@ -384,6 +384,7 @@ let SQL = null;
 let db = null;
 let schemaEditor, queryEditor;
 let currentProjectId = null;
+let schemaLoaded = false;
 const STORAGE_KEY = 'sql_lab_projects';
 const SETTINGS_KEY = 'sql_lab_settings';
 
@@ -505,17 +506,39 @@ ORDER BY media DESC;`;
 // apici o virgolette non spezzano lo statement)
 // ============================================
 function splitStatements(sql) {
+  // Divide il testo in statement sul ';' ignorando quelli dentro
+  // stringhe ('...', "...") e commenti (-- e /* */).
+  // Gli apici dentro i commenti non devono aprire una stringa.
   const stmts = [];
-  let current = '', inString = false, stringChar = '';
-  for (let i = 0; i < sql.length; i++) {
-    const c = sql[i];
-    if (!inString && (c === "'" || c === '"')) { inString = true; stringChar = c; current += c; }
-    else if (inString && c === stringChar) { if (sql[i-1] !== '\\') inString = false; current += c; }
-    else if (!inString && c === ';') { stmts.push(current); current = ''; }
-    else current += c;
+  let current = '', i = 0;
+  const n = sql.length;
+  while (i < n) {
+    const c = sql[i], d = sql[i + 1];
+    if (c === '-' && d === '-') {
+      const j = sql.indexOf('\n', i); const end = j === -1 ? n : j;
+      current += sql.slice(i, end); i = end; continue;
+    }
+    if (c === '/' && d === '*') {
+      const j = sql.indexOf('*/', i + 2); const end = j === -1 ? n : j + 2;
+      current += sql.slice(i, end); i = end; continue;
+    }
+    if (c === "'" || c === '"' || c === '`') {
+      let j = i + 1;
+      while (j < n) {
+        if (sql[j] === c) { if (sql[j + 1] === c) { j += 2; continue; } break; }  // '' = apice raddoppiato
+        j++;
+      }
+      current += sql.slice(i, j + 1); i = j + 1; continue;
+    }
+    if (c === ';') { stmts.push(current); current = ''; i++; continue; }
+    current += c; i++;
   }
-  if (current.trim()) stmts.push(current);
-  return stmts;
+  stmts.push(current);
+  return stmts.filter(st => stripComments(st).trim().length > 0);
+}
+
+function stripComments(sql) {
+  return sql.replace(/--[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
 }
 
 // ============================================
@@ -547,7 +570,7 @@ function setStatus(state, text) {
 function initEditors() {
   schemaEditor = CodeMirror.fromTextArea(document.getElementById('schema-editor'), {
     mode: 'text/x-sql', theme: 'dracula', lineNumbers: true, matchBrackets: true,
-    extraKeys: { 'Ctrl-Space': 'autocomplete' }, hintOptions: { completeSingle: false }
+    extraKeys: { 'Ctrl-Space': 'autocomplete', 'Ctrl-Enter': runSchema, 'Cmd-Enter': runSchema }, hintOptions: { completeSingle: false }
   });
   queryEditor = CodeMirror.fromTextArea(document.getElementById('query-editor'), {
     mode: 'text/x-sql', theme: 'dracula', lineNumbers: true, matchBrackets: true,
@@ -585,6 +608,7 @@ function runSchema() {
   const schema = schemaEditor.getValue().trim();
   const output = document.getElementById('build-output');
   if (!schema) { output.innerHTML = '<div class="error-message">Schema vuoto!</div>'; return; }
+  schemaLoaded = false;
 
   try { db.close(); } catch (e) {}
   db = new SQL.Database();
@@ -595,15 +619,20 @@ function runSchema() {
     let successCount = 0, errors = [];
     for (const stmt of statements) {
       try { db.run(stmt + ';'); successCount++; }
-      catch (e) { errors.push({ stmt: stmt.substring(0,100), error: e.message }); }
+      catch (e) {
+        const clean = stripComments(stmt).trim();
+        errors.push({ stmt: clean.substring(0,100) + (clean.length > 100 ? '...' : ''), error: e.message });
+      }
     }
     const elapsed = (performance.now() - start).toFixed(1);
-    let html = `<div class="result-info success">✅ Schema eseguito: ${successCount} statement OK in ${elapsed}ms</div>`;
+    let html = errors.length === 0
+      ? `<div class="result-info success">✅ Schema eseguito: ${successCount} statement OK in ${elapsed}ms</div>`
+      : `<div class="result-info error">⚠️ Schema eseguito con ${errors.length} errori · ${successCount} statement OK</div>`;
 
     if (errors.length > 0) {
       html += '<div style="padding:10px;">';
       errors.forEach((e,i) => {
-        html += `<div class="error-message">Errore #${i+1}: ${e.error}\nStatement: ${e.stmt}${e.stmt.length===100?'...':''}</div>`;
+        html += `<div class="error-message">Errore #${i+1}: ${escapeHtml(e.error)}\nStatement: ${escapeHtml(e.stmt)}</div>`;
       });
       html += '</div>';
     } else {
@@ -617,7 +646,7 @@ function runSchema() {
             let rowCount = 0;
             try { rowCount = db.exec(`SELECT COUNT(*) FROM "${t}";`)[0].values[0][0]; } catch(e){}
             const rowColor = rowCount > 0 ? 'var(--success)' : 'var(--warning)';
-            html += `<tr><td><strong>${t}</strong></td><td style="color:${rowColor};font-weight:700;">${rowCount}</td>
+            html += `<tr><td><strong>${escapeHtml(t)}</strong></td><td style="color:${rowColor};font-weight:700;">${rowCount}</td>
               <td><button class="snippet-btn" onclick="previewTable('${t}')">👁 Anteprima</button>
               <button class="snippet-btn" onclick="describeTable('${t}')">📐 Struttura</button></td></tr>`;
           });
@@ -626,9 +655,11 @@ function runSchema() {
       } catch(e){}
     }
     output.innerHTML = html;
-    setStatus('ready', `Schema eseguito · ${successCount} statement OK`);
+    schemaLoaded = true;
+    if (errors.length) setStatus('error', `Schema con ${errors.length} errori`);
+    else setStatus('ready', `Schema eseguito · ${successCount} statement OK`);
   } catch (err) {
-    output.innerHTML = `<div class="error-message">Errore fatale: ${err.message}</div>`;
+    output.innerHTML = `<div class="error-message">Errore fatale: ${escapeHtml(err.message)}</div>`;
     setStatus('error', 'Errore esecuzione schema');
   }
 }
@@ -640,33 +671,49 @@ function describeTable(t) { queryEditor.setValue(`PRAGMA table_info("${t}");`); 
 // ESECUZIONE QUERY
 // ============================================
 function runQuery() {
-  if (!db) { alert('Prima esegui lo schema!'); return; }
+  if (!db) return;
   const query = queryEditor.getValue().trim();
   const output = document.getElementById('query-output');
-  if (!query) { output.innerHTML = '<div class="error-message">Query vuota!</div>'; return; }
+  if (!stripComments(query).trim()) { output.innerHTML = '<div class="error-message">Query vuota!</div>'; return; }
   const start = performance.now();
+  const results = [];
+  let modified = 0, commands = 0;
+  const totalChanges = () => db.exec('SELECT total_changes()')[0].values[0][0];
   try {
-    const results = db.exec(query);
-    const elapsed = (performance.now() - start).toFixed(1);
-    if (!results || results.length === 0) {
-      output.innerHTML = `<div class="result-info success">✅ Query eseguita in ${elapsed}ms · ${db.getRowsModified()} righe modificate</div>`;
-    } else {
-      let html = `<div class="result-info success">✅ Query completata in ${elapsed}ms</div>`;
-      results.forEach((r, idx) => {
-        html += `<div class="result-info">📊 Risultato ${idx+1}: ${r.values.length} righe · Colonne: ${r.columns.join(', ')}</div>`;
-        html += renderTable(r.columns, r.values);
-      });
-      output.innerHTML = html;
+    const changesBefore = totalChanges();
+    for (const stmt of db.iterateStatements(query)) {
+      const columns = stmt.getColumnNames();
+      if (columns.length > 0) {
+        const values = [];
+        while (stmt.step()) values.push(stmt.get());
+        results.push({ columns, values });
+      } else {
+        stmt.step();
+        commands++;
+      }
     }
+    modified = totalChanges() - changesBefore;
+    const elapsed = (performance.now() - start).toFixed(1);
+    let html = `<div class="result-info success">✅ Query completata in ${elapsed}ms</div>`;
+    if (commands > 0) html += `<div class="result-info">${commands} comandi eseguiti · ${modified} righe modificate</div>`;
+    results.forEach((r, idx) => {
+      const label = results.length > 1 ? `Risultato ${idx+1}: ` : '';
+      html += `<div class="result-info">📊 ${label}${r.values.length} ${r.values.length === 1 ? 'riga' : 'righe'}</div>`;
+      html += renderTable(r.columns, r.values);
+    });
+    output.innerHTML = html;
+    if (commands > 0) schemaLoaded = true;
     setStatus('ready', `Query OK · ${elapsed}ms`);
   } catch (err) {
-    output.innerHTML = `<div class="error-message">❌ Errore SQL: ${err.message}\n\nQuery: ${query}</div>`;
+    let hint = '';
+    if (/no such table/i.test(err.message) && !schemaLoaded)
+      hint = '\n\n💡 Il database è vuoto: premi prima "▶ Esegui Schema".';
+    output.innerHTML = `<div class="error-message">❌ Errore SQL: ${escapeHtml(err.message)}${hint}\n\nQuery: ${escapeHtml(query)}</div>`;
     setStatus('error', 'Errore query');
   }
 }
 
 function renderTable(columns, rows) {
-  if (rows.length === 0) return '<div class="result-info">Nessuna riga.</div>';
   let html = '<table class="result-table"><thead><tr>';
   columns.forEach(c => html += `<th>${escapeHtml(c)}</th>`);
   html += '</tr></thead><tbody>';
@@ -677,10 +724,11 @@ function renderTable(columns, rows) {
     });
     html += '</tr>';
   });
+  if (rows.length === 0) html += `<tr><td colspan="${columns.length}" style="color:var(--text-secondary)">Nessuna riga trovata</td></tr>`;
   return html + '</tbody></table>';
 }
 
-function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 // ============================================
 // UI
@@ -698,7 +746,7 @@ function initUI() {
   });
 
   document.getElementById('btn-new').addEventListener('click', newProject);
-  document.getElementById('btn-save').addEventListener('click', () => openModal('modal-save'));
+  document.getElementById('btn-save').addEventListener('click', openSaveModal);
   document.getElementById('btn-projects').addEventListener('click', () => { renderProjectList(); openModal('modal-projects'); });
   document.getElementById('btn-export').addEventListener('click', exportProject);
   document.getElementById('btn-import').addEventListener('click', () => document.getElementById('file-import').click());
@@ -720,7 +768,7 @@ function initUI() {
   });
 
   document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); openModal('modal-save'); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); openSaveModal(); }
   });
 }
 
@@ -737,7 +785,14 @@ function newProject() {
   document.getElementById('build-output').innerHTML = '<div class="empty-state"><div class="emoji">🎓</div><div>Nuovo progetto creato</div></div>';
   document.getElementById('query-output').innerHTML = '<div class="empty-state"><div class="emoji">🔍</div><div>Inizia a scrivere...</div></div>';
   try { db.close(); } catch(e){}
-  db = new SQL.Database();
+  db = new SQL.Database(); schemaLoaded = false;
+}
+
+function openSaveModal() {
+  const proj = currentProjectId ? getProjects()[currentProjectId] : null;
+  document.getElementById('save-name').value = proj ? proj.name : '';
+  document.getElementById('save-desc').value = proj ? (proj.description || '') : '';
+  openModal('modal-save');
 }
 
 function confirmSave() {
@@ -759,6 +814,11 @@ function loadProject(id) {
   currentProjectId = id;
   schemaEditor.setValue(proj.schema || ''); queryEditor.setValue(proj.query || '');
   document.getElementById('project-select').value = id;
+  try { db.close(); } catch(e) {}
+  db = new SQL.Database(); schemaLoaded = false;
+  document.getElementById('build-output').innerHTML =
+    `<div class="result-info success">📂 Progetto <strong>${escapeHtml(proj.name)}</strong> caricato.<br>Premi <strong>▶ Esegui Schema</strong> per creare il database.</div>`;
+  document.getElementById('query-output').innerHTML = '<div class="empty-state"><div class="emoji">🔍</div><div>Scrivi una query e premi "Esegui Query"</div></div>';
   setStatus('ready', `Progetto caricato: ${proj.name}`);
 }
 
@@ -778,13 +838,18 @@ function renderProjectList() {
   const arr = Object.values(getProjects()).sort((a,b) => new Date(b.savedAt) - new Date(a.savedAt));
   if (arr.length === 0) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Nessun progetto salvato</div>'; return; }
   list.innerHTML = arr.map(p => `
-    <div class="saved-item">
-      <div onclick="loadProject('${p.id}'); closeModal('modal-projects');" style="flex:1;cursor:pointer;">
+    <div class="saved-item" data-id="${escapeHtml(p.id)}">
+      <div class="open-proj" style="flex:1;cursor:pointer;">
         <div class="name">${escapeHtml(p.name)}</div>
-        <div class="date">${p.description ? escapeHtml(p.description) + ' · ' : ''}${new Date(p.savedAt).toLocaleString('it-IT')}</div>
+        <div class="date">${p.description ? escapeHtml(p.description) + ' · ' : ''}${escapeHtml(new Date(p.savedAt).toLocaleString('it-IT'))}</div>
       </div>
-      <button class="delete-btn" onclick="deleteProject('${p.id}')" title="Elimina">🗑</button>
+      <button class="delete-btn" title="Elimina">🗑</button>
     </div>`).join('');
+  list.querySelectorAll('.saved-item').forEach(el => {
+    const id = el.dataset.id;
+    el.querySelector('.open-proj').addEventListener('click', () => { loadProject(id); closeModal('modal-projects'); });
+    el.querySelector('.delete-btn').addEventListener('click', () => deleteProject(id));
+  });
 }
 
 function deleteProject(id) {
@@ -821,7 +886,14 @@ function importProject(event) {
     try {
       const data = JSON.parse(e.target.result);
       if (data.type !== 'sql-lab-project') throw new Error('File non valido');
-      saveProjects({ ...getProjects(), ...(data.projects || {}) });
+      const valid = {};
+      Object.values(data.projects || {}).forEach(p => {
+        if (p && typeof p.id === 'string' && typeof p.name === 'string')
+          valid[p.id] = { id: p.id, name: p.name, description: String(p.description || ''),
+            schema: String(p.schema || ''), query: String(p.query || ''), savedAt: p.savedAt || new Date().toISOString() };
+      });
+      data.projects = valid;
+      saveProjects({ ...getProjects(), ...valid });
       loadProjectList();
       alert(`✅ Importati ${Object.keys(data.projects || {}).length} progetti!`);
     } catch (err) { alert('Errore importazione: ' + err.message); }
@@ -834,7 +906,13 @@ function importProject(event) {
 // IMPOSTAZIONI E AUTOSALVAGGIO
 // ============================================
 function loadSettings() {
-  try { const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); if (s.theme === 'light') document.body.dataset.theme = 'light'; } catch {}
+  try {
+    const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+    if (s.theme === 'light') {
+      document.body.dataset.theme = 'light';
+      schemaEditor.setOption('theme', 'default'); queryEditor.setOption('theme', 'default');
+    }
+  } catch {}
 }
 
 function toggleTheme() {
