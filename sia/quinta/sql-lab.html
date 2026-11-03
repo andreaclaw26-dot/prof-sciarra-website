@@ -664,15 +664,24 @@ function runSchema() {
   }
 }
 
-function previewTable(t) { queryEditor.setValue(`SELECT * FROM "${t}" LIMIT 100;`); runQuery(); }
-function describeTable(t) { queryEditor.setValue(`PRAGMA table_info("${t}");`); runQuery(); }
+// Anteprima e struttura NON modificano l'editor: eseguono la query
+// direttamente e mostrano il risultato, lasciando intatto il lavoro dello studente.
+function previewTable(t) { runPreview(`SELECT * FROM "${t}" LIMIT 100;`, `👁 Anteprima tabella "${t}"`); }
+function describeTable(t) { runPreview(`PRAGMA table_info("${t}");`, `📐 Struttura tabella "${t}"`); }
 
 // ============================================
 // ESECUZIONE QUERY
 // ============================================
 function runQuery() {
+  executeSql(queryEditor.getValue().trim(), { preview: false });
+}
+
+function runPreview(sql, label) {
+  executeSql(sql, { preview: true, label });
+}
+
+function executeSql(query, opts = {}) {
   if (!db) return;
-  const query = queryEditor.getValue().trim();
   const output = document.getElementById('query-output');
   if (!stripComments(query).trim()) { output.innerHTML = '<div class="error-message">Query vuota!</div>'; return; }
   const start = performance.now();
@@ -694,7 +703,9 @@ function runQuery() {
     }
     modified = totalChanges() - changesBefore;
     const elapsed = (performance.now() - start).toFixed(1);
-    let html = `<div class="result-info success">✅ Query completata in ${elapsed}ms</div>`;
+    let html = opts.preview
+      ? `<div class="result-info success">${escapeHtml(opts.label)} · ${elapsed}ms<br><span style="font-size:0.85em;">La query nell'editor non è stata modificata.</span></div>`
+      : `<div class="result-info success">✅ Query completata in ${elapsed}ms</div>`;
     if (commands > 0) html += `<div class="result-info">${commands} comandi eseguiti · ${modified} righe modificate</div>`;
     results.forEach((r, idx) => {
       const label = results.length > 1 ? `Risultato ${idx+1}: ` : '';
@@ -703,12 +714,13 @@ function runQuery() {
     });
     output.innerHTML = html;
     if (commands > 0) schemaLoaded = true;
-    setStatus('ready', `Query OK · ${elapsed}ms`);
+    setStatus('ready', opts.preview ? `${opts.label} · ${elapsed}ms` : `Query OK · ${elapsed}ms`);
   } catch (err) {
     let hint = '';
     if (/no such table/i.test(err.message) && !schemaLoaded)
       hint = '\n\n💡 Il database è vuoto: premi prima "▶ Esegui Schema".';
-    output.innerHTML = `<div class="error-message">❌ Errore SQL: ${escapeHtml(err.message)}${hint}\n\nQuery: ${escapeHtml(query)}</div>`;
+    const title = opts.preview ? `${escapeHtml(opts.label)} — ` : '';
+    output.innerHTML = `<div class="error-message">❌ ${title}Errore SQL: ${escapeHtml(err.message)}${hint}\n\nQuery: ${escapeHtml(query)}</div>`;
     setStatus('error', 'Errore query');
   }
 }
