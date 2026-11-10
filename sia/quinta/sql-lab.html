@@ -73,7 +73,16 @@
     background: var(--bg-secondary); padding: 8px 14px; font-weight: 600;
     font-size: 0.95rem; border-bottom: 1px solid var(--border);
     display: flex; justify-content: space-between; align-items: center;
+    position: relative; padding-right: 52px;
   }
+  .fs-btn {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    padding: 4px 9px; font-size: 0.95rem; line-height: 1; z-index: 2;
+  }
+  .fs-btn:hover { transform: translateY(-50%); background: var(--accent); color: #000; }
+  .main-container.has-fullscreen { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+  .main-container.has-fullscreen .panel { display: none; }
+  .main-container.has-fullscreen .panel.fullscreen { display: flex; grid-column: 1; grid-row: 1; }
   .panel-header .hint { font-weight: 400; font-size: 0.8rem; color: var(--text-secondary); }
   .panel-header .actions { display: flex; gap: 6px; }
   .panel-body { flex: 1; overflow: auto; position: relative; }
@@ -193,7 +202,7 @@
     <button id="btn-new" title="Nuovo progetto">📄 Nuovo</button>
     <button id="btn-save" title="Salva progetto">💾 Salva</button>
     <button id="btn-projects" title="Gestisci progetti salvati">📚 Gestisci</button>
-    <button id="btn-export" title="Esporta i progetti (schema + query) in un file JSON">⬇️ Esporta</button>
+    <button id="btn-export" title="Esporta il progetto attivo (schema + query) in un file JSON">⬇️ Esporta</button>
     <button id="btn-import" title="Importa un progetto: lo carica e ne esegue lo schema">⬆️ Importa</button>
     <button id="btn-theme" title="Cambia tema">🌓 Tema</button>
     <button id="btn-help" class="help-btn" title="Cos'è SQL, cos'è SQLite e perché lo usiamo">❓ Guida SQL</button>
@@ -306,6 +315,7 @@
     <div class="saved-list" id="saved-list"></div>
     <div class="actions">
       <button onclick="closeModal('modal-projects')">Chiudi</button>
+      <button id="btn-export-all" title="Esporta tutti i progetti in un unico file JSON (backup)">⬇️ Esporta tutti</button>
       <button class="danger" id="btn-clear-all">🗑 Cancella tutto</button>
     </div>
   </div>
@@ -560,6 +570,9 @@ async function init() {
     loadProjectList();
     loadSettings();
     attachAutoSave();
+    // Se al caricamento è stato ripristinato un progetto attivo con una
+    // bozza, ricrea subito il database senza chiedere di premere Esegui Schema.
+    if (currentProjectId && schemaEditor.getValue().trim()) runSchema();
   } catch (err) {
     setStatus('error', 'Errore caricamento SQLite: ' + err.message);
     console.error(err);
@@ -602,6 +615,10 @@ function initEditors() {
     schemaEditor.setValue(DEMO_DB);
     queryEditor.setValue(DEMO_QUERY);
   }
+  // I caricamenti programmatici (bozza/demo) non devono essere annullabili
+  // con Ctrl+Z: altrimenti si rischia di svuotare l'intero editor.
+  schemaEditor.clearHistory();
+  queryEditor.clearHistory();
 }
 
 // ============================================
@@ -765,6 +782,7 @@ function initUI() {
   document.getElementById('btn-save').addEventListener('click', openSaveModal);
   document.getElementById('btn-projects').addEventListener('click', () => { renderProjectList(); openModal('modal-projects'); });
   document.getElementById('btn-export').addEventListener('click', exportProject);
+  document.getElementById('btn-export-all').addEventListener('click', exportAllProjects);
   document.getElementById('btn-import').addEventListener('click', () => document.getElementById('file-import').click());
   document.getElementById('btn-theme').addEventListener('click', toggleTheme);
   document.getElementById('btn-help').addEventListener('click', () => openModal('modal-help'));
@@ -785,6 +803,73 @@ function initUI() {
 
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); openSaveModal(); }
+  });
+
+  initPanelFullscreen();
+}
+
+// ============================================
+// PANNELLI A SCHERMO INTERO
+// ============================================
+function initPanelFullscreen() {
+  document.querySelectorAll('.panel').forEach(panel => {
+    const header = panel.querySelector('.panel-header');
+    if (!header || header.querySelector('.fs-btn')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'fs-btn';
+    btn.textContent = '⛶';
+    btn.title = 'Espandi pannello';
+    btn.setAttribute('aria-label', 'Espandi pannello');
+    btn.setAttribute('aria-pressed', 'false');
+    btn.addEventListener('click', () => togglePanelFullscreen(panel));
+    header.appendChild(btn);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const open = document.querySelector('.panel.fullscreen');
+    if (open) togglePanelFullscreen(open);
+  });
+
+  window.addEventListener('resize', () => {
+    if (!document.querySelector('.panel.fullscreen')) return;
+    if (schemaEditor) schemaEditor.refresh();
+    if (queryEditor) queryEditor.refresh();
+  });
+}
+
+function togglePanelFullscreen(panel) {
+  const container = document.querySelector('.main-container');
+  const wasOpen = panel.classList.contains('fullscreen');
+
+  // Chiudi l'eventuale pannello già espanso.
+  document.querySelectorAll('.panel.fullscreen').forEach(p => {
+    p.classList.remove('fullscreen');
+    const b = p.querySelector('.fs-btn');
+    if (b) {
+      b.textContent = '⛶'; b.title = 'Espandi pannello';
+      b.setAttribute('aria-label', 'Espandi pannello');
+      b.setAttribute('aria-pressed', 'false');
+    }
+  });
+  container.classList.remove('has-fullscreen');
+
+  if (!wasOpen) {
+    panel.classList.add('fullscreen');
+    container.classList.add('has-fullscreen');
+    const b = panel.querySelector('.fs-btn');
+    if (b) {
+      b.textContent = '⤡'; b.title = 'Riduci pannello';
+      b.setAttribute('aria-label', 'Riduci pannello');
+      b.setAttribute('aria-pressed', 'true');
+    }
+  }
+
+  // CodeMirror deve ricalcolare le dimensioni dopo il cambio di layout.
+  requestAnimationFrame(() => {
+    if (schemaEditor) schemaEditor.refresh();
+    if (queryEditor) queryEditor.refresh();
   });
 }
 
@@ -810,6 +895,7 @@ function newProject() {
   currentProjectId = null;
   localStorage.removeItem(ACTIVE_KEY);
   schemaEditor.setValue(''); queryEditor.setValue('');
+  schemaEditor.clearHistory(); queryEditor.clearHistory();
   document.getElementById('build-output').innerHTML = '<div class="empty-state"><div class="emoji">🎓</div><div>Nuovo progetto creato</div></div>';
   document.getElementById('query-output').innerHTML = '<div class="empty-state"><div class="emoji">🔍</div><div>Inizia a scrivere...</div></div>';
   try { db.close(); } catch(e){}
@@ -846,13 +932,19 @@ function loadProject(id) {
   currentProjectId = id;
   localStorage.setItem(ACTIVE_KEY, id);
   schemaEditor.setValue(proj.schema || ''); queryEditor.setValue(proj.query || '');
+  // Cambiare progetto non deve poter riportare in editor il testo del
+  // progetto precedente con Ctrl+Z.
+  schemaEditor.clearHistory(); queryEditor.clearHistory();
   document.getElementById('project-select').value = id;
   try { db.close(); } catch(e) {}
   db = new SQL.Database(); schemaLoaded = false;
-  document.getElementById('build-output').innerHTML =
-    `<div class="result-info success">📂 Progetto <strong>${escapeHtml(proj.name)}</strong> caricato.<br>Premi <strong>▶ Esegui Schema</strong> per creare il database.</div>`;
+  const hasSchema = (proj.schema || '').trim().length > 0;
+  document.getElementById('build-output').innerHTML = hasSchema
+    ? `<div class="result-info success">📂 Progetto <strong>${escapeHtml(proj.name)}</strong> caricato: esecuzione automatica dello schema...</div>`
+    : `<div class="result-info success">📂 Progetto <strong>${escapeHtml(proj.name)}</strong> caricato, ma lo schema è vuoto.</div>`;
   document.getElementById('query-output').innerHTML = '<div class="empty-state"><div class="emoji">🔍</div><div>Scrivi una query e premi "Esegui Query"</div></div>';
-  setStatus('ready', `Progetto caricato: ${proj.name}`);
+  if (hasSchema) runSchema();
+  else setStatus('ready', `Progetto caricato: ${proj.name}`);
 }
 
 function loadProjectList() {
@@ -916,37 +1008,76 @@ function syncCurrentProject() {
   return proj;
 }
 
-function exportProject() {
-  // Allinea sempre il progetto attivo all'editor prima di esportare.
-  let current = syncCurrentProject();
+function projectSlug(name) {
+  return (name || 'progetto')
+    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'progetto';
+}
 
-  // Nessun progetto attivo ma c'è lavoro nell'editor: proponi di salvarlo
-  // e di esportarlo insieme al resto.
-  if (!current && (schemaEditor.getValue().trim() || queryEditor.getValue().trim())) {
-    const suggested = 'Progetto ' + new Date().toLocaleDateString('it-IT');
-    const name = prompt('Nessun progetto attivo. Nome del progetto da esportare:', suggested);
-    if (!name || !name.trim()) return;
-    const projects = getProjects();
-    const id = 'proj_' + Date.now();
-    projects[id] = {
-      id, name: name.trim(), description: '',
-      schema: schemaEditor.getValue(), query: queryEditor.getValue(),
-      savedAt: new Date().toISOString()
-    };
-    saveProjects(projects);
-    currentProjectId = id;
-    localStorage.setItem(ACTIVE_KEY, id);
-    loadProjectList();
-    current = projects[id];
+function downloadJson(data, filename) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Sincronizza l'editor col progetto attivo. Se non c'è un progetto attivo
+// ma c'è lavoro nell'editor, chiede un nome e lo salva.
+function ensureActiveProjectForExport() {
+  const synced = syncCurrentProject();
+  if (synced) return synced;
+  if (!(schemaEditor.getValue().trim() || queryEditor.getValue().trim())) return null;
+
+  const suggested = 'Progetto ' + new Date().toLocaleDateString('it-IT');
+  const name = prompt('Nessun progetto attivo. Nome del progetto da esportare:', suggested);
+  if (!name || !name.trim()) return null;
+
+  const projects = getProjects();
+  const id = 'proj_' + Date.now();
+  projects[id] = {
+    id, name: name.trim(), description: '',
+    schema: schemaEditor.getValue(), query: queryEditor.getValue(),
+    savedAt: new Date().toISOString()
+  };
+  saveProjects(projects);
+  currentProjectId = id;
+  localStorage.setItem(ACTIVE_KEY, id);
+  loadProjectList();
+  return projects[id];
+}
+
+function exportProject() {
+  const current = ensureActiveProjectForExport();
+  if (!current) {
+    alert('Seleziona un progetto dal menu 📁 Progetti (o salvalo) prima di esportare.');
+    return;
   }
 
+  const data = {
+    type: 'sql-lab-project',
+    version: '3.2',
+    currentProjectId: current.id,
+    projects: { [current.id]: current },
+    exportedAt: new Date().toISOString()
+  };
+  downloadJson(data, `sql-lab-${projectSlug(current.name)}-${new Date().toISOString().slice(0,10)}.json`);
+  setStatus('ready', `Progetto «${current.name}» esportato`);
+}
+
+function exportAllProjects() {
+  const current = ensureActiveProjectForExport();
   const projects = getProjects();
   if (Object.keys(projects).length === 0) {
     alert("Non c'è nessun progetto da esportare. Scrivi lo schema o salva un progetto prima.");
     return;
   }
 
-  // Metti il progetto attivo per primo nel file esportato.
+  // Backup completo: progetto attivo per primo, poi gli altri per data.
   const ordered = {};
   if (current && projects[current.id]) ordered[current.id] = projects[current.id];
   Object.values(projects)
@@ -955,25 +1086,14 @@ function exportProject() {
 
   const data = {
     type: 'sql-lab-project',
-    version: '3.1',
+    version: '3.2',
     currentProjectId: current ? current.id : null,
     projects: ordered,
     exportedAt: new Date().toISOString()
   };
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const slug = (current ? current.name : 'backup')
-    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'progetto';
-  a.href = url;
-  a.download = `sql-lab-${slug}-${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  const count = Object.keys(ordered).length;
-  setStatus('ready', current ? `Esportati ${count} progetti · attivo: ${current.name}` : `Esportati ${count} progetti`);
+  downloadJson(data, `sql-lab-backup-${new Date().toISOString().slice(0,10)}.json`);
+  const n = Object.keys(ordered).length;
+  setStatus('ready', `Esportat${n === 1 ? 'o' : 'i'} ${n} ${n === 1 ? 'progetto' : 'progetti'} (backup completo)`);
 }
 
 function importProject(event) {
@@ -996,16 +1116,18 @@ function importProject(event) {
       saveProjects({ ...getProjects(), ...valid });
       loadProjectList();
 
-      // Attiva il progetto indicato nell'export (o il più recente), lo carica
-      // negli editor ed esegue subito lo schema per creare il database.
+      // Attiva il progetto indicato nell'export (o il più recente): loadProject
+      // lo carica negli editor ed esegue automaticamente lo schema.
       const preferred = (data.currentProjectId && valid[data.currentProjectId])
         ? data.currentProjectId
         : importedIds.sort((a, b) => new Date(valid[b].savedAt) - new Date(valid[a].savedAt))[0];
       loadProject(preferred);
       const hasSchema = valid[preferred].schema.trim().length > 0;
-      if (hasSchema) runSchema();
 
-      alert(`✅ Importati ${importedIds.length} progetti.\n📂 Progetto «${valid[preferred].name}» caricato${hasSchema ? ' e database eseguito' : ' (schema vuoto: nessun database creato)'}.`);
+      const countMsg = importedIds.length === 1
+        ? '1 progetto importato'
+        : `${importedIds.length} progetti importati`;
+      alert(`✅ ${countMsg}.\n📂 Progetto «${valid[preferred].name}» caricato${hasSchema ? ' e database eseguito' : ' (schema vuoto: nessun database creato)'}.`);
     } catch (err) { alert('Errore importazione: ' + err.message); }
   };
   reader.readAsText(file);
