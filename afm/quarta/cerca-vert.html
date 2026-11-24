@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lezione su CERCA.VERT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Tema unico scuro: sfondo a griglia di foglio di calcolo con bagliori; card in vetro; colori neon = argomenti della formula */
+:root{
+  --bg:#070b10;
+  --glass:rgba(255,255,255,.045);
+  --glass-2:rgba(255,255,255,.08);
+  --line:rgba(255,255,255,.10);
+  --ink:#eef3f1;
+  --muted:#9aa8a3;
+  --accent:#34e3a0;
+  --accent-2:#22c8ee;
+  --c-valore:#ffad5c; --c-valore-soft:rgba(255,173,92,.14);
+  --c-tabella:#34e3a0; --c-tabella-soft:rgba(52,227,160,.12);
+  --c-indice:#6fa8ff; --c-indice-soft:rgba(111,168,255,.16);
+  --c-interv:#d48cff; --c-interv-soft:rgba(212,140,255,.15);
+  --hit:#ffd84d;
+  --err:#ff6b7a; --err-soft:rgba(255,107,122,.14);
+  --f-display:"Unbounded","Segoe UI",system-ui,sans-serif;
+  --f-body:"Manrope","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;background:var(--bg);position:relative;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-2;
+  background:
+   radial-gradient(600px 420px at 12% 8%,rgba(52,227,160,.20),transparent 70%),
+   radial-gradient(520px 420px at 92% 18%,rgba(34,200,238,.16),transparent 70%),
+   radial-gradient(640px 520px at 70% 95%,rgba(212,140,255,.14),transparent 70%),
+   var(--bg)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:96px 28px;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse at 50% 0%,#000 30%,transparent 80%)}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent-2);outline-offset:3px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+.prose{max-width:62ch}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15;letter-spacing:-.01em}
+h2{font-size:clamp(24px,3.6vw,32px);font-weight:700;margin:0 0 14px}
+h3{font-size:17px;font-weight:600;margin:26px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+code,.mono{font-family:var(--f-mono);font-size:.9em}
+p code,li code,td code,.note code{background:var(--glass-2);padding:1px 6px;border-radius:5px}
+
+/* hero */
+header.top{padding:64px 0 40px;position:relative}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:13px;color:var(--accent);border:1px solid rgba(52,227,160,.35);background:rgba(52,227,160,.08);padding:5px 12px;border-radius:999px}
+.kicker::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+h1{font-size:clamp(36px,7vw,68px);font-weight:800;margin:18px 0 10px}
+h1 code{font-family:var(--f-display);font-size:1em;font-weight:800;
+  background:linear-gradient(100deg,var(--accent) 0%,var(--accent-2) 45%,var(--c-interv) 90%);
+  background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shine 8s ease-in-out infinite alternate}
+@keyframes shine{to{background-position:100% 0}}
+.lead{font-size:clamp(19px,2.6vw,23px);color:var(--muted);margin:0}
+
+/* nav */
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(7,11,16,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav.toc ul{list-style:none;margin:0 auto;padding:10px 20px;display:flex;gap:6px;overflow-x:auto;max-width:1000px}
+nav.toc a{display:block;white-space:nowrap;text-decoration:none;color:var(--muted);font-size:14px;font-weight:700;padding:7px 14px;border-radius:999px;border:1px solid transparent;transition:.2s}
+nav.toc a:hover{color:var(--ink);background:var(--glass-2)}
+nav.toc a.ex{color:var(--bg);background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+nav.toc a.ex:hover{box-shadow:0 0 18px rgba(52,227,160,.45)}
+
+section{padding:56px 0;scroll-margin-top:60px;position:relative}
+section + section::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent)}
+.secnum{display:inline-block;font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px;letter-spacing:.1em}
+.note{color:var(--muted);font-size:15.5px;margin:10px 0 0}
+
+/* card base */
+.step,.arg,.sim,.excard,.warns .w,.sheetbox,details,.cmp,.facts div,.check{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+
+/* passi */
+.steps{display:flex;align-items:stretch;gap:12px;flex-wrap:wrap;margin-top:22px}
+.step{flex:1;min-width:160px;border-radius:16px;padding:18px;font-size:16.5px;transition:transform .25s,box-shadow .25s}
+.step:hover{transform:translateY(-4px);box-shadow:0 12px 30px -12px rgba(52,227,160,.45)}
+.step .n{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;margin-bottom:10px;font-family:var(--f-display);font-weight:700;color:var(--bg);background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 0 16px rgba(52,227,160,.4)}
+.step strong{color:var(--ink)}
+.arrow{align-self:center;font-size:22px;color:var(--accent);text-shadow:0 0 10px var(--accent)}
+@media (max-width:620px){.arrow{display:none}.step{flex-basis:100%}}
+
+/* formula */
+.formula{position:relative;font-family:var(--f-mono);font-size:clamp(15px,2.4vw,22px);background:rgba(0,0,0,.45);border-radius:14px;padding:18px 20px;overflow-x:auto;white-space:nowrap;margin:18px 0;border:1px solid var(--line)}
+#sintassi > .formula{border:1px solid transparent;background:linear-gradient(#0b1117,#0b1117) padding-box,linear-gradient(90deg,var(--c-valore),var(--c-tabella),var(--c-indice),var(--c-interv)) border-box;box-shadow:0 0 40px -10px rgba(111,168,255,.35)}
+.formula .fn{color:var(--ink);font-weight:600}
+.a1{color:var(--c-valore);font-weight:600;text-shadow:0 0 12px rgba(255,173,92,.35)}
+.a2{color:var(--c-tabella);font-weight:600;text-shadow:0 0 12px rgba(52,227,160,.35)}
+.a3{color:var(--c-indice);font-weight:600;text-shadow:0 0 12px rgba(111,168,255,.35)}
+.a4{color:var(--c-interv);font-weight:600;text-shadow:0 0 12px rgba(212,140,255,.35)}
+
+/* argomenti */
+.args{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:18px 0}
+.arg{position:relative;border-radius:16px;padding:16px 18px;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.arg::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--c)}
+.arg::after{content:"";position:absolute;width:120px;height:120px;right:-40px;top:-50px;border-radius:50%;background:var(--c);opacity:.12;filter:blur(20px)}
+.arg:hover{transform:translateY(-3px);box-shadow:0 14px 30px -14px var(--c)}
+.arg h4{margin:0 0 6px;font-family:var(--f-mono);font-size:15px;color:var(--c)}
+.arg p{margin:0;font-size:15.5px;color:var(--ink)}
+.arg .num4{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.arg.v{--c:var(--c-valore)} .arg.t{--c:var(--c-tabella)} .arg.i{--c:var(--c-indice)} .arg.r{--c:var(--c-interv)}
+
+/* FALSO vs VERO */
+.p4{margin-top:30px;border-radius:20px;padding:22px;border:1px solid rgba(212,140,255,.35);background:linear-gradient(160deg,rgba(212,140,255,.10),rgba(255,255,255,.02));box-shadow:0 0 50px -20px rgba(212,140,255,.5)}
+.p4 h3{margin:0 0 6px;color:var(--c-interv);text-transform:none;letter-spacing:0;font-size:20px}
+.p4 > p{margin:0 0 16px;color:var(--muted)}
+.p4-demo{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;font-size:15.5px}
+.minilist{display:inline-flex;gap:6px}
+.minilist span{font-family:var(--f-mono);font-size:14px;padding:4px 10px;border-radius:8px;background:var(--glass-2);border:1px solid var(--line)}
+.p4-demo .q{font-family:var(--f-mono);font-weight:700;color:var(--c-valore);padding:4px 10px;border-radius:8px;background:var(--c-valore-soft);border:1px dashed var(--c-valore)}
+.cmpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.cmp{border-radius:16px;padding:18px}
+.cmp .big{font-family:var(--f-display);font-size:26px;font-weight:800;margin:0}
+.cmp .sub{margin:2px 0 12px;font-weight:700}
+.cmp.f .big{color:var(--accent)} .cmp.vv .big{color:var(--c-interv)}
+.cmp ul{margin:0;padding-left:18px;font-size:15.5px}
+.cmp li{margin-bottom:6px}
+.cmp .out{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:15px;flex-wrap:wrap}
+.chip{font-family:var(--f-mono);font-weight:700;font-size:14px;padding:3px 10px;border-radius:8px}
+.chip.bad{color:var(--err);background:var(--err-soft)}
+.chip.ok{color:var(--bg);background:var(--c-interv)}
+.chip.g{color:var(--bg);background:var(--accent)}
+.rule{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+.rule div{flex:1;min-width:220px;padding:12px 16px;border-radius:12px;background:rgba(0,0,0,.35);font-size:15.5px}
+.rule b{font-family:var(--f-mono)}
+
+/* foglio */
+.sheetbox{overflow-x:auto;margin:12px 0;border-radius:12px}
+table.sheet{border-collapse:collapse;font-size:14.5px;font-variant-numeric:tabular-nums;min-width:100%}
+table.sheet th,table.sheet td{border:1px solid rgba(255,255,255,.07);padding:6px 11px;text-align:left;white-space:nowrap}
+table.sheet thead th{background:rgba(255,255,255,.04);color:var(--muted);font-family:var(--f-mono);font-weight:400;font-size:12px;text-align:center}
+table.sheet th.rn{background:rgba(255,255,255,.04);color:var(--muted);font-family:var(--f-mono);font-weight:400;font-size:12px;text-align:center;width:34px}
+table.sheet tr.hdr td{font-weight:800;color:var(--accent-2);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+table.sheet td.num{text-align:right}
+table.sheet td.todo{color:var(--muted);background:repeating-linear-gradient(135deg,transparent 0 7px,rgba(52,227,160,.07) 7px 9px)}
+table.sheet td.sol{color:var(--accent);font-weight:700}
+table.sheet tr.tot td{font-weight:800;border-top:2px solid var(--accent)}
+.sheetname{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--accent);margin-top:18px;margin-bottom:6px}
+.sheetname::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+
+/* simulatore */
+.sim{border-radius:20px;padding:20px;margin:18px 0;box-shadow:0 30px 60px -30px rgba(0,0,0,.8)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end}
+.controls label{display:block;font-size:12px;font-weight:800;margin-bottom:5px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.06em}
+.controls label.v{color:var(--c-valore)} .controls label.i{color:var(--c-indice)} .controls label.r{color:var(--c-interv)}
+select,input[type=number],input[type=text]{width:100%;font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.4);color:var(--ink);transition:border-color .2s,box-shadow .2s}
+select:focus,input:focus{border-color:var(--accent-2);box-shadow:0 0 0 3px rgba(34,200,238,.2);outline:none}
+select option{background:#0b1117}
+button{font:inherit;font-weight:800;font-size:15px;cursor:pointer;border-radius:10px;padding:11px 20px;border:0;color:var(--bg);background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 6px 20px -6px rgba(52,227,160,.6);transition:transform .15s,box-shadow .2s}
+button:hover{transform:translateY(-1px);box-shadow:0 10px 26px -6px rgba(34,200,238,.7)}
+button:active{transform:translateY(1px)}
+button.ghost{background:transparent;color:var(--accent);border:1px solid rgba(52,227,160,.45);box-shadow:none;padding:7px 14px;font-size:14px}
+button.ghost:hover{background:rgba(52,227,160,.1)}
+.fbar{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:16px 0 12px;font-family:var(--f-mono);font-size:14.5px;background:rgba(0,0,0,.4)}
+.fbar .fx{color:var(--accent-2);padding:9px 12px;font-style:italic;border-right:1px solid var(--line)}
+.fbar .ftext{padding:9px 12px;overflow-x:auto;white-space:nowrap;flex:1;min-width:0}
+#simTable td{transition:background .2s,box-shadow .2s}
+#simTable td.inrange{background:rgba(52,227,160,.04)}
+#simTable td.colA{box-shadow:inset 3px 0 0 var(--c-valore)}
+#simTable td.scan{background:var(--c-valore-soft);box-shadow:inset 3px 0 0 var(--c-valore),0 0 18px rgba(255,173,92,.4)}
+#simTable td.idxcol{background:var(--c-indice-soft)}
+#simTable th.idxhead{background:var(--c-indice-soft);color:var(--c-indice);font-weight:800}
+#simTable td.keyhit{background:var(--c-valore-soft);outline:2px solid var(--c-valore);outline-offset:-2px;font-weight:800}
+#simTable td.hit{background:var(--hit);color:#1a1400;font-weight:800;outline:0;box-shadow:0 0 24px rgba(255,216,77,.6);animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.result{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.rcell{font-family:var(--f-mono);font-size:24px;font-weight:800;padding:10px 20px;border-radius:12px;background:var(--hit);color:#1a1400;min-width:130px;text-align:center;box-shadow:0 0 30px -6px rgba(255,216,77,.6)}
+.rcell.bad{background:var(--err-soft);color:var(--err);box-shadow:0 0 30px -8px rgba(255,107,122,.6);border:1px solid rgba(255,107,122,.5)}
+.rexpl{flex:1;min-width:220px;margin:0;font-size:15.5px}
+
+/* esempi */
+.ex-grid{display:grid;gap:16px}
+.ex-grid.two{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.excard{border-radius:18px;padding:20px;transition:transform .25s,border-color .25s,box-shadow .25s;min-width:0}
+.excard:hover{transform:translateY(-4px);border-color:rgba(52,227,160,.35);box-shadow:0 18px 40px -20px rgba(52,227,160,.45)}
+.excard h3{margin:0 0 10px;font-size:17px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.excard .formula{font-size:14px;padding:12px 14px;margin:12px 0 0}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;margin-left:6px;vertical-align:3px}
+.tag.ex{background:var(--c-tabella-soft);color:var(--c-tabella)}
+.tag.ap{background:var(--c-interv-soft);color:var(--c-interv)}
+.range-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.range-row input[type=range]{flex:1;min-width:160px;accent-color:var(--c-interv)}
+#scaTable td.hit{background:var(--hit);color:#1a1400;font-weight:800}
+#scaTable td.cand{background:var(--c-interv-soft)}
+
+/* attenzione */
+.warns{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.warns .w{border-radius:16px;padding:16px 18px;border-left:3px solid var(--err)}
+.warns .w p{margin:8px 0 0;font-size:15.5px}
+.errcode{font-family:var(--f-mono);font-weight:800;font-size:18px;color:var(--err);text-shadow:0 0 14px rgba(255,107,122,.4)}
+
+/* esercizi */
+.exhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px}
+.level{font-family:var(--f-mono);font-size:12px;font-weight:800;padding:4px 12px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em}
+.level.easy{background:var(--c-tabella-soft);color:var(--c-tabella);border:1px solid rgba(52,227,160,.4)}
+.level.mid{background:var(--c-valore-soft);color:var(--c-valore);border:1px solid rgba(255,173,92,.4)}
+.datagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:4px 18px;align-items:start}
+.datagrid > div{min-width:0}
+.copyrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.copymsg{font-size:13.5px;color:var(--accent)}
+textarea.fallback{width:100%;height:110px;font-family:var(--f-mono);font-size:12.5px;margin-top:8px;display:none;background:rgba(0,0,0,.4);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px}
+.todo-list{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+.todo-list li{background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:8px 16px 8px 38px;position:relative;font-size:15.5px;transition:border-color .2s,background .2s}
+.todo-list li:hover{border-color:rgba(52,227,160,.5);background:rgba(52,227,160,.06)}
+.todo-list li::before{content:"";position:absolute;left:14px;top:50%;width:14px;height:14px;margin-top:-7px;border:2px solid var(--accent);border-radius:4px;box-shadow:0 0 8px rgba(52,227,160,.4)}
+.todo-list li.bonus{border-style:dashed;border-color:rgba(255,173,92,.45);border-radius:12px}
+.todo-list li.bonus::before{border-color:var(--c-valore);box-shadow:0 0 8px rgba(255,173,92,.4)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:16px 0}
+.facts div{border-radius:14px;padding:14px 16px;font-size:15.5px}
+.facts strong{display:block;font-family:var(--f-display);font-size:15px;color:var(--accent);margin-bottom:2px}
+.check{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-radius:16px;padding:14px 18px;margin:22px 0;border-color:rgba(34,200,238,.35);box-shadow:0 0 40px -20px rgba(34,200,238,.6)}
+.check label{font-weight:800}
+.check input{max-width:200px}
+.check .msg{font-weight:800}
+.check .msg.ok{color:var(--accent);text-shadow:0 0 10px rgba(52,227,160,.6)}
+.check .msg.no{color:var(--err)}
+details{border-radius:16px;margin:14px 0;padding:0 18px}
+details[open]{padding-bottom:16px}
+summary{cursor:pointer;font-weight:800;padding:14px 0;color:var(--muted)}
+summary:hover{color:var(--ink)}
+details .formula{font-size:13.5px;padding:12px 14px;margin:10px 0;white-space:pre;line-height:1.75}
+details p{margin:16px 0 4px}
+
+footer{padding:36px 0 60px;color:var(--muted);font-size:14px;text-align:center}
+
+
+/* esempio più tabelle */
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:20px 0}
+.chain i{font-style:normal;color:var(--muted);font-size:18px}
+.chain .sep{width:1px;height:34px;background:var(--line);margin:0 8px}
+.ch{display:flex;flex-direction:column;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--glass);transition:all .3s;opacity:.45}
+.ch span{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.ch b{font-family:var(--f-mono);font-size:15px}
+.ch.on{opacity:1;border-color:rgba(255,216,77,.6);box-shadow:0 0 22px -6px rgba(255,216,77,.6)}
+.ch.on b{color:var(--hit)}
+.mt-ctrl{display:flex;flex-wrap:wrap;gap:14px;align-items:end;justify-content:space-between;margin:10px 0}
+.mt-ctrl label{display:block;font-size:12px;font-weight:800;margin-bottom:5px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--c-valore)}
+.mt-ctrl select{width:auto;min-width:120px}
+.mt-btns{display:flex;gap:8px}
+.mt-btns button.ghost{padding:11px 16px;font-size:15px}
+.mt-btns button:disabled{opacity:.35;cursor:default;transform:none}
+.dots{display:flex;gap:6px;align-self:center}
+.dots span{width:28px;height:6px;border-radius:3px;background:var(--glass-2);transition:background .3s}
+.dots span.on{background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 0 10px rgba(52,227,160,.5)}
+.stepbox{border-radius:18px;padding:18px 20px;margin:14px 0 8px;background:linear-gradient(160deg,rgba(34,200,238,.10),rgba(255,255,255,.02));border:1px solid rgba(34,200,238,.3)}
+.stepbox .stepn{font-family:var(--f-mono);font-size:12px;color:var(--accent-2);font-weight:700;letter-spacing:.08em}
+.stepbox h3{margin:4px 0 6px;font-size:19px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.stepbox p{margin:0;font-size:16px;max-width:70ch}
+.stepbox .formula{font-size:clamp(13px,1.9vw,16px);margin:12px 0 0;padding:12px 14px}
+.stepbox .formula .res{color:var(--hit);font-weight:800}
+.stepbox .formula .cell{color:var(--muted)}
+.mt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:4px 16px}
+.mt-grid > div{min-width:0}
+.mt-grid table.sheet th,.mt-grid table.sheet td{padding:6px 8px}
+.mt td{transition:background .25s,box-shadow .25s,color .25s}
+.mt tr.sel td{background:rgba(255,255,255,.05)}
+.mt td.key{background:var(--c-valore-soft);outline:2px solid var(--c-valore);outline-offset:-2px;font-weight:800}
+.mt td.hit{background:var(--hit);color:#1a1400;font-weight:800;box-shadow:0 0 20px rgba(255,216,77,.55);animation:pop .4s ease}
+.mt td.row{background:var(--c-indice-soft)}
+.mt td.done{color:var(--accent);font-weight:700}
+.mt tbody tr td.key{background:var(--c-valore-soft);color:var(--ink);outline:2px solid var(--c-valore);outline-offset:-2px;font-weight:800}
+.mt tbody tr td.hit{background:var(--hit);color:#1a1400;font-weight:800;box-shadow:0 0 20px rgba(255,216,77,.55)}
+.ponte{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:18px}
+.ponte > div{border-radius:16px;padding:16px 18px;background:var(--glass);border:1px solid var(--line);border-left:3px solid var(--accent-2)}
+.ponte strong{font-family:var(--f-display);font-size:15px;color:var(--accent-2)}
+.ponte p{margin:6px 0 0;font-size:15.5px}
+@media (max-width:520px){body{font-size:16px}.wrap{padding:0 16px}section{padding:42px 0}header.top{padding:44px 0 28px}}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <span class="kicker">4ª AFM · Fogli di calcolo</span>
+    <h1>La funzione <code>CERCA.VERT</code></h1>
+    <p class="lead">Dai un codice, Excel trova il dato che ti serve.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sezioni della lezione">
+  <ul>
+    <li><a href="#cos-e">Cos'è</a></li>
+    <li><a href="#sintassi">Sintassi</a></li>
+    <li><a href="#simulatore">Prova</a></li>
+    <li><a href="#esempi">Esempi</a></li>
+    <li><a href="#piu-tabelle">Più tabelle</a></li>
+    <li><a href="#attenzione">Attenzione</a></li>
+  </ul>
+</nav>
+
+<main class="wrap">
+
+<section id="cos-e">
+  <span class="secnum">01</span>
+  <h2>Cos'è</h2>
+  <p class="prose">Hai un <strong>codice</strong> (prodotto, cliente…) e ti serve un dato che sta in un'altra tabella: prezzo, nome, sconto. CERCA.VERT lo recupera da sola.</p>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><strong>Scende</strong> lungo la prima colonna</div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step"><span class="n">2</span><strong>Trova</strong> la riga con il codice</div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step"><span class="n">3</span><strong>Va a destra</strong> fino alla colonna scelta</div>
+  </div>
+</section>
+
+<section id="sintassi">
+  <span class="secnum">02</span>
+  <h2>Sintassi</h2>
+  <div class="formula" aria-label="Sintassi della funzione">
+    <span class="fn">=CERCA.VERT(</span><span class="a1">valore</span>; <span class="a2">matrice_tabella</span>; <span class="a3">indice</span>; <span class="a4">intervallo</span><span class="fn">)</span>
+  </div>
+  <div class="args">
+    <div class="arg v"><span class="num4">1°</span><h4>valore</h4><p>Cosa cerco?</p></div>
+    <div class="arg t"><span class="num4">2°</span><h4>matrice_tabella</h4><p>Dove? Il codice va nella 1ª colonna.</p></div>
+    <div class="arg i"><span class="num4">3°</span><h4>indice</h4><p>Quale colonna voglio? (si conta da 1)</p></div>
+    <div class="arg r"><span class="num4">4°</span><h4>intervallo</h4><p>Cerco il valore <strong>esatto</strong> o mi va bene il <strong>più vicino</strong>?</p></div>
+  </div>
+  <p class="note">In Excel italiano si separa con il <code>;</code></p>
+
+  <div class="p4">
+    <h3>Il 4° parametro: FALSO o VERO?</h3>
+    <p>Decide cosa fa Excel quando il valore cercato <strong>non è identico</strong> a uno della tabella.</p>
+    <div class="p4-demo">Cerco <span class="q">B02</span> nella colonna <span class="minilist"><span>A01</span><span>B01</span><span>B03</span><span>C01</span></span></div>
+    <div class="cmpgrid">
+      <div class="cmp f">
+        <p class="big">FALSO</p>
+        <p class="sub">Corrispondenza esatta</p>
+        <ul>
+          <li>Accetta solo il valore identico</li>
+          <li>Se non c'è, lo dice con un errore</li>
+        </ul>
+        <div class="out">Risultato: <span class="chip bad">#N/D</span> B02 non esiste</div>
+      </div>
+      <div class="cmp vv">
+        <p class="big">VERO</p>
+        <p class="sub">Corrispondenza approssimata</p>
+        <ul>
+          <li>Prende il valore più vicino <strong>per difetto</strong></li>
+          <li>La prima colonna deve essere in ordine crescente</li>
+        </ul>
+        <div class="out">Risultato: <span class="chip ok">B01</span> il più vicino, ma è un altro prodotto!</div>
+      </div>
+    </div>
+    <div class="rule">
+      <div><span class="chip g">FALSO</span> per <b>codici, nomi, partite IVA</b>: devono essere uguali.</div>
+      <div><span class="chip ok">VERO</span> per <b>fasce e scaglioni</b>: sconti per quantità, spese di spedizione.</div>
+    </div>
+    <p class="note">Se non scrivi nulla, Excel usa VERO. Per questo con i codici va sempre scritto FALSO.</p>
+  </div>
+</section>
+
+<section id="simulatore">
+  <span class="secnum">03</span>
+  <h2>Prova tu</h2>
+  <p class="prose">Scegli gli argomenti e guarda cosa fa Excel. Prova B02 prima con FALSO, poi con VERO.</p>
+
+  <div class="sim">
+    <div class="controls">
+      <div>
+        <label class="v" for="simVal">valore</label>
+        <select id="simVal">
+          <option>A01</option><option>A02</option><option>B01</option><option selected>B03</option>
+          <option>C01</option><option>C02</option><option>D01</option><option>D02</option>
+          <option value="B02">B02 (non esiste)</option>
+          <option value="Z99">Z99 (non esiste)</option>
+          <option value="A00">A00 (non esiste)</option>
+        </select>
+      </div>
+      <div>
+        <label class="i" for="simIdx">indice</label>
+        <input id="simIdx" type="number" min="0" max="7" value="4">
+      </div>
+      <div>
+        <label class="r" for="simInt">intervallo (4°)</label>
+        <select id="simInt"><option value="FALSO" selected>FALSO · esatta</option><option value="VERO">VERO · approssimata</option></select>
+      </div>
+      <div><button id="simRun" type="button">Cerca</button></div>
+    </div>
+
+    <div class="fbar" aria-live="polite"><span class="fx">fx</span><span class="ftext" id="simFormula"></span></div>
+    <div class="sheetbox"><table class="sheet" id="simTable"></table></div>
+    <div class="result">
+      <div class="rcell" id="simRes">—</div>
+      <p class="rexpl" id="simExpl"></p>
+    </div>
+  </div>
+</section>
+
+<section id="esempi">
+  <span class="secnum">04</span>
+  <h2>Esempi</h2>
+  <div class="ex-grid two">
+
+    <article class="excard">
+      <h3>Prezzo dal listino <span class="tag ex">FALSO</span></h3>
+      <div class="sheetbox"><table class="sheet">
+        <thead><tr><th></th><th>H</th><th>I</th><th>J</th></tr></thead>
+        <tbody>
+          <tr class="hdr"><th class="rn">1</th><td>Codice</td><td>Descrizione</td><td>Prezzo</td></tr>
+          <tr><th class="rn">2</th><td>P01</td><td>Penne</td><td class="num">3,20</td></tr>
+          <tr><th class="rn">3</th><td>P02</td><td>Blocco note</td><td class="num">2,10</td></tr>
+          <tr><th class="rn">4</th><td>P03</td><td>Agenda</td><td class="num sol">7,50</td></tr>
+        </tbody></table></div>
+      <div class="formula">=CERCA.VERT(<span class="a1">"P03"</span>;<span class="a2">$H$2:$J$4</span>;<span class="a3">3</span>;<span class="a4">FALSO</span>) → 7,50</div>
+      <p class="note">Indice 3: J è la 3ª colonna <em>della tabella</em>.</p>
+    </article>
+
+    <article class="excard">
+      <h3>Sconto a scaglioni <span class="tag ap">VERO</span></h3>
+      <div class="range-row">
+        <label for="scaQ">Quantità: <strong class="mono" id="scaQv">37</strong></label>
+        <input type="range" id="scaQ" min="1" max="150" value="37">
+      </div>
+      <div class="sheetbox"><table class="sheet" id="scaTable"></table></div>
+      <div class="formula" id="scaF"></div>
+      <p class="note">Con VERO prende lo scaglione più vicino per difetto. Prima colonna in ordine crescente.</p>
+    </article>
+
+    <article class="excard">
+      <h3>Codice che non esiste</h3>
+      <div class="formula">=SE.ERRORE(CERCA.VERT(…);<span class="a1">"Codice errato"</span>)</div>
+      <p class="note">Al posto di <code>#N/D</code> compare il messaggio che scegli tu.</p>
+    </article>
+
+    <article class="excard">
+      <h3>Tabella su un altro foglio</h3>
+      <div class="formula">=CERCA.VERT(A2;<span class="a2">Listino!$A$2:$C$50</span>;3;FALSO)</div>
+      <p class="note">Nome del foglio + <code>!</code> prima dell'intervallo.</p>
+    </article>
+  </div>
+</section>
+
+<section id="piu-tabelle">
+  <span class="secnum">05</span>
+  <h2>Esempio guidato: più tabelle</h2>
+  <p class="prose"><strong>Caffè Toscano Distribuzione</strong> rifornisce bar e hotel. Per ogni ordine vuole sapere quanto spetta all'agente che segue il cliente. L'ordine contiene solo codici: servono <strong>tre ricerche in tre tabelle diverse</strong>.</p>
+
+  <div class="chain" aria-label="Percorso della ricerca">
+    <div class="ch" data-k="1"><span>Ordini</span><b id="chA">articolo</b></div><i>→</i>
+    <div class="ch" data-k="1"><span>Listino</span><b id="chB">prezzo</b></div>
+    <div class="sep"></div>
+    <div class="ch" data-k="2"><span>Ordini</span><b id="chC">cliente</b></div><i>→</i>
+    <div class="ch" data-k="2"><span>Clienti</span><b id="chD">agente</b></div><i>→</i>
+    <div class="ch" data-k="3"><span>Agenti</span><b id="chE">provvigione</b></div>
+  </div>
+
+  <div class="mt-ctrl">
+    <div>
+      <label for="mtSel">Segui l'ordine</label>
+      <select id="mtSel"><option value="0">2101</option><option value="1">2102</option><option value="2">2103</option></select>
+    </div>
+    <div class="dots" id="mtDots" aria-hidden="true"></div>
+    <div class="mt-btns">
+      <button type="button" class="ghost" id="mtPrev">← Indietro</button>
+      <button type="button" id="mtNext">Avanti →</button>
+    </div>
+  </div>
+
+  <div class="stepbox">
+    <span class="stepn" id="mtStepN"></span>
+    <h3 id="mtTitle"></h3>
+    <p id="mtText"></p>
+    <div class="formula" id="mtF"></div>
+  </div>
+
+  <div class="sheetname">Ordini</div>
+  <div class="sheetbox mt" style="margin-top:0"><table class="sheet" id="mtOrd"></table></div>
+
+  <div class="mt-grid">
+    <div><div class="sheetname">Listino</div><div class="sheetbox mt" style="margin-top:0"><table class="sheet" id="mtLis"></table></div></div>
+    <div><div class="sheetname">Clienti</div><div class="sheetbox mt" style="margin-top:0"><table class="sheet" id="mtCli"></table></div></div>
+    <div><div class="sheetname">Agenti</div><div class="sheetbox mt" style="margin-top:0"><table class="sheet" id="mtAge"></table></div></div>
+  </div>
+
+  <div class="ponte">
+    <div><strong>La colonna ponte</strong><p>Ordini e Agenti non hanno niente in comune. Li collega la colonna <em>Agente</em> del foglio Clienti.</p></div>
+    <div><strong>Il risultato diventa il valore</strong><p>Il codice agente trovato con la prima ricerca è il <span class="a1">valore</span> da cercare nella seconda.</p></div>
+  </div>
+</section>
+
+<section id="attenzione">
+  <span class="secnum">06</span>
+  <h2>Attenzione a…</h2>
+  <div class="warns">
+    <div class="w"><span class="errcode">$</span><p>Blocca la tabella prima di trascinare: <code>$H$2:$J$4</code>. Tasto <strong>F4</strong>.</p></div>
+    <div class="w"><span class="errcode">#N/D</span><p>Codice non trovato: errore di battitura, spazi, tabella non bloccata.</p></div>
+    <div class="w"><span class="errcode">#RIF!</span><p>Indice più grande delle colonne della tabella.</p></div>
+    <div class="w"><span class="errcode">FALSO</span><p>Se lo dimentichi, Excel può darti un dato sbagliato <strong>senza errore</strong>.</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">4ª AFM · Vale anche per Google Fogli · Dati inventati a scopo didattico</div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var reduceMotion = false;
+try { reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){}
+
+var LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!==undefined) e.textContent=text; return e; }
+function num2(n){ return n.toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function eur(n){ return "€ " + num2(n); }
+function pct(n){ return Math.round(n*100) + "%"; }
+function r2(n){ return Math.round(n*100)/100; }
+
+/* Disegna una tabella stile foglio: header = intestazioni riga 1; rows = celle {v, cls} o stringhe */
+function drawSheet(table, header, rows, opts){
+  opts = opts || {};
+  table.innerHTML = "";
+  var ncol = header.length;
+  var thead = el("thead"), tr = el("tr");
+  tr.appendChild(el("th",""));
+  for (var c=0;c<ncol;c++){ var th = el("th","",LETTERS[c]); th.dataset.col=c; tr.appendChild(th); }
+  thead.appendChild(tr); table.appendChild(thead);
+  var tb = el("tbody");
+  var hr = el("tr","hdr"); hr.appendChild(el("th","rn","1"));
+  header.forEach(function(h){ hr.appendChild(el("td","",h)); });
+  tb.appendChild(hr);
+  rows.forEach(function(row, i){
+    var r = el("tr", row.rowCls || ""); r.appendChild(el("th","rn", String(i+2)));
+    (row.cells || row).forEach(function(cell, c){
+      var o = (typeof cell === "object" && cell !== null) ? cell : {v:cell};
+      var td = el("td", o.cls || "", o.v === undefined ? "" : String(o.v));
+      td.dataset.r = i; td.dataset.c = c;
+      r.appendChild(td);
+    });
+    tb.appendChild(r);
+  });
+  table.appendChild(tb);
+}
+
+/* ---------------- SIMULATORE ---------------- */
+var SIM_H = ["Codice","Prodotto","Reparto","Prezzo €","Giacenza"];
+var SIM = [
+  ["A01","Mouse wireless","Informatica",19.90,34],
+  ["A02","Tastiera USB","Informatica",24.50,12],
+  ["B01","Cuffie Bluetooth","Audio",49.00,8],
+  ["B03","Cassa portatile","Audio",39.90,15],
+  ["C01","Caricatore USB-C","Accessori",15.00,50],
+  ["C02","Cavo HDMI 2 m","Accessori",9.90,41],
+  ["D01","Smartwatch","Wearable",129.00,6],
+  ["D02","Fitness band","Wearable",45.00,10]
+];
+function simShow(v, c){ return (c===3) ? num2(v) : String(v); }
+var simTable = document.getElementById("simTable");
+function simDraw(){
+  drawSheet(simTable, SIM_H, SIM.map(function(r){
+    return r.map(function(v,c){ return {v:simShow(v,c), cls:(c>=3?"num":"")}; });
+  }));
+}
+simDraw();
+var sVal = document.getElementById("simVal"), sIdx = document.getElementById("simIdx"), sInt = document.getElementById("simInt");
+var sF = document.getElementById("simFormula"), sRes = document.getElementById("simRes"), sExpl = document.getElementById("simExpl");
+function simFormula(){
+  sF.innerHTML = '=CERCA.VERT(<span class="a1">"' + sVal.value + '"</span>;<span class="a2">A2:E9</span>;<span class="a3">' + (sIdx.value||"") + '</span>;<span class="a4">' + sInt.value + '</span>)';
+}
+[sVal,sIdx,sInt].forEach(function(x){ x.addEventListener("input", simFormula); x.addEventListener("change", simFormula); });
+simFormula();
+
+var runToken = 0;
+function cells(){ return simTable.querySelectorAll("tbody td[data-r]"); }
+function clearMarks(){
+  cells().forEach(function(td){ td.classList.remove("scan","inrange","idxcol","keyhit","hit","colA"); });
+  simTable.querySelectorAll("thead th").forEach(function(th){ th.classList.remove("idxhead"); });
+}
+function cell(r,c){ return simTable.querySelector('tbody td[data-r="'+r+'"][data-c="'+c+'"]'); }
+
+function simRun(){
+  var token = ++runToken;
+  clearMarks();
+  var val = sVal.value, idx = parseInt(sIdx.value,10), approx = sInt.value === "VERO";
+  cells().forEach(function(td){ td.classList.add("inrange"); if(td.dataset.c==="0") td.classList.add("colA"); });
+  sRes.className = "rcell"; sRes.textContent = "…";
+  sExpl.textContent = "Sto cercando…";
+
+  if (isNaN(idx) || idx < 1){ return finish(null, "#VALORE!", "L'indice parte da 1."); }
+  if (idx > 5){ return finish(null, "#RIF!", "La tabella ha solo 5 colonne."); }
+  var th = simTable.querySelector('thead th[data-col="'+(idx-1)+'"]'); if (th) th.classList.add("idxhead");
+  for (var r=0;r<SIM.length;r++){ cell(r,idx-1).classList.add("idxcol"); }
+
+  // calcolo risultato
+  var found = -1, stopAt;
+  if (!approx){
+    for (var i=0;i<SIM.length;i++){ if (SIM[i][0] === val){ found = i; break; } }
+    stopAt = found >= 0 ? found : SIM.length-1;
+  } else {
+    for (var j=0;j<SIM.length;j++){ if (SIM[j][0] <= val) found = j; else break; }
+    stopAt = Math.min(found+1, SIM.length-1);
+    if (found === SIM.length-1) stopAt = found;
+  }
+
+  var step = 0;
+  function tick(){
+    if (token !== runToken) return;
+    if (step > 0) cell(step-1,0).classList.remove("scan");
+    if (step <= stopAt){
+      cell(step,0).classList.add("scan");
+      step++;
+      setTimeout(tick, 260);
+    } else {
+      done();
+    }
+  }
+  function done(){
+    if (token !== runToken) return;
+    if (found < 0){
+      if (approx) return finish(null,"#N/D","Nessun codice è più piccolo di " + val + ".");
+      return finish(null,"#N/D",val + " non c'è nella prima colonna.");
+    }
+    cell(found,0).classList.add("keyhit");
+    var res = SIM[found][idx-1];
+    var head = SIM_H[idx-1];
+    var msg;
+    if (SIM[found][0] === val){
+      msg = "Trovato alla riga " + (found+2) + ", colonna " + idx + " (" + head + ").";
+    } else {
+      msg = "Sbagliato! " + val + " non esiste, ma VERO prende " + SIM[found][0] + " senza avvisarti. Con i codici usa FALSO.";
+    }
+    finish(cell(found, idx-1), simShow(res, idx-1), msg);
+  }
+  if (reduceMotion){ step = stopAt+1; done(); } else { tick(); }
+}
+function finish(td, text, msg){
+  if (td) td.classList.add("hit");
+  sRes.textContent = text;
+  sRes.className = "rcell" + (text.charAt(0) === "#" ? " bad" : "");
+  sExpl.textContent = msg;
+}
+document.getElementById("simRun").addEventListener("click", simRun);
+simRun();
+
+/* ---------------- SCAGLIONI ---------------- */
+var SCA = [[1,0],[10,0.03],[25,0.05],[50,0.08],[100,0.12]];
+var scaT = document.getElementById("scaTable"), scaQ = document.getElementById("scaQ");
+function scaUpd(){
+  var q = parseInt(scaQ.value,10);
+  document.getElementById("scaQv").textContent = q;
+  var f = -1;
+  for (var i=0;i<SCA.length;i++){ if (SCA[i][0] <= q) f = i; }
+  drawSheet(scaT, ["Da quantità","Sconto"], SCA.map(function(r,i){
+    var cls = i===f ? "hit" : (SCA[i][0] <= q ? "cand" : "");
+    return [{v:r[0],cls:"num "+cls},{v:pct(r[1]),cls:"num "+(i===f?"hit":"")}];
+  }));
+  document.getElementById("scaF").innerHTML = '=CERCA.VERT(<span class="a1">' + q + '</span>;<span class="a2">$A$2:$B$6</span>;<span class="a3">2</span>;<span class="a4">VERO</span>)  →  ' + pct(SCA[f][1]) +
+    '';
+}
+scaQ.addEventListener("input", scaUpd); scaUpd();
+
+
+/* ---------------- ESEMPIO PIÙ TABELLE ---------------- */
+var MT_ORD=[[2101,"C02","P03",40],[2102,"C01","P01",120],[2103,"C04","P02",15]];
+var MT_CLI=[["C01","Bar Centrale","AG2"],["C02","Hotel Belvedere","AG1"],["C03","Pasticceria Rosa","AG1"],["C04","Caffè Piazza","AG3"]];
+var MT_LIS=[["P01","Caffè in grani",18.50],["P02","Cialde espresso",27.00],["P03","Zucchero bustine",9.80]];
+var MT_AGE=[["AG1","Sara Bini",0.03],["AG2","Luca Ferri",0.04],["AG3","Anna Gori",0.05]];
+function idxOf(arr,k){ for(var i=0;i<arr.length;i++) if(arr[i][0]===k) return i; return -1; }
+var mtSel=0, mtStep=0, MT_MAX=4;
+var oT=document.getElementById("mtOrd"), lT=document.getElementById("mtLis"), cT=document.getElementById("mtCli"), aT=document.getElementById("mtAge");
+function mark(t,r,c,cls){ var td=t.querySelector('tbody td[data-r="'+r+'"][data-c="'+c+'"]'); if(td) td.classList.add(cls); }
+function markRow(t,r,n,cls){ for(var c=0;c<n;c++) mark(t,r,c,cls); }
+function calc(o){
+  var li=idxOf(MT_LIS,o[2]), ci=idxOf(MT_CLI,o[1]), ag=MT_CLI[ci][2], ai=idxOf(MT_AGE,ag);
+  var pr=MT_LIS[li][2], imp=o[3]*pr, pc=MT_AGE[ai][2];
+  return {li:li,ci:ci,ai:ai,pr:pr,imp:imp,ag:ag,pc:pc,prov:imp*pc};
+}
+function A(t,c){ return '<span class="'+c+'">'+t+'</span>'; }
+function mtRender(){
+  var step=mtStep, sel=mtSel, r=sel+2, o=MT_ORD[sel], k=calc(o);
+  var vis=[0,0,0,0,1,1,2,3,4];
+  drawSheet(oT,["N. ordine","Cliente","Articolo","Quantità","Prezzo","Importo","Agente","Provv. %","Provv. €"],MT_ORD.map(function(x,i){
+    var q=calc(x);
+    var vals=[x[0],x[1],x[2],x[3],num2(q.pr),num2(q.imp),q.ag,pct(q.pc),num2(q.prov)];
+    var row=vals.map(function(v,c){
+      if(c<4) return {v:v,cls:c===3?"num":""};
+      return step>=vis[c] ? {v:v,cls:"done"+(c!==6?" num":"")} : {v:"?",cls:"todo"};
+    });
+    return {rowCls:i===sel?"sel":"",cells:row};
+  }));
+  drawSheet(lT,["Codice","Descrizione","Prezzo"],MT_LIS.map(function(x){return [x[0],x[1],{v:num2(x[2]),cls:"num"}];}));
+  drawSheet(cT,["Codice","Cliente","Agente"],MT_CLI);
+  drawSheet(aT,["Codice","Nome","Provv."],MT_AGE.map(function(x){return [x[0],x[1],{v:pct(x[2]),cls:"num"}];}));
+  var T,X,F;
+  var LIS='Listino!$A$2:$C$4', CLI='Clienti!$A$2:$C$5', AGE='Agenti!$A$2:$C$4';
+  if(step===0){
+    markRow(oT,sel,4,"key");
+    T="Il punto di partenza";
+    X="Nell'ordine "+o[0]+" ci sono solo codici: cliente "+o[1]+", articolo "+o[2]+", quantità "+o[3]+". Le colonne con il punto di domanda vanno riempite con delle formule.";
+    F='<span class="cell">Obiettivo:</span> provvigione dell\'agente in euro';
+  } else if(step===1){
+    mark(oT,sel,2,"key"); mark(oT,sel,4,"hit");
+    markRow(lT,k.li,3,"row"); mark(lT,k.li,0,"key"); mark(lT,k.li,2,"hit");
+    T="Prima ricerca: il prezzo nel Listino";
+    X="Prendo il codice articolo "+o[2]+" e lo cerco nel foglio Listino. Il prezzo è nella 3ª colonna. Poi l'importo è quantità × prezzo.";
+    F='<span class="cell">E'+r+'</span> =CERCA.VERT('+A('C'+r,'a1')+';'+A(LIS,'a2')+';'+A('3','a3')+';'+A('FALSO','a4')+') → <span class="res">'+num2(k.pr)+'</span><br><span class="cell">F'+r+'</span> =D'+r+'*E'+r+' → <span class="res">'+num2(k.imp)+'</span>';
+  } else if(step===2){
+    mark(oT,sel,1,"key"); mark(oT,sel,6,"hit");
+    markRow(cT,k.ci,3,"row"); mark(cT,k.ci,0,"key"); mark(cT,k.ci,2,"hit");
+    T="Seconda ricerca: chi è l'agente?";
+    X="Nell'ordine non c'è l'agente, ma c'è il cliente. Cerco "+o[1]+" nel foglio Clienti e prendo la 3ª colonna: il codice dell'agente che lo segue.";
+    F='<span class="cell">G'+r+'</span> =CERCA.VERT('+A('B'+r,'a1')+';'+A(CLI,'a2')+';'+A('3','a3')+';'+A('FALSO','a4')+') → <span class="res">'+k.ag+'</span>';
+  } else if(step===3){
+    mark(oT,sel,6,"key"); mark(oT,sel,7,"hit");
+    mark(cT,k.ci,2,"key");
+    markRow(aT,k.ai,3,"row"); mark(aT,k.ai,0,"key"); mark(aT,k.ai,2,"hit");
+    T="Terza ricerca: la percentuale nel foglio Agenti";
+    X="Il codice "+k.ag+" appena trovato diventa il valore da cercare nel foglio Agenti. La provvigione è nella 3ª colonna.";
+    F='<span class="cell">H'+r+'</span> =CERCA.VERT('+A('G'+r,'a1')+';'+A(AGE,'a2')+';'+A('3','a3')+';'+A('FALSO','a4')+') → <span class="res">'+pct(k.pc)+'</span>';
+  } else {
+    mark(oT,sel,5,"key"); mark(oT,sel,7,"key"); mark(oT,sel,8,"hit");
+    mark(cT,k.ci,2,"key"); mark(aT,k.ai,2,"hit");
+    T="Il risultato, e la versione in una formula sola";
+    X="La provvigione è importo × percentuale. Chi vuole risparmiare la colonna Agente può mettere una ricerca dentro l'altra: quella interna trova l'agente, quella esterna la sua percentuale.";
+    F='<span class="cell">I'+r+'</span> =F'+r+'*H'+r+' → <span class="res">'+num2(k.prov)+' €</span><br><span class="cell">H'+r+'</span> =CERCA.VERT('+A('CERCA.VERT(B'+r+';'+CLI+';3;FALSO)','a1')+';'+A(AGE,'a2')+';'+A('3','a3')+';'+A('FALSO','a4')+')';
+  }
+  document.getElementById("mtStepN").textContent="PASSO "+step+" DI "+MT_MAX;
+  document.getElementById("mtTitle").textContent=T;
+  document.getElementById("mtText").textContent=X;
+  document.getElementById("mtF").innerHTML=F;
+  document.getElementById("chA").textContent=o[2];
+  document.getElementById("chB").textContent=step>=1?num2(k.pr)+" €":"prezzo";
+  document.getElementById("chC").textContent=o[1];
+  document.getElementById("chD").textContent=step>=2?k.ag:"agente";
+  document.getElementById("chE").textContent=step>=3?pct(k.pc):"provvigione";
+  document.querySelectorAll(".ch").forEach(function(c){ var n=+c.dataset.k; c.classList.toggle("on", step===n || (step===4 && n===3)); });
+  var d=document.getElementById("mtDots"); d.innerHTML="";
+  for(var i=1;i<=MT_MAX;i++){ var sp=document.createElement("span"); if(i<=step) sp.className="on"; d.appendChild(sp); }
+  document.getElementById("mtPrev").disabled=step===0;
+  document.getElementById("mtNext").disabled=step===MT_MAX;
+}
+document.getElementById("mtPrev").addEventListener("click",function(){ if(mtStep>0){mtStep--;mtRender();} });
+document.getElementById("mtNext").addEventListener("click",function(){ if(mtStep<MT_MAX){mtStep++;mtRender();} });
+document.getElementById("mtSel").addEventListener("change",function(e){ mtSel=+e.target.value; mtRender(); });
+mtRender();
+})();
+</script>
+</body>
+</html>
